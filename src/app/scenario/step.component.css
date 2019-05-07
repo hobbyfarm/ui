@@ -1,0 +1,14 @@
+code {
+    background-color: rgba(0,0,0,0.1);
+    padding: 3px;
+    border-radius: 3px;
+}
+
+.btn-next {
+    float: right;
+    margin-right: 0;
+}
+
+.terminals {
+    padding: 3px;
+}

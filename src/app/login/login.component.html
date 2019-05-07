@@ -1,0 +1,21 @@
+<div class="login-wrapper">
+    <form class="login">
+        <section class="title">
+            <img src="assets/rancher-labs-stacked-color.svg" id="rancher-login-logo">
+            <h3 class="welcome">Welcome to</h3>
+            Hobby Farm
+        </section>
+        <div class="login-group">
+            <clr-input-container>
+                <input type="text" name="email" clrInput [(ngModel)]="email" placeholder="Email Address" />
+            </clr-input-container>
+            <clr-input-container>
+                <input type="text" name="accessCode" clrInput [(ngModel)]="accessCode" placeholder="Access Code" />
+            </clr-input-container>
+            <div class="error" [class.active]="error.length != 0">
+                {{ error }}
+            </div>
+            <button type="submit" class="btn btn-primary" (click)="login()">NEXT</button>
+        </div>
+    </form>
+</div>

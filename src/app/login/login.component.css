@@ -1,0 +1,10 @@
+.login-wrapper {
+    background: url("src/assets/login_container_farm.svg");
+    background-size: 100%;
+    background-position: 21rem 0;
+}
+
+#rancher-login-logo {
+    width: 75%;
+    height: auto;
+}

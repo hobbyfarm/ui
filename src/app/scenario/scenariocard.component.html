@@ -1,0 +1,13 @@
+<div class="card">
+    <div class="card-header">
+        {{ scenario.name }}
+    </div>
+    <div class="card-block">
+        <div class="card-text">
+            {{ scenario.description }}
+        </div>
+    </div>
+    <div class="card-footer">
+        <button class="btn btn-sm btn-link" [routerLink]="['/app/scenarios', 's.Id']">Start Scenario</button>
+    </div>
+</div>
