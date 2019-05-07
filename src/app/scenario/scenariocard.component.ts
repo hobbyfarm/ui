@@ -1,6 +1,7 @@
 import { Component, Input, OnInit } from "@angular/core";
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Scenario } from './Scenario';
+import { Router } from '@angular/router';
 
 @Component({
     templateUrl: 'scenariocard.component.html',
@@ -15,7 +16,8 @@ export class ScenarioCard implements OnInit {
     public error: string = "";
 
     constructor(
-        private http: HttpClient
+        private http: HttpClient,
+        private router: Router
     ) {
     }
 
@@ -31,5 +33,9 @@ export class ScenarioCard implements OnInit {
                 this.error = e.error;
             }
         )
+    }
+
+    navScenario() {
+        this.router.navigateByUrl("/app/scenario/" + this.scenarioid)
     }
 }
