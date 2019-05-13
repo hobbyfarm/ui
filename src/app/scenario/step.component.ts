@@ -1,8 +1,10 @@
-import { Component, OnInit } from "@angular/core";
+import { Component, OnInit, ViewChildren, QueryList, AfterViewInit } from "@angular/core";
 import { ActivatedRoute, ParamMap } from '@angular/router';
 import { Step } from './Step';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { mergeMap, switchMap } from 'rxjs/operators';
+import { TerminalComponent } from '../terminal.component';
+import { ClrTabContent } from '@clr/angular';
 
 @Component({
     templateUrl: 'step.component.html',
@@ -12,12 +14,15 @@ import { mergeMap, switchMap } from 'rxjs/operators';
     ]
 })
 
-export class StepComponent implements OnInit {
+export class StepComponent implements OnInit, AfterViewInit {
     private step: Step = new Step();
     private steps: string[] = [];
     private progress = 0;
 
     private text: string = "";
+
+    @ViewChildren('term') terms: QueryList<TerminalComponent>;
+    @ViewChildren('tab') tabs: QueryList<ClrTabContent>;
 
     constructor(
         private route: ActivatedRoute,
@@ -39,6 +44,20 @@ export class StepComponent implements OnInit {
             (s: string[]) => {
                 this.steps = s;
                 this.progress = Math.round( (this.steps.indexOf(this.step.id)+1) / this.steps.length * 100 );
+            }
+        )
+    }
+
+    ngAfterViewInit() {
+        this.tabs.toArray()[0].ifActiveService.currentChange.subscribe(
+            (e: any) => console.log("tab 1: " + e)
+        )
+
+        this.tabs.toArray()[0].ifActiveService.currentChange.subscribe(
+            (activeTab: number) => {
+                // now, call refresh on that tab when it becomes active
+                console.log("activating: " + activeTab);
+                this.terms.toArray()[activeTab-1].resize();
             }
         )
     }

@@ -11,15 +11,19 @@ import * as fit from 'xterm/lib/addons/fit/fit';
     ]
 })
 export class TerminalComponent implements OnInit, OnChanges {
+    private term: any;
     constructor() {
 
     }
 
     @ViewChild("terminal") terminalDiv: ElementRef;
 
+    public resize() {
+        setTimeout(() => this.term.resize(40, 30), 150);
+    }
+
     ngOnInit() {
-        var term: any;
-        term = new Terminal();
+        this.term = new Terminal();
         
         var socket = new WebSocket('ws://localhost');
 
@@ -32,20 +36,20 @@ export class TerminalComponent implements OnInit, OnChanges {
         };
 
         socket.onopen = (e) => {
-            setup(term);
+            setup(this.term);
             Terminal.applyAddon(fit);
 
-            term.open(this.terminalDiv.nativeElement);
+            this.term.open(this.terminalDiv.nativeElement);
         }
 
         socket.onmessage = (m) => {
-            term.writeln(m.data);
+            this.term.writeln(m.data);
         }
 
         var buffer: string = "";
 
 
-        term.on('key', function(key, ev) {
+        this.term.on('key', function(key, ev) {
             const printable = !ev.altKey && !ev.ctrlKey && !ev.metaKey;
 
             if (ev.keyCode === 13) { // when the user hits enter, write to the socket
@@ -55,7 +59,7 @@ export class TerminalComponent implements OnInit, OnChanges {
             } else if (ev.keyCode === 8) {
                 buffer = buffer.substring(0, buffer.length-1);
                 // Do not delete the prompt
-                if (term._core.buffer.x > 2) {
+                if (this.term._core.buffer.x > 2) {
                     this.write('\b \b');
                 }
             } else if (printable) {
@@ -64,7 +68,7 @@ export class TerminalComponent implements OnInit, OnChanges {
             }
         });
 
-        term.on('paste', function(data) {
+        this.term.on('paste', function(data) {
             this.write(data);
         });
     }

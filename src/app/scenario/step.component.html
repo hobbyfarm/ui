@@ -25,30 +25,32 @@
     <div class="clr-col-8">
         <clr-tabs class="terminals">
             <clr-tab>
-                <button clrTabLink id="link1"><clr-icon size="24" shape="host"></clr-icon> Instance 1</button>
-                <clr-tab-content id="content1">
+                <button clrTabLink id="link1">
+                    <clr-icon size="24" shape="host"></clr-icon> Instance 1
+                </button>
+                <clr-tab-content id="content1" #tab>
                     <i>Status: Connected</i>
-                    <terminal></terminal>
+                    <terminal #term></terminal>
                 </clr-tab-content>
             </clr-tab>
             <clr-tab>
-                <button clrTabLink id="link2"><clr-icon size="24" shape="host"></clr-icon> Instance 2</button>
-                <clr-tab-content id="content2">
-                    <terminal></terminal>
+                <button clrTabLink id="link2">
+                    <clr-icon size="24" shape="host"></clr-icon> Instance 2
+                </button>
+                <clr-tab-content id="content2" #tab>
+                    <i>Status: Connected</i>
+                    <terminal #term></terminal>
                 </clr-tab-content>
             </clr-tab>
             <clr-tab>
-                <button clrTabLink id="link3"><clr-icon size="24" shape="host"></clr-icon> Instance 3</button>
-                <clr-tab-content id="content3">
-                    <terminal></terminal>
-                </clr-tab-content>
-            </clr-tab>
-            <clr-tab>
-                <button clrTabLink id="link4"><clr-icon size="24" shape="host"></clr-icon> Instance 4</button>
-                <clr-tab-content id="content4">
-                    <terminal></terminal>
-                </clr-tab-content>
-            </clr-tab>
+                    <button clrTabLink id="link3">
+                        <clr-icon size="24" shape="host"></clr-icon> Instance 3
+                    </button>
+                    <clr-tab-content id="content3" #tab>
+                        <i>Status: Connected</i>
+                        <terminal #term></terminal>
+                    </clr-tab-content>
+                </clr-tab>
         </clr-tabs>
     </div>
 </div>
