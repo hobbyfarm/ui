@@ -1,5 +1,5 @@
 import { Component, OnInit, ViewChildren, QueryList, AfterViewInit } from "@angular/core";
-import { ActivatedRoute, ParamMap } from '@angular/router';
+import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 import { Step } from './Step';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { mergeMap, switchMap } from 'rxjs/operators';
@@ -26,6 +26,7 @@ export class StepComponent implements OnInit, AfterViewInit {
 
     constructor(
         private route: ActivatedRoute,
+        private router: Router,
         private http: HttpClient
     ) {
 
@@ -48,17 +49,34 @@ export class StepComponent implements OnInit, AfterViewInit {
         )
     }
 
-    ngAfterViewInit() {
-        this.tabs.toArray()[0].ifActiveService.currentChange.subscribe(
-            (e: any) => console.log("tab 1: " + e)
-        )
+    goNext() {
+        var nextStep = this.steps.indexOf(this.step.id)+1;
+        this.router.navigateByUrl("/app/scenario/" + this.step.scenario + "/steps/" + this.steps[nextStep]);
+    }
 
-        this.tabs.toArray()[0].ifActiveService.currentChange.subscribe(
-            (activeTab: number) => {
-                // now, call refresh on that tab when it becomes active
-                console.log("activating: " + activeTab);
-                this.terms.toArray()[activeTab-1].resize();
-            }
-        )
+    goPrevious() {
+        var prevStep = this.steps.indexOf(this.step.id)-1;
+        this.router.navigateByUrl("/app/scenario/" + this.step.scenario + "/steps/" + this.steps[prevStep]);
+    }
+
+    goFinish() {
+        this.router.navigateByUrl("/app/home");
+    }
+
+    ngAfterViewInit() {
+        // For each tab...
+        this.tabs.toArray().forEach((t: ClrTabContent, i: number) => {
+            // ... watch the change stream for the active tab in the set ...
+            t.ifActiveService.currentChange.subscribe(
+                (activeTabId: number) => {
+                    // ... if the active tab is the same as itself ...
+                    if (activeTabId == t.id) {
+                        // ... resize the terminal that corresponds to the index of the active tab.
+                        // e.g. tab could have ID of 45, but would be index 2 in list of tabs, so reload terminal with index 2.
+                        this.terms.toArray()[i].resize();
+                    }
+                }
+            )
+        });
     }
 }

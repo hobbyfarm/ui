@@ -15,10 +15,11 @@
                 </div>
             </div>
             <div class="card-footer">
-                <button class="btn btn-outline btn-previous">
+                <button class="btn btn-outline btn-previous" (click)="goPrevious()" [class.disabled]="this.steps.indexOf(this.step.id) == 0">
                     <clr-icon shape="arrow" dir="left"></clr-icon> Previous
                 </button>
-                <button class="btn btn-outline btn-next">Next <clr-icon shape="arrow" dir="right"></clr-icon></button>
+                <button class="btn btn-outline btn-next" *ngIf="this.steps[this.steps.length-1] != this.step.id" (click)="goNext()">Next <clr-icon shape="arrow" dir="right"></clr-icon></button>
+                <button class="btn btn-success btn-next" *ngIf="this.steps[this.steps.length-1] == this.step.id" (click)="goFinish()">Finish <clr-icon shape="check"></clr-icon></button>
             </div>
         </div>
     </div>
@@ -43,14 +44,14 @@
                 </clr-tab-content>
             </clr-tab>
             <clr-tab>
-                    <button clrTabLink id="link3">
-                        <clr-icon size="24" shape="host"></clr-icon> Instance 3
-                    </button>
-                    <clr-tab-content id="content3" #tab>
-                        <i>Status: Connected</i>
-                        <terminal #term></terminal>
-                    </clr-tab-content>
-                </clr-tab>
+                <button clrTabLink id="link3">
+                    <clr-icon size="24" shape="host"></clr-icon> Instance 3
+                </button>
+                <clr-tab-content id="content3" #tab>
+                    <i>Status: Connected</i>
+                    <terminal #term></terminal>
+                </clr-tab-content>
+            </clr-tab>
         </clr-tabs>
     </div>
 </div>
