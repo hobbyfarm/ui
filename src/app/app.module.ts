@@ -45,11 +45,10 @@ export function tokenGetter() {
       config: {
         tokenGetter: tokenGetter,
         whitelistedDomains: [
-          'localhost:8080',
-          'localhost:8081'
+          'localhost',
         ],
         blacklistedRoutes: [
-          'localhost:8080/api/v1/users'
+          'localhost/auth/authenticate'
         ],
         skipWhenExpired: true
       }

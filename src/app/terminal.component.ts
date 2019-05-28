@@ -23,54 +23,17 @@ export class TerminalComponent implements OnInit, OnChanges {
     }
 
     ngOnInit() {
+        Terminal.applyAddon(attach);
+        Terminal.applyAddon(fit);
         this.term = new Terminal();
-        
-        var socket = new WebSocket('ws://localhost');
 
-        function setup(term) {
-            writePrompt(term);
-        }
-    
-        function writePrompt(term) {
-            term.write('\r\n$ ');
-        };
+        
+        var socket = new WebSocket('ws://localhost:5000/shell');
 
         socket.onopen = (e) => {
-            setup(this.term);
-            Terminal.applyAddon(fit);
-
+            this.term.attach(socket, true, true);
             this.term.open(this.terminalDiv.nativeElement);
         }
-
-        socket.onmessage = (m) => {
-            this.term.writeln(m.data);
-        }
-
-        var buffer: string = "";
-
-
-        this.term.on('key', function(key, ev) {
-            const printable = !ev.altKey && !ev.ctrlKey && !ev.metaKey;
-
-            if (ev.keyCode === 13) { // when the user hits enter, write to the socket
-                socket.send(buffer);
-                buffer = "";
-                writePrompt(this);
-            } else if (ev.keyCode === 8) {
-                buffer = buffer.substring(0, buffer.length-1);
-                // Do not delete the prompt
-                if (this.term._core.buffer.x > 2) {
-                    this.write('\b \b');
-                }
-            } else if (printable) {
-                buffer += key;
-                this.write(key);
-            }
-        });
-
-        this.term.on('paste', function(data) {
-            this.write(data);
-        });
     }
 
     ngOnChanges() {
