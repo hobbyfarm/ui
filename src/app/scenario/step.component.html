@@ -1,8 +1,8 @@
 <div class="clr-row">
     <div class="clr-col-12">
         <div class="progress labeled success">
-            <progress max="100" [value]="progress" data-displayval="0%"></progress>
-            <span>{{progress}}%</span>
+            <progress max="100" [value]="getProgress()" data-displayval="0%"></progress>
+            <span>{{getProgress()}}%</span>
         </div>
     </div>
 </div>
@@ -10,16 +10,16 @@
     <div class="clr-col-4">
         <div class="card">
             <div class="card-block">
-                <h4 class="card-title">{{ step.title }}</h4>
-                <div class="card-text" [innerHTML]="text">
+                <h4 class="card-title">{{ step.title | atob }}</h4>
+                <div class="card-text" [innerHTML]="step.content | atob">
                 </div>
             </div>
             <div class="card-footer">
-                <button class="btn btn-outline btn-previous" (click)="goPrevious()" [class.disabled]="this.steps.indexOf(this.step.id) == 0">
+                <button class="btn btn-outline btn-previous" (click)="goPrevious()" [class.disabled]="this.stepnumber == 0">
                     <clr-icon shape="arrow" dir="left"></clr-icon> Previous
                 </button>
-                <button class="btn btn-outline btn-next" *ngIf="this.steps[this.steps.length-1] != this.step.id" (click)="goNext()">Next <clr-icon shape="arrow" dir="right"></clr-icon></button>
-                <button class="btn btn-success btn-next" *ngIf="this.steps[this.steps.length-1] == this.step.id" (click)="goFinish()">Finish <clr-icon shape="check"></clr-icon></button>
+                <button class="btn btn-outline btn-next" *ngIf="(this.scenario.stepcount-1) > this.stepnumber" (click)="goNext()">Next <clr-icon shape="arrow" dir="right"></clr-icon></button>
+                <button class="btn btn-success btn-next" *ngIf="(this.scenario.stepcount-1) == this.stepnumber" (click)="goFinish()">Finish <clr-icon shape="check"></clr-icon></button>
             </div>
         </div>
     </div>
@@ -31,25 +31,7 @@
                 </button>
                 <clr-tab-content id="content1" #tab>
                     <i>Status: Connected</i>
-                    <terminal #term></terminal>
-                </clr-tab-content>
-            </clr-tab>
-            <clr-tab>
-                <button clrTabLink id="link2">
-                    <clr-icon size="24" shape="host"></clr-icon> Instance 2
-                </button>
-                <clr-tab-content id="content2" #tab>
-                    <i>Status: Connected</i>
-                    <terminal #term></terminal>
-                </clr-tab-content>
-            </clr-tab>
-            <clr-tab>
-                <button clrTabLink id="link3">
-                    <clr-icon size="24" shape="host"></clr-icon> Instance 3
-                </button>
-                <clr-tab-content id="content3" #tab>
-                    <i>Status: Connected</i>
-                    <terminal #term></terminal>
+                    <!-- <terminal #term></terminal> -->
                 </clr-tab-content>
             </clr-tab>
         </clr-tabs>

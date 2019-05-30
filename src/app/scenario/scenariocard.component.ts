@@ -30,7 +30,6 @@ export class ScenarioCard implements OnInit {
                 this.scenario = JSON.parse(atob(s.content));
             },
             (e: HttpErrorResponse) => {
-                console.log(e);
                 this.error = e.error;
             }
         )

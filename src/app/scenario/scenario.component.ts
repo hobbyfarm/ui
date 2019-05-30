@@ -32,9 +32,7 @@ export class ScenarioComponent implements OnInit {
     }
 
     ready(claimid: string) {
-        console.log(claimid);
         this.unreadyclaims = this.unreadyclaims.filter((id: string) => id != claimid);
-        console.log(this.unreadyclaims);
     }
 
     ngOnInit() {

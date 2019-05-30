@@ -2,9 +2,12 @@ import { Component, OnInit, ViewChildren, QueryList, AfterViewInit } from "@angu
 import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 import { Step } from './Step';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
-import { mergeMap, switchMap } from 'rxjs/operators';
+import { mergeMap, switchMap, map, concatMap } from 'rxjs/operators';
 import { TerminalComponent } from '../terminal.component';
 import { ClrTabContent } from '@clr/angular';
+import { ServerResponse } from '../ServerResponse';
+import { Scenario } from './Scenario';
+
 
 @Component({
     templateUrl: 'step.component.html',
@@ -15,9 +18,11 @@ import { ClrTabContent } from '@clr/angular';
 })
 
 export class StepComponent implements OnInit, AfterViewInit {
+    private scenario: Scenario = new Scenario();
     private step: Step = new Step();
     private steps: string[] = [];
     private progress = 0;
+    private stepnumber: number = 0;
 
     private text: string = "";
 
@@ -32,31 +37,41 @@ export class StepComponent implements OnInit, AfterViewInit {
 
     }
 
+    getProgress() {
+        return Math.floor(((this.stepnumber+1)/(this.scenario.stepcount)) * 100);
+    }
+
     ngOnInit() {
         this.route.paramMap
         .pipe(
-            switchMap((p: ParamMap) => this.http.get("http://localhost:8081/api/v1/steps/" + p.get("step"))),
-            switchMap((s: Step) => {
-                this.step = s;
-                this.text = atob(this.step.text);
-                return this.http.get("http://localhost:8081/api/v1/scenarios/" + s.scenario + "/steps")
+            switchMap((p: ParamMap) => this.http.get("http://localhost/scenario/" + p.get("scenario")))
+        )
+        .subscribe(
+            (s: ServerResponse) => {
+                this.scenario = JSON.parse(atob(s.content));
+            }
+        )
+
+        this.route.paramMap
+        .pipe(
+            switchMap((p: ParamMap) => {
+                this.stepnumber = +p.get("step");
+                return this.http.get("http://localhost/scenario/" + p.get("scenario") + "/step/" + p.get("step"))
             })
-        ).subscribe(
-            (s: string[]) => {
-                this.steps = s;
-                this.progress = Math.round( (this.steps.indexOf(this.step.id)+1) / this.steps.length * 100 );
+        )
+        .subscribe(
+            (s: ServerResponse) => {
+                this.step = JSON.parse(atob(s.content));
             }
         )
     }
 
     goNext() {
-        var nextStep = this.steps.indexOf(this.step.id)+1;
-        this.router.navigateByUrl("/app/scenario/" + this.step.scenario + "/steps/" + this.steps[nextStep]);
+        this.router.navigateByUrl("/app/scenario/" + this.scenario.id + "/steps/" + (this.stepnumber+1));
     }
 
     goPrevious() {
-        var prevStep = this.steps.indexOf(this.step.id)-1;
-        this.router.navigateByUrl("/app/scenario/" + this.step.scenario + "/steps/" + this.steps[prevStep]);
+        this.router.navigateByUrl("/app/scenario/" + this.scenario.id + "/steps/" + (this.stepnumber-1));
     }
 
     goFinish() {
