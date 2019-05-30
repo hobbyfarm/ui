@@ -21,13 +21,11 @@ const routes: Routes = [
       {path: 'home', component: HomeComponent},
       {
         path: 'scenario/:scenario', 
-        component: ScenarioComponent,
-        children: [
-          {
-            path: 'steps/:step',
-            component: StepComponent
-          }
-        ]
+        component: ScenarioComponent
+      },
+      {
+        path: 'scenario/:scenario/steps/:step',
+        component: StepComponent
       },
       {path: 'terminal', component: TerminalComponent}
     ]

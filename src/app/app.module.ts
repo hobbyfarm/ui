@@ -18,6 +18,8 @@ import { FormsModule } from '@angular/forms';
 import { AuthGuard } from './auth.guard';
 import { ScenarioCard } from './scenario/scenariocard.component';
 import { StepComponent } from './scenario/step.component';
+import { VMClaimComponent } from './scenario/vmclaim.component';
+import { AtobPipe } from './atob.pipe';
 
 export function tokenGetter() {
   return localStorage.getItem("hobbyfarm_token");
@@ -32,7 +34,9 @@ export function tokenGetter() {
     TerminalComponent,
     LoginComponent,
     ScenarioCard,
-    StepComponent
+    StepComponent,
+    VMClaimComponent,
+    AtobPipe
   ],
   imports: [
     BrowserModule,
@@ -55,7 +59,7 @@ export function tokenGetter() {
     })
   ],
   providers: [
-    AuthGuard
+    AuthGuard,
   ],
   bootstrap: [RootComponent]
 })

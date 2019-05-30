@@ -2,7 +2,12 @@ import { Component, ViewChild, OnInit } from '@angular/core';
 import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 import { Scenario } from './Scenario';
 import { Step } from './Step';
-import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse, HttpParams } from '@angular/common/http';
+import { ServerResponse } from '../ServerResponse';
+import { concatMap, map, retry, concatMapTo, delay, repeatWhen, retryWhen } from 'rxjs/operators';
+import { ScenarioSession } from './ScenarioSession';
+import { from, of } from 'rxjs';
+import { VMClaim } from './VMClaim';
 
 @Component({
     selector: 'scenario-component',
@@ -11,7 +16,9 @@ import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 
 export class ScenarioComponent implements OnInit {
     private scenario: Scenario = new Scenario();
-    private steps: string[] = [];
+    private scenarioSession: ScenarioSession = new ScenarioSession();
+    private vmclaims: VMClaim[] = [];
+    private unreadyclaims: string[] = [];
 
     constructor(
         private route: ActivatedRoute,
@@ -20,7 +27,18 @@ export class ScenarioComponent implements OnInit {
     ) {
     }
 
+    getVms(vmc: VMClaim) {
+        return Object.entries(vmc.vm);
+    }
+
+    ready(claimid: string) {
+        console.log(claimid);
+        this.unreadyclaims = this.unreadyclaims.filter((id: string) => id != claimid);
+        console.log(this.unreadyclaims);
+    }
+
     ngOnInit() {
+        this.unreadyclaims = ["one"]; // initially disable the page
         this.route.paramMap
             .subscribe(
                 (p: ParamMap) => {
@@ -29,30 +47,43 @@ export class ScenarioComponent implements OnInit {
                         // todo - is this better done in a route guard? 
                     }
 
+                    // need to chain some things together here
+                    // first, we need to get a new scenario session created
+                    // then, from that ss, we need to poll the vm claim until the state is ready
+                    // we will also need to display to the user the state of the VMs which would be cool
+
                     // get the scenario first
-                    this.http.get("http://localhost:8081/api/v1/scenarios/" + p.get("scenario"))
-                        .subscribe(
-                            (s: Scenario) => this.scenario = s,
-                            (e: HttpErrorResponse) => {
-                                // todo - do something here? 
-                            }
-                        )
-
-                    // get the steps
-                    this.http.get("http://localhost:8081/api/v1/scenarios/" + p.get("scenario") + "/steps")
-                        .subscribe(
-                            (s: string[]) => {
-                                this.steps = s;
-
-                                // if we aren't on a step, we need to push the user to the first one
-                                if (p.get("step") == null || p.get("step").length == 0) {
-                                    this.router.navigateByUrl('/app/scenario/' + p.get("scenario") + '/steps/' + this.steps[0]);
-                                }
-                            },
-                            (e: HttpErrorResponse) => {
-                                // todo - do something here? 
-                            }
-                        )
+                    this.http.get("http://localhost/scenario/" + p.get("scenario"))
+                    .pipe(
+                        map((s: ServerResponse) => {
+                            this.scenario = JSON.parse(atob(s.content));
+                            return this.scenario;
+                        }),
+                        concatMap((s: Scenario) => {
+                            let body = new HttpParams()
+                                .set("scenario", s.id);
+                            return this.http.post("http://localhost/session/new", body)
+                        }),
+                        concatMap((s: ServerResponse) => {
+                            // this will be the scenariosession  id
+                            this.scenarioSession = JSON.parse(atob(s.content));
+                            // now get the vmclaim(s) specified
+                            // return this.scenarioSession.vmclaims;
+                            return from(this.scenarioSession.vm_claim);
+                        }),
+                        delay(2000),
+                        concatMap((claimid: string) => {
+                            this.unreadyclaims = [];
+                            // push into unready claims map
+                            this.unreadyclaims.push(claimid);
+                            return this.http.get("http://localhost/vmclaim/" + claimid)
+                        })
+                    )
+                    .subscribe(
+                        (s: ServerResponse) => {
+                            this.vmclaims.push(JSON.parse(atob(s.content)));
+                        }
+                    );
                 }
             )
     }

@@ -2,6 +2,7 @@ import { Component, Input, OnInit } from "@angular/core";
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Scenario } from './Scenario';
 import { Router } from '@angular/router';
+import { ServerResponse } from '../ServerResponse';
 
 @Component({
     templateUrl: 'scenariocard.component.html',
@@ -23,10 +24,10 @@ export class ScenarioCard implements OnInit {
 
     ngOnInit() {
         this.error = "";
-        this.http.get("http://localhost:8081/api/v1/scenarios/" + this.scenarioid)
+        this.http.get("http://localhost/scenario/" + this.scenarioid)
         .subscribe(
-            (s: Scenario) => {
-                this.scenario = s;
+            (s: ServerResponse) => {
+                this.scenario = JSON.parse(atob(s.content));
             },
             (e: HttpErrorResponse) => {
                 console.log(e);

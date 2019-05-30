@@ -1,9 +1,41 @@
 <div class="clr-row">
     <div class="clr-col">
         <h3>
-            <clr-icon shape="list" size="32"></clr-icon> {{ scenario.name }}
+            <clr-icon shape="list" size="32"></clr-icon> {{ scenario?.name | atob }}
         </h3>
     </div>
 </div>
-<br/>
-<router-outlet></router-outlet>
+<div class="clr-row">
+    <div class="clr-col">
+        <h5>
+            {{ scenario?.description | atob }}
+        </h5>
+    </div>
+</div>
+<div class="clr-row">
+    <div class="clr-col">
+        <button class="btn btn-success" [disabled]="unreadyclaims.length > 0">Begin Scenario</button>
+        <ng-container *ngIf="unreadyclaims.length > 0">
+            <span class="spinner spinner-inline">
+                Please wait...
+            </span>
+            <span>
+                Please wait...
+            </span>
+        </ng-container>
+    </div>
+</div>
+<hr />
+<div class="clr-row" *ngIf="vmclaims.length == 0">
+    <div class="clr-col">
+        <span class="spinner spinner-inline">
+            Requesting virtual machine resources...
+        </span>
+        <span>
+            Requesting virtual machine resources...
+        </span>
+    </div>
+</div>
+<ng-container *ngFor="let vmc of vmclaims">
+    <vmclaim [(vmclaim)]="vmc" (ready)="ready($event)"></vmclaim>
+</ng-container>
