@@ -3,6 +3,7 @@ import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Scenario } from './Scenario';
 import { Router } from '@angular/router';
 import { ServerResponse } from '../ServerResponse';
+import { environment } from 'src/environments/environment';
 
 @Component({
     templateUrl: 'scenariocard.component.html',
@@ -24,7 +25,7 @@ export class ScenarioCard implements OnInit {
 
     ngOnInit() {
         this.error = "";
-        this.http.get("http://localhost/scenario/" + this.scenarioid)
+        this.http.get(environment.server + "/scenario/" + this.scenarioid)
         .subscribe(
             (s: ServerResponse) => {
                 this.scenario = JSON.parse(atob(s.content));

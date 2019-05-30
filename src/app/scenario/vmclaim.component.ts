@@ -3,6 +3,7 @@ import { VMClaim } from './VMClaim';
 import { HttpClient } from '@angular/common/http';
 import { ServerResponse } from '../ServerResponse';
 import { map, delay, retryWhen, concatMap, mapTo } from 'rxjs/operators';
+import { environment } from 'src/environments/environment';
 
 @Component({
     templateUrl: 'vmclaim.component.html',
@@ -28,7 +29,7 @@ export class VMClaimComponent implements OnChanges {
 
     ngOnChanges() {
         if (this.vmclaim.id != null) {
-            this.http.get("http://localhost/vmclaim/" + this.vmclaim.id)
+            this.http.get(environment.server + "/vmclaim/" + this.vmclaim.id)
             .pipe(
                 map((s: ServerResponse) => {
                     this.vmclaim = JSON.parse(atob(s.content));

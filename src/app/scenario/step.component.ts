@@ -7,6 +7,7 @@ import { TerminalComponent } from '../terminal.component';
 import { ClrTabContent } from '@clr/angular';
 import { ServerResponse } from '../ServerResponse';
 import { Scenario } from './Scenario';
+import { environment } from 'src/environments/environment';
 
 
 @Component({
@@ -44,7 +45,7 @@ export class StepComponent implements OnInit, AfterViewInit {
     ngOnInit() {
         this.route.paramMap
         .pipe(
-            switchMap((p: ParamMap) => this.http.get("http://localhost/scenario/" + p.get("scenario")))
+            switchMap((p: ParamMap) => this.http.get(environment.server + "/scenario/" + p.get("scenario")))
         )
         .subscribe(
             (s: ServerResponse) => {
@@ -56,7 +57,7 @@ export class StepComponent implements OnInit, AfterViewInit {
         .pipe(
             switchMap((p: ParamMap) => {
                 this.stepnumber = +p.get("step");
-                return this.http.get("http://localhost/scenario/" + p.get("scenario") + "/step/" + p.get("step"))
+                return this.http.get(environment.server + "/scenario/" + p.get("scenario") + "/step/" + p.get("step"))
             })
         )
         .subscribe(
