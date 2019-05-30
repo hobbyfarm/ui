@@ -11,6 +11,9 @@ import * as fit from 'xterm/lib/addons/fit/fit';
     ]
 })
 export class TerminalComponent implements OnInit, OnChanges {
+    @Input()
+    vmid: string;
+
     private term: any;
     constructor() {
 
@@ -23,20 +26,21 @@ export class TerminalComponent implements OnInit, OnChanges {
     }
 
     ngOnInit() {
-        Terminal.applyAddon(attach);
-        Terminal.applyAddon(fit);
-        this.term = new Terminal();
-
-        
-        var socket = new WebSocket('ws://localhost:5000/shell');
-
-        socket.onopen = (e) => {
-            this.term.attach(socket, true, true);
-            this.term.open(this.terminalDiv.nativeElement);
-        }
     }
 
     ngOnChanges() {
-        console.log("changes");
+        if (this.vmid != null) {
+            Terminal.applyAddon(attach);
+            Terminal.applyAddon(fit);
+            this.term = new Terminal();
+
+
+            var socket = new WebSocket("ws://localhost/shell/" + this.vmid + "/connect");
+
+            socket.onopen = (e) => {
+                this.term.attach(socket, true, true);
+                this.term.open(this.terminalDiv.nativeElement);
+            }
+        }
     }
 }

@@ -10,7 +10,7 @@ import { HomeComponent } from './home.component';
 import '@clr/icons';
 import '@clr/icons/shapes/all-shapes';
 import { ScenarioComponent } from './scenario/scenario.component';
-import { TerminalComponent } from './terminal.component';
+import { TerminalComponent } from './scenario/terminal.component';
 import { JwtModule } from '@auth0/angular-jwt';
 import {HttpClientModule } from '@angular/common/http';
 import { LoginComponent } from './login/login.component';

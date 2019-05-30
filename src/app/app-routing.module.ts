@@ -3,7 +3,7 @@ import { Routes, RouterModule } from '@angular/router';
 import { HomeComponent } from './home.component';
 import { AppComponent } from './app.component';
 import { ScenarioComponent } from './scenario/scenario.component';
-import { TerminalComponent } from './terminal.component';
+import { TerminalComponent } from './scenario/terminal.component';
 import { LoginComponent } from './login/login.component';
 import { AuthGuard } from './auth.guard';
 import { StepComponent } from './scenario/step.component';

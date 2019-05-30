@@ -3,7 +3,7 @@ import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 import { Step } from './Step';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { mergeMap, switchMap, map, concatMap } from 'rxjs/operators';
-import { TerminalComponent } from '../terminal.component';
+import { TerminalComponent } from './terminal.component';
 import { ClrTabContent } from '@clr/angular';
 import { ServerResponse } from '../ServerResponse';
 import { Scenario } from './Scenario';
