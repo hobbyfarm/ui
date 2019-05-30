@@ -1,5 +1,8 @@
 <div class="clr-row">
     <div class="clr-col-12">
+        <h4>{{ scenario.name | atob }}</h4>
+    </div>
+    <div class="clr-col-12">
         <div class="progress labeled success">
             <progress max="100" [value]="getProgress()" data-displayval="0%"></progress>
             <span>{{getProgress()}}%</span>
@@ -27,13 +30,22 @@
         <clr-tabs class="terminals">
             <clr-tab>
                 <button clrTabLink id="link1">
-                    <clr-icon size="24" shape="host"></clr-icon> Instance 1
+                    <clr-icon size="24" shape="host"></clr-icon> node01
                 </button>
                 <clr-tab-content id="content1" #tab>
                     <i>Status: Connected</i>
-                    <terminal [vmid]="'vm-mvmvmvmv'"></terminal>
+                    <terminal [vmid]="'vm-demo24'" #term></terminal>
                 </clr-tab-content>
             </clr-tab>
+            <clr-tab>
+                    <button clrTabLink id="link1">
+                        <clr-icon size="24" shape="host"></clr-icon> rancher
+                    </button>
+                    <clr-tab-content id="content1" #tab>
+                        <i>Status: Connected</i>
+                        <terminal [vmid]="'vm-demo4'" #term></terminal>
+                    </clr-tab-content>
+                </clr-tab>
         </clr-tabs>
     </div>
 </div>

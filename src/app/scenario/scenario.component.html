@@ -14,7 +14,7 @@
 </div>
 <div class="clr-row">
     <div class="clr-col">
-        <button class="btn btn-success" [disabled]="unreadyclaims.length > 0">Begin Scenario</button>
+        <button class="btn btn-success" [disabled]="unreadyclaims.length > 0" (click)="goSession()">Begin Scenario</button>
         <ng-container *ngIf="unreadyclaims.length > 0">
             <span class="spinner spinner-inline">
                 Please wait...

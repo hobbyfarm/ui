@@ -24,7 +24,7 @@ const routes: Routes = [
         component: ScenarioComponent
       },
       {
-        path: 'scenario/:scenario/steps/:step',
+        path: 'session/:scenariosession/steps/:step',
         component: StepComponent
       },
       {path: 'terminal', component: TerminalComponent}

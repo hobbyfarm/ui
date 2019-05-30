@@ -36,6 +36,10 @@ export class ScenarioComponent implements OnInit {
         this.unreadyclaims = this.unreadyclaims.filter((id: string) => id != claimid);
     }
 
+    goSession() {
+        this.router.navigateByUrl("/app/session/" + this.scenarioSession.id + "/steps/0");
+    }
+
     ngOnInit() {
         this.unreadyclaims = ["one"]; // initially disable the page
         this.route.paramMap
