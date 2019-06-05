@@ -6,21 +6,38 @@
         <span *ngIf="!vmclaim?.ready">Status: Preparing <span class="spinner spinner-inline"></span></span>
         <span *ngIf="vmclaim?.ready">Status: Ready <clr-icon shape="check" class="is-success"></clr-icon></span>
     </div>
-    <div class="clr-col-2" *ngFor="let vm of getVms()">
+    <div class="clr-col-2" *ngFor="let vm of vmclaim.vm | keyvalue">
         <div class="card">
             <div class="card-header">
-                {{ vm[0] }}
+                {{ vm.key }}
             </div>
             <div class="card-block">
                 <div class="card-text">
-                    <table class="table compact">
+                    <span *ngIf="!vmclaim?.ready">Requesting VM Information<span class="spinner spinner-inline"></span></span>
+                    <table class="table compact" *ngIf="vmclaim.ready">
                         <tr>
-                            <td>Image</td>
-                            <td>Ubuntu-1804lts-aws</td>
+                            <td>Id</td>
+                            <td>{{ vm.value.vm_id}} </td>
+                        </tr>
+                        <tr>
+                            <td>Template</td>
+                            <td>{{ getVm(vm.value.vm_id)?.vm_template_id }}</td>
+                        </tr>
+                        <tr>
+                            <td>Status</td>
+                            <td>{{ getVm(vm.value.vm_id)?.status }}</td>
+                        </tr>
+                        <tr>
+                            <td>Public IP</td>
+                            <td>{{ getVm(vm.value.vm_id)?.public_ip }}</td>
                         </tr>
                         <tr>
                             <td>Private IP</td>
-                            <td>172.23.0.43</td>
+                            <td>{{ getVm(vm.value.vm_id)?.private_ip }}</td>
+                        </tr>
+                        <tr>
+                            <td>Hostname</td>
+                            <td>{{ getVm(vm.value.vm_id)?.hostname }}</td>
                         </tr>
                     </table>
                 </div>
