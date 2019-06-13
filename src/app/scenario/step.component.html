@@ -4,7 +4,7 @@
     </div>
     <div class="clr-col-12">
         <div class="progress labeled success">
-            <progress max="100" [value]="getProgress()" data-displayval="0%"></progress>
+            <progress max="100" [value]="getProgress() || 0" data-displayval="0%"></progress>
             <span>{{getProgress()}}%</span>
         </div>
     </div>
@@ -18,34 +18,36 @@
                 </div>
             </div>
             <div class="card-footer">
-                <button class="btn btn-outline btn-previous" (click)="goPrevious()" [class.disabled]="this.stepnumber == 0">
+                <button class="btn btn-outline btn-previous" (click)="goPrevious()"
+                    [class.disabled]="this.stepnumber == 0">
                     <clr-icon shape="arrow" dir="left"></clr-icon> Previous
                 </button>
-                <button class="btn btn-outline btn-next" *ngIf="(this.scenario.stepcount-1) > this.stepnumber" (click)="goNext()">Next <clr-icon shape="arrow" dir="right"></clr-icon></button>
-                <button class="btn btn-success btn-next" *ngIf="(this.scenario.stepcount-1) == this.stepnumber" (click)="goFinish()">Finish <clr-icon shape="check"></clr-icon></button>
+                <button class="btn btn-outline btn-next" *ngIf="(this.scenario.stepcount-1) > this.stepnumber"
+                    (click)="goNext()">Next <clr-icon shape="arrow" dir="right"></clr-icon></button>
+                <button class="btn btn-success btn-next" *ngIf="(this.scenario.stepcount-1) == this.stepnumber"
+                    (click)="goFinish()">Finish <clr-icon shape="check"></clr-icon></button>
             </div>
         </div>
     </div>
     <div class="clr-col-8">
         <clr-tabs class="terminals">
             <clr-tab>
-                <button clrTabLink id="link1">
-                    <clr-icon size="24" shape="host"></clr-icon> node01
+                <button clrTabLink>
+                    <clr-icon size="24" shape="unknown-status"></clr-icon> Info
                 </button>
-                <clr-tab-content id="content1" #tab>
-                    <i>Status: Connected</i>
-                    <terminal [vmid]="'vm-demo24'" #term></terminal>
+                <clr-tab-content>
+                    Use the tabs to navigate between shell sessions on your provisioned VMs.
                 </clr-tab-content>
             </clr-tab>
-            <clr-tab>
-                    <button clrTabLink id="link1">
-                        <clr-icon size="24" shape="host"></clr-icon> rancher
-                    </button>
-                    <clr-tab-content id="content1" #tab>
-                        <i>Status: Connected</i>
-                        <terminal [vmid]="'vm-demo4'" #term></terminal>
-                    </clr-tab-content>
-                </clr-tab>
+            <clr-tab *ngFor="let v of vmclaimvms | keyvalue">
+                <button clrTabLink>
+                    <clr-icon size="24" shape="host"></clr-icon> {{ v.key }}
+                </button>
+                <clr-tab-content #tab>
+                    <i>Status: {{ getVm(v.value.vm_id)?.status }}</i>
+                    <terminal [vmid]="v.value.vm_id" #term></terminal>
+                </clr-tab-content>
+            </clr-tab>
         </clr-tabs>
     </div>
 </div>

@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChildren, QueryList, AfterViewInit } from "@angular/core";
+import { Component, OnInit, ViewChildren, QueryList, AfterViewInit, DoCheck, Query } from "@angular/core";
 import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 import { Step } from './Step';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
@@ -12,6 +12,7 @@ import { ScenarioSession } from './ScenarioSession';
 import { from } from 'rxjs';
 import { VMClaim } from './VMClaim';
 import { VMClaimVM } from './VMClaimVM';
+import { VM } from './VM';
 
 
 @Component({
@@ -22,7 +23,7 @@ import { VMClaimVM } from './VMClaimVM';
     ]
 })
 
-export class StepComponent implements OnInit, AfterViewInit {
+export class StepComponent implements OnInit, DoCheck {
     private scenario: Scenario = new Scenario();
     private step: Step = new Step();
     private steps: string[] = [];
@@ -31,15 +32,15 @@ export class StepComponent implements OnInit, AfterViewInit {
 
 
     private scenarioSession: ScenarioSession = new ScenarioSession();
-    private vmclaims: VMClaim[] = [];
     private params: ParamMap;
 
-    private vms: any = [];
+    private vmclaimvms: Map<string, VMClaimVM> = new Map();
+    private vms: Map<string, VM> = new Map();
 
     private text: string = "";
 
-    @ViewChildren('term') terms: QueryList<TerminalComponent>;
-    @ViewChildren('tab') tabs: QueryList<ClrTabContent>;
+    @ViewChildren('term') terms: QueryList<TerminalComponent> = new QueryList();
+    @ViewChildren('tab') tabs: QueryList<ClrTabContent> = new QueryList();
 
     constructor(
         private route: ActivatedRoute,
@@ -49,15 +50,16 @@ export class StepComponent implements OnInit, AfterViewInit {
 
     }
 
-    getVms() {
-        // get all VMs
-        // loop through all the vmclaims and pull their vms
-        var stuff = [];
-        this.vmclaims.forEach((vmc: VMClaim) => {
-            stuff.push(Object.entries(vmc.vm));
-        });
-        console.log(stuff);
-        return stuff;
+    getVmClaimVmKeys() {
+        return this.vmclaimvms.keys();
+    }
+
+    getVmClaimVm(key: string) {
+        return this.vmclaimvms.get(key);
+    }
+
+    getVm(key: string) {
+        return this.vms.get(key);
     }
 
     getProgress() {
@@ -79,15 +81,28 @@ export class StepComponent implements OnInit, AfterViewInit {
             concatMap((claimid: string) => {
                 // for each vmclaim id, get it
                 return this.http.get(environment.server + "/vmclaim/" + claimid)
+            }),
+            concatMap((s: ServerResponse) => {
+                // this will contain the vm claim
+                var claim : VMClaim = JSON.parse(atob(s.content));
+                // add the claimvms into the list of claims
+                Object.entries(claim.vm).forEach((val) => {
+                    this.vmclaimvms.set(val[0], val[1]);
+                })
+            
+                // for each vm in the claim, we need to get those vm details
+                return from(Object.entries(claim.vm));
+            }),
+            concatMap((v: any) => {
+                // this will be a vmclaimvm, that we then need to get details for.
+                return this.http.get(environment.server + "/vm/" + v[1].vm_id);
             })
         )
         .subscribe(
             (s: ServerResponse) => {
-                this.vmclaims.push(JSON.parse(atob(s.content)));
-                this.vmclaims.forEach((vmc: VMClaim) => {
-                    this.vms.push(Object.entries(vmc.vm));
-                });
-                console.log(this.vms);
+                // this will be a VM, so insert into the map
+                var vm : VM = JSON.parse(atob(s.content));
+                this.vms.set(vm.id, vm);
             }
         )
 
@@ -129,9 +144,9 @@ export class StepComponent implements OnInit, AfterViewInit {
         this.router.navigateByUrl("/app/home");
     }
 
-    ngAfterViewInit() {
+    ngDoCheck() {
         // For each tab...
-        this.tabs.toArray().forEach((t: ClrTabContent, i: number) => {
+        this.tabs.forEach((t: ClrTabContent, i: number) => {
             // ... watch the change stream for the active tab in the set ...
             t.ifActiveService.currentChange.subscribe(
                 (activeTabId: number) => {
