@@ -20,6 +20,7 @@ import { ScenarioCard } from './scenario/scenariocard.component';
 import { StepComponent } from './scenario/step.component';
 import { VMClaimComponent } from './scenario/vmclaim.component';
 import { AtobPipe } from './atob.pipe';
+import { MarkdownModule } from 'ngx-markdown';
 
 export function tokenGetter() {
   return localStorage.getItem("hobbyfarm_token");
@@ -45,14 +46,15 @@ export function tokenGetter() {
     ClarityModule,
     BrowserAnimationsModule,
     HttpClientModule,
+    MarkdownModule.forRoot(),
     JwtModule.forRoot({
       config: {
         tokenGetter: tokenGetter,
         whitelistedDomains: [
-          'localhost',
+          'api.na1.hobbyfarm.io',
         ],
         blacklistedRoutes: [
-          'localhost/auth/authenticate'
+          'api.na1.hobbyfarm.io/auth/authenticate'
         ],
         skipWhenExpired: true
       }

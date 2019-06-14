@@ -25,6 +25,7 @@
     "@clr/ui": "1.1.2",
     "@webcomponents/custom-elements": "^1.0.0",
     "core-js": "^2.5.4",
+    "ngx-markdown": "^8.0.2",
     "rxjs": "~6.3.3",
     "tslib": "^1.9.0",
     "xterm": "^3.12.2",

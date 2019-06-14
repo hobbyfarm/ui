@@ -14,7 +14,8 @@
         <div class="card">
             <div class="card-block">
                 <h4 class="card-title">{{ step.title | atob }}</h4>
-                <div class="card-text" [innerHTML]="step.content | atob">
+                <div class="card-text">
+                    <markdown ngPreserveWhitespaces [data]="step.content | atob"></markdown>
                 </div>
             </div>
             <div class="card-footer">
