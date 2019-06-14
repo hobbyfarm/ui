@@ -2,6 +2,7 @@ import { Component, ViewChild, ElementRef, OnInit, Input, OnChanges } from '@ang
 import { Terminal } from 'xterm';
 import * as attach from 'xterm/lib/addons/attach/attach';
 import * as fit from 'xterm/lib/addons/fit/fit';
+import { tokenGetter } from '../app.module';
 
 @Component({
     selector: 'terminal',
@@ -22,7 +23,7 @@ export class TerminalComponent implements OnInit, OnChanges {
     @ViewChild("terminal") terminalDiv: ElementRef;
 
     public resize() {
-        setTimeout(() => this.term.resize(40, 30), 150);
+        setTimeout(() => this.term.resize(80, 30), 150);
     }
 
     ngOnInit() {
@@ -35,7 +36,7 @@ export class TerminalComponent implements OnInit, OnChanges {
             this.term = new Terminal();
 
 
-            var socket = new WebSocket("ws://localhost/shell/" + this.vmid + "/connect");
+            var socket = new WebSocket("ws://localhost/shell/" + this.vmid + "/connect?auth=" + tokenGetter());
 
             socket.onopen = (e) => {
                 this.term.attach(socket, true, true);
