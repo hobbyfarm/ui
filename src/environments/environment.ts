@@ -4,7 +4,8 @@
 
 export const environment = {
   production: false,
-  server: "http://localhost"
+  server: "https://api.na1.hobbyfarm.io",
+  shellserver: "ws://localhost"
 };
 
 /*
