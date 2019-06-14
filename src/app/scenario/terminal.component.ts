@@ -2,7 +2,8 @@ import { Component, ViewChild, ElementRef, OnInit, Input, OnChanges } from '@ang
 import { Terminal } from 'xterm';
 import * as attach from 'xterm/lib/addons/attach/attach';
 import * as fit from 'xterm/lib/addons/fit/fit';
-import { tokenGetter } from '../app.module';
+import { JwtHelperService } from '@auth0/angular-jwt';
+import { environment } from 'src/environments/environment';
 
 @Component({
     selector: 'terminal',
@@ -16,7 +17,9 @@ export class TerminalComponent implements OnInit, OnChanges {
     vmid: string;
 
     private term: any;
-    constructor() {
+    constructor(
+        public jwtHelper: JwtHelperService
+    ) {
 
     }
 
@@ -36,7 +39,7 @@ export class TerminalComponent implements OnInit, OnChanges {
             this.term = new Terminal();
 
 
-            var socket = new WebSocket("ws://localhost/shell/" + this.vmid + "/connect?auth=" + tokenGetter());
+            var socket = new WebSocket(environment.shellserver + "/shell/" + this.vmid + "/connect?auth=" + this.jwtHelper.tokenGetter());
 
             socket.onopen = (e) => {
                 this.term.attach(socket, true, true);
