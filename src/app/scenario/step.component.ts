@@ -2,17 +2,17 @@ import { Component, OnInit, ViewChildren, QueryList, AfterViewInit, DoCheck, Que
 import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 import { Step } from './Step';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
-import { mergeMap, switchMap, map, concatMap } from 'rxjs/operators';
+import { mergeMap, switchMap, map, concatMap, repeat, repeatWhen, delay } from 'rxjs/operators';
 import { TerminalComponent } from './terminal.component';
 import { ClrTabContent } from '@clr/angular';
 import { ServerResponse } from '../ServerResponse';
 import { Scenario } from './Scenario';
-import { environment } from 'src/environments/environment';
 import { ScenarioSession } from './ScenarioSession';
 import { from } from 'rxjs';
 import { VMClaim } from './VMClaim';
 import { VMClaimVM } from './VMClaimVM';
 import { VM } from './VM';
+import { environment } from 'src/environments/environment';
 
 
 @Component({
@@ -112,17 +112,17 @@ export class StepComponent implements OnInit, DoCheck {
             switchMap((p: ParamMap) => {
                 this.params = p;
                 this.stepnumber = +p.get("step");
-                return this.http.get(environment.server + "/session/" + p.get("scenariosession"))
+                return this.http.get("https://" + environment.server + "/session/" + p.get("scenariosession"))
             }),
             concatMap((s: ServerResponse) => {
                 var ss = JSON.parse(atob(s.content));
                 // from the ss, get the scenario
-                return this.http.get(environment.server + "/scenario/" + ss.scenario);
+                return this.http.get("https://" + environment.server + "/scenario/" + ss.scenario);
             }),
         ).subscribe(
             (s: ServerResponse) => {
                 this.scenario = JSON.parse(atob(s.content));
-                this.http.get(environment.server + "/scenario/" + this.scenario.id + "/step/" + this.params.get("step"))
+                this.http.get("https://" + environment.server + "/scenario/" + this.scenario.id + "/step/" + this.params.get("step"))
                 .subscribe(
                     (s: ServerResponse) => {
                         this.step = JSON.parse(atob(s.content));
@@ -130,6 +130,19 @@ export class StepComponent implements OnInit, DoCheck {
                 )
             }
         )
+
+        // 30s PUTting against the keepalive
+        this.route.paramMap
+        .pipe(
+            switchMap((p: ParamMap) => {
+                return this.http.put("https://" + environment.server + "/session/" + p.get("scenariosession") + "/keepalive", {})
+            }),
+            repeatWhen(obs => {
+                return obs.pipe(
+                    delay(30000)
+                )
+            })
+        ).subscribe()
     }
 
     goNext() {
