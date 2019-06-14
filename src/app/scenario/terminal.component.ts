@@ -16,6 +16,9 @@ export class TerminalComponent implements OnInit, OnChanges {
     @Input()
     vmid: string;
 
+    @Input()
+    endpoint: string;
+
     private term: any;
     constructor(
         public jwtHelper: JwtHelperService
@@ -39,7 +42,7 @@ export class TerminalComponent implements OnInit, OnChanges {
             this.term = new Terminal();
 
 
-            var socket = new WebSocket(environment.shellserver + "/shell/" + this.vmid + "/connect?auth=" + this.jwtHelper.tokenGetter());
+            var socket = new WebSocket("wss://" + this.endpoint + "/shell/" + this.vmid + "/connect?auth=" + this.jwtHelper.tokenGetter());
 
             socket.onopen = (e) => {
                 this.term.attach(socket, true, true);

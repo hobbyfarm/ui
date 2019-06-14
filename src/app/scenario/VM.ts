@@ -6,8 +6,11 @@ export class VM {
     user: string;
     status: string;
     allocated: boolean;
+    tainted: boolean;
     public_ip: string;
     private_ip: string;
     environment_id: string;
     hostname: string;
+    tfstate: string;
+    ws_endpoint: string;
 }

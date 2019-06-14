@@ -46,7 +46,7 @@
                 </button>
                 <clr-tab-content #tab>
                     <i>Status: {{ getVm(v.value.vm_id)?.status }}</i>
-                    <terminal [vmid]="v.value.vm_id" #term></terminal>
+                    <terminal [vmid]="v.value.vm_id" [endpoint]="getVm(v.value.vm_id).ws_endpoint" #term></terminal>
                 </clr-tab-content>
             </clr-tab>
         </clr-tabs>
