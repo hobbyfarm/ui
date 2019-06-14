@@ -112,17 +112,17 @@ export class StepComponent implements OnInit, DoCheck {
             switchMap((p: ParamMap) => {
                 this.params = p;
                 this.stepnumber = +p.get("step");
-                return this.http.get("https://" + environment.server + "/session/" + p.get("scenariosession"))
+                return this.http.get(environment.server + "/session/" + p.get("scenariosession"))
             }),
             concatMap((s: ServerResponse) => {
                 var ss = JSON.parse(atob(s.content));
                 // from the ss, get the scenario
-                return this.http.get("https://" + environment.server + "/scenario/" + ss.scenario);
+                return this.http.get(environment.server + "/scenario/" + ss.scenario);
             }),
         ).subscribe(
             (s: ServerResponse) => {
                 this.scenario = JSON.parse(atob(s.content));
-                this.http.get("https://" + environment.server + "/scenario/" + this.scenario.id + "/step/" + this.params.get("step"))
+                this.http.get(environment.server + "/scenario/" + this.scenario.id + "/step/" + this.params.get("step"))
                 .subscribe(
                     (s: ServerResponse) => {
                         this.step = JSON.parse(atob(s.content));
@@ -135,7 +135,7 @@ export class StepComponent implements OnInit, DoCheck {
         this.route.paramMap
         .pipe(
             switchMap((p: ParamMap) => {
-                return this.http.put("https://" + environment.server + "/session/" + p.get("scenariosession") + "/keepalive", {})
+                return this.http.put(environment.server + "/session/" + p.get("scenariosession") + "/keepalive", {})
             }),
             repeatWhen(obs => {
                 return obs.pipe(

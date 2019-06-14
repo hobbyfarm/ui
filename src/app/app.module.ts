@@ -21,6 +21,7 @@ import { StepComponent } from './scenario/step.component';
 import { VMClaimComponent } from './scenario/vmclaim.component';
 import { AtobPipe } from './atob.pipe';
 import { MarkdownModule } from 'ngx-markdown';
+import { environment } from 'src/environments/environment';
 
 export function tokenGetter() {
   return localStorage.getItem("hobbyfarm_token");
@@ -51,10 +52,10 @@ export function tokenGetter() {
       config: {
         tokenGetter: tokenGetter,
         whitelistedDomains: [
-          'api.na1.hobbyfarm.io',
+          environment.serverhostname
         ],
         blacklistedRoutes: [
-          'api.na1.hobbyfarm.io/auth/authenticate'
+          environment.serverhostname + '/auth/authenticate'
         ],
         skipWhenExpired: true
       }
