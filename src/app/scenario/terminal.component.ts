@@ -36,7 +36,7 @@ export class TerminalComponent implements OnInit, OnChanges {
     }
 
     ngOnChanges() {
-        if (this.vmid != null) {
+        if (this.vmid != null && this.endpoint != null) {
             Terminal.applyAddon(attach);
             Terminal.applyAddon(fit);
             this.term = new Terminal();
