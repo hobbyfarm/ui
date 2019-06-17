@@ -19,7 +19,7 @@ export class TerminalComponent implements OnInit, OnChanges {
     @Input()
     endpoint: string;
 
-    private term: any;
+    public term: any;
     constructor(
         public jwtHelper: JwtHelperService
     ) {

@@ -11,7 +11,7 @@ import { environment } from 'src/environments/environment';
 })
 
 export class HomeComponent implements OnInit {
-    private scenarios: Scenario[];
+    public scenarios: Scenario[];
     constructor(
         public helper: JwtHelperService,
         public http: HttpClient 

@@ -14,16 +14,16 @@ import { environment } from 'src/environments/environment';
 })
 
 export class LoginComponent {
-    private email: string = "";
-    private password: string = "";
-    private error: string = "";
-    private success: string = "";
-    private accesscode: string = "";
+    public email: string = "";
+    public password: string = "";
+    public error: string = "";
+    public success: string = "";
+    public accesscode: string = "";
 
-    private loginactive: boolean = false;
+    public loginactive: boolean = false;
     constructor(
-        private http: HttpClient,
-        private router: Router
+        public http: HttpClient,
+        public router: Router
     ) {
     }
 

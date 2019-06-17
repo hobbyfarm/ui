@@ -24,28 +24,28 @@ import { environment } from 'src/environments/environment';
 })
 
 export class StepComponent implements OnInit, DoCheck {
-    private scenario: Scenario = new Scenario();
-    private step: Step = new Step();
-    private steps: string[] = [];
-    private progress = 0;
-    private stepnumber: number = 0;
+    public scenario: Scenario = new Scenario();
+    public step: Step = new Step();
+    public steps: string[] = [];
+    public progress = 0;
+    public stepnumber: number = 0;
 
 
-    private scenarioSession: ScenarioSession = new ScenarioSession();
-    private params: ParamMap;
+    public scenarioSession: ScenarioSession = new ScenarioSession();
+    public params: ParamMap;
 
-    private vmclaimvms: Map<string, VMClaimVM> = new Map();
-    private vms: Map<string, VM> = new Map();
+    public vmclaimvms: Map<string, VMClaimVM> = new Map();
+    public vms: Map<string, VM> = new Map();
 
-    private text: string = "";
+    public text: string = "";
 
     @ViewChildren('term') terms: QueryList<TerminalComponent> = new QueryList();
     @ViewChildren('tab') tabs: QueryList<ClrTabContent> = new QueryList();
 
     constructor(
-        private route: ActivatedRoute,
-        private router: Router,
-        private http: HttpClient
+        public route: ActivatedRoute,
+        public router: Router,
+        public http: HttpClient
     ) {
 
     }

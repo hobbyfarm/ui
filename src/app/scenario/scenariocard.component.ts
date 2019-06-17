@@ -18,8 +18,8 @@ export class ScenarioCard implements OnInit {
     public error: string = "";
 
     constructor(
-        private http: HttpClient,
-        private router: Router
+        public http: HttpClient,
+        public router: Router
     ) {
     }
 

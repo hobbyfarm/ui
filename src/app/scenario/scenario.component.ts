@@ -16,15 +16,15 @@ import { environment } from 'src/environments/environment';
 })
 
 export class ScenarioComponent implements OnInit {
-    private scenario: Scenario = new Scenario();
-    private scenarioSession: ScenarioSession = new ScenarioSession();
-    private vmclaims: VMClaim[] = [];
-    private unreadyclaims: string[] = [];
+    public scenario: Scenario = new Scenario();
+    public scenarioSession: ScenarioSession = new ScenarioSession();
+    public vmclaims: VMClaim[] = [];
+    public unreadyclaims: string[] = [];
 
     constructor(
-        private route: ActivatedRoute,
-        private http: HttpClient,
-        private router: Router
+        public route: ActivatedRoute,
+        public http: HttpClient,
+        public router: Router
     ) {
     }
 
