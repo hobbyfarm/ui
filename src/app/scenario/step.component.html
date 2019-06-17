@@ -45,7 +45,14 @@
                     <clr-icon size="24" shape="host"></clr-icon> {{ v.key }}
                 </button>
                 <clr-tab-content #tab>
-                    <i>Status: {{ getVm(v.value.vm_id)?.status }}</i>
+                    <table class="table compact">
+                        <tr>
+                            <td><b>Status:</b> {{ getVm(v.value.vm_id)?.status }}</td>
+                            <td><b>Public IP:</b> {{ getVm(v.value.vm_id)?.public_ip }}</td>
+                            <td><b>Private IP:</b> {{ getVm(v.value.vm_id)?.private_ip }}</td>
+                            <td><b>Hostname:</b> {{ getVm(v.value.vm_id)?.hostname }}</td>
+                        </tr>
+                    </table>
                     <terminal [vmid]="v.value.vm_id" [endpoint]="getVm(v.value.vm_id).ws_endpoint" #term></terminal>
                 </clr-tab-content>
             </clr-tab>
