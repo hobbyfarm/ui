@@ -47,6 +47,10 @@ export class TerminalComponent implements OnInit, OnChanges {
             socket.onopen = (e) => {
                 this.term.attach(socket, true, true);
                 this.term.open(this.terminalDiv.nativeElement);
+
+                setInterval(() => {
+                    socket.send(''); // keepalive
+                }, 5000);
             }
         }
     }
