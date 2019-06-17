@@ -1,8 +1,8 @@
-import { Component, OnInit, ViewChildren, QueryList, AfterViewInit, DoCheck, Query } from "@angular/core";
+import { Component, OnInit, ViewChildren, QueryList, DoCheck } from "@angular/core";
 import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 import { Step } from './Step';
-import { HttpClient, HttpErrorResponse } from '@angular/common/http';
-import { mergeMap, switchMap, map, concatMap, repeat, repeatWhen, delay } from 'rxjs/operators';
+import { HttpClient } from '@angular/common/http';
+import { switchMap, concatMap, repeatWhen, delay } from 'rxjs/operators';
 import { TerminalComponent } from './terminal.component';
 import { ClrTabContent } from '@clr/angular';
 import { ServerResponse } from '../ServerResponse';
@@ -13,7 +13,6 @@ import { VMClaim } from './VMClaim';
 import { VMClaimVM } from './VMClaimVM';
 import { VM } from './VM';
 import { environment } from 'src/environments/environment';
-import { MarkdownService } from 'ngx-markdown';
 
 
 @Component({
@@ -46,8 +45,7 @@ export class StepComponent implements OnInit, DoCheck {
     constructor(
         private route: ActivatedRoute,
         private router: Router,
-        private http: HttpClient,
-        private markdownService: MarkdownService
+        private http: HttpClient
     ) {
 
     }
