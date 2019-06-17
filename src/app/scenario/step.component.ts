@@ -13,6 +13,7 @@ import { VMClaim } from './VMClaim';
 import { VMClaimVM } from './VMClaimVM';
 import { VM } from './VM';
 import { environment } from 'src/environments/environment';
+import { MarkdownService } from 'ngx-markdown';
 
 
 @Component({
@@ -45,7 +46,8 @@ export class StepComponent implements OnInit, DoCheck {
     constructor(
         private route: ActivatedRoute,
         private router: Router,
-        private http: HttpClient
+        private http: HttpClient,
+        private markdownService: MarkdownService
     ) {
 
     }
@@ -59,11 +61,11 @@ export class StepComponent implements OnInit, DoCheck {
     }
 
     getVm(key: string) {
-        return this.vms.get(key);
+        return this.vms.get(key) || {};
     }
 
     getProgress() {
-        return Math.floor(((this.stepnumber+1)/(this.scenario.stepcount)) * 100);
+        return Math.floor(((this.stepnumber + 1) / (this.scenario.stepcount)) * 100);
     }
 
     ngOnInit() {
@@ -71,86 +73,86 @@ export class StepComponent implements OnInit, DoCheck {
         // from the SS, we can derive the scenario as well as the vmclaim
         // from the vmclaim, we can initiate shells
         this.route.paramMap
-        .pipe(
-            switchMap((p: ParamMap) => this.http.get(environment.server + "/session/" + p.get("scenariosession"))),
-            concatMap((s: ServerResponse) => {
-                this.scenarioSession = JSON.parse(atob(s.content));
-                // now that we have the scenario session, get the vmclaim from it
-                return from(this.scenarioSession.vm_claim)
-            }),
-            concatMap((claimid: string) => {
-                // for each vmclaim id, get it
-                return this.http.get(environment.server + "/vmclaim/" + claimid)
-            }),
-            concatMap((s: ServerResponse) => {
-                // this will contain the vm claim
-                var claim : VMClaim = JSON.parse(atob(s.content));
-                // add the claimvms into the list of claims
-                Object.entries(claim.vm).forEach((val) => {
-                    this.vmclaimvms.set(val[0], val[1]);
+            .pipe(
+                switchMap((p: ParamMap) => this.http.get(environment.server + "/session/" + p.get("scenariosession"))),
+                concatMap((s: ServerResponse) => {
+                    this.scenarioSession = JSON.parse(atob(s.content));
+                    // now that we have the scenario session, get the vmclaim from it
+                    return from(this.scenarioSession.vm_claim)
+                }),
+                concatMap((claimid: string) => {
+                    // for each vmclaim id, get it
+                    return this.http.get(environment.server + "/vmclaim/" + claimid)
+                }),
+                concatMap((s: ServerResponse) => {
+                    // this will contain the vm claim
+                    var claim: VMClaim = JSON.parse(atob(s.content));
+                    // add the claimvms into the list of claims
+                    Object.entries(claim.vm).forEach((val) => {
+                        this.vmclaimvms.set(val[0], val[1]);
+                    })
+
+                    // for each vm in the claim, we need to get those vm details
+                    return from(Object.entries(claim.vm));
+                }),
+                concatMap((v: any) => {
+                    // this will be a vmclaimvm, that we then need to get details for.
+                    return this.http.get(environment.server + "/vm/" + v[1].vm_id);
                 })
-            
-                // for each vm in the claim, we need to get those vm details
-                return from(Object.entries(claim.vm));
-            }),
-            concatMap((v: any) => {
-                // this will be a vmclaimvm, that we then need to get details for.
-                return this.http.get(environment.server + "/vm/" + v[1].vm_id);
-            })
-        )
-        .subscribe(
-            (s: ServerResponse) => {
-                // this will be a VM, so insert into the map
-                var vm : VM = JSON.parse(atob(s.content));
-                this.vms.set(vm.id, vm);
-            }
-        )
+            )
+            .subscribe(
+                (s: ServerResponse) => {
+                    // this will be a VM, so insert into the map
+                    var vm: VM = JSON.parse(atob(s.content));
+                    this.vms.set(vm.id, vm);
+                }
+            )
 
         // get the scenario
         this.route.paramMap
-        .pipe(
-            switchMap((p: ParamMap) => {
-                this.params = p;
-                this.stepnumber = +p.get("step");
-                return this.http.get(environment.server + "/session/" + p.get("scenariosession"))
-            }),
-            concatMap((s: ServerResponse) => {
-                var ss = JSON.parse(atob(s.content));
-                // from the ss, get the scenario
-                return this.http.get(environment.server + "/scenario/" + ss.scenario);
-            }),
-        ).subscribe(
-            (s: ServerResponse) => {
-                this.scenario = JSON.parse(atob(s.content));
-                this.http.get(environment.server + "/scenario/" + this.scenario.id + "/step/" + this.params.get("step"))
-                .subscribe(
-                    (s: ServerResponse) => {
-                        this.step = JSON.parse(atob(s.content));
-                    }
-                )
-            }
-        )
+            .pipe(
+                switchMap((p: ParamMap) => {
+                    this.params = p;
+                    this.stepnumber = +p.get("step");
+                    return this.http.get(environment.server + "/session/" + p.get("scenariosession"))
+                }),
+                concatMap((s: ServerResponse) => {
+                    var ss = JSON.parse(atob(s.content));
+                    // from the ss, get the scenario
+                    return this.http.get(environment.server + "/scenario/" + ss.scenario);
+                }),
+            ).subscribe(
+                (s: ServerResponse) => {
+                    this.scenario = JSON.parse(atob(s.content));
+                    this.http.get(environment.server + "/scenario/" + this.scenario.id + "/step/" + this.params.get("step"))
+                        .subscribe(
+                            (s: ServerResponse) => {
+                                this.step = JSON.parse(atob(s.content));
+                            }
+                        )
+                }
+            )
 
         // 30s PUTting against the keepalive
         this.route.paramMap
-        .pipe(
-            switchMap((p: ParamMap) => {
-                return this.http.put(environment.server + "/session/" + p.get("scenariosession") + "/keepalive", {})
-            }),
-            repeatWhen(obs => {
-                return obs.pipe(
-                    delay(30000)
-                )
-            })
-        ).subscribe()
+            .pipe(
+                switchMap((p: ParamMap) => {
+                    return this.http.put(environment.server + "/session/" + p.get("scenariosession") + "/keepalive", {})
+                }),
+                repeatWhen(obs => {
+                    return obs.pipe(
+                        delay(30000)
+                    )
+                })
+            ).subscribe()
     }
 
     goNext() {
-        this.router.navigateByUrl("/app/session/" + this.scenarioSession.id + "/steps/" + (this.stepnumber+1));
+        this.router.navigateByUrl("/app/session/" + this.scenarioSession.id + "/steps/" + (this.stepnumber + 1));
     }
 
     goPrevious() {
-        this.router.navigateByUrl("/app/session/" + this.scenarioSession.id  + "/steps/" + (this.stepnumber-1));
+        this.router.navigateByUrl("/app/session/" + this.scenarioSession.id + "/steps/" + (this.stepnumber - 1));
     }
 
     goFinish() {
