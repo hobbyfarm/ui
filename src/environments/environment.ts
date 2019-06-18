@@ -4,9 +4,8 @@
 
 export const environment = {
   production: false,
-  serverhostname: "localhost", // hostname only e.g. server.example.com
-  server: "http://localhost", // full url e.g. https://server.example.com
-  shellserver: "ws://localhost" // websocket url e.g. wss://server.example.com
+  serverhostname: "api.na1.hobbyfarm.io", // hostname only e.g. server.example.com
+  server: "https://api.na1.hobbyfarm.io", // full url e.g. https://server.example.com
 };
 
 /*
