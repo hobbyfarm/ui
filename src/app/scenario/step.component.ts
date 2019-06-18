@@ -70,9 +70,8 @@ export class StepComponent implements OnInit, DoCheck {
         // this route will now accept scenario session
         // from the SS, we can derive the scenario as well as the vmclaim
         // from the vmclaim, we can initiate shells
-        this.route.paramMap
+        this.http.get(environment.server + "/session/" + this.route.snapshot.paramMap.get("scenariosession"))
             .pipe(
-                switchMap((p: ParamMap) => this.http.get(environment.server + "/session/" + p.get("scenariosession"))),
                 concatMap((s: ServerResponse) => {
                     this.scenarioSession = JSON.parse(atob(s.content));
                     // now that we have the scenario session, get the vmclaim from it
@@ -132,17 +131,15 @@ export class StepComponent implements OnInit, DoCheck {
             )
 
         // 30s PUTting against the keepalive
-        this.route.paramMap
-            .pipe(
-                switchMap((p: ParamMap) => {
-                    return this.http.put(environment.server + "/session/" + p.get("scenariosession") + "/keepalive", {})
-                }),
-                repeatWhen(obs => {
-                    return obs.pipe(
-                        delay(30000)
-                    )
-                })
-            ).subscribe()
+        this.http.put(environment.server + "/session/" + this.route.snapshot.paramMap.get("scenariosession") + "/keepalive", {})
+        .pipe(
+            repeatWhen(obs => {
+                return obs.pipe(
+                    delay(30000)
+                )
+            })
+        )
+        .subscribe()
     }
 
     goNext() {
@@ -154,7 +151,12 @@ export class StepComponent implements OnInit, DoCheck {
     }
 
     goFinish() {
-        this.router.navigateByUrl("/app/home");
+        this.http.put(environment.server + "/session/" + this.route.snapshot.paramMap.get("scenariosession") + "/finished", {})
+        .subscribe(
+            (s: ServerResponse) => {
+                this.router.navigateByUrl("/app/home");
+            }
+        )
     }
 
     ngDoCheck() {
