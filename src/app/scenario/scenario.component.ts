@@ -17,9 +17,27 @@ import { environment } from 'src/environments/environment';
 
 export class ScenarioComponent implements OnInit {
     public scenario: Scenario = new Scenario();
-    public scenarioSession: ScenarioSession = new ScenarioSession();
+    private _scenarioSession: ScenarioSession = new ScenarioSession();
     public vmclaims: VMClaim[] = [];
     public unreadyclaims: string[] = [];
+
+    public get scenarioSession(): ScenarioSession {
+        return this._scenarioSession;
+    }
+
+    public set scenarioSession(s: ScenarioSession) {
+        this._scenarioSession = s;
+        // now subscribe it
+        this.http.put(environment.server + "/session/" + s.id + "/keepalive", {})
+            .pipe(
+                repeatWhen(obs => {
+                    return obs.pipe(
+                        delay(30000)
+                    )
+                })
+            )
+            .subscribe()
+    }
 
     constructor(
         public route: ActivatedRoute,
@@ -57,36 +75,36 @@ export class ScenarioComponent implements OnInit {
 
                     // get the scenario first
                     this.http.get(environment.server + "/scenario/" + p.get("scenario"))
-                    .pipe(
-                        map((s: ServerResponse) => {
-                            this.scenario = JSON.parse(atob(s.content));
-                            return this.scenario;
-                        }),
-                        concatMap((s: Scenario) => {
-                            let body = new HttpParams()
-                                .set("scenario", s.id);
-                            return this.http.post(environment.server + "/session/new", body)
-                        }),
-                        concatMap((s: ServerResponse) => {
-                            // this will be the scenariosession  id
-                            this.scenarioSession = JSON.parse(atob(s.content));
-                            // now get the vmclaim(s) specified
-                            // return this.scenarioSession.vmclaims;
-                            return from(this.scenarioSession.vm_claim);
-                        }),
-                        delay(2000),
-                        concatMap((claimid: string) => {
-                            this.unreadyclaims = [];
-                            // push into unready claims map
-                            this.unreadyclaims.push(claimid);
-                            return this.http.get(environment.server + "/vmclaim/" + claimid)
-                        })
-                    )
-                    .subscribe(
-                        (s: ServerResponse) => {
-                            this.vmclaims.push(JSON.parse(atob(s.content)));
-                        }
-                    );
+                        .pipe(
+                            map((s: ServerResponse) => {
+                                this.scenario = JSON.parse(atob(s.content));
+                                return this.scenario;
+                            }),
+                            concatMap((s: Scenario) => {
+                                let body = new HttpParams()
+                                    .set("scenario", s.id);
+                                return this.http.post(environment.server + "/session/new", body)
+                            }),
+                            concatMap((s: ServerResponse) => {
+                                // this will be the scenariosession  id
+                                this.scenarioSession = JSON.parse(atob(s.content));
+                                // now get the vmclaim(s) specified
+                                // return this.scenarioSession.vmclaims;
+                                return from(this.scenarioSession.vm_claim);
+                            }),
+                            delay(2000),
+                            concatMap((claimid: string) => {
+                                this.unreadyclaims = [];
+                                // push into unready claims map
+                                this.unreadyclaims.push(claimid);
+                                return this.http.get(environment.server + "/vmclaim/" + claimid)
+                            })
+                        )
+                        .subscribe(
+                            (s: ServerResponse) => {
+                                this.vmclaims.push(JSON.parse(atob(s.content)));
+                            }
+                        );
                 }
             )
     }
