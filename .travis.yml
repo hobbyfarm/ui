@@ -6,11 +6,7 @@ before_script:
 script:
   - ng build --aot
   - docker build -t "hobbyfarm/ui" . 
-  - PACKAGE_VERSION=$(cat package.json \
-    | grep version \
-    | head -1 \
-    | awk -F: '{ print $2 }' \
-    | sed 's/[", ]//g')
+  - PACKAGE_VERSION=$(cat package.json | grep version | head -1 | awk -F: '{ print $2 }' | sed 's/[", ]//g')
   - docker tag "hobbyfarm/ui" "hobbyfarm/ui:$PACKAGE_VERSION
   - docker push "hobbyfarm/ui:$PACKAGE_VERSION"
 
