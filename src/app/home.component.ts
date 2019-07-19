@@ -21,7 +21,7 @@ export class HomeComponent implements OnInit {
     ngOnInit() {
         var tok = this.helper.decodeToken(this.helper.tokenGetter());
         // using the token, we now need to get a list of scenarios
-        this.http.get(environment.server + "/scenario/list")
+        this.http.get(window.HobbyfarmConfig.SERVER + "/scenario/list")
         .subscribe(
             (s: ServerResponse) => {
                 // this should contain b64 encoded list of scenarios

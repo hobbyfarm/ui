@@ -61,10 +61,10 @@ export function tokenGetter() {
       config: {
         tokenGetter: tokenGetter,
         whitelistedDomains: [
-          environment.serverhostname
+          window.HobbyfarmConfig.SERVER_HOSTNAME
         ],
         blacklistedRoutes: [
-          environment.serverhostname + '/auth/authenticate'
+          window.HobbyfarmConfig.SERVER_HOSTNAME + '/auth/authenticate'
         ],
         skipWhenExpired: true
       }
@@ -77,3 +77,11 @@ export function tokenGetter() {
   bootstrap: [RootComponent]
 })
 export class AppModule { }
+
+// necessary so that TS knows about the HobbyfarmConfig namespace
+// on the window object. This gets injected with values at runtime
+declare global {
+  interface Window {
+    HobbyfarmConfig: any;
+  }
+}
