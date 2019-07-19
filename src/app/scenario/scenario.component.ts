@@ -28,7 +28,7 @@ export class ScenarioComponent implements OnInit {
     public set scenarioSession(s: ScenarioSession) {
         this._scenarioSession = s;
         // now subscribe it
-        this.http.put(environment.server + "/session/" + s.id + "/keepalive", {})
+        this.http.put(window.HobbyfarmConfig.SERVER + "/session/" + s.id + "/keepalive", {})
             .pipe(
                 repeatWhen(obs => {
                     return obs.pipe(
@@ -74,7 +74,7 @@ export class ScenarioComponent implements OnInit {
                     // we will also need to display to the user the state of the VMs which would be cool
 
                     // get the scenario first
-                    this.http.get(environment.server + "/scenario/" + p.get("scenario"))
+                    this.http.get(window.HobbyfarmConfig.SERVER + "/scenario/" + p.get("scenario"))
                         .pipe(
                             map((s: ServerResponse) => {
                                 this.scenario = JSON.parse(atob(s.content));
@@ -83,7 +83,7 @@ export class ScenarioComponent implements OnInit {
                             concatMap((s: Scenario) => {
                                 let body = new HttpParams()
                                     .set("scenario", s.id);
-                                return this.http.post(environment.server + "/session/new", body)
+                                return this.http.post(window.HobbyfarmConfig.SERVER + "/session/new", body)
                             }),
                             concatMap((s: ServerResponse) => {
                                 // this will be the scenariosession  id
@@ -97,7 +97,7 @@ export class ScenarioComponent implements OnInit {
                                 this.unreadyclaims = [];
                                 // push into unready claims map
                                 this.unreadyclaims.push(claimid);
-                                return this.http.get(environment.server + "/vmclaim/" + claimid)
+                                return this.http.get(window.HobbyfarmConfig.SERVER + "/vmclaim/" + claimid)
                             })
                         )
                         .subscribe(
