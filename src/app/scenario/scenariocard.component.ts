@@ -25,7 +25,7 @@ export class ScenarioCard implements OnInit {
 
     ngOnInit() {
         this.error = "";
-        this.http.get(window.HobbyfarmConfig.SERVER + "/scenario/" + this.scenarioid)
+        this.http.get('https://' + window.HobbyfarmConfig.SERVER + "/scenario/" + this.scenarioid)
         .subscribe(
             (s: ServerResponse) => {
                 this.scenario = JSON.parse(atob(s.content));

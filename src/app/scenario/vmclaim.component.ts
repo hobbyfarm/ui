@@ -37,7 +37,7 @@ export class VMClaimComponent implements OnChanges {
 
     ngOnChanges() {
         if (this.vmclaim.id != null) {
-            this.http.get(window.HobbyfarmConfig.SERVER + "/vmclaim/" + this.vmclaim.id)
+            this.http.get('https://' + window.HobbyfarmConfig.SERVER + "/vmclaim/" + this.vmclaim.id)
             .pipe(
                 concatMap((s: ServerResponse) => {
                     this.vmclaim = JSON.parse(atob(s.content));
@@ -57,7 +57,7 @@ export class VMClaimComponent implements OnChanges {
                     if (!vmArray) {
                         throw 1;
                     }
-                    return this.http.get(window.HobbyfarmConfig.SERVER + "/vm/" + vmArray[1].vm_id);
+                    return this.http.get('https://' + window.HobbyfarmConfig.SERVER + "/vm/" + vmArray[1].vm_id);
                 }),
                 retryWhen(obs => {
                     return obs.pipe(

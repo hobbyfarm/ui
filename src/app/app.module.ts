@@ -61,10 +61,10 @@ export function tokenGetter() {
       config: {
         tokenGetter: tokenGetter,
         whitelistedDomains: [
-          window.HobbyfarmConfig.SERVER_HOSTNAME
+          window.HobbyfarmConfig.SERVER
         ],
         blacklistedRoutes: [
-          window.HobbyfarmConfig.SERVER_HOSTNAME + '/auth/authenticate'
+          window.HobbyfarmConfig.SERVER + '/auth/authenticate'
         ],
         skipWhenExpired: true
       }
