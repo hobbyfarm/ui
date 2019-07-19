@@ -15,7 +15,8 @@
             <div class="card-block">
                 <h4 class="card-title">{{ step.title | atob }}</h4>
                 <div class="card-text">
-                    <markdown ngPreserveWhitespaces [data]="step.content | atob"></markdown>
+                    <dynamic-html [content]="step.content | atob | markdown"></dynamic-html>
+                    <!-- <markdown ngPreserveWhitespaces [data]="step.content | atob" #markdown></markdown> -->
                 </div>
             </div>
             <div class="card-footer">
@@ -40,11 +41,11 @@
                     Use the tabs to navigate between shell sessions on your provisioned VMs.
                 </clr-tab-content>
             </clr-tab>
-            <clr-tab *ngFor="let v of vmclaimvms | keyvalue">
-                <button clrTabLink>
+            <clr-tab *ngFor="let v of vmclaimvms | keyvalue" #tab>
+                <button clrTabLink [id]="v.key">
                     <clr-icon size="24" shape="host"></clr-icon> {{ v.key }}
                 </button>
-                <clr-tab-content #tab>
+                <clr-tab-content #tabcontent>
                     <table class="table compact">
                         <tr>
                             <td><b>Status:</b> {{ getVm(v.value.vm_id)?.status }}</td>
@@ -53,7 +54,7 @@
                             <td><b>Hostname:</b> {{ getVm(v.value.vm_id)?.hostname }}</td>
                         </tr>
                     </table>
-                    <terminal [vmid]="v.value.vm_id" [endpoint]="getVm(v.value.vm_id).ws_endpoint" #term></terminal>
+                    <terminal [vmname]="v.key" [vmid]="v.value.vm_id" [endpoint]="getVm(v.value.vm_id).ws_endpoint" #term></terminal>
                 </clr-tab-content>
             </clr-tab>
         </clr-tabs>

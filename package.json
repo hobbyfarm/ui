@@ -25,6 +25,8 @@
     "@clr/ui": "1.1.2",
     "@webcomponents/custom-elements": "^1.0.0",
     "core-js": "^2.5.4",
+    "guid-typescript": "^1.0.9",
+    "ng-dynamic": "^3.0.2",
     "ngx-markdown": "^8.0.2",
     "rxjs": "~6.3.3",
     "tslib": "^1.9.0",

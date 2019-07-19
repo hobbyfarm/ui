@@ -22,6 +22,9 @@ import { VMClaimComponent } from './scenario/vmclaim.component';
 import { AtobPipe } from './atob.pipe';
 import { MarkdownModule } from 'ngx-markdown';
 import { environment } from 'src/environments/environment';
+import { DynamicHTMLModule } from './dynamic-html';
+import { CtrComponent } from './scenario/ctr.component';
+import { CtrService } from './scenario/ctr.service';
 
 export function tokenGetter() {
   return localStorage.getItem("hobbyfarm_token");
@@ -37,6 +40,7 @@ export function tokenGetter() {
     LoginComponent,
     ScenarioCard,
     StepComponent,
+    CtrComponent,
     VMClaimComponent,
     AtobPipe
   ],
@@ -48,6 +52,11 @@ export function tokenGetter() {
     BrowserAnimationsModule,
     HttpClientModule,
     MarkdownModule.forRoot(),
+    DynamicHTMLModule.forRoot({
+      components: [
+        {component: CtrComponent, selector: 'ctr'}
+      ]
+    }),
     JwtModule.forRoot({
       config: {
         tokenGetter: tokenGetter,
@@ -63,6 +72,7 @@ export function tokenGetter() {
   ],
   providers: [
     AuthGuard,
+    CtrService
   ],
   bootstrap: [RootComponent]
 })

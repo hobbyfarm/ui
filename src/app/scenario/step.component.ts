@@ -1,10 +1,10 @@
-import { Component, OnInit, ViewChildren, QueryList, DoCheck } from "@angular/core";
+import { Component, OnInit, ViewChildren, QueryList, DoCheck, ViewChild, ViewContainerRef, Renderer2, AfterViewInit, AfterViewChecked, ElementRef } from "@angular/core";
 import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 import { Step } from './Step';
 import { HttpClient } from '@angular/common/http';
 import { switchMap, concatMap, repeatWhen, delay } from 'rxjs/operators';
 import { TerminalComponent } from './terminal.component';
-import { ClrTabContent } from '@clr/angular';
+import { ClrTabContent, ClrTab } from '@clr/angular';
 import { ServerResponse } from '../ServerResponse';
 import { Scenario } from './Scenario';
 import { ScenarioSession } from './ScenarioSession';
@@ -13,13 +13,16 @@ import { VMClaim } from './VMClaim';
 import { VMClaimVM } from './VMClaimVM';
 import { VM } from './VM';
 import { environment } from 'src/environments/environment';
+import { MarkdownService, MarkdownComponent } from 'ngx-markdown';
+import { CtrService } from './ctr.service';
+import { CodeExec } from './CodeExec';
 
 
 @Component({
     templateUrl: 'step.component.html',
     selector: 'step-component',
     styleUrls: [
-        'step.component.css'
+        'step.component.scss'
     ]
 })
 
@@ -29,6 +32,7 @@ export class StepComponent implements OnInit, DoCheck {
     public steps: string[] = [];
     public progress = 0;
     public stepnumber: number = 0;
+    public content = "";
 
 
     public scenarioSession: ScenarioSession = new ScenarioSession();
@@ -40,15 +44,39 @@ export class StepComponent implements OnInit, DoCheck {
     public text: string = "";
 
     @ViewChildren('term') terms: QueryList<TerminalComponent> = new QueryList();
-    @ViewChildren('tab') tabs: QueryList<ClrTabContent> = new QueryList();
+    @ViewChildren('tabcontent') tabContents: QueryList<ClrTabContent> = new QueryList();
+    @ViewChildren('tab') tabs: QueryList<ClrTab> = new QueryList();
+    @ViewChild('markdown') markdownTemplate;
 
     constructor(
         public route: ActivatedRoute,
         public router: Router,
-        public http: HttpClient
+        public http: HttpClient,
+        public markdownService: MarkdownService,
+        public renderer: Renderer2,
+        public elRef: ElementRef,
+        public ctr: CtrService
     ) {
+        this.markdownService.renderer.code = (code: string, language: string, isEscaped: boolean) => {
+            // non-ctr code
+            if (language.length < 1) {
+                return "<pre>" + code + "</pre>";
+            }
 
+            // generate a new ID
+            var id = ctr.generateId();
+            ctr.setCode(id, code);
+            // split the language (ctr:target)
+            ctr.setTarget(id, language.split(":")[1]);
+
+            return '<ctr ctrid="' + id + '"></ctr>'
+        }
     }
+
+    ngAfterViewInit() {
+        console.log(this.markdownTemplate);
+    }
+
 
     getVmClaimVmKeys() {
         return this.vmclaimvms.keys();
@@ -132,14 +160,29 @@ export class StepComponent implements OnInit, DoCheck {
 
         // 30s PUTting against the keepalive
         this.http.put(environment.server + "/session/" + this.route.snapshot.paramMap.get("scenariosession") + "/keepalive", {})
-        .pipe(
-            repeatWhen(obs => {
-                return obs.pipe(
-                    delay(30000)
-                )
-            })
+            .pipe(
+                repeatWhen(obs => {
+                    return obs.pipe(
+                        delay(30000)
+                    )
+                })
+            )
+            .subscribe()
+
+        this.ctr.getCodeStream().subscribe(
+            (c: CodeExec) => {
+                // watch for tab changes
+                if (!c) {
+                    return;
+                }
+
+                this.tabs.forEach((i: ClrTab) => {
+                    if (c.target.toLowerCase() == i.tabLink.tabLinkId.toLowerCase()) {
+                        i.ifActiveService.current = i.id;
+                    }
+                })
+            }
         )
-        .subscribe()
     }
 
     goNext() {
@@ -152,16 +195,16 @@ export class StepComponent implements OnInit, DoCheck {
 
     goFinish() {
         this.http.put(environment.server + "/session/" + this.route.snapshot.paramMap.get("scenariosession") + "/finished", {})
-        .subscribe(
-            (s: ServerResponse) => {
-                this.router.navigateByUrl("/app/home");
-            }
-        )
+            .subscribe(
+                (s: ServerResponse) => {
+                    this.router.navigateByUrl("/app/home");
+                }
+            )
     }
 
     ngDoCheck() {
         // For each tab...
-        this.tabs.forEach((t: ClrTabContent, i: number) => {
+        this.tabContents.forEach((t: ClrTabContent, i: number) => {
             // ... watch the change stream for the active tab in the set ...
             t.ifActiveService.currentChange.subscribe(
                 (activeTabId: number) => {
