@@ -6,6 +6,7 @@ import { map, delay, retryWhen, concatMap, mapTo } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
 import { of, from } from 'rxjs';
 import { VM } from './VM';
+import { AppConfig } from '../app.module';
 
 @Component({
     templateUrl: 'vmclaim.component.html',
@@ -37,7 +38,7 @@ export class VMClaimComponent implements OnChanges {
 
     ngOnChanges() {
         if (this.vmclaim.id != null) {
-            this.http.get('https://' + window.HobbyfarmConfig.SERVER + "/vmclaim/" + this.vmclaim.id)
+            this.http.get('https://' + AppConfig.getServer() + "/vmclaim/" + this.vmclaim.id)
             .pipe(
                 concatMap((s: ServerResponse) => {
                     this.vmclaim = JSON.parse(atob(s.content));
@@ -57,7 +58,7 @@ export class VMClaimComponent implements OnChanges {
                     if (!vmArray) {
                         throw 1;
                     }
-                    return this.http.get('https://' + window.HobbyfarmConfig.SERVER + "/vm/" + vmArray[1].vm_id);
+                    return this.http.get('https://' + AppConfig.getServer() + "/vm/" + vmArray[1].vm_id);
                 }),
                 retryWhen(obs => {
                     return obs.pipe(

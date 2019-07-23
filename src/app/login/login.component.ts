@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import { User } from './User';
 import { ServerResponse } from '../ServerResponse';
 import { environment } from 'src/environments/environment';
+import { AppConfig } from '../app.module';
 
 @Component({
     templateUrl: './login.component.html',
@@ -34,7 +35,7 @@ export class LoginComponent {
             .set("password", this.password)
             .set("access_code", this.accesscode);
 
-        this.http.post('https://' + window.HobbyfarmConfig.SERVER + "/auth/registerwithaccesscode", body)
+        this.http.post('https://' + AppConfig.getServer() + "/auth/registerwithaccesscode", body)
             .subscribe(
                 (s: ServerResponse) => {
                     this.success = "Success! User created. Please login.";
@@ -58,7 +59,7 @@ export class LoginComponent {
             .set("email", this.email)
             .set("password", this.password);
 
-        this.http.post('https://' + window.HobbyfarmConfig.SERVER + "/auth/authenticate", body)
+        this.http.post('https://' + AppConfig.getServer() + "/auth/authenticate", body)
             .subscribe(
                 (s: ServerResponse) => {
                     // should have a token here

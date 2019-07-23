@@ -4,6 +4,7 @@ import { Scenario } from './Scenario';
 import { Router } from '@angular/router';
 import { ServerResponse } from '../ServerResponse';
 import { environment } from 'src/environments/environment';
+import { AppConfig } from '../app.module';
 
 @Component({
     templateUrl: 'scenariocard.component.html',
@@ -25,7 +26,7 @@ export class ScenarioCard implements OnInit {
 
     ngOnInit() {
         this.error = "";
-        this.http.get('https://' + window.HobbyfarmConfig.SERVER + "/scenario/" + this.scenarioid)
+        this.http.get('https://' + AppConfig.getServer() + "/scenario/" + this.scenarioid)
         .subscribe(
             (s: ServerResponse) => {
                 this.scenario = JSON.parse(atob(s.content));

@@ -9,6 +9,7 @@ import { ScenarioSession } from './ScenarioSession';
 import { from, of } from 'rxjs';
 import { VMClaim } from './VMClaim';
 import { environment } from 'src/environments/environment';
+import { AppConfig } from '../app.module';
 
 @Component({
     selector: 'scenario-component',
@@ -28,7 +29,7 @@ export class ScenarioComponent implements OnInit {
     public set scenarioSession(s: ScenarioSession) {
         this._scenarioSession = s;
         // now subscribe it
-        this.http.put('https://' + window.HobbyfarmConfig.SERVER + "/session/" + s.id + "/keepalive", {})
+        this.http.put('https://' + AppConfig.getServer() + "/session/" + s.id + "/keepalive", {})
             .pipe(
                 repeatWhen(obs => {
                     return obs.pipe(
@@ -74,7 +75,7 @@ export class ScenarioComponent implements OnInit {
                     // we will also need to display to the user the state of the VMs which would be cool
 
                     // get the scenario first
-                    this.http.get('https://' + window.HobbyfarmConfig.SERVER + "/scenario/" + p.get("scenario"))
+                    this.http.get('https://' + AppConfig.getServer() + "/scenario/" + p.get("scenario"))
                         .pipe(
                             map((s: ServerResponse) => {
                                 this.scenario = JSON.parse(atob(s.content));
@@ -83,7 +84,7 @@ export class ScenarioComponent implements OnInit {
                             concatMap((s: Scenario) => {
                                 let body = new HttpParams()
                                     .set("scenario", s.id);
-                                return this.http.post('https://' + window.HobbyfarmConfig.SERVER + "/session/new", body)
+                                return this.http.post('https://' + AppConfig.getServer() + "/session/new", body)
                             }),
                             concatMap((s: ServerResponse) => {
                                 // this will be the scenariosession  id
@@ -97,7 +98,7 @@ export class ScenarioComponent implements OnInit {
                                 this.unreadyclaims = [];
                                 // push into unready claims map
                                 this.unreadyclaims.push(claimid);
-                                return this.http.get('https://' + window.HobbyfarmConfig.SERVER + "/vmclaim/" + claimid)
+                                return this.http.get('https://' + AppConfig.getServer() + "/vmclaim/" + claimid)
                             })
                         )
                         .subscribe(

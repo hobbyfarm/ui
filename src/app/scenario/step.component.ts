@@ -16,6 +16,7 @@ import { environment } from 'src/environments/environment';
 import { MarkdownService, MarkdownComponent } from 'ngx-markdown';
 import { CtrService } from './ctr.service';
 import { CodeExec } from './CodeExec';
+import { AppConfig } from '../app.module';
 
 
 @Component({
@@ -98,7 +99,7 @@ export class StepComponent implements OnInit, DoCheck {
         // this route will now accept scenario session
         // from the SS, we can derive the scenario as well as the vmclaim
         // from the vmclaim, we can initiate shells
-        this.http.get('https://' + window.HobbyfarmConfig.SERVER + "/session/" + this.route.snapshot.paramMap.get("scenariosession"))
+        this.http.get('https://' + AppConfig.getServer() + "/session/" + this.route.snapshot.paramMap.get("scenariosession"))
             .pipe(
                 concatMap((s: ServerResponse) => {
                     this.scenarioSession = JSON.parse(atob(s.content));
@@ -107,7 +108,7 @@ export class StepComponent implements OnInit, DoCheck {
                 }),
                 concatMap((claimid: string) => {
                     // for each vmclaim id, get it
-                    return this.http.get('https://' + window.HobbyfarmConfig.SERVER + "/vmclaim/" + claimid)
+                    return this.http.get('https://' + AppConfig.getServer() + "/vmclaim/" + claimid)
                 }),
                 concatMap((s: ServerResponse) => {
                     // this will contain the vm claim
@@ -122,7 +123,7 @@ export class StepComponent implements OnInit, DoCheck {
                 }),
                 concatMap((v: any) => {
                     // this will be a vmclaimvm, that we then need to get details for.
-                    return this.http.get('https://' + window.HobbyfarmConfig.SERVER + "/vm/" + v[1].vm_id);
+                    return this.http.get('https://' + AppConfig.getServer() + "/vm/" + v[1].vm_id);
                 })
             )
             .subscribe(
@@ -139,17 +140,17 @@ export class StepComponent implements OnInit, DoCheck {
                 switchMap((p: ParamMap) => {
                     this.params = p;
                     this.stepnumber = +p.get("step");
-                    return this.http.get('https://' + window.HobbyfarmConfig.SERVER + "/session/" + p.get("scenariosession"))
+                    return this.http.get('https://' + AppConfig.getServer() + "/session/" + p.get("scenariosession"))
                 }),
                 concatMap((s: ServerResponse) => {
                     var ss = JSON.parse(atob(s.content));
                     // from the ss, get the scenario
-                    return this.http.get('https://' + window.HobbyfarmConfig.SERVER + "/scenario/" + ss.scenario);
+                    return this.http.get('https://' + AppConfig.getServer() + "/scenario/" + ss.scenario);
                 }),
             ).subscribe(
                 (s: ServerResponse) => {
                     this.scenario = JSON.parse(atob(s.content));
-                    this.http.get('https://' + window.HobbyfarmConfig.SERVER + "/scenario/" + this.scenario.id + "/step/" + this.params.get("step"))
+                    this.http.get('https://' + AppConfig.getServer() + "/scenario/" + this.scenario.id + "/step/" + this.params.get("step"))
                         .subscribe(
                             (s: ServerResponse) => {
                                 this.step = JSON.parse(atob(s.content));
@@ -159,7 +160,7 @@ export class StepComponent implements OnInit, DoCheck {
             )
 
         // 30s PUTting against the keepalive
-        this.http.put('https://' + window.HobbyfarmConfig.SERVER + "/session/" + this.route.snapshot.paramMap.get("scenariosession") + "/keepalive", {})
+        this.http.put('https://' + AppConfig.getServer() + "/session/" + this.route.snapshot.paramMap.get("scenariosession") + "/keepalive", {})
             .pipe(
                 repeatWhen(obs => {
                     return obs.pipe(
@@ -194,7 +195,7 @@ export class StepComponent implements OnInit, DoCheck {
     }
 
     goFinish() {
-        this.http.put('https://' + window.HobbyfarmConfig.SERVER + "/session/" + this.route.snapshot.paramMap.get("scenariosession") + "/finished", {})
+        this.http.put('https://' + AppConfig.getServer() + "/session/" + this.route.snapshot.paramMap.get("scenariosession") + "/finished", {})
             .subscribe(
                 (s: ServerResponse) => {
                     this.router.navigateByUrl("/app/home");

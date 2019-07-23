@@ -4,6 +4,7 @@ import { HttpClient } from '@angular/common/http';
 import { ServerResponse } from './ServerResponse';
 import { Scenario } from './scenario/Scenario';
 import { environment } from 'src/environments/environment';
+import { AppConfig } from './app.module';
 
 @Component({
     selector: 'home-component',
@@ -21,7 +22,7 @@ export class HomeComponent implements OnInit {
     ngOnInit() {
         var tok = this.helper.decodeToken(this.helper.tokenGetter());
         // using the token, we now need to get a list of scenarios
-        this.http.get('https://' + window.HobbyfarmConfig.SERVER + "/scenario/list")
+        this.http.get('https://' + AppConfig.getServer() + "/scenario/list")
         .subscribe(
             (s: ServerResponse) => {
                 // this should contain b64 encoded list of scenarios

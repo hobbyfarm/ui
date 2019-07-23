@@ -30,6 +30,20 @@ export function tokenGetter() {
   return localStorage.getItem("hobbyfarm_token");
 }
 
+// necessary so that TS knows about the HobbyfarmConfig namespace
+// on the window object. This gets injected with values at runtime
+declare global {
+  interface Window {
+    HobbyfarmConfig: any;
+  }
+}
+
+export class AppConfig {
+  static getServer() {
+    return window.HobbyfarmConfig.SERVER;
+  }
+}
+
 @NgModule({
   declarations: [
     AppComponent,
@@ -61,10 +75,10 @@ export function tokenGetter() {
       config: {
         tokenGetter: tokenGetter,
         whitelistedDomains: [
-          window.HobbyfarmConfig.SERVER
+          AppConfig.getServer()
         ],
         blacklistedRoutes: [
-          window.HobbyfarmConfig.SERVER + '/auth/authenticate'
+          AppConfig.getServer() + '/auth/authenticate'
         ],
         skipWhenExpired: true
       }
@@ -76,12 +90,6 @@ export function tokenGetter() {
   ],
   bootstrap: [RootComponent]
 })
-export class AppModule { }
+export class AppModule { 
 
-// necessary so that TS knows about the HobbyfarmConfig namespace
-// on the window object. This gets injected with values at runtime
-declare global {
-  interface Window {
-    HobbyfarmConfig: any;
-  }
 }
