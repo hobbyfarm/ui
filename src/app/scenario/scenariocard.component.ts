@@ -3,8 +3,7 @@ import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Scenario } from './Scenario';
 import { Router } from '@angular/router';
 import { ServerResponse } from '../ServerResponse';
-import { environment } from 'src/environments/environment';
-import { AppConfig } from '../app.module';
+import { AppConfig } from '../appconfig';
 
 @Component({
     templateUrl: 'scenariocard.component.html',

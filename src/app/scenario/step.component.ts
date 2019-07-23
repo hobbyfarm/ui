@@ -16,7 +16,7 @@ import { environment } from 'src/environments/environment';
 import { MarkdownService, MarkdownComponent } from 'ngx-markdown';
 import { CtrService } from './ctr.service';
 import { CodeExec } from './CodeExec';
-import { AppConfig } from '../app.module';
+import { AppConfig } from '../appconfig';
 
 
 @Component({
@@ -34,6 +34,8 @@ export class StepComponent implements OnInit, DoCheck {
     public progress = 0;
     public stepnumber: number = 0;
     public content = "";
+
+    public finishOpen: boolean = false;
 
 
     public scenarioSession: ScenarioSession = new ScenarioSession();
@@ -195,6 +197,10 @@ export class StepComponent implements OnInit, DoCheck {
     }
 
     goFinish() {
+        this.finishOpen = true;
+    }
+
+    actuallyFinish() {
         this.http.put('https://' + AppConfig.getServer() + "/session/" + this.route.snapshot.paramMap.get("scenariosession") + "/finished", {})
             .subscribe(
                 (s: ServerResponse) => {

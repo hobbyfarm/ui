@@ -6,7 +6,7 @@ import { map, delay, retryWhen, concatMap, mapTo } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
 import { of, from } from 'rxjs';
 import { VM } from './VM';
-import { AppConfig } from '../app.module';
+import { AppConfig } from '../appconfig';
 
 @Component({
     templateUrl: 'vmclaim.component.html',

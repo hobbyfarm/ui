@@ -3,8 +3,7 @@ import { HttpClient, HttpHeaders, HttpErrorResponse, HttpResponse, HttpParams } 
 import { Router } from '@angular/router';
 import { User } from './User';
 import { ServerResponse } from '../ServerResponse';
-import { environment } from 'src/environments/environment';
-import { AppConfig } from '../app.module';
+import { AppConfig } from '../appconfig';
 
 @Component({
     templateUrl: './login.component.html',

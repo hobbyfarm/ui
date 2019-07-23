@@ -3,8 +3,7 @@ import { JwtHelperService } from '@auth0/angular-jwt';
 import { HttpClient } from '@angular/common/http';
 import { ServerResponse } from './ServerResponse';
 import { Scenario } from './scenario/Scenario';
-import { environment } from 'src/environments/environment';
-import { AppConfig } from './app.module';
+import { AppConfig } from './appconfig';
 
 @Component({
     selector: 'home-component',

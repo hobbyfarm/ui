@@ -4,8 +4,7 @@
 
 export const environment = {
   production: false,
-  serverhostname: "api.na1.hobbyfarm.io", // hostname only e.g. server.example.com
-  server: "https://api.na1.hobbyfarm.io", // full url e.g. https://server.example.com
+  server: "api.na1dev.hobbyfarm.io"
 };
 
 /*

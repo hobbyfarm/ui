@@ -60,3 +60,18 @@
         </clr-tabs>
     </div>
 </div>
+
+<clr-modal [(clrModalOpen)]="finishOpen">
+    <h3 class="modal-title">
+        Are you sure you want to finish?
+    </h3>
+    <div class="modal-body">
+        <p>
+            Finishing a scenario will immediately de-provision your resources. Any VMs that you are using will be wiped. 
+        </p>
+    </div>
+    <div class="modal-footer">
+        <button class="btn btn-outline" (click)="finishOpen = false">Cancel</button>
+        <button class="btn btn-danger-outline" (click)="actuallyFinish()">Finish</button>
+    </div>
+</clr-modal>

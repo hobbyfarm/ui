@@ -9,7 +9,7 @@ import { ScenarioSession } from './ScenarioSession';
 import { from, of } from 'rxjs';
 import { VMClaim } from './VMClaim';
 import { environment } from 'src/environments/environment';
-import { AppConfig } from '../app.module';
+import { AppConfig } from '../appconfig';
 
 @Component({
     selector: 'scenario-component',
