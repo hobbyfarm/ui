@@ -19,8 +19,6 @@ export class HomeComponent implements OnInit {
     }
 
     ngOnInit() {
-        var tok = this.helper.decodeToken(this.helper.tokenGetter());
-        // using the token, we now need to get a list of scenarios
         this.http.get('https://' + AppConfig.getServer() + "/scenario/list")
         .subscribe(
             (s: ServerResponse) => {
