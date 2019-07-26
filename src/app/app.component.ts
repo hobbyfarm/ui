@@ -3,6 +3,7 @@ import { ClarityIcons } from '@clr/icons';
 import { JwtHelperService } from '@auth0/angular-jwt';
 import { ClrModal } from '@clr/angular';
 import { Router } from '@angular/router';
+import { environment } from 'src/environments/environment';
 
 @Component({
   selector: 'app-root',
@@ -12,6 +13,7 @@ import { Router } from '@angular/router';
 export class AppComponent implements OnInit {
   public title = "Rancher's Hobby Farm";
   public logoutModalOpened: boolean = false;
+  public version = environment.version;
 
   public email: string = "";
 
@@ -25,6 +27,7 @@ export class AppComponent implements OnInit {
   }
   
   @ViewChild("logoutmodal") logoutModal: ClrModal;
+  @ViewChild("aboutmodal") aboutModal: ClrModal;
 
   ngOnInit() {
     var tok = this.helper.decodeToken(this.helper.tokenGetter());
@@ -33,6 +36,10 @@ export class AppComponent implements OnInit {
 
   public logout() {
     this.logoutModal.open();
+  }
+
+  public about() {
+    this.aboutModal.open();
   }
 
   public doLogout() {

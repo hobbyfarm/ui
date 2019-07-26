@@ -18,6 +18,7 @@
           <clr-icon shape="caret down"></clr-icon>
         </button>
         <clr-dropdown-menu>
+          <a (click)="about()" clrDropdownItem>About</a>
           <a (click)="logout()" clrDropdownItem>Logout</a>
         </clr-dropdown-menu>
       </clr-dropdown>
@@ -44,5 +45,17 @@
           <button type="button" class="btn btn-outline" (click)="logoutModalOpened = false">Cancel</button>
           <button type="button" class="btn btn-danger-outline" (click)="doLogout()">Logout</button>
       </div>
+  </clr-modal>
+
+  <clr-modal #aboutmodal [(clrModalOpen)]="aboutModalOpened">
+    <h3 class="modal-title">About HobbyFarm</h3>
+    <div class="modal-body">
+      <p>
+        HobbyFarm was lovingly crafted by @ebauman and @Oats87 from @RancherLabs
+      </p>
+      <p>
+        <i>UI Version: {{version}}</i>
+      </p>
+    </div>
   </clr-modal>
 </div>
