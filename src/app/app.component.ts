@@ -13,6 +13,7 @@ import { environment } from 'src/environments/environment';
 export class AppComponent implements OnInit {
   public title = "Rancher's Hobby Farm";
   public logoutModalOpened: boolean = false;
+  public aboutModalOpened: boolean = false;
   public version = environment.version;
 
   public email: string = "";
