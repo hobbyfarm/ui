@@ -10,7 +10,8 @@ stages:
           | awk -F: '{ print $2 }' \
           | sed 's/[", ]//g')
         echo "Building HobbyFarm UI $PACKAGE_VERSION"
-        npm i
+        npm install -g @angular/cli
+        npm install
         ng build --aot
 - name: Publish
   steps:
