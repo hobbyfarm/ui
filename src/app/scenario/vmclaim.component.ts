@@ -1,12 +1,12 @@
 import { Component, Input, OnInit, OnChanges, Output, EventEmitter } from "@angular/core";
-import { VMClaim } from './VMClaim';
 import { HttpClient } from '@angular/common/http';
-import { ServerResponse } from '../ServerResponse';
-import { map, delay, retryWhen, concatMap, mapTo } from 'rxjs/operators';
-import { environment } from 'src/environments/environment';
-import { of, from } from 'rxjs';
-import { VM } from './VM';
-import { AppConfig } from '../appconfig';
+import { map, delay, retryWhen, concatMap } from 'rxjs/operators';
+import { from } from 'rxjs';
+import { VM } from '../VM';
+import { VMClaimService } from '../services/vmclaim.service';
+import { VMClaim } from '../VMClaim';
+import { VMService } from '../services/vm.service';
+import { VMClaimVM } from '../VMClaimVM';
 
 @Component({
     templateUrl: 'vmclaim.component.html',
@@ -23,7 +23,9 @@ export class VMClaimComponent implements OnChanges {
     public vms: Map<string, VM> = new Map();
 
     constructor(
-        public http: HttpClient
+        public http: HttpClient,
+        public vmClaimService: VMClaimService,
+        public vmService: VMService
     ) {
 
     }
@@ -38,15 +40,15 @@ export class VMClaimComponent implements OnChanges {
 
     ngOnChanges() {
         if (this.vmclaim.id != null) {
-            this.http.get('https://' + AppConfig.getServer() + "/vmclaim/" + this.vmclaim.id)
+            this.vmClaimService.get(this.vmclaim.id)
             .pipe(
-                concatMap((s: ServerResponse) => {
-                    this.vmclaim = JSON.parse(atob(s.content));
-                    if (!this.vmclaim.ready) {
+                concatMap((s: VMClaim) => {
+                    this.vmclaim = s;
+                    if (!s.ready) {
                         throw 1;
                     } else {
-                        this.ready.emit(this.vmclaim.id);
-                        return from(Object.entries(this.vmclaim.vm));
+                        this.ready.emit(s.id);
+                        return from(s.vm.values());
                     }
                 }),
                 retryWhen(obs => {
@@ -54,20 +56,18 @@ export class VMClaimComponent implements OnChanges {
                         delay(3000)
                     )
                 }),
-                concatMap((vmArray: any) => {
-                    if (!vmArray) {
+                concatMap((vcv: VMClaimVM) => {
+                    if (!vcv) {
                         throw 1;
                     }
-                    return this.http.get('https://' + AppConfig.getServer() + "/vm/" + vmArray[1].vm_id);
+                    return this.vmService.get(vcv.vm_id);
                 }),
                 retryWhen(obs => {
                     return obs.pipe(
                         delay(3000)
                     )
                 }),
-                map((s: ServerResponse) => {
-                    // this should be the VM
-                    var vm : VM = JSON.parse(atob(s.content));
+                map((vm: VM) => {
                     this.vms.set(vm.id, vm);
                 })
             ).subscribe();

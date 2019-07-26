@@ -23,8 +23,15 @@ import { AtobPipe } from './atob.pipe';
 import { MarkdownModule } from 'ngx-markdown';
 import { DynamicHTMLModule } from './dynamic-html';
 import { CtrComponent } from './scenario/ctr.component';
+import { VMInfoComponent } from './scenario/vminfo.component';
 import { CtrService } from './scenario/ctr.service';
 import { AppConfig } from './appconfig';
+import { VMInfoService } from './scenario/vminfo.service';
+import { ScenarioService } from './services/scenario.service';
+import { ScenarioSessionService } from './services/scenariosession.service';
+import { StepService } from './services/step.service';
+import { VMService } from './services/vm.service';
+import { VMClaimService } from './services/vmclaim.service';
 
 export function tokenGetter() {
   return localStorage.getItem("hobbyfarm_token");
@@ -61,6 +68,7 @@ export function jwtOptions() {
     ScenarioCard,
     StepComponent,
     CtrComponent,
+    VMInfoComponent,
     VMClaimComponent,
     AtobPipe
   ],
@@ -74,7 +82,8 @@ export function jwtOptions() {
     MarkdownModule.forRoot(),
     DynamicHTMLModule.forRoot({
       components: [
-        { component: CtrComponent, selector: 'ctr' }
+        { component: CtrComponent, selector: 'ctr' },
+        { component: VMInfoComponent, selector: 'vminfo'}
       ]
     }),
     JwtModule.forRoot({
@@ -98,6 +107,12 @@ export function jwtOptions() {
   providers: [
     AuthGuard,
     CtrService,
+    VMInfoService,
+    ScenarioService,
+    ScenarioSessionService,
+    StepService,
+    VMService,
+    VMClaimService,
     AppConfig,
     {
       provide: APP_INITIALIZER,

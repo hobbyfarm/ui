@@ -16,7 +16,6 @@
                 <h4 class="card-title">{{ step.title | atob }}</h4>
                 <div class="card-text">
                     <dynamic-html [content]="step.content | atob | markdown"></dynamic-html>
-                    <!-- <markdown ngPreserveWhitespaces [data]="step.content | atob" #markdown></markdown> -->
                 </div>
             </div>
             <div class="card-footer">

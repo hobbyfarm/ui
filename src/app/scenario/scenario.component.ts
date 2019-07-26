@@ -1,15 +1,15 @@
-import { Component, ViewChild, OnInit } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 import { Scenario } from './Scenario';
-import { Step } from './Step';
-import { HttpClient, HttpErrorResponse, HttpParams } from '@angular/common/http';
-import { ServerResponse } from '../ServerResponse';
-import { concatMap, map, retry, concatMapTo, delay, repeatWhen, retryWhen } from 'rxjs/operators';
-import { ScenarioSession } from './ScenarioSession';
+import { HttpClient } from '@angular/common/http';
+import { concatMap, delay, repeatWhen } from 'rxjs/operators';
+import { ScenarioSession } from '../ScenarioSession';
 import { from, of } from 'rxjs';
-import { VMClaim } from './VMClaim';
-import { environment } from 'src/environments/environment';
 import { AppConfig } from '../appconfig';
+import { ScenarioService } from '../services/scenario.service';
+import { ScenarioSessionService } from '../services/scenariosession.service';
+import { VMClaimService } from '../services/vmclaim.service';
+import { VMClaim } from '../VMClaim';
 
 @Component({
     selector: 'scenario-component',
@@ -28,22 +28,16 @@ export class ScenarioComponent implements OnInit {
 
     public set scenarioSession(s: ScenarioSession) {
         this._scenarioSession = s;
-        // now subscribe it
-        this.http.put('https://' + AppConfig.getServer() + "/session/" + s.id + "/keepalive", {})
-            .pipe(
-                repeatWhen(obs => {
-                    return obs.pipe(
-                        delay(30000)
-                    )
-                })
-            )
-            .subscribe()
+        this.ssService.keepalive(s.id).subscribe(); // keepalive subscription
     }
 
     constructor(
         public route: ActivatedRoute,
         public http: HttpClient,
-        public router: Router
+        public router: Router,
+        public scenarioService: ScenarioService,
+        public ssService: ScenarioSessionService,
+        public vmClaimService: VMClaimService
     ) {
     }
 
@@ -61,6 +55,7 @@ export class ScenarioComponent implements OnInit {
 
     ngOnInit() {
         this.unreadyclaims = ["one"]; // initially disable the page
+
         this.route.paramMap
             .subscribe(
                 (p: ParamMap) => {
@@ -75,35 +70,27 @@ export class ScenarioComponent implements OnInit {
                     // we will also need to display to the user the state of the VMs which would be cool
 
                     // get the scenario first
-                    this.http.get('https://' + AppConfig.getServer() + "/scenario/" + p.get("scenario"))
+                    this.scenarioService.get(p.get("scenario"))
                         .pipe(
-                            map((s: ServerResponse) => {
-                                this.scenario = JSON.parse(atob(s.content));
-                                return this.scenario;
-                            }),
                             concatMap((s: Scenario) => {
-                                let body = new HttpParams()
-                                    .set("scenario", s.id);
-                                return this.http.post('https://' + AppConfig.getServer() + "/session/new", body)
+                                this.scenario = s;
+                                return this.ssService.new(s.id);
                             }),
-                            concatMap((s: ServerResponse) => {
-                                // this will be the scenariosession  id
-                                this.scenarioSession = JSON.parse(atob(s.content));
-                                // now get the vmclaim(s) specified
-                                // return this.scenarioSession.vmclaims;
-                                return from(this.scenarioSession.vm_claim);
+                            concatMap((s: ScenarioSession) => {
+                                this.scenarioSession = s;
+                                return from(s.vm_claim);
                             }),
                             delay(2000),
                             concatMap((claimid: string) => {
                                 this.unreadyclaims = [];
                                 // push into unready claims map
                                 this.unreadyclaims.push(claimid);
-                                return this.http.get('https://' + AppConfig.getServer() + "/vmclaim/" + claimid)
+                                return this.vmClaimService.get(claimid);
                             })
                         )
                         .subscribe(
-                            (s: ServerResponse) => {
-                                this.vmclaims.push(JSON.parse(atob(s.content)));
+                            (s: VMClaim) => {
+                                this.vmclaims.push(s);
                             }
                         );
                 }

@@ -1,22 +1,28 @@
 import { Component, OnInit, ViewChildren, QueryList, DoCheck, ViewChild, ViewContainerRef, Renderer2, AfterViewInit, AfterViewChecked, ElementRef } from "@angular/core";
 import { ActivatedRoute, ParamMap, Router } from '@angular/router';
-import { Step } from './Step';
+import { Step } from '../Step';
 import { HttpClient } from '@angular/common/http';
 import { switchMap, concatMap, repeatWhen, delay } from 'rxjs/operators';
 import { TerminalComponent } from './terminal.component';
 import { ClrTabContent, ClrTab } from '@clr/angular';
 import { ServerResponse } from '../ServerResponse';
 import { Scenario } from './Scenario';
-import { ScenarioSession } from './ScenarioSession';
+import { ScenarioSession } from '../ScenarioSession';
 import { from } from 'rxjs';
-import { VMClaim } from './VMClaim';
-import { VMClaimVM } from './VMClaimVM';
-import { VM } from './VM';
-import { environment } from 'src/environments/environment';
+import { VMClaim } from '../VMClaim';
+import { VMClaimVM } from '../VMClaimVM';
+import { VM } from '../VM';
 import { MarkdownService, MarkdownComponent } from 'ngx-markdown';
 import { CtrService } from './ctr.service';
 import { CodeExec } from './CodeExec';
 import { AppConfig } from '../appconfig';
+import { VMInfoService } from './vminfo.service';
+import { ScenarioSessionService } from '../services/scenariosession.service';
+import { ScenarioService } from '../services/scenario.service';
+import { StepService } from '../services/step.service';
+import { VMClaimService } from '../services/vmclaim.service';
+import { VMService } from '../services/vm.service';
+import { VMInfoConfig } from '../VMInfoConfig';
 
 
 @Component({
@@ -38,9 +44,9 @@ export class StepComponent implements OnInit, DoCheck {
     public finishOpen: boolean = false;
 
 
-    public scenarioSession: ScenarioSession = new ScenarioSession();
     public params: ParamMap;
 
+    public scenarioSession: ScenarioSession = new ScenarioSession();
     public vmclaimvms: Map<string, VMClaimVM> = new Map();
     public vms: Map<string, VM> = new Map();
 
@@ -58,28 +64,43 @@ export class StepComponent implements OnInit, DoCheck {
         public markdownService: MarkdownService,
         public renderer: Renderer2,
         public elRef: ElementRef,
-        public ctr: CtrService
+        public ctr: CtrService,
+        public ssService: ScenarioSessionService,
+        public scenarioService: ScenarioService,
+        public stepService: StepService,
+        public vmClaimService: VMClaimService,
+        public vmService: VMService,
+        public vmInfoService: VMInfoService
     ) {
         this.markdownService.renderer.code = (code: string, language: string, isEscaped: boolean) => {
-            // non-ctr code
+            // non-special code
             if (language.length < 1) {
                 return "<pre>" + code + "</pre>";
             }
 
-            // generate a new ID
-            var id = ctr.generateId();
-            ctr.setCode(id, code);
-            // split the language (ctr:target)
-            ctr.setTarget(id, language.split(":")[1]);
+            // determine what kind of special injection we need to do
+            if (language.split(":")[0] == 'ctr') {
+                // generate a new ID
+                var id = ctr.generateId();
+                ctr.setCode(id, code);
+                // split the language (ctr:target)
+                ctr.setTarget(id, language.split(":")[1]);
 
-            return '<ctr ctrid="' + id + '"></ctr>'
+                return '<ctr ctrid="' + id + '"></ctr>'
+            } else if (language.split(":")[0] == 'vminfo') {
+                var config = new VMInfoConfig();
+                config.id = this.vmInfoService.generateId();
+                config.name = language.split(":")[1];
+                config.info = language.split(":")[2];
+                config.ss = this.route.snapshot.paramMap.get("scenariosession");
+                config.mode = language.split(":")[3];
+                config.code = code;
+                this.vmInfoService.setConfig(config);
+
+                return `<vminfo id="${config.id}"></vminfo>`;
+            }
         }
     }
-
-    ngAfterViewInit() {
-        console.log(this.markdownTemplate);
-    }
-
 
     getVmClaimVmKeys() {
         return this.vmclaimvms.keys();
@@ -98,43 +119,31 @@ export class StepComponent implements OnInit, DoCheck {
     }
 
     ngOnInit() {
-        // this route will now accept scenario session
-        // from the SS, we can derive the scenario as well as the vmclaim
-        // from the vmclaim, we can initiate shells
-        this.http.get('https://' + AppConfig.getServer() + "/session/" + this.route.snapshot.paramMap.get("scenariosession"))
-            .pipe(
-                concatMap((s: ServerResponse) => {
-                    this.scenarioSession = JSON.parse(atob(s.content));
-                    // now that we have the scenario session, get the vmclaim from it
-                    return from(this.scenarioSession.vm_claim)
-                }),
-                concatMap((claimid: string) => {
-                    // for each vmclaim id, get it
-                    return this.http.get('https://' + AppConfig.getServer() + "/vmclaim/" + claimid)
-                }),
-                concatMap((s: ServerResponse) => {
-                    // this will contain the vm claim
-                    var claim: VMClaim = JSON.parse(atob(s.content));
-                    // add the claimvms into the list of claims
-                    Object.entries(claim.vm).forEach((val) => {
-                        this.vmclaimvms.set(val[0], val[1]);
-                    })
-
-                    // for each vm in the claim, we need to get those vm details
-                    return from(Object.entries(claim.vm));
-                }),
-                concatMap((v: any) => {
-                    // this will be a vmclaimvm, that we then need to get details for.
-                    return this.http.get('https://' + AppConfig.getServer() + "/vm/" + v[1].vm_id);
-                })
-            )
-            .subscribe(
-                (s: ServerResponse) => {
-                    // this will be a VM, so insert into the map
-                    var vm: VM = JSON.parse(atob(s.content));
-                    this.vms.set(vm.id, vm);
-                }
-            )
+        // step 1, get the scenario session
+        // step 2, get the vmclaim
+        // step 3, for each VMClaimVM in the vmclaim, get that VM
+        this.ssService.get(this.route.snapshot.paramMap.get('scenariosession'))
+        .pipe(
+            switchMap((s: ScenarioSession) => {
+                this.scenarioSession = s;
+                return from(this.scenarioSession.vm_claim);
+            }),
+            concatMap((v: string) => {
+                return this.vmClaimService.get(v);
+            }),
+            concatMap((v: VMClaim) => {
+                this.vmclaimvms = v.vm;
+                return from(v.vm.values());
+            }),
+            concatMap((v: VMClaimVM) => {
+                return this.vmService.get(v.vm_id);
+            })
+        )
+        .subscribe(
+            (v: VM) => {
+                this.vms.set(v.id, v);
+            }
+        )
 
         // get the scenario
         this.route.paramMap
@@ -142,35 +151,23 @@ export class StepComponent implements OnInit, DoCheck {
                 switchMap((p: ParamMap) => {
                     this.params = p;
                     this.stepnumber = +p.get("step");
-                    return this.http.get('https://' + AppConfig.getServer() + "/session/" + p.get("scenariosession"))
+                    return this.ssService.get(p.get("scenariosession"));
                 }),
-                concatMap((s: ServerResponse) => {
-                    var ss = JSON.parse(atob(s.content));
-                    // from the ss, get the scenario
-                    return this.http.get('https://' + AppConfig.getServer() + "/scenario/" + ss.scenario);
+                concatMap((s: ScenarioSession) => {
+                    return this.scenarioService.get(s.scenario);
                 }),
+                switchMap((s: Scenario) => {
+                    this.scenario = s;
+                    return this.stepService.get(s.id, +this.params.get("step"));
+                })
             ).subscribe(
-                (s: ServerResponse) => {
-                    this.scenario = JSON.parse(atob(s.content));
-                    this.http.get('https://' + AppConfig.getServer() + "/scenario/" + this.scenario.id + "/step/" + this.params.get("step"))
-                        .subscribe(
-                            (s: ServerResponse) => {
-                                this.step = JSON.parse(atob(s.content));
-                            }
-                        )
+                (s: Step) => {
+                    this.step = s;
                 }
             )
 
-        // 30s PUTting against the keepalive
-        this.http.put('https://' + AppConfig.getServer() + "/session/" + this.route.snapshot.paramMap.get("scenariosession") + "/keepalive", {})
-            .pipe(
-                repeatWhen(obs => {
-                    return obs.pipe(
-                        delay(30000)
-                    )
-                })
-            )
-            .subscribe()
+        // setup keepalive
+        this.ssService.keepalive(this.route.snapshot.paramMap.get("scenariosession")).subscribe();
 
         this.ctr.getCodeStream().subscribe(
             (c: CodeExec) => {
