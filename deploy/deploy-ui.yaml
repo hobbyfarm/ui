@@ -22,5 +22,5 @@ spec:
         env:
         - name: HOBBYFARM_SERVER
           value: api.na1dev.hobbyfarm.io
-        imagePullSecrets:
-        - name: pipeline-docker-registry
+      imagePullSecrets:
+      - name: pipeline-docker-registry
