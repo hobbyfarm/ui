@@ -12,6 +12,7 @@ stages:
         echo "Building HobbyFarm UI $PACKAGE_VERSION"
         npm install -g @angular/cli
         npm install -g @angular-devkit/build-angular
+        npm install -g @angular/compiler-cli
         ng build --aot
 - name: Publish
   steps:
