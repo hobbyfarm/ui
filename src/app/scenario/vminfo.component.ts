@@ -15,7 +15,8 @@ import { VMInfoConfig } from '../VMInfoConfig';
 @Component({
     selector: 'vminfo',
     template: `
-    <pre>{{code}}</pre>
+    <pre *ngIf="config.mode != 'inline'">{{code}}</pre>
+    <a *ngIf="config.mode == 'link'" [href]="code">{{code}}<ng-container>
     `,
 })
 export class VMInfoComponent implements OnMount {

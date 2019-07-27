@@ -2,13 +2,13 @@ import { Component, OnInit, ViewChildren, QueryList, DoCheck, ViewChild, ViewCon
 import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 import { Step } from '../Step';
 import { HttpClient } from '@angular/common/http';
-import { switchMap, concatMap, repeatWhen, delay } from 'rxjs/operators';
+import { switchMap, concatMap, repeatWhen, delay, map, filter } from 'rxjs/operators';
 import { TerminalComponent } from './terminal.component';
 import { ClrTabContent, ClrTab } from '@clr/angular';
 import { ServerResponse } from '../ServerResponse';
 import { Scenario } from './Scenario';
 import { ScenarioSession } from '../ScenarioSession';
-import { from } from 'rxjs';
+import { from, of } from 'rxjs';
 import { VMClaim } from '../VMClaim';
 import { VMClaimVM } from '../VMClaimVM';
 import { VM } from '../VM';
@@ -39,7 +39,7 @@ export class StepComponent implements OnInit, DoCheck {
     public steps: string[] = [];
     public progress = 0;
     public stepnumber: number = 0;
-    public content = "";
+    public stepcontent: string = "";
 
     public finishOpen: boolean = false;
 
@@ -123,27 +123,27 @@ export class StepComponent implements OnInit, DoCheck {
         // step 2, get the vmclaim
         // step 3, for each VMClaimVM in the vmclaim, get that VM
         this.ssService.get(this.route.snapshot.paramMap.get('scenariosession'))
-        .pipe(
-            switchMap((s: ScenarioSession) => {
-                this.scenarioSession = s;
-                return from(this.scenarioSession.vm_claim);
-            }),
-            concatMap((v: string) => {
-                return this.vmClaimService.get(v);
-            }),
-            concatMap((v: VMClaim) => {
-                this.vmclaimvms = v.vm;
-                return from(v.vm.values());
-            }),
-            concatMap((v: VMClaimVM) => {
-                return this.vmService.get(v.vm_id);
-            })
-        )
-        .subscribe(
-            (v: VM) => {
-                this.vms.set(v.id, v);
-            }
-        )
+            .pipe(
+                switchMap((s: ScenarioSession) => {
+                    this.scenarioSession = s;
+                    return from(this.scenarioSession.vm_claim);
+                }),
+                concatMap((v: string) => {
+                    return this.vmClaimService.get(v);
+                }),
+                concatMap((v: VMClaim) => {
+                    this.vmclaimvms = v.vm;
+                    return from(v.vm.values());
+                }),
+                concatMap((v: VMClaimVM) => {
+                    return this.vmService.get(v.vm_id);
+                })
+            )
+            .subscribe(
+                (v: VM) => {
+                    this.vms.set(v.id, v);
+                }
+            )
 
         // get the scenario
         this.route.paramMap
@@ -159,11 +159,46 @@ export class StepComponent implements OnInit, DoCheck {
                 switchMap((s: Scenario) => {
                     this.scenario = s;
                     return this.stepService.get(s.id, +this.params.get("step"));
-                })
-            ).subscribe(
-                (s: Step) => {
+                }),
+                switchMap((s: Step) => {
                     this.step = s;
-                }
+
+                    var rawcontent = atob(s.content);
+                    // now string replace the content
+                    var replaceTokens = rawcontent.match(/\$\{.*?\}/);
+                    if (replaceTokens == null || replaceTokens.length == 0) {
+                        this.stepcontent = atob(this.step.content);
+                        return of(null);
+                    }
+
+                    return from(replaceTokens);
+                }),
+                filter((a: any) => {
+                    if (a == null) {
+                        this.stepcontent = atob(this.step.content);
+                        return false;
+                    }
+                    return true;
+                }),
+                switchMap((tok: string) => {
+                    var strippedString = tok.substring(2, tok.length - 1);
+                    var tokArray = strippedString.split(":");
+                    if (tokArray.length == 3) {
+                        return of(tok);
+                    }
+                }),
+                filter((a: any) => {
+                    if (a == null) {
+                        this.stepcontent = atob(this.step.content);
+                        return false;
+                    }
+                    return true;
+                }),
+                switchMap((tok: string) => {
+                    return this.replaceValue(atob(this.step.content), tok)
+                }),
+            ).subscribe(
+                (s: string) => this.stepcontent = s
             )
 
         // setup keepalive
@@ -186,11 +221,14 @@ export class StepComponent implements OnInit, DoCheck {
     }
 
     goNext() {
-        this.router.navigateByUrl("/app/session/" + this.scenarioSession.id + "/steps/" + (this.stepnumber + 1));
+        this.stepnumber += 1;
+        console.log(this.stepnumber);
+        this.router.navigateByUrl("/app/session/" + this.scenarioSession.id + "/steps/" + (this.stepnumber));
     }
 
     goPrevious() {
-        this.router.navigateByUrl("/app/session/" + this.scenarioSession.id + "/steps/" + (this.stepnumber - 1));
+        this.stepnumber -= 1;
+        this.router.navigateByUrl("/app/session/" + this.scenarioSession.id + "/steps/" + (this.stepnumber));
     }
 
     goFinish() {
@@ -204,6 +242,34 @@ export class StepComponent implements OnInit, DoCheck {
                     this.router.navigateByUrl("/app/home");
                 }
             )
+    }
+
+    private replaceValue(text: string, token: string) {
+        var splitTok = token.substring(2, token.length - 1)
+        var name = splitTok.split(":")[1];
+        var item = splitTok.split(":")[2];
+        return this.ssService.get(this.route.snapshot.paramMap.get("scenariosession"))
+            .pipe(
+                switchMap((s: ScenarioSession) => {
+                    return from(s.vm_claim);
+                }),
+                concatMap((claimid: string) => {
+                    return this.vmClaimService.get(claimid);
+                }),
+                concatMap((v: VMClaim) => {
+                    return of(v.vm.get(name.toLowerCase()));
+                }),
+                switchMap((v: VMClaimVM) => {
+                    return this.vmService.get(v.vm_id);
+                }),
+                map((v: VM) => {
+                    return text.replace(new RegExp(this.escapeRegExp(token), 'g'), v[item]);
+                })
+            )
+    }
+
+    escapeRegExp(string) {
+        return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); // $& means the whole matched string
     }
 
     ngDoCheck() {

@@ -15,12 +15,11 @@
             <div class="card-block">
                 <h4 class="card-title">{{ step.title | atob }}</h4>
                 <div class="card-text">
-                    <dynamic-html [content]="step.content | atob | markdown"></dynamic-html>
+                    <dynamic-html [content]="stepcontent | markdown"></dynamic-html>
                 </div>
             </div>
             <div class="card-footer">
-                <button class="btn btn-outline btn-previous" (click)="goPrevious()"
-                    [class.disabled]="this.stepnumber == 0">
+                <button class="btn btn-outline btn-previous" (click)="goPrevious()" [disabled]="this.stepnumber < 1">
                     <clr-icon shape="arrow" dir="left"></clr-icon> Previous
                 </button>
                 <button class="btn btn-outline btn-next" *ngIf="(this.scenario.stepcount-1) > this.stepnumber"
