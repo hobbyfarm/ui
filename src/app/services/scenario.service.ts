@@ -12,12 +12,13 @@ export class ScenarioService {
     private cachedScenarios: Map<string, Scenario> = new Map();
 
     constructor(
-        private http: HttpClient
+        private http: HttpClient,
+        public ac: AppConfig
     ) {
     }
 
     public list() {
-        this.http.get('https://' + AppConfig.getServer() + '/scenario/list')
+        this.http.get('https://' + this.ac.getServer() + '/scenario/list')
             .pipe(
                 map((s: ServerResponse) => {
                     return JSON.parse(atob(s.content));
@@ -34,7 +35,7 @@ export class ScenarioService {
         if (this.cachedScenarios.get(id) != null) {
             return of(this.cachedScenarios.get(id));
         } else {
-            return this.http.get('https://' + AppConfig.getServer() + '/scenario/' + id)
+            return this.http.get('https://' + this.ac.getServer() + '/scenario/' + id)
                 .pipe(
                     map((s: ServerResponse) => {
                         return JSON.parse(atob(s.content));

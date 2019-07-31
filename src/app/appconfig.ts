@@ -1,4 +1,6 @@
 import { environment } from 'src/environments/environment';
+import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
 
 
 declare global {
@@ -7,18 +9,22 @@ declare global {
     }
 }
 
+@Injectable()
 export class AppConfig {
-    static server: string = "";
+    public server: string = "";
 
-    public static initServer() {
-        if (!window.HobbyfarmConfig || !window.HobbyfarmConfig.SERVER || window.HobbyfarmConfig.SERVER == "") {
-            this.server = environment.server;
-        } else {
-            this.server = window.HobbyfarmConfig.SERVER;
-        }
+    constructor(
+        public http: HttpClient
+    ) {
     }
 
-    public static getServer() {
+    public init() {
+        return this.http.get('/env.json')
+            .toPromise()
+            .then((s: any) => this.server = s.server)
+    }
+
+    public getServer() {
         return this.server;
     }
 }

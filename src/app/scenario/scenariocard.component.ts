@@ -19,13 +19,14 @@ export class ScenarioCard implements OnInit {
 
     constructor(
         public http: HttpClient,
-        public router: Router
+        public router: Router,
+        public ac: AppConfig
     ) {
     }
 
     ngOnInit() {
         this.error = "";
-        this.http.get('https://' + AppConfig.getServer() + "/scenario/" + this.scenarioid)
+        this.http.get('https://' + this.ac.getServer() + "/scenario/" + this.scenarioid)
         .subscribe(
             (s: ServerResponse) => {
                 this.scenario = JSON.parse(atob(s.content));

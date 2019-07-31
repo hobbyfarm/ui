@@ -11,7 +11,8 @@ export class StepService {
     private cachedSteps: Map<string, Step> = new Map();
 
     constructor(
-        private http: HttpClient
+        private http: HttpClient,
+        public ac: AppConfig
     ){
 
     }
@@ -20,7 +21,7 @@ export class StepService {
         if (this.cachedSteps.get(scenario + ":" + index) != null)  {
             return of(this.cachedSteps.get(scenario  + ":" + index));
         } else {
-            return this.http.get('https://' + AppConfig.getServer() + '/scenario/' + scenario + '/step/' + index)
+            return this.http.get('https://' + this.ac.getServer() + '/scenario/' + scenario + '/step/' + index)
             .pipe(
                 map((s: ServerResponse) => {
                     return JSON.parse(atob(s.content));

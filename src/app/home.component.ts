@@ -14,12 +14,13 @@ export class HomeComponent implements OnInit {
     public scenarios: Scenario[];
     constructor(
         public helper: JwtHelperService,
-        public http: HttpClient 
+        public http: HttpClient,
+        public ac: AppConfig
     ) {
     }
 
     ngOnInit() {
-        this.http.get('https://' + AppConfig.getServer() + "/scenario/list")
+        this.http.get('https://' + this.ac.getServer() + "/scenario/list")
         .subscribe(
             (s: ServerResponse) => {
                 // this should contain b64 encoded list of scenarios

@@ -11,12 +11,13 @@ export class VMClaimService {
     private cachedVmClaims: Map<string, VMClaim> = new Map<string, VMClaim>();
 
     constructor(
-        private http: HttpClient
+        private http: HttpClient,
+        public ac: AppConfig
     ) {
     }
 
     public get(id: string): Observable<VMClaim> {
-        return this.http.get('https://' + AppConfig.getServer() + '/vmclaim/' + id)
+        return this.http.get('https://' + this.ac.getServer() + '/vmclaim/' + id)
             .pipe(
                 map((s: ServerResponse) => {
                     var v = JSON.parse(atob(s.content));

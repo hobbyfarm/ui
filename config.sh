@@ -1,4 +1,4 @@
 #!/bin/bash
-echo -e "\n\nwindow.HobbyfarmConfig = { SERVER: '${HOBBYFARM_SERVER}' } " >> /usr/share/nginx/html/main.js
+echo -e "{\"server\": \"${HOBBYFARM_SERVER}\"}" > /usr/share/nginx/html/env.json
 cat config.js
 nginx -g 'daemon off;' # overriding nginx default startup

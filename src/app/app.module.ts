@@ -12,7 +12,7 @@ import '@clr/icons/shapes/all-shapes';
 import { ScenarioComponent } from './scenario/scenario.component';
 import { TerminalComponent } from './scenario/terminal.component';
 import { JwtModule, JWT_OPTIONS } from '@auth0/angular-jwt';
-import { HttpClientModule } from '@angular/common/http';
+import { HttpClientModule, HttpClient } from '@angular/common/http';
 import { LoginComponent } from './login/login.component';
 import { FormsModule } from '@angular/forms';
 import { AuthGuard } from './auth.guard';
@@ -37,18 +37,20 @@ export function tokenGetter() {
   return localStorage.getItem("hobbyfarm_token");
 }
 
-export function loadConfig() {
-  return () => AppConfig.initServer();
+export function loadConfig(ac: AppConfig) {
+  return () => {
+    return ac.init();
+  }
 }
 
-export function jwtOptions() {
+export function jwtOptions(ac: AppConfig) {
   return {
     tokenGetter: tokenGetter,
     whitelistedDomains: [
-      AppConfig.getServer()
+      ac.getServer()
     ],
     blacklistedRoutes: [
-      AppConfig.getServer() + "/auth/authenticate"
+      ac.getServer() + "/auth/authenticate"
     ],
     skipWhenExpired: true
   }
@@ -83,7 +85,7 @@ export function jwtOptions() {
     DynamicHTMLModule.forRoot({
       components: [
         { component: CtrComponent, selector: 'ctr' },
-        { component: VMInfoComponent, selector: 'vminfo'}
+        { component: VMInfoComponent, selector: 'vminfo' }
       ]
     }),
     JwtModule.forRoot({

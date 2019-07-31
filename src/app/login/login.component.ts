@@ -23,7 +23,8 @@ export class LoginComponent {
     public loginactive: boolean = false;
     constructor(
         public http: HttpClient,
-        public router: Router
+        public router: Router,
+        public ac: AppConfig
     ) {
     }
 
@@ -34,7 +35,7 @@ export class LoginComponent {
             .set("password", this.password)
             .set("access_code", this.accesscode);
 
-        this.http.post('https://' + AppConfig.getServer() + "/auth/registerwithaccesscode", body)
+        this.http.post('https://' + this.ac.getServer() + "/auth/registerwithaccesscode", body)
             .subscribe(
                 (s: ServerResponse) => {
                     this.success = "Success! User created. Please login.";
@@ -58,7 +59,7 @@ export class LoginComponent {
             .set("email", this.email)
             .set("password", this.password);
 
-        this.http.post('https://' + AppConfig.getServer() + "/auth/authenticate", body)
+        this.http.post('https://' + this.ac.getServer() + "/auth/authenticate", body)
             .subscribe(
                 (s: ServerResponse) => {
                     // should have a token here

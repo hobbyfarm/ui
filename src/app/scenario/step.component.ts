@@ -70,7 +70,8 @@ export class StepComponent implements OnInit, DoCheck {
         public stepService: StepService,
         public vmClaimService: VMClaimService,
         public vmService: VMService,
-        public vmInfoService: VMInfoService
+        public vmInfoService: VMInfoService,
+        public ac: AppConfig
     ) {
         this.markdownService.renderer.code = (code: string, language: string, isEscaped: boolean) => {
             // non-special code
@@ -236,7 +237,7 @@ export class StepComponent implements OnInit, DoCheck {
     }
 
     actuallyFinish() {
-        this.http.put('https://' + AppConfig.getServer() + "/session/" + this.route.snapshot.paramMap.get("scenariosession") + "/finished", {})
+        this.http.put('https://' + this.ac.getServer() + "/session/" + this.route.snapshot.paramMap.get("scenariosession") + "/finished", {})
             .subscribe(
                 (s: ServerResponse) => {
                     this.router.navigateByUrl("/app/home");
