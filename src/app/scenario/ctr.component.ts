@@ -32,7 +32,6 @@ export class CtrComponent implements OnMount {
     }
 
     public ctr() {
-        console.log("CTR'ing!");
         this.ctrService.sendCode({target: this.target, code: this.code});
     }
 }
