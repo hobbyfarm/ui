@@ -2,7 +2,7 @@ import { Component, OnInit, ViewChildren, QueryList, DoCheck, ViewChild, ViewCon
 import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 import { Step } from '../Step';
 import { HttpClient } from '@angular/common/http';
-import { switchMap, concatMap, repeatWhen, delay, map, filter } from 'rxjs/operators';
+import { switchMap, concatMap, repeatWhen, delay, map, filter, catchError } from 'rxjs/operators';
 import { TerminalComponent } from './terminal.component';
 import { ClrTabContent, ClrTab } from '@clr/angular';
 import { ServerResponse } from '../ServerResponse';
@@ -186,6 +186,9 @@ export class StepComponent implements OnInit, DoCheck {
                     var tokArray = strippedString.split(":");
                     if (tokArray.length == 3) {
                         return of(tok);
+                    } else {
+                        // tokens are not supported, something else has been captured for instance.
+                        return of(null);
                     }
                 }),
                 filter((a: any) => {
@@ -197,7 +200,7 @@ export class StepComponent implements OnInit, DoCheck {
                 }),
                 switchMap((tok: string) => {
                     return this.replaceValue(atob(this.step.content), tok)
-                }),
+                })
             ).subscribe(
                 (s: string) => this.stepcontent = s
             )
@@ -223,7 +226,6 @@ export class StepComponent implements OnInit, DoCheck {
 
     goNext() {
         this.stepnumber += 1;
-        console.log(this.stepnumber);
         this.router.navigateByUrl("/app/session/" + this.scenarioSession.id + "/steps/" + (this.stepnumber));
     }
 
