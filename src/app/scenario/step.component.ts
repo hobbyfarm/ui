@@ -119,6 +119,37 @@ export class StepComponent implements OnInit, DoCheck {
         return Math.floor(((this.stepnumber + 1) / (this.scenario.stepcount)) * 100);
     }
 
+    getAllReplacementTokens(content: string, replacementTokens: string[][]) {
+        let tok = content.match(/\$\{vminfo:(.*):(.*)\}/);
+        if (tok == null) { // didn't find anythning
+            return replacementTokens;
+        } else {
+            if (tok.length == 3) {
+                // valid matches are len=3
+                // found something, add it
+                replacementTokens.push([tok[0], tok[1], tok[2]]) // token, vm, property
+            }
+            return this.getAllReplacementTokens(content.substring(tok.index + tok[0].length), replacementTokens)
+        }
+    }
+
+    replaceTokens(content: string) {
+        let tokens = this.getAllReplacementTokens(content, []);
+        for (var i = 0; i < tokens.length; i++) {
+            // get the vm and property
+            if (!this.vmclaimvms.has(tokens[i][1])) {
+                continue; // no valid VM
+            }
+
+            if (!this.vms.has(this.vmclaimvms.get(tokens[i][1]).vm_id)) {
+                continue; // no valid VM
+            }
+            content = content.replace(tokens[i][0], this.vms.get(this.vmclaimvms.get(tokens[i][1]).vm_id)[tokens[i][2]]);
+        }
+
+        return content;
+    }
+
     ngOnInit() {
         // step 1, get the scenario session
         // step 2, get the vmclaim
@@ -165,44 +196,12 @@ export class StepComponent implements OnInit, DoCheck {
                     this.step = s;
 
                     var rawcontent = atob(s.content);
-                    // now string replace the content
-                    var replaceTokens = rawcontent.match(/\$\{.*?\}/);
-                    if (replaceTokens == null || replaceTokens.length == 0) {
-                        this.stepcontent = atob(this.step.content);
-                        return of(null);
-                    }
-
-                    return from(replaceTokens);
-                }),
-                filter((a: any) => {
-                    if (a == null) {
-                        this.stepcontent = atob(this.step.content);
-                        return false;
-                    }
-                    return true;
-                }),
-                switchMap((tok: string) => {
-                    var strippedString = tok.substring(2, tok.length - 1);
-                    var tokArray = strippedString.split(":");
-                    if (tokArray.length == 3) {
-                        return of(tok);
-                    } else {
-                        // tokens are not supported, something else has been captured for instance.
-                        return of(null);
-                    }
-                }),
-                filter((a: any) => {
-                    if (a == null) {
-                        this.stepcontent = atob(this.step.content);
-                        return false;
-                    }
-                    return true;
-                }),
-                switchMap((tok: string) => {
-                    return this.replaceValue(atob(this.step.content), tok)
+                    return of(this.replaceTokens(rawcontent));
                 })
             ).subscribe(
-                (s: string) => this.stepcontent = s
+                (s: string) => {
+                    this.stepcontent = s;
+                }
             )
 
         // setup keepalive
