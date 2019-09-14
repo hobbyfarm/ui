@@ -3,7 +3,7 @@ import { JwtHelperService } from '@auth0/angular-jwt';
 import { HttpClient } from '@angular/common/http';
 import { ServerResponse } from './ServerResponse';
 import { Scenario } from './scenario/Scenario';
-import { AppConfig } from './appconfig';
+import { environment } from 'src/environments/environment';
 
 @Component({
     selector: 'home-component',
@@ -14,13 +14,12 @@ export class HomeComponent implements OnInit {
     public scenarios: Scenario[];
     constructor(
         public helper: JwtHelperService,
-        public http: HttpClient,
-        public ac: AppConfig
+        public http: HttpClient
     ) {
     }
 
     ngOnInit() {
-        this.http.get('https://' + this.ac.getServer() + "/scenario/list")
+        this.http.get('https://' + environment.server + "/scenario/list")
         .subscribe(
             (s: ServerResponse) => {
                 // this should contain b64 encoded list of scenarios

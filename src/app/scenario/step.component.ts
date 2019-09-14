@@ -1,8 +1,8 @@
-import { Component, OnInit, ViewChildren, QueryList, DoCheck, ViewChild, ViewContainerRef, Renderer2, AfterViewInit, AfterViewChecked, ElementRef } from "@angular/core";
+import { Component, OnInit, ViewChildren, QueryList, DoCheck, ViewChild, Renderer2, ElementRef } from "@angular/core";
 import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 import { Step } from '../Step';
 import { HttpClient } from '@angular/common/http';
-import { switchMap, concatMap, repeatWhen, delay, map, filter, catchError } from 'rxjs/operators';
+import { switchMap, concatMap, map } from 'rxjs/operators';
 import { TerminalComponent } from './terminal.component';
 import { ClrTabContent, ClrTab } from '@clr/angular';
 import { ServerResponse } from '../ServerResponse';
@@ -12,10 +12,9 @@ import { from, of } from 'rxjs';
 import { VMClaim } from '../VMClaim';
 import { VMClaimVM } from '../VMClaimVM';
 import { VM } from '../VM';
-import { MarkdownService, MarkdownComponent } from 'ngx-markdown';
+import { MarkdownService } from 'ngx-markdown';
 import { CtrService } from './ctr.service';
 import { CodeExec } from './CodeExec';
-import { AppConfig } from '../appconfig';
 import { VMInfoService } from './vminfo.service';
 import { ScenarioSessionService } from '../services/scenariosession.service';
 import { ScenarioService } from '../services/scenario.service';
@@ -23,6 +22,7 @@ import { StepService } from '../services/step.service';
 import { VMClaimService } from '../services/vmclaim.service';
 import { VMService } from '../services/vm.service';
 import { VMInfoConfig } from '../VMInfoConfig';
+import { environment } from 'src/environments/environment';
 
 
 @Component({
@@ -70,8 +70,7 @@ export class StepComponent implements OnInit, DoCheck {
         public stepService: StepService,
         public vmClaimService: VMClaimService,
         public vmService: VMService,
-        public vmInfoService: VMInfoService,
-        public ac: AppConfig
+        public vmInfoService: VMInfoService
     ) {
         this.markdownService.renderer.code = (code: string, language: string, isEscaped: boolean) => {
             // non-special code
@@ -238,7 +237,7 @@ export class StepComponent implements OnInit, DoCheck {
     }
 
     actuallyFinish() {
-        this.http.put('https://' + this.ac.getServer() + "/session/" + this.route.snapshot.paramMap.get("scenariosession") + "/finished", {})
+        this.http.put('https://' + environment.server + "/session/" + this.route.snapshot.paramMap.get("scenariosession") + "/finished", {})
             .subscribe(
                 (s: ServerResponse) => {
                     this.router.navigateByUrl("/app/home");

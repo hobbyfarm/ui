@@ -3,7 +3,7 @@ import { HttpClient, HttpHeaders, HttpErrorResponse, HttpResponse, HttpParams } 
 import { Router } from '@angular/router';
 import { User } from './User';
 import { ServerResponse } from '../ServerResponse';
-import { AppConfig } from '../appconfig';
+import { environment } from 'src/environments/environment';
 
 @Component({
     templateUrl: './login.component.html',
@@ -23,8 +23,7 @@ export class LoginComponent {
     public loginactive: boolean = false;
     constructor(
         public http: HttpClient,
-        public router: Router,
-        public ac: AppConfig
+        public router: Router
     ) {
     }
 
@@ -35,7 +34,7 @@ export class LoginComponent {
             .set("password", this.password)
             .set("access_code", this.accesscode);
 
-        this.http.post('https://' + this.ac.getServer() + "/auth/registerwithaccesscode", body)
+        this.http.post('https://' + environment.server + "/auth/registerwithaccesscode", body)
             .subscribe(
                 (s: ServerResponse) => {
                     this.success = "Success! User created. Please login.";
@@ -59,7 +58,7 @@ export class LoginComponent {
             .set("email", this.email)
             .set("password", this.password);
 
-        this.http.post('https://' + this.ac.getServer() + "/auth/authenticate", body)
+        this.http.post('https://' + environment.server + "/auth/authenticate", body)
             .subscribe(
                 (s: ServerResponse) => {
                     // should have a token here

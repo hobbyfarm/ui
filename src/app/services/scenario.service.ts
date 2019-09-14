@@ -2,9 +2,9 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Scenario } from '../scenario/Scenario';
 import { of } from 'rxjs';
-import { AppConfig } from '../appconfig';
 import { ServerResponse } from '../ServerResponse';
 import { map, tap } from 'rxjs/operators';
+import { environment } from 'src/environments/environment';
 
 @Injectable()
 
@@ -12,13 +12,12 @@ export class ScenarioService {
     private cachedScenarios: Map<string, Scenario> = new Map();
 
     constructor(
-        private http: HttpClient,
-        public ac: AppConfig
+        private http: HttpClient
     ) {
     }
 
     public list() {
-        this.http.get('https://' + this.ac.getServer() + '/scenario/list')
+        this.http.get('https://' + environment.server + '/scenario/list')
             .pipe(
                 map((s: ServerResponse) => {
                     return JSON.parse(atob(s.content));
@@ -35,7 +34,7 @@ export class ScenarioService {
         if (this.cachedScenarios.get(id) != null) {
             return of(this.cachedScenarios.get(id));
         } else {
-            return this.http.get('https://' + this.ac.getServer() + '/scenario/' + id)
+            return this.http.get('https://' + environment.server + '/scenario/' + id)
                 .pipe(
                     map((s: ServerResponse) => {
                         return JSON.parse(atob(s.content));

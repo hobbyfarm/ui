@@ -1,6 +1,5 @@
 import { BrowserModule } from '@angular/platform-browser';
-import { NgModule, APP_INITIALIZER } from '@angular/core';
-
+import { NgModule } from '@angular/core';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { ClarityModule } from '@clr/angular';
@@ -11,8 +10,8 @@ import '@clr/icons';
 import '@clr/icons/shapes/all-shapes';
 import { ScenarioComponent } from './scenario/scenario.component';
 import { TerminalComponent } from './scenario/terminal.component';
-import { JwtModule, JWT_OPTIONS } from '@auth0/angular-jwt';
-import { HttpClientModule, HttpClient } from '@angular/common/http';
+import { JwtModule } from '@auth0/angular-jwt';
+import { HttpClientModule } from '@angular/common/http';
 import { LoginComponent } from './login/login.component';
 import { FormsModule } from '@angular/forms';
 import { AuthGuard } from './auth.guard';
@@ -25,39 +24,17 @@ import { DynamicHTMLModule } from './dynamic-html';
 import { CtrComponent } from './scenario/ctr.component';
 import { VMInfoComponent } from './scenario/vminfo.component';
 import { CtrService } from './scenario/ctr.service';
-import { AppConfig } from './appconfig';
 import { VMInfoService } from './scenario/vminfo.service';
 import { ScenarioService } from './services/scenario.service';
 import { ScenarioSessionService } from './services/scenariosession.service';
 import { StepService } from './services/step.service';
 import { VMService } from './services/vm.service';
 import { VMClaimService } from './services/vmclaim.service';
+import { environment } from 'src/environments/environment';
 
 export function tokenGetter() {
   return localStorage.getItem("hobbyfarm_token");
 }
-
-export function loadConfig(ac: AppConfig) {
-  return () => {
-    return ac.init();
-  }
-}
-
-export function jwtOptions(ac: AppConfig) {
-  return {
-    tokenGetter: tokenGetter,
-    whitelistedDomains: [
-      ac.getServer()
-    ],
-    blacklistedRoutes: [
-      ac.getServer() + "/auth/authenticate"
-    ],
-    skipWhenExpired: true
-  }
-}
-// necessary so that TS knows about the HobbyfarmConfig namespace
-// on the window object. This gets injected with values at runtime
-
 
 @NgModule({
   declarations: [
@@ -89,20 +66,15 @@ export function jwtOptions(ac: AppConfig) {
       ]
     }),
     JwtModule.forRoot({
-      // config: {
-      //   tokenGetter: tokenGetter,
-      //   whitelistedDomains: [
-      //     AppConfig.server
-      //   ],
-      //   blacklistedRoutes: [
-      //     AppConfig.server + '/auth/authenticate'
-      //   ],
-      //   skipWhenExpired: true
-      // }
-      jwtOptionsProvider: {
-        provide: JWT_OPTIONS,
-        useFactory: jwtOptions,
-        deps: [AppConfig]
+      config: {
+        tokenGetter: tokenGetter,
+        whitelistedDomains: [
+          environment.server
+        ],
+        blacklistedRoutes: [
+          environment.server + "/auth/authenticate"
+        ],
+        skipWhenExpired: true
       }
     })
   ],
@@ -114,14 +86,7 @@ export function jwtOptions(ac: AppConfig) {
     ScenarioSessionService,
     StepService,
     VMService,
-    VMClaimService,
-    AppConfig,
-    {
-      provide: APP_INITIALIZER,
-      useFactory: loadConfig,
-      deps: [AppConfig],
-      multi: true
-    }
+    VMClaimService
   ],
   bootstrap: [RootComponent]
 })

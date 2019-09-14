@@ -2,22 +2,21 @@ import { Injectable } from '@angular/core';
 import { VMClaim } from '../VMClaim';
 import { HttpClient } from '@angular/common/http';
 import { of, Observable } from 'rxjs';
-import { AppConfig } from '../appconfig';
 import { ServerResponse } from '../ServerResponse';
 import { map, tap } from 'rxjs/operators';
+import { environment } from 'src/environments/environment';
 
 @Injectable()
 export class VMClaimService {
     private cachedVmClaims: Map<string, VMClaim> = new Map<string, VMClaim>();
 
     constructor(
-        private http: HttpClient,
-        public ac: AppConfig
+        private http: HttpClient
     ) {
     }
 
     public get(id: string): Observable<VMClaim> {
-        return this.http.get('https://' + this.ac.getServer() + '/vmclaim/' + id)
+        return this.http.get('https://' + environment.server + '/vmclaim/' + id)
             .pipe(
                 map((s: ServerResponse) => {
                     var v = JSON.parse(atob(s.content));

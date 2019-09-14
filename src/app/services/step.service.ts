@@ -1,18 +1,17 @@
 import { Injectable } from '@angular/core';
 import { Step } from '../Step';
 import { HttpClient } from '@angular/common/http';
-import { AppConfig } from '../appconfig';
 import { map, tap } from 'rxjs/operators';
 import { ServerResponse } from '../ServerResponse';
 import { of } from 'rxjs';
+import { environment } from 'src/environments/environment';
 
 @Injectable()
 export class StepService {
     private cachedSteps: Map<string, Step> = new Map();
 
     constructor(
-        private http: HttpClient,
-        public ac: AppConfig
+        private http: HttpClient
     ){
 
     }
@@ -21,7 +20,7 @@ export class StepService {
         if (this.cachedSteps.get(scenario + ":" + index) != null)  {
             return of(this.cachedSteps.get(scenario  + ":" + index));
         } else {
-            return this.http.get('https://' + this.ac.getServer() + '/scenario/' + scenario + '/step/' + index)
+            return this.http.get('https://' + environment.server + '/scenario/' + scenario + '/step/' + index)
             .pipe(
                 map((s: ServerResponse) => {
                     return JSON.parse(atob(s.content));
