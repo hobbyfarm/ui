@@ -4,8 +4,8 @@ COPY nginx.conf /etc/nginx/conf.d/default.conf
 
 COPY dist/* /usr/share/nginx/html
 
-COPY config.sh /
+COPY entrypoint.sh /
 
-RUN chmod +x /config.sh
+RUN chmod +x /entrypoint.sh
 
-CMD ["/config.sh"]
+ENTRYPOINT [ "/entrypoint.sh" ]
