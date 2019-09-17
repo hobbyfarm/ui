@@ -4,7 +4,16 @@
     </div>
 </div>
 <div class="clr-row">
-    <div class="clr-col-3" *ngFor="let s of scenarios">
-        <scenario-card [(scenarioid)]="s.id"></scenario-card>
-    </div>
+    <ng-container *ngIf="scenarios?.length > 0">
+        <div class="clr-col-3" *ngFor="let s of scenarios">
+            <scenario-card [(scenarioid)]="s.id"></scenario-card>
+        </div>
+    </ng-container>
+    <ng-container *ngIf="scenarios?.length <= 0">
+        <div class="clr-col-12">
+            <p>
+                No scenarios found. 
+            </p>
+        </div>
+    </ng-container>
 </div>
