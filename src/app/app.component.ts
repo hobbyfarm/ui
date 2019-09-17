@@ -27,8 +27,8 @@ export class AppComponent implements OnInit {
     })
   }
   
-  @ViewChild("logoutmodal") logoutModal: ClrModal;
-  @ViewChild("aboutmodal") aboutModal: ClrModal;
+  @ViewChild("logoutmodal", { static: true }) logoutModal: ClrModal;
+  @ViewChild("aboutmodal", { static: true }) aboutModal: ClrModal;
 
   ngOnInit() {
     var tok = this.helper.decodeToken(this.helper.tokenGetter());
