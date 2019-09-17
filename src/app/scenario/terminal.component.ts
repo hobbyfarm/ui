@@ -37,7 +37,7 @@ export class TerminalComponent implements OnInit, OnChanges {
         this.term.write(code);
     }
 
-    @ViewChild("terminal") terminalDiv: ElementRef;
+    @ViewChild("terminal", { static: true }) terminalDiv: ElementRef;
 
     public resize() {
         setTimeout(() => this.term.resize(80, 30), 150);

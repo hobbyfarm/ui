@@ -55,7 +55,7 @@ export class StepComponent implements OnInit, DoCheck {
     @ViewChildren('term') terms: QueryList<TerminalComponent> = new QueryList();
     @ViewChildren('tabcontent') tabContents: QueryList<ClrTabContent> = new QueryList();
     @ViewChildren('tab') tabs: QueryList<ClrTab> = new QueryList();
-    @ViewChild('markdown') markdownTemplate;
+    @ViewChild('markdown', { static: false }) markdownTemplate;
 
     constructor(
         public route: ActivatedRoute,
