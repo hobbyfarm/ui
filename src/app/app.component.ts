@@ -28,6 +28,17 @@ export class AppComponent implements OnInit {
   public changePwDangerAlert: string = "";
   public changePwSuccessAlert: string = "";
 
+  public accessCodeDangerClosed: boolean = true;
+  public accessCodeSuccessClosed: boolean = true;
+
+  public accessCodeDangerAlert: string = "";
+  public accessCodeSuccessAlert: string = "";
+
+  public newAccessCode: boolean = false;
+  public fetchingAccessCodes: boolean = false;
+
+  public accesscodes: string[] = [];
+
   public email: string = "";
 
   constructor(
@@ -50,6 +61,7 @@ export class AppComponent implements OnInit {
   @ViewChild("logoutmodal", { static: true }) logoutModal: ClrModal;
   @ViewChild("aboutmodal", { static: true }) aboutModal: ClrModal;
   @ViewChild("changepasswordmodal", { static: true }) changePasswordModal: ClrModal;
+  @ViewChild("accesscodemodal", {static: true}) accessCodeModal: ClrModal;
 
   public passwordChangeForm: FormGroup = new FormGroup({
     'old_password': new FormControl(null, [
@@ -62,6 +74,13 @@ export class AppComponent implements OnInit {
       Validators.required
     ])
   }, { validators: this.matchedPasswordValidator })
+
+  public newAccessCodeForm: FormGroup = new FormGroup({
+    'access_code': new FormControl(null, [
+      Validators.required,
+      Validators.minLength(4)
+    ])
+  })
 
   ngOnInit() {
     var tok = this.helper.decodeToken(this.helper.tokenGetter());
@@ -79,6 +98,69 @@ export class AppComponent implements OnInit {
   public changePassword() {
     this.passwordChangeForm.reset();
     this.changePasswordModal.open();
+  }
+
+  public openAccessCodes() {
+    this.newAccessCodeForm.reset();
+    this.fetchingAccessCodes = true;
+    this.userService.getAccessCodes()
+    .subscribe(
+      (a: string[]) => {
+        this.accesscodes = a;
+        this.fetchingAccessCodes = false;
+      },
+      (s: ServerResponse) => {
+        this.accessCodeDangerClosed = false;
+        this.accessCodeDangerAlert = s.message;
+        this.fetchingAccessCodes = false;
+      }
+    )
+    this.accessCodeModal.open();
+  }
+
+  public saveAccessCode() {
+    var a = this.newAccessCodeForm.get("access_code").value;
+    this.userService.addAccessCode(a)
+    .subscribe(
+      (s: ServerResponse) => {
+        // success
+        this.accessCodeSuccessAlert = s.message + " added.";
+        this.accessCodeSuccessClosed = false;
+        this.accesscodes.push(a);
+        this.newAccessCode = false;
+        setTimeout(() => this.accessCodeSuccessClosed = true, 2000);
+      },
+      (s: ServerResponse) => {
+        // failure
+        this.accessCodeDangerAlert = s.message;
+        this.accessCodeDangerClosed = false;
+        setTimeout(() => this.accessCodeDangerClosed = true, 2000);
+      }
+    )
+  }
+  
+  public _removeAccessCode(a: string) {
+    var acIndex = this.accesscodes.findIndex((v: string) => {
+      return v == a;
+    });
+    this.accesscodes.splice(acIndex, 1);
+  }
+
+  public deleteAccessCode(a: string) {
+    this.userService.deleteAccessCode(a)
+    .subscribe(
+      (s: ServerResponse) => {
+        this.accessCodeSuccessAlert = s.message + " deleted.";
+        this.accessCodeSuccessClosed = false;
+        this._removeAccessCode(a);
+        setTimeout(() => this.accessCodeSuccessClosed = true, 2000);
+      },
+      (s: ServerResponse) => {
+        this.accessCodeDangerAlert = s.message;
+        this.accessCodeDangerClosed = false;
+        setTimeout(() => this.accessCodeDangerClosed = true, 2000);
+      }
+    )
   }
 
   public doChangePassword() {

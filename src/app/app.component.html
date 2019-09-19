@@ -18,6 +18,7 @@
           <clr-icon shape="caret down"></clr-icon>
         </button>
         <clr-dropdown-menu>
+          <a (click)="openAccessCodes()" clrDropdownItem>Manage Access Codes</a>
           <a (click)="changePassword()" clrDropdownItem>Change Password</a>
           <a (click)="about()" clrDropdownItem>About</a>
           <a (click)="logout()" clrDropdownItem>Logout</a>
@@ -61,6 +62,70 @@
     </div>
   </clr-modal>
 
+  <clr-modal #accesscodemodal [(clrModalOpen)]="accessCodeModalOpened">
+    <h3 class="modal-title">Manage Access Codes</h3>
+    <div class="modal-body">
+      <clr-alert [clrAlertType]="'danger'" [(clrAlertClosed)]="accessCodeDangerClosed" [clrAlertClosable]="false">
+        <clr-alert-item>
+          <span class="alert-text">
+            {{ accessCodeDangerAlert }}
+          </span>
+        </clr-alert-item>
+      </clr-alert>
+      <clr-alert [clrAlertType]="'success'" [(clrAlertClosed)]="accessCodeSuccessClosed" [clrAlertClosable]="false">
+        <clr-alert-item>
+          <span class="alert-text">
+            {{ accessCodeSuccessAlert }}
+          </span>
+        </clr-alert-item>
+      </clr-alert>
+
+      <button class="btn btn-success-outline btn-sm" (click)="newAccessCode = true">
+        <clr-icon shape="plus"></clr-icon> Add Access Code
+      </button>
+
+      <ng-container *ngIf="newAccessCode">
+        <form clrForm [formGroup]="newAccessCodeForm">
+          <clr-input-container>
+            <label class="clr-col-md-4">Access Code</label>
+            <input class="clr-col-md-6" clrInput type="text" name="access_code" formControlName="access_code"
+              required />
+            <clr-control-error *clrIfError="'required'">Access code required.</clr-control-error>
+            <clr-control-error *clrIfError="'minLength'">Access code must be longer than 4 characters
+            </clr-control-error>
+          </clr-input-container>
+          <div class="col-md-2">
+            <button class="btn btn-success btn-sm" [disabled]="!newAccessCodeForm.valid" (click)="saveAccessCode()">Save</button>
+          </div>
+        </form>
+      </ng-container>
+
+      <ng-container *ngIf="fetchingAccessCodes">
+        <span class="spinner spinner-inline">
+          Loading...
+        </span>
+        <span>
+          Loading...
+        </span>
+      </ng-container>
+      <ng-container *ngIf="!fetchingAccessCodes">
+        <clr-datagrid class="datagrid-compact">
+          <clr-dg-column>Access Code</clr-dg-column>
+
+          <clr-dg-row *clrDgItems="let a of accesscodes" [clrDgItem]="a">
+            <clr-dg-action-overflow>
+              <button class="action-item" (click)="deleteAccessCode(a)">Delete</button>
+            </clr-dg-action-overflow>
+            <clr-dg-cell>{{ a }}</clr-dg-cell>
+          </clr-dg-row>
+        </clr-datagrid>
+      </ng-container>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" (click)="accessCodeModalOpened = false">Close</button>
+    </div>
+  </clr-modal>
+
   <clr-modal #changepasswordmodal [(clrModalOpen)]="changePasswordModalOpened">
     <h3 class="modal-title">Change Password</h3>
     <div class="modal-body">
@@ -72,12 +137,12 @@
         </clr-alert-item>
       </clr-alert>
       <clr-alert [clrAlertType]="'success'" [(clrAlertClosed)]="changePwSuccessClosed" [clrAlertClosable]="false">
-          <clr-alert-item>
-            <span class="alert-text">
-              {{ changePwSuccessAlert }}
-            </span>
-          </clr-alert-item>
-        </clr-alert>
+        <clr-alert-item>
+          <span class="alert-text">
+            {{ changePwSuccessAlert }}
+          </span>
+        </clr-alert-item>
+      </clr-alert>
       <form clrForm [formGroup]="passwordChangeForm">
         <clr-input-container>
           <label class="clr-col-md-4">Old Password</label>
