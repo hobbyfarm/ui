@@ -37,6 +37,8 @@ export class AppComponent implements OnInit {
   public newAccessCode: boolean = false;
   public fetchingAccessCodes: boolean = false;
 
+  public accessCodeModalOpened: boolean = false;
+
   public accesscodes: string[] = [];
 
   public email: string = "";
