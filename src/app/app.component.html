@@ -18,6 +18,7 @@
           <clr-icon shape="caret down"></clr-icon>
         </button>
         <clr-dropdown-menu>
+          <a (click)="changePassword()" clrDropdownItem>Change Password</a>
           <a (click)="about()" clrDropdownItem>About</a>
           <a (click)="logout()" clrDropdownItem>Logout</a>
         </clr-dropdown-menu>
@@ -32,19 +33,20 @@
   </div>
 
   <clr-modal #logoutmodal [(clrModalOpen)]="logoutModalOpened">
-      <h3 class="modal-title">Are you sure you want to logout?</h3>
-      <div class="modal-body">
-          <p>
-              Are you sure you want to logout?
-          </p>
-          <p>
-              Doing so will clear any progress in any scenarios you have started, and will destroy the resources allocated for the scenarios.
-          </p>
-      </div>
-      <div class="modal-footer">
-          <button type="button" class="btn btn-outline" (click)="logoutModalOpened = false">Cancel</button>
-          <button type="button" class="btn btn-danger-outline" (click)="doLogout()">Logout</button>
-      </div>
+    <h3 class="modal-title">Are you sure you want to logout?</h3>
+    <div class="modal-body">
+      <p>
+        Are you sure you want to logout?
+      </p>
+      <p>
+        Doing so will clear any progress in any scenarios you have started, and will destroy the resources allocated for
+        the scenarios.
+      </p>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-outline" (click)="logoutModalOpened = false">Cancel</button>
+      <button type="button" class="btn btn-danger-outline" (click)="doLogout()">Logout</button>
+    </div>
   </clr-modal>
 
   <clr-modal #aboutmodal [(clrModalOpen)]="aboutModalOpened">
@@ -56,6 +58,54 @@
       <p>
         <i>UI Version: {{version}}</i>
       </p>
+    </div>
+  </clr-modal>
+
+  <clr-modal #changepasswordmodal [(clrModalOpen)]="changePasswordModalOpened">
+    <h3 class="modal-title">Change Password</h3>
+    <div class="modal-body">
+      <clr-alert [clrAlertType]="'danger'" [(clrAlertClosed)]="changePwDangerClosed" [clrAlertClosable]="false">
+        <clr-alert-item>
+          <span class="alert-text">
+            {{ changePwDangerAlert }}
+          </span>
+        </clr-alert-item>
+      </clr-alert>
+      <clr-alert [clrAlertType]="'success'" [(clrAlertClosed)]="changePwSuccessClosed" [clrAlertClosable]="false">
+          <clr-alert-item>
+            <span class="alert-text">
+              {{ changePwSuccessAlert }}
+            </span>
+          </clr-alert-item>
+        </clr-alert>
+      <form clrForm [formGroup]="passwordChangeForm">
+        <clr-input-container>
+          <label class="clr-col-md-4">Old Password</label>
+          <input class="clr-col-md-8" clrInput type="password" name="old_password" formControlName="old_password"
+            required />
+          <clr-control-error *clrIfError="'required'">Old password required.</clr-control-error>
+        </clr-input-container>
+        <clr-input-container>
+          <label class="clr-col-md-4">New Password</label>
+          <input class="clr-col-md-8" clrInput type="password" name="new_password1" formControlName="new_password1"
+            required />
+          <clr-control-error *clrIfError="'required'">New password required.</clr-control-error>
+        </clr-input-container>
+        <clr-input-container>
+          <label class="clr-col-md-4">New Password Again</label>
+          <input class="clr-col-md-8" clrInput type="password" name="new_password2" formControlName="new_password2"
+            required />
+          <clr-control-error *clrIfError="'required'">Password confirmation required.</clr-control-error>
+        </clr-input-container>
+        <div class="clr-subtext"
+          *ngIf="passwordChangeForm.errors?.passwordMismatch && (passwordChangeForm.touched || passwordChangeForm.dirty)">
+          Passwords do not match</div>
+      </form>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-danger-outline" (click)="changePasswordModalOpened = false">Cancel</button>
+      <button class="btn btn-success" [disabled]="!passwordChangeForm.valid || (new_password1 != new_password2)"
+        (click)="doChangePassword()">Change Password</button>
     </div>
   </clr-modal>
 </div>

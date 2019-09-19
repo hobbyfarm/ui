@@ -13,7 +13,7 @@ import { TerminalComponent } from './scenario/terminal.component';
 import { JwtModule } from '@auth0/angular-jwt';
 import { HttpClientModule } from '@angular/common/http';
 import { LoginComponent } from './login/login.component';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { AuthGuard } from './auth.guard';
 import { ScenarioCard } from './scenario/scenariocard.component';
 import { StepComponent } from './scenario/step.component';
@@ -55,6 +55,7 @@ export function tokenGetter() {
     BrowserModule,
     AppRoutingModule,
     FormsModule,
+    ReactiveFormsModule,
     ClarityModule,
     BrowserAnimationsModule,
     HttpClientModule,
