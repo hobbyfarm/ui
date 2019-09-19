@@ -26,4 +26,38 @@ export class UserService {
       })
     )
   }
+
+  public getAccessCodes() {
+    return this.http.get("https://" + environment.server + "/auth/accesscode")
+    .pipe(
+      switchMap((s: ServerResponse) => {
+        return of(JSON.parse(atob(s.content)))
+      }),
+      catchError((e: HttpErrorResponse) => {
+        return throwError(e.error);
+      })
+    )
+  }
+
+  public addAccessCode(a: string) {
+    var params = new HttpParams()
+    .set("access_code", a);
+
+    return this.http.post<ServerResponse>("https://" + environment.server + "/auth/accesscode", params)
+    .pipe(
+      catchError((e: HttpErrorResponse) => {
+        return throwError(e.error);
+      })
+    ) 
+  }
+
+  public deleteAccessCode(a: string) {
+    return this.http.delete<ServerResponse>("https://" + environment.server + "/auth/accesscode/" + a)
+    .pipe(
+      catchError((e: HttpErrorResponse) => {
+        return throwError(e.error);
+      })
+    )
+  }
+  
 }
