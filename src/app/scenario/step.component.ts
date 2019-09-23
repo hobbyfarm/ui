@@ -119,7 +119,7 @@ export class StepComponent implements OnInit, DoCheck {
     }
 
     getAllReplacementTokens(content: string, replacementTokens: string[][]) {
-        let tok = content.match(/\$\{vminfo:(.*):(.*)\}/);
+        let tok = content.match(/\$\{vminfo:([^:]*):([^}]*)\}/);
         if (tok == null) { // didn't find anythning
             return replacementTokens;
         } else {
@@ -135,73 +135,63 @@ export class StepComponent implements OnInit, DoCheck {
     replaceTokens(content: string) {
         let tokens = this.getAllReplacementTokens(content, []);
         for (var i = 0; i < tokens.length; i++) {
+            var vmname = tokens[i][1].toLowerCase();
             // get the vm and property
-            if (!this.vmclaimvms.has(tokens[i][1])) {
+            if (!this.vmclaimvms.has(vmname)) {
                 continue; // no valid VM
             }
 
-            if (!this.vms.has(this.vmclaimvms.get(tokens[i][1]).vm_id)) {
+            if (!this.vms.has(this.vmclaimvms.get(vmname).vm_id)) {
                 continue; // no valid VM
             }
-            content = content.replace(tokens[i][0], this.vms.get(this.vmclaimvms.get(tokens[i][1]).vm_id)[tokens[i][2]]);
+            content = content.replace(tokens[i][0], this.vms.get(this.vmclaimvms.get(vmname).vm_id)[tokens[i][2]]);
         }
 
         return content;
     }
 
     ngOnInit() {
-        // step 1, get the scenario session
-        // step 2, get the vmclaim
-        // step 3, for each VMClaimVM in the vmclaim, get that VM
-        this.ssService.get(this.route.snapshot.paramMap.get('scenariosession'))
-            .pipe(
-                switchMap((s: ScenarioSession) => {
-                    this.scenarioSession = s;
-                    return from(this.scenarioSession.vm_claim);
-                }),
-                concatMap((v: string) => {
-                    return this.vmClaimService.get(v);
-                }),
-                concatMap((v: VMClaim) => {
-                    this.vmclaimvms = v.vm;
-                    return from(v.vm.values());
-                }),
-                concatMap((v: VMClaimVM) => {
-                    return this.vmService.get(v.vm_id);
-                })
-            )
-            .subscribe(
-                (v: VM) => {
-                    this.vms.set(v.id, v);
-                }
-            )
-
-        // get the scenario
         this.route.paramMap
-            .pipe(
-                switchMap((p: ParamMap) => {
-                    this.params = p;
-                    this.stepnumber = +p.get("step");
-                    return this.ssService.get(p.get("scenariosession"));
-                }),
-                concatMap((s: ScenarioSession) => {
-                    return this.scenarioService.get(s.scenario);
-                }),
-                switchMap((s: Scenario) => {
-                    this.scenario = s;
-                    return this.stepService.get(s.id, +this.params.get("step"));
-                }),
-                switchMap((s: Step) => {
-                    this.step = s;
+        .pipe(
+            switchMap((p: ParamMap) => {
+                this.params = p;
+                this.stepnumber = +p.get("step");
+                return this.ssService.get(p.get("scenariosession"));
+            }),
+            switchMap((s: ScenarioSession) => {
+                this.scenarioSession = s;
+                return this.scenarioService.get(s.scenario);
+            }),
+            switchMap((s: Scenario) => {
+                this.scenario = s;
+                return from(this.scenarioSession.vm_claim);
+            }),
+            concatMap((v: string) => {
+                return this.vmClaimService.get(v);
+            }),
+            concatMap((v: VMClaim) => {
+                Object.keys(v.vm).reduce((c, k) => (c[k.toLowerCase()] = v.vm[k], c), {});
+                this.vmclaimvms = v.vm;
+                return from(v.vm.values());
+            }),
+            concatMap((v: VMClaimVM) => {
+                return this.vmService.get(v.vm_id);
+            }),
+            switchMap((v: VM) => {
+                this.vms.set(v.id, v);
+                return this.stepService.get(this.scenarioSession.scenario, +this.params.get("step"));
+            }),
+            switchMap((s: Step) => {
+                this.step = s;
 
-                    var rawcontent = atob(s.content);
-                    return of(this.replaceTokens(rawcontent));
-                })
-            ).subscribe(
-                (s: string) => {
-                    this.stepcontent = s;
-                }
-            )
+                var rawcontent = atob(s.content);
+                return of(this.replaceTokens(rawcontent));
+            }),
+        ).subscribe(
+            (s: string) => {
+                this.stepcontent = s;
+            }
+        )
 
         // setup keepalive
         this.ssService.keepalive(this.route.snapshot.paramMap.get("scenariosession")).subscribe();
