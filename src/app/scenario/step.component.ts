@@ -2,7 +2,7 @@ import { Component, OnInit, ViewChildren, QueryList, DoCheck, ViewChild, Rendere
 import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 import { Step } from '../Step';
 import { HttpClient } from '@angular/common/http';
-import { switchMap, concatMap, map } from 'rxjs/operators';
+import { switchMap, concatMap, map, first } from 'rxjs/operators';
 import { TerminalComponent } from './terminal.component';
 import { ClrTabContent, ClrTab } from '@clr/angular';
 import { ServerResponse } from '../ServerResponse';
@@ -152,46 +152,47 @@ export class StepComponent implements OnInit, DoCheck {
 
     ngOnInit() {
         this.route.paramMap
-        .pipe(
-            switchMap((p: ParamMap) => {
-                this.params = p;
-                this.stepnumber = +p.get("step");
-                return this.ssService.get(p.get("scenariosession"));
-            }),
-            switchMap((s: ScenarioSession) => {
-                this.scenarioSession = s;
-                return this.scenarioService.get(s.scenario);
-            }),
-            switchMap((s: Scenario) => {
-                this.scenario = s;
-                return from(this.scenarioSession.vm_claim);
-            }),
-            concatMap((v: string) => {
-                return this.vmClaimService.get(v);
-            }),
-            concatMap((v: VMClaim) => {
-                Object.keys(v.vm).reduce((c, k) => (c[k.toLowerCase()] = v.vm[k], c), {});
-                this.vmclaimvms = v.vm;
-                return from(v.vm.values());
-            }),
-            concatMap((v: VMClaimVM) => {
-                return this.vmService.get(v.vm_id);
-            }),
-            switchMap((v: VM) => {
-                this.vms.set(v.id, v);
-                return this.stepService.get(this.scenarioSession.scenario, +this.params.get("step"));
-            }),
-            switchMap((s: Step) => {
-                this.step = s;
+            .pipe(
+                first(),
+                switchMap((p: ParamMap) => {
+                    this.params = p;
+                    this.stepnumber = +p.get("step");
+                    return this.ssService.get(p.get("scenariosession"));
+                }),
+                switchMap((s: ScenarioSession) => {
+                    this.scenarioSession = s;
+                    return this.scenarioService.get(s.scenario);
+                }),
+                switchMap((s: Scenario) => {
+                    this.scenario = s;
+                    return from(this.scenarioSession.vm_claim);
+                }),
+                concatMap((v: string) => {
+                    return this.vmClaimService.get(v);
+                }),
+                concatMap((v: VMClaim) => {
+                    Object.keys(v.vm).reduce((c, k) => (c[k.toLowerCase()] = v.vm[k], c), {});
+                    this.vmclaimvms = v.vm;
+                    return from(v.vm.values());
+                }),
+                concatMap((v: VMClaimVM) => {
+                    return this.vmService.get(v.vm_id);
+                }),
+                switchMap((v: VM) => {
+                    this.vms.set(v.id, v);
+                    return this.stepService.get(this.scenarioSession.scenario, +this.params.get("step"));
+                }),
+                switchMap((s: Step) => {
+                    this.step = s;
 
-                var rawcontent = atob(s.content);
-                return of(this.replaceTokens(rawcontent));
-            }),
-        ).subscribe(
-            (s: string) => {
-                this.stepcontent = s;
-            }
-        )
+                    var rawcontent = atob(s.content);
+                    return of(this.replaceTokens(rawcontent));
+                }),
+            ).subscribe(
+                (s: string) => {
+                    this.stepcontent = s;
+                }
+            )
 
         // setup keepalive
         this.ssService.keepalive(this.route.snapshot.paramMap.get("scenariosession")).subscribe();
@@ -215,11 +216,29 @@ export class StepComponent implements OnInit, DoCheck {
     goNext() {
         this.stepnumber += 1;
         this.router.navigateByUrl("/app/session/" + this.scenarioSession.id + "/steps/" + (this.stepnumber));
+        this._loadStep();
+    }
+
+    private _loadStep() {
+        this.stepService.get(this.scenario.id, this.stepnumber)
+            .pipe(
+                switchMap((s: Step) => {
+                    this.step = s;
+
+                    var rawcontent = atob(s.content);
+                    return of(this.replaceTokens(rawcontent));
+                }),
+            ).subscribe(
+                (s: string) => {
+                    this.stepcontent = s;
+                }
+            )
     }
 
     goPrevious() {
         this.stepnumber -= 1;
         this.router.navigateByUrl("/app/session/" + this.scenarioSession.id + "/steps/" + (this.stepnumber));
+        this._loadStep();
     }
 
     goFinish() {
