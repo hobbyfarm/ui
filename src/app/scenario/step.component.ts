@@ -2,9 +2,9 @@ import { Component, OnInit, ViewChildren, QueryList, DoCheck, ViewChild, Rendere
 import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 import { Step } from '../Step';
 import { HttpClient } from '@angular/common/http';
-import { switchMap, concatMap, map, first } from 'rxjs/operators';
+import { switchMap, concatMap, map, first, repeatWhen, delay } from 'rxjs/operators';
 import { TerminalComponent } from './terminal.component';
-import { ClrTabContent, ClrTab } from '@clr/angular';
+import { ClrTabContent, ClrTab, ClrModal } from '@clr/angular';
 import { ServerResponse } from '../ServerResponse';
 import { Scenario } from './Scenario';
 import { ScenarioSession } from '../ScenarioSession';
@@ -52,10 +52,43 @@ export class StepComponent implements OnInit, DoCheck {
 
     public text: string = "";
 
+    public pauseOpen: boolean = false;
+
+    public pauseremaining = {
+        "d": 0,
+        "h": 0,
+        "m": 0,
+        ".": 0 // seconds
+    };
+
+    public pauseLastUpdated: Date = new Date();
+
+    public get pauseRemainingString() {
+        var remaining = "";
+        if (this.pauseremaining["d"] != 0) {
+            remaining += this.pauseremaining["d"] + "Days ";
+        }
+
+        if (this.pauseremaining["h"] != 0) {
+            remaining += this.pauseremaining["h"] + ":";
+        }
+
+        if (this.pauseremaining["m"] != 0) {
+            remaining += this.pauseremaining["m"];
+        }
+
+        if (this.pauseremaining["."] != 0) {
+            remaining += ":" + this.pauseremaining["."];
+        }
+
+        return remaining;
+    }
+
     @ViewChildren('term') terms: QueryList<TerminalComponent> = new QueryList();
     @ViewChildren('tabcontent') tabContents: QueryList<ClrTabContent> = new QueryList();
     @ViewChildren('tab') tabs: QueryList<ClrTab> = new QueryList();
     @ViewChild('markdown', { static: false }) markdownTemplate;
+    @ViewChild('pausemodal', { static: true }) pauseModal: ClrModal;
 
     constructor(
         public route: ActivatedRoute,
@@ -195,7 +228,30 @@ export class StepComponent implements OnInit, DoCheck {
             )
 
         // setup keepalive
-        this.ssService.keepalive(this.route.snapshot.paramMap.get("scenariosession")).subscribe();
+        this.ssService.keepalive(this.route.snapshot.paramMap.get("scenariosession"))
+            .pipe(
+                repeatWhen(obs => {
+                    return obs.pipe(
+                        delay(2000)
+                    )
+                })
+            )
+            .subscribe(
+                (s: ServerResponse) => {
+                    if (s.type == 'paused') {
+                        // need to display the paused modal
+                        // construct the time remaining
+                        this._splitTime(s.message);
+                        this.pauseLastUpdated = new Date();
+
+                        if (!this.pauseModal._open) {
+                            this.pauseModal.open();
+                        }
+                    } else {
+                        this.pauseOpen = false;
+                    }
+                }
+            )
 
         this.ctr.getCodeStream().subscribe(
             (c: CodeExec) => {
@@ -211,6 +267,17 @@ export class StepComponent implements OnInit, DoCheck {
                 })
             }
         )
+    }
+
+    private _splitTime(t: string) {
+        var times: string[] = [];
+        var timesegments = Object.keys(this.pauseremaining);
+        timesegments.forEach((ts: string) => {
+            if (t.split(ts).length > 1) {
+                this.pauseremaining[ts] = t.split(ts)[0];
+                t = t.split(ts)[1];
+            }
+        });
     }
 
     goNext() {
@@ -250,6 +317,38 @@ export class StepComponent implements OnInit, DoCheck {
             .subscribe(
                 (s: ServerResponse) => {
                     this.router.navigateByUrl("/app/home");
+                }
+            )
+    }
+
+    public pause() {
+        this.ssService.pause(this.scenarioSession.id)
+            .pipe(
+                switchMap((s: ServerResponse) => {
+                    // if successful, hit the keepalive endpoint to update time.
+                    return this.ssService.keepalive(this.scenarioSession.id);
+                })
+            ).subscribe(
+                (s: ServerResponse) => {
+                    // all should have been successful, so just update time and open modal.
+                    this._splitTime(s.message);
+                    this.pauseModal.open();
+                },
+                (s: ServerResponse) => {
+                    // failure! what now? 
+                }
+            )
+    }
+
+    public resume() {
+        this.ssService.resume(this.scenarioSession.id)
+            .subscribe(
+                (s: ServerResponse) => {
+                    // successful means we're resumed
+                    this.pauseOpen = false;
+                },
+                (s: ServerResponse) => {
+                    // something went wrong
                 }
             )
     }

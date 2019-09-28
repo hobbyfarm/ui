@@ -29,15 +29,16 @@ export class ScenarioSessionService {
             )
     }
 
+    public pause(sessionId: string) {
+        return this.http.put("https://" + environment.server + '/session/' + sessionId + '/pause', {});
+    }
+
+    public resume(sessionId: string) {
+        return this.http.put("https://" + environment.server + '/session/' + sessionId + '/resume', {});
+    }
+
     public keepalive(sessionId: string) {
         return this.http.put('https://' + environment.server + '/session/' + sessionId + '/keepalive', {})
-            .pipe(
-                repeatWhen(obs => {
-                    return obs.pipe(
-                        delay(30000)
-                    )
-                })
-            )
     }
 
     public get(id: string) {

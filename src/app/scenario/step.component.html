@@ -1,4 +1,16 @@
 <div class="clr-row">
+    <div class="clr-col">
+        <button class="btn" (click)="pause()"><clr-icon shape="pause" class="is-solid"></clr-icon> Pause Scenario</button>
+        <clr-signpost>
+            <clr-signpost-content *clrIfOpen>
+                <p>
+                    Pausing your scenario prevents removal of your VMs in case of network disconnection, timeout, etc. 
+                </p>
+            </clr-signpost-content>
+        </clr-signpost>
+    </div>
+</div>
+<div class="clr-row">
     <div class="clr-col-12">
         <h4>{{ scenario.name | atob }}</h4>
     </div>
@@ -71,5 +83,23 @@
     <div class="modal-footer">
         <button class="btn btn-outline" (click)="finishOpen = false">Cancel</button>
         <button class="btn btn-danger-outline" (click)="actuallyFinish()">Finish</button>
+    </div>
+</clr-modal>
+
+<clr-modal #pausemodal [(clrModalOpen)]="pauseOpen" [clrModalClosable]="false">
+    <h3 class="modal-title">
+        Scenario Paused
+    </h3>
+    <div class="modal-body">
+        <p>
+        This scenario has been paused. If you do nothing, the scenario will automatically resume in {{ pauseRemainingString }}
+        </p>
+        <p>
+        <span class='clr-subtext'>Last updated at {{ pauseLastUpdated | date:'medium' }}</span>
+        </p>
+        <br/>
+    </div>
+    <div class="modal-footer">
+        <button class="btn" (click)="resume()"><clr-icon shape="play" class="is-solid"></clr-icon> Resume Scenario</button>
     </div>
 </clr-modal>
