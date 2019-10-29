@@ -14,7 +14,7 @@ import { CodeExec } from './CodeExec';
         'terminal.component.css'
     ]
 })
-export class TerminalComponent implements OnInit, OnChanges {
+export class TerminalComponent implements OnChanges {
     @Input()
     vmid: string;
 
@@ -25,7 +25,7 @@ export class TerminalComponent implements OnInit, OnChanges {
     endpoint: string;
 
     public term: any;
-    public socket: any;
+    public socket: WebSocket;
     constructor(
         public jwtHelper: JwtHelperService,
         public ctrService: CtrService
@@ -43,29 +43,6 @@ export class TerminalComponent implements OnInit, OnChanges {
         setTimeout(() => this.term.resize(80, 30), 150);
     }
 
-    ngOnInit() {
-        // setup watches
-        this.ctrService.getCodeStream().subscribe(
-            (c: CodeExec) => {
-                if (!c) {
-                    return;
-                }
-                // if the code exec is target at us,execute it
-                if (c.target.toLowerCase() == this.vmname.toLowerCase()) {
-                    // break up the code by lines
-                    var codeArray: string[] = c.code.split("\n");
-                    // drop each line
-                    codeArray.forEach(
-                        (s: string) => {
-                            // this.term.writeln(s)
-                            this.socket.send(s + "\n");
-                        }
-                    )
-                }
-            }
-        )
-    }
-
     ngOnChanges() {
         if (this.vmid != null && this.endpoint != null) {
             Terminal.applyAddon(attach);
@@ -78,6 +55,27 @@ export class TerminalComponent implements OnInit, OnChanges {
             this.socket.onopen = (e) => {
                 this.term.attach(this.socket, true, true);
                 this.term.open(this.terminalDiv.nativeElement);
+
+                this.ctrService.getCodeStream()
+                    .subscribe(
+                        (c: CodeExec) => {
+                            if (!c) {
+                                return;
+                            }
+                            // if the code exec is target at us,execute it
+                            if (c.target.toLowerCase() == this.vmname.toLowerCase()) {
+                                // break up the code by lines
+                                var codeArray: string[] = c.code.split("\n");
+                                // drop each line
+                                codeArray.forEach(
+                                    (s: string) => {
+                                        // this.term.writeln(s)
+                                        this.socket.send(s + "\n");
+                                    }
+                                )
+                            }
+                        }
+                    )
 
                 setInterval(() => {
                     this.socket.send(''); // keepalive
