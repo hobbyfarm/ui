@@ -6,4 +6,5 @@ export class Scenario {
     description: string;
     stepcount: number;
     virtualmachines: Map<string, string>[];
+    pauseable: boolean;
 }
