@@ -17,7 +17,7 @@ export class ScenarioService {
     }
 
     public list() {
-        this.http.get('https://' + environment.server + '/scenario/list')
+        return this.http.get('https://' + environment.server + '/scenario/list')
             .pipe(
                 map((s: ServerResponse) => {
                     return JSON.parse(atob(s.content));
