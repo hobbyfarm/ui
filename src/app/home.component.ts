@@ -4,6 +4,8 @@ import { HttpClient } from '@angular/common/http';
 import { ServerResponse } from './ServerResponse';
 import { Scenario } from './scenario/Scenario';
 import { environment } from 'src/environments/environment';
+import { UserService } from './services/user.service';
+import { ScenarioService } from './services/scenario.service';
 
 @Component({
     selector: 'home-component',
@@ -14,16 +16,28 @@ export class HomeComponent implements OnInit {
     public scenarios: Scenario[] = [];
     constructor(
         public helper: JwtHelperService,
-        public http: HttpClient
+        public http: HttpClient,
+        public userService: UserService,
+        public scenarioService: ScenarioService
     ) {
     }
 
+    _refresh() {
+        this.scenarioService.list().subscribe(
+            (s: Scenario[]) => {
+                this.scenarios = s
+            }
+        )
+    }
+
     ngOnInit() {
-        this.http.get('https://' + environment.server + "/scenario/list")
+        this._refresh();
+        this.userService.getModifiedObservable()
         .subscribe(
-            (s: ServerResponse) => {
-                // this should contain b64 encoded list of scenarios
-                this.scenarios = JSON.parse(atob(s.content));
+            (_) => {
+                // values push when adjustments made to access code list
+                // thus, refresh the scenario list
+                this._refresh();
             }
         )
     }
