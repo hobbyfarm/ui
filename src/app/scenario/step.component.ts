@@ -2,7 +2,7 @@ import { Component, OnInit, ViewChildren, QueryList, DoCheck, ViewChild, Rendere
 import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 import { Step } from '../Step';
 import { HttpClient } from '@angular/common/http';
-import { switchMap, concatMap, map, first, repeatWhen, delay } from 'rxjs/operators';
+import { switchMap, concatMap, map, first, repeatWhen, delay, retryWhen } from 'rxjs/operators';
 import { TerminalComponent } from './terminal.component';
 import { ClrTabContent, ClrTab, ClrModal } from '@clr/angular';
 import { ServerResponse } from '../ServerResponse';
@@ -233,6 +233,11 @@ export class StepComponent implements OnInit, DoCheck {
                 repeatWhen(obs => {
                     return obs.pipe(
                         delay(2000)
+                    )
+                }),
+                retryWhen(obs => {
+                    return obs.pipe(
+                        delay(10000)
                     )
                 })
             )

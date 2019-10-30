@@ -1,4 +1,4 @@
-<div class="clr-row">
+<div class="clr-row" *ngIf="scenario.pauseable">
     <div class="clr-col">
         <button class="btn" (click)="pause()"><clr-icon shape="pause" class="is-solid"></clr-icon> Pause Scenario</button>
         <clr-signpost>
