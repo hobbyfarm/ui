@@ -1,6 +1,5 @@
 .login-wrapper {
-    background: url("src/assets/login_container_farm.svg");
-    background-size: 100%;
+    background: no-repeat center/cover url("src/assets/login_container_farm.svg");
     background-position: 21rem 0;
 }
 
