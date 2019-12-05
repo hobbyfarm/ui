@@ -232,7 +232,7 @@ export class StepComponent implements OnInit, DoCheck {
             .pipe(
                 repeatWhen(obs => {
                     return obs.pipe(
-                        delay(30000)
+                        delay(60000)
                     )
                 }),
                 retryWhen(obs => {
