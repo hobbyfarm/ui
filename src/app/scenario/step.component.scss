@@ -11,3 +11,9 @@ code {
 .terminals {
     padding: 3px;
 }
+
+span.shell-status {
+    width: 100%;
+    border: 1px solid #ccc;
+    background-color: white;
+}

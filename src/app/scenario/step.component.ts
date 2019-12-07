@@ -23,6 +23,7 @@ import { VMClaimService } from '../services/vmclaim.service';
 import { VMService } from '../services/vm.service';
 import { VMInfoConfig } from '../VMInfoConfig';
 import { environment } from 'src/environments/environment';
+import { ShellService } from '../services/shell.service';
 
 
 @Component({
@@ -40,6 +41,7 @@ export class StepComponent implements OnInit, DoCheck {
     public progress = 0;
     public stepnumber: number = 0;
     public stepcontent: string = "";
+    public shellStatus: Map<string, string> = new Map();
 
     public finishOpen: boolean = false;
 
@@ -103,7 +105,8 @@ export class StepComponent implements OnInit, DoCheck {
         public stepService: StepService,
         public vmClaimService: VMClaimService,
         public vmService: VMService,
-        public vmInfoService: VMInfoService
+        public vmInfoService: VMInfoService,
+        public shellService: ShellService
     ) {
         this.markdownService.renderer.code = (code: string, language: string, isEscaped: boolean) => {
             // non-special code
@@ -145,6 +148,10 @@ export class StepComponent implements OnInit, DoCheck {
 
     getVm(key: string) {
         return this.vms.get(key) || {};
+    }
+
+    getShellStatus(key: string) {
+        return this.shellStatus.get(key);
     }
 
     getProgress() {
@@ -274,6 +281,13 @@ export class StepComponent implements OnInit, DoCheck {
                         i.ifActiveService.current = i.id;
                     }
                 })
+            }
+        )
+
+        this.shellService.watch()
+        .subscribe(
+            (ss: Map<string, string>) => {
+                this.shellStatus = ss;
             }
         )
     }
