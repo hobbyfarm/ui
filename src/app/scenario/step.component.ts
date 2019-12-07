@@ -1,14 +1,14 @@
 import { Component, OnInit, ViewChildren, QueryList, DoCheck, ViewChild, Renderer2, ElementRef } from "@angular/core";
 import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 import { Step } from '../Step';
-import { HttpClient } from '@angular/common/http';
-import { switchMap, concatMap, map, first, repeatWhen, delay, retryWhen } from 'rxjs/operators';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { switchMap, concatMap, map, first, repeatWhen, delay, retryWhen, catchError, tap } from 'rxjs/operators';
 import { TerminalComponent } from './terminal.component';
 import { ClrTabContent, ClrTab, ClrModal } from '@clr/angular';
 import { ServerResponse } from '../ServerResponse';
 import { Scenario } from './Scenario';
 import { ScenarioSession } from '../ScenarioSession';
-import { from, of } from 'rxjs';
+import { from, of, throwError, iif } from 'rxjs';
 import { VMClaim } from '../VMClaim';
 import { VMClaimVM } from '../VMClaimVM';
 import { VM } from '../VM';
@@ -235,11 +235,15 @@ export class StepComponent implements OnInit, DoCheck {
                         delay(60000)
                     )
                 }),
-                retryWhen(obs => {
-                    return obs.pipe(
-                        delay(10000)
+                retryWhen(errors => errors.pipe(
+                    concatMap((e: HttpErrorResponse, i) => 
+                        iif(
+                            () => e.status > 0,
+                            throwError(e),
+                            of(e).pipe(delay(10000))
+                        )
                     )
-                })
+                ))
             )
             .subscribe(
                 (s: ServerResponse) => {
@@ -324,6 +328,7 @@ export class StepComponent implements OnInit, DoCheck {
                     this.router.navigateByUrl("/app/home");
                 }
             )
+
     }
 
     public pause() {
