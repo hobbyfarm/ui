@@ -34,9 +34,9 @@
                 <button class="btn btn-outline btn-previous" (click)="goPrevious()" [disabled]="this.stepnumber < 1">
                     <clr-icon shape="arrow" dir="left"></clr-icon> Previous
                 </button>
-                <button class="btn btn-outline btn-next" *ngIf="(this.scenario.stepcount-1) > this.stepnumber"
+                <button class="btn btn-next" *ngIf="(this.scenario.stepcount-1) > this.stepnumber"
                     (click)="goNext()">Next <clr-icon shape="arrow" dir="right"></clr-icon></button>
-                <button class="btn btn-success btn-next" *ngIf="(this.scenario.stepcount-1) == this.stepnumber"
+                <button class="btn btn-success-outline btn-next"
                     (click)="goFinish()">Finish <clr-icon shape="check"></clr-icon></button>
             </div>
         </div>
