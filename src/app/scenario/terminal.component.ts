@@ -78,7 +78,7 @@ export class TerminalComponent implements OnChanges {
                     )
 
                 setInterval(() => {
-                    this.socket.send(''); // keepalive
+                    this.socket.send(''); // websocket keepalive
                 }, 5000);
             }
         }
