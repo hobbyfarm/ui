@@ -14,7 +14,7 @@ import { ShellService } from '../services/shell.service';
         'terminal.component.css'
     ]
 })
-export class TerminalComponent implements OnChanges, OnInit {
+export class TerminalComponent implements OnChanges {
     @Input()
     vmid: string;
 
@@ -42,10 +42,6 @@ export class TerminalComponent implements OnChanges, OnInit {
 
     public resize() {
         setTimeout(() => this.term.resize(80, 30), 150);
-    }
-
-    public ngOnInit() {
-        setTimeout(() => this.socket.close(), 10000);
     }
 
     buildSocket() {
