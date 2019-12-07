@@ -53,7 +53,7 @@ export class VMClaimComponent implements OnChanges {
                 }),
                 retryWhen(obs => {
                     return obs.pipe(
-                        delay(3000)
+                        delay(5000)
                     )
                 }),
                 concatMap((vcv: VMClaimVM) => {
@@ -64,7 +64,7 @@ export class VMClaimComponent implements OnChanges {
                 }),
                 retryWhen(obs => {
                     return obs.pipe(
-                        delay(3000)
+                        delay(5000)
                     )
                 }),
                 map((vm: VM) => {
