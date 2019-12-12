@@ -1,7 +1,7 @@
-<div class="login-wrapper">
+<div class="login-wrapper" [style.background-image]="background">
     <form class="login">
         <section class="title">
-            <img src="assets/rancher-labs-stacked-color.svg" id="rancher-login-logo">
+            <img [src]="logo" id="rancher-login-logo" />
         </section>
         <br />
         <clr-tabs>
