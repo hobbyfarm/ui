@@ -21,7 +21,7 @@ jobs:
 
     - name: get the version
       id: vars
-      run: 'echo ::set-output name=tag::$(cat package.json | grep version | head -1 | awk -F: '{ print $2 }' | sed 's/[", ]//g')'
+      run: "echo ::set-output name=tag::$(cat package.json | grep version | head -1 | awk -F: '{ print $2 }' | sed 's/[\", ]//g')"
 
     - name: build image
       run: docker build . -t hobbyfarm/ui:latest -t hobbyfarm/ui:${{steps.vars.outputs.tag}}
