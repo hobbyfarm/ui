@@ -17,7 +17,7 @@ export class ScenarioService {
     }
 
     public list() {
-        return this.http.get('https://' + environment.server + '/scenario/list')
+        return this.http.get(environment.server + '/scenario/list')
             .pipe(
                 map((s: ServerResponse) => {
                     return JSON.parse(atob(s.content));
@@ -34,7 +34,7 @@ export class ScenarioService {
         if (this.cachedScenarios.get(id) != null) {
             return of(this.cachedScenarios.get(id));
         } else {
-            return this.http.get('https://' + environment.server + '/scenario/' + id)
+            return this.http.get(environment.server + '/scenario/' + id)
                 .pipe(
                     map((s: ServerResponse) => {
                         return JSON.parse(atob(s.content));
