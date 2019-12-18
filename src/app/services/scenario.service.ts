@@ -23,6 +23,7 @@ export class ScenarioService {
                     return JSON.parse(atob(s.content));
                 }),
                 tap((s: Scenario[]) => {
+                    if (!s) { return; }
                     s.forEach((t: Scenario) => {
                         this.cachedScenarios.set(t.id, t);
                     })
