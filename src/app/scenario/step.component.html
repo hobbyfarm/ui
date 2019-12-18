@@ -1,10 +1,13 @@
 <div class="clr-row" *ngIf="scenario.pauseable">
     <div class="clr-col">
-        <button class="btn" (click)="pause()"><clr-icon shape="pause" class="is-solid"></clr-icon> Pause Scenario</button>
+        <button class="btn" [class.btn-success-outline]="(this.scenario.stepcount-1) != this.stepnumber" [class.btn-success]="(this.scenario.stepcount-1) == this.stepnumber" (click)="goFinish()">Finish <clr-icon shape="check"></clr-icon></button>
+        <button class="btn" (click)="pause()">
+            <clr-icon shape="pause" class="is-solid"></clr-icon> Pause Scenario
+        </button>
         <clr-signpost>
             <clr-signpost-content *clrIfOpen>
                 <p>
-                    Pausing your scenario prevents removal of your VMs in case of network disconnection, timeout, etc. 
+                    Pausing your scenario prevents removal of your VMs in case of network disconnection, timeout, etc.
                 </p>
             </clr-signpost-content>
         </clr-signpost>
@@ -34,10 +37,10 @@
                 <button class="btn btn-outline btn-previous" (click)="goPrevious()" [disabled]="this.stepnumber < 1">
                     <clr-icon shape="arrow" dir="left"></clr-icon> Previous
                 </button>
-                <button class="btn btn-outline btn-next" *ngIf="(this.scenario.stepcount-1) > this.stepnumber"
+                <button class="btn btn-next" *ngIf="(this.scenario.stepcount-1) > this.stepnumber"
                     (click)="goNext()">Next <clr-icon shape="arrow" dir="right"></clr-icon></button>
-                <button class="btn btn-success btn-next" *ngIf="(this.scenario.stepcount-1) == this.stepnumber"
-                    (click)="goFinish()">Finish <clr-icon shape="check"></clr-icon></button>
+                <button class="btn btn-success btn-next" (click)="goFinish()" *ngIf="(this.scenario.stepcount-1) == this.stepnumber">Finish <clr-icon shape="check">
+                    </clr-icon></button>
             </div>
         </div>
     </div>
@@ -58,13 +61,14 @@
                 <clr-tab-content #tabcontent>
                     <table class="table compact">
                         <tr>
-                            <td><b>Status:</b> {{ getVm(v.value.vm_id)?.status }}</td>
                             <td><b>Public IP:</b> {{ getVm(v.value.vm_id)?.public_ip }}</td>
                             <td><b>Private IP:</b> {{ getVm(v.value.vm_id)?.private_ip }}</td>
                             <td><b>Hostname:</b> {{ getVm(v.value.vm_id)?.hostname }}</td>
+                            <td><b>Shell Status:</b> {{ getShellStatus(v.key) }} </td>
                         </tr>
                     </table>
-                    <terminal [vmname]="v.key" [vmid]="v.value.vm_id" [endpoint]="getVm(v.value.vm_id).ws_endpoint" #term></terminal>
+                    <terminal [vmname]="v.key" [vmid]="v.value.vm_id" [endpoint]="getVm(v.value.vm_id).ws_endpoint"
+                        #term></terminal>
                 </clr-tab-content>
             </clr-tab>
         </clr-tabs>
@@ -77,7 +81,7 @@
     </h3>
     <div class="modal-body">
         <p>
-            Finishing a scenario will immediately de-provision your resources. Any VMs that you are using will be wiped. 
+            Finishing a scenario will immediately de-provision your resources. Any VMs that you are using will be wiped.
         </p>
     </div>
     <div class="modal-footer">
@@ -92,14 +96,17 @@
     </h3>
     <div class="modal-body">
         <p>
-        This scenario has been paused. If you do nothing, the scenario will automatically resume in {{ pauseRemainingString }}
+            This scenario has been paused. If you do nothing, the scenario will automatically resume in
+            {{ pauseRemainingString }}
         </p>
         <p>
-        <span class='clr-subtext'>Last updated at {{ pauseLastUpdated | date:'medium' }}</span>
+            <span class='clr-subtext'>Last updated at {{ pauseLastUpdated | date:'medium' }}</span>
         </p>
-        <br/>
+        <br />
     </div>
     <div class="modal-footer">
-        <button class="btn" (click)="resume()"><clr-icon shape="play" class="is-solid"></clr-icon> Resume Scenario</button>
+        <button class="btn" (click)="resume()">
+            <clr-icon shape="play" class="is-solid"></clr-icon> Resume Scenario
+        </button>
     </div>
 </clr-modal>

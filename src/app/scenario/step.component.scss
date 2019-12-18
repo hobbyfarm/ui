@@ -6,9 +6,18 @@ code {
 
 .btn-next {
     float: right;
-    margin-right: 0;
 }
 
 .terminals {
     padding: 3px;
+}
+
+span.shell-status {
+    width: 100%;
+    border: 1px solid #ccc;
+    background-color: white;
+}
+
+table {
+    margin-top: 0;
 }
