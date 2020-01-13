@@ -3,8 +3,9 @@
         <h5>VM Set {{ vmclaim?.id }}</h5>
     </div>
     <div class="clr-col-12">
-        <span *ngIf="!vmclaim?.ready">Status: Preparing <span class="spinner spinner-inline"></span></span>
+        <span *ngIf="!vmclaim?.ready && vmclaim?.bind_mode != 'dynamic'">Status: Preparing <span class="spinner spinner-inline"></span></span>
         <span *ngIf="vmclaim?.ready">Status: Ready <clr-icon shape="check" class="is-success"></clr-icon></span>
+        <span *ngIf="!vmclaim?.ready && vmclaim?.bind_mode == 'dynamic'">Status: Virtual machines are being provisioned on-demand, this may take a few moments... <span class="spinner spinner-inline"></span></span>
     </div>
     <div class="clr-col-lg-4 clr-col-xl-4 clr-col-md-6 clr-col-sm-12" *ngFor="let vm of vmclaim.vm | keyvalue">
         <div class="card">

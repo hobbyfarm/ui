@@ -1,14 +1,14 @@
 import { Component, OnInit, ViewChildren, QueryList, DoCheck, ViewChild, Renderer2, ElementRef } from "@angular/core";
 import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 import { Step } from '../Step';
-import { HttpClient } from '@angular/common/http';
-import { switchMap, concatMap, map, first, repeatWhen, delay, retryWhen } from 'rxjs/operators';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { switchMap, concatMap, map, first, repeatWhen, delay, retryWhen, catchError, tap } from 'rxjs/operators';
 import { TerminalComponent } from './terminal.component';
 import { ClrTabContent, ClrTab, ClrModal } from '@clr/angular';
 import { ServerResponse } from '../ServerResponse';
 import { Scenario } from './Scenario';
 import { ScenarioSession } from '../ScenarioSession';
-import { from, of } from 'rxjs';
+import { from, of, throwError, iif } from 'rxjs';
 import { VMClaim } from '../VMClaim';
 import { VMClaimVM } from '../VMClaimVM';
 import { VM } from '../VM';
@@ -23,6 +23,7 @@ import { VMClaimService } from '../services/vmclaim.service';
 import { VMService } from '../services/vm.service';
 import { VMInfoConfig } from '../VMInfoConfig';
 import { environment } from 'src/environments/environment';
+import { ShellService } from '../services/shell.service';
 
 
 @Component({
@@ -40,6 +41,7 @@ export class StepComponent implements OnInit, DoCheck {
     public progress = 0;
     public stepnumber: number = 0;
     public stepcontent: string = "";
+    public shellStatus: Map<string, string> = new Map();
 
     public finishOpen: boolean = false;
 
@@ -103,7 +105,8 @@ export class StepComponent implements OnInit, DoCheck {
         public stepService: StepService,
         public vmClaimService: VMClaimService,
         public vmService: VMService,
-        public vmInfoService: VMInfoService
+        public vmInfoService: VMInfoService,
+        public shellService: ShellService
     ) {
         this.markdownService.renderer.code = (code: string, language: string, isEscaped: boolean) => {
             // non-special code
@@ -145,6 +148,10 @@ export class StepComponent implements OnInit, DoCheck {
 
     getVm(key: string) {
         return this.vms.get(key) || {};
+    }
+
+    getShellStatus(key: string) {
+        return this.shellStatus.get(key);
     }
 
     getProgress() {
@@ -235,11 +242,15 @@ export class StepComponent implements OnInit, DoCheck {
                         delay(60000)
                     )
                 }),
-                retryWhen(obs => {
-                    return obs.pipe(
-                        delay(10000)
+                retryWhen(errors => errors.pipe(
+                    concatMap((e: HttpErrorResponse, i) => 
+                        iif(
+                            () => e.status > 0,
+                            throwError(e),
+                            of(e).pipe(delay(10000))
+                        )
                     )
-                })
+                ))
             )
             .subscribe(
                 (s: ServerResponse) => {
@@ -270,6 +281,13 @@ export class StepComponent implements OnInit, DoCheck {
                         i.ifActiveService.current = i.id;
                     }
                 })
+            }
+        )
+
+        this.shellService.watch()
+        .subscribe(
+            (ss: Map<string, string>) => {
+                this.shellStatus = ss;
             }
         )
     }
@@ -318,12 +336,13 @@ export class StepComponent implements OnInit, DoCheck {
     }
 
     actuallyFinish() {
-        this.http.put('https://' + environment.server + "/session/" + this.route.snapshot.paramMap.get("scenariosession") + "/finished", {})
+        this.http.put(environment.server + "/session/" + this.route.snapshot.paramMap.get("scenariosession") + "/finished", {})
             .subscribe(
                 (s: ServerResponse) => {
                     this.router.navigateByUrl("/app/home");
                 }
             )
+
     }
 
     public pause() {
@@ -340,7 +359,7 @@ export class StepComponent implements OnInit, DoCheck {
                     this.pauseModal.open();
                 },
                 (s: ServerResponse) => {
-                    // failure! what now? 
+                    // failure! what now?
                 }
             )
     }
