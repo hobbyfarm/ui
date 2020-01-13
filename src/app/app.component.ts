@@ -55,7 +55,7 @@ export class AppComponent implements OnInit {
     public config: AppConfigService,
   ) {
     ClarityIcons.add({
-      "rancher": this.logo
+      "logo": this.logo
     })
 
     if (this.Config.logo) {
