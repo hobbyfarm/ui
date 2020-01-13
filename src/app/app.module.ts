@@ -87,6 +87,7 @@ const appInitializerFn = (appConfig: AppConfigService) => {
     })
   ],
   providers: [
+    AppComponent,
     AuthGuard,
     CtrService,
     VMInfoService,
