@@ -77,10 +77,10 @@ const appInitializerFn = (appConfig: AppConfigService) => {
       config: {
         tokenGetter: tokenGetter,
         whitelistedDomains: [
-          environment.server
+          environment.server.match(/.*\:\/\/?([^\/]+)/)[1]
         ],
         blacklistedRoutes: [
-          environment.server + "/auth/authenticate"
+          environment.server.match(/.*\:\/\/?([^\/]+)/)[1] + "/auth/authenticate"
         ],
         skipWhenExpired: true
       }
