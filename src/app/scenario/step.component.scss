@@ -8,6 +8,11 @@ code {
     float: right;
 }
 
+.sticky-terminal {
+    position: fixed;
+    right: 0.25em;
+}
+
 .terminals {
     padding: 3px;
 }
@@ -21,3 +26,4 @@ span.shell-status {
 table {
     margin-top: 0;
 }
+
