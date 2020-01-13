@@ -19,3 +19,11 @@ A file placed at `/config.json` will allow for runtime configuration (e.g., cust
   }
 }
 ```
+## BUILD
+
+    docker image build . -t hobbyfarm/ui
+
+## RUN
+
+    docker container run -it -p 80:80 -e HF_SERVER=api.training.example.com hobbyfarm/ui
+
