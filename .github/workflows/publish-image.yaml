@@ -24,6 +24,6 @@ jobs:
       run: "echo ::set-output name=tag::$(cat package.json | grep version | head -1 | awk -F: '{ print $2 }' | sed 's/[\", ]//g')"
 
     - name: build image
-      run: docker build . -t ${{ github.registry }}:latest -t ${{ github.registry }}:${{steps.vars.outputs.tag}}
+      run: docker build . -t ${{ github.repository }}:latest -t ${{ github.repository }}:${{ steps.vars.outputs.tag }}
     - name: push image
-      run: docker push ${{ github.registry }}:latest && docker push ${{ github.registry }}:${{steps.vars.outputs.tag}}
+      run: docker push ${{ github.repository }}:latest && docker push ${{ github.repository }}:${{ steps.vars.outputs.tag }}
