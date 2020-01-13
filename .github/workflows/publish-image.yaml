@@ -17,13 +17,13 @@ jobs:
       run: git diff HEAD~1 package.json | grep '"version":'
 
     - name: login to the registry
-      run: echo ${{ secrets.REGISTRY_PASSWORD }} | docker login -u hobbyfarm --password-stdin
+      run: echo ${{ secrets.REGISTRY_PASSWORD }} | docker login -u ${{ secrets.REGISTRY_USER }} --password-stdin
 
     - name: get the version
       id: vars
       run: "echo ::set-output name=tag::$(cat package.json | grep version | head -1 | awk -F: '{ print $2 }' | sed 's/[\", ]//g')"
 
     - name: build image
-      run: docker build . -t hobbyfarm/ui:latest -t hobbyfarm/ui:${{steps.vars.outputs.tag}}
+      run: docker build . -t ${{ github.registry }}:latest -t ${{ github.registry }}:${{steps.vars.outputs.tag}}
     - name: push image
-      run: docker push hobbyfarm/ui:latest && docker push hobbyfarm/ui:${{steps.vars.outputs.tag}}
+      run: docker push ${{ github.registry }}:latest && docker push ${{ github.registry }}:${{steps.vars.outputs.tag}}
