@@ -6,6 +6,7 @@ import { JwtHelperService } from '@auth0/angular-jwt';
 import { CtrService } from './ctr.service';
 import { CodeExec } from './CodeExec';
 import { ShellService } from '../services/shell.service';
+import { environment } from 'src/environments/environment';
 
 @Component({
     selector: 'terminal',
