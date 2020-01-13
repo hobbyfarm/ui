@@ -336,7 +336,7 @@ export class StepComponent implements OnInit, DoCheck {
     }
 
     actuallyFinish() {
-        this.http.put('https://' + environment.server + "/session/" + this.route.snapshot.paramMap.get("scenariosession") + "/finished", {})
+        this.http.put(environment.server + "/session/" + this.route.snapshot.paramMap.get("scenariosession") + "/finished", {})
             .subscribe(
                 (s: ServerResponse) => {
                     this.router.navigateByUrl("/app/home");
@@ -359,7 +359,7 @@ export class StepComponent implements OnInit, DoCheck {
                     this.pauseModal.open();
                 },
                 (s: ServerResponse) => {
-                    // failure! what now? 
+                    // failure! what now?
                 }
             )
     }

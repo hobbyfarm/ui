@@ -14,7 +14,7 @@ export class VMService {
     ) { }
 
     public get(id: string) {
-        return this.http.get('https://' + environment.server + '/vm/' + id)
+        return this.http.get(environment.server + '/vm/' + id)
             .pipe(
                 map((s: ServerResponse) => {
                     return JSON.parse(atob(s.content));

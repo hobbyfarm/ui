@@ -49,7 +49,12 @@ export class TerminalComponent implements OnChanges {
         Terminal.applyAddon(fit);
         this.term = new Terminal();
 
-        this.socket = new WebSocket("wss://" + this.endpoint + "/shell/" + this.vmid + "/connect?auth=" + this.jwtHelper.tokenGetter());
+        if (environment.server.startsWith("https")) {
+            this.endpoint = "wss://" + this.endpoint
+        } else {
+            this.endpoint = "ws://" + this.endpoint
+        }
+        this.socket = new WebSocket(this.endpoint + "/shell/" + this.vmid + "/connect?auth=" + this.jwtHelper.tokenGetter());
 
         this.socket.onclose = (e) => {
             this.term.dispose(); // destroy the terminal on the page to avoid bad display
