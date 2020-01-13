@@ -21,7 +21,8 @@
             "assets": [
               "src/favicon.ico",
               "src/assets",
-              "src/env.json"
+              "src/env.json",
+              "src/config.json"
             ],
             "styles": [
               "node_modules/@clr/icons/clr-icons.min.css",

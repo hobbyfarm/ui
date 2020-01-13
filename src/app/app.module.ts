@@ -1,5 +1,5 @@
 import { BrowserModule } from '@angular/platform-browser';
-import { NgModule } from '@angular/core';
+import { NgModule, APP_INITIALIZER } from '@angular/core';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { ClarityModule } from '@clr/angular';
@@ -31,10 +31,17 @@ import { StepService } from './services/step.service';
 import { VMService } from './services/vm.service';
 import { VMClaimService } from './services/vmclaim.service';
 import { environment } from 'src/environments/environment';
+import { AppConfigService } from './app-config.service';
 
 export function tokenGetter() {
   return localStorage.getItem("hobbyfarm_token");
 }
+
+const appInitializerFn = (appConfig: AppConfigService) => {
+  return () => {
+    return appConfig.loadAppConfig();
+  };
+};
 
 @NgModule({
   declarations: [
@@ -80,6 +87,7 @@ export function tokenGetter() {
     })
   ],
   providers: [
+    AppComponent,
     AuthGuard,
     CtrService,
     VMInfoService,
@@ -87,7 +95,14 @@ export function tokenGetter() {
     ScenarioSessionService,
     StepService,
     VMService,
-    VMClaimService
+    VMClaimService,
+    AppConfigService,
+    {
+      provide: APP_INITIALIZER,
+      useFactory: appInitializerFn,
+      multi: true,
+      deps: [AppConfigService]
+    }
   ],
   bootstrap: [RootComponent]
 })
