@@ -8,6 +8,7 @@ import { RootComponent } from './root.component';
 import { HomeComponent } from './home.component';
 import '@clr/icons';
 import '@clr/icons/shapes/all-shapes';
+import { CourseComponent } from './course/course.component';
 import { ScenarioComponent } from './scenario/scenario.component';
 import { TerminalComponent } from './scenario/terminal.component';
 import { JwtModule } from '@auth0/angular-jwt';
@@ -25,6 +26,7 @@ import { CtrComponent } from './scenario/ctr.component';
 import { VMInfoComponent } from './scenario/vminfo.component';
 import { CtrService } from './scenario/ctr.service';
 import { VMInfoService } from './scenario/vminfo.service';
+import { CourseService } from './services/course.service';
 import { ScenarioService } from './services/scenario.service';
 import { ScenarioSessionService } from './services/scenariosession.service';
 import { StepService } from './services/step.service';
@@ -41,6 +43,7 @@ export function tokenGetter() {
     AppComponent,
     RootComponent,
     HomeComponent,
+    CourseComponent,
     ScenarioComponent,
     TerminalComponent,
     LoginComponent,
@@ -83,6 +86,7 @@ export function tokenGetter() {
     AuthGuard,
     CtrService,
     VMInfoService,
+    CourseService,
     ScenarioService,
     ScenarioSessionService,
     StepService,

@@ -20,7 +20,7 @@ export class StepService {
         if (this.cachedSteps.get(scenario + ":" + index) != null)  {
             return of(this.cachedSteps.get(scenario  + ":" + index));
         } else {
-            return this.http.get('https://' + environment.server + '/scenario/' + scenario + '/step/' + index)
+            return this.http.get('//' + environment.server + '/scenario/' + scenario + '/step/' + index)
             .pipe(
                 map((s: ServerResponse) => {
                     return JSON.parse(atob(s.content));

@@ -1,0 +1,36 @@
+<div class="clr-row">
+    <div class="clr-col">
+        <h3>Select a scenario from courses</h3>
+    </div>
+</div>
+<div class="clr-row">
+    <div class="clr-col-12">
+        <div *ngIf="courses.length==0">
+            No course found.
+        </div>
+        <clr-accordion>
+            <clr-accordion-panel *ngFor="let c of courses; let i = index">
+                <clr-accordion-title>{{ c.name }}</clr-accordion-title>
+                <clr-accordion-content *clrIfExpanded>
+                    <strong>Description: </strong>{{ c.description }}
+
+                    <div class="clr-row">
+                        <ng-container *ngIf="c.scenarios?.length > 0">
+                            <div class="clr-col-3" *ngFor="let s of c.scenarios">
+                                <scenario-card [(scenarioid)]="s.id"></scenario-card>
+                            </div>
+                        </ng-container>
+                        <ng-container *ngIf="c.scenarios?.length <= 0">
+                            <div class="clr-col-12">
+                                <p>
+                                    No scenarios found. 
+                                </p>
+                            </div>
+                        </ng-container>
+                    </div>
+                
+                </clr-accordion-content>
+            </clr-accordion-panel>
+        </clr-accordion>
+    </div>
+</div>

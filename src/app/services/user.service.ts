@@ -24,7 +24,7 @@ export class UserService {
     .set("old_password", oldPassword)
     .set("new_password", newPassword);
 
-    return this.http.post<ServerResponse>("https://" + environment.server + "/auth/changepassword", params)
+    return this.http.post<ServerResponse>("//" + environment.server + "/auth/changepassword", params)
     .pipe(
       catchError((e: HttpErrorResponse) => {
         return throwError(e.error);
@@ -33,7 +33,7 @@ export class UserService {
   }
 
   public getAccessCodes() {
-    return this.http.get("https://" + environment.server + "/auth/accesscode")
+    return this.http.get("//" + environment.server + "/auth/accesscode")
     .pipe(
       switchMap((s: ServerResponse) => {
         return of(JSON.parse(atob(s.content)))
@@ -48,7 +48,7 @@ export class UserService {
     var params = new HttpParams()
     .set("access_code", a);
     this._acModified.next(true);
-    return this.http.post<ServerResponse>("https://" + environment.server + "/auth/accesscode", params)
+    return this.http.post<ServerResponse>("//" + environment.server + "/auth/accesscode", params)
     .pipe(
       catchError((e: HttpErrorResponse) => {
         return throwError(e.error);
@@ -58,7 +58,7 @@ export class UserService {
 
   public deleteAccessCode(a: string) {
     this._acModified.next(true);
-    return this.http.delete<ServerResponse>("https://" + environment.server + "/auth/accesscode/" + a)
+    return this.http.delete<ServerResponse>("//" + environment.server + "/auth/accesscode/" + a)
     .pipe(
       catchError((e: HttpErrorResponse) => {
         return throwError(e.error);
