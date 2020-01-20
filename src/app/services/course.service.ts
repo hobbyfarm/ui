@@ -16,7 +16,7 @@ export class CourseService {
   ) { }
 
   public list() {
-    return this.http.get("//" + environment.server + "/a/course/list")
+    return this.http.get(environment.server + "/course/list")
       .pipe(
         map((s: ServerResponse) => {
             return JSON.parse(atob(s.content));
@@ -33,7 +33,7 @@ export class CourseService {
     if (this.cachedCourses.get(id) != null) {
         return of(this.cachedCourses.get(id));
     } else {
-        return this.http.get('//' + environment.server + '/course/' + id)
+        return this.http.get(environment.server + '/course/' + id)
             .pipe(
                 map((s: ServerResponse) => {
                     return JSON.parse(atob(s.content));
