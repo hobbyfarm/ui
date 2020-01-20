@@ -4,6 +4,8 @@ import { Router } from '@angular/router';
 import { User } from './User';
 import { ServerResponse } from '../ServerResponse';
 import { environment } from 'src/environments/environment';
+import { AppConfigService } from '../app-config.service';
+import { DomSanitizer } from '@angular/platform-browser';
 
 @Component({
     templateUrl: './login.component.html',
@@ -20,11 +22,27 @@ export class LoginComponent {
     public success: string = "";
     public accesscode: string = "";
 
+    private Config = this.config.getConfig();
+    public logo;
+    public background;
+
     public loginactive: boolean = false;
     constructor(
         public http: HttpClient,
-        public router: Router
+        public router: Router,
+        public config: AppConfigService,
+        private _sanitizer: DomSanitizer
     ) {
+        if (this.Config.login && this.Config.login.logo) {
+          this.logo = 'data:image/jpg;base64,' + this.Config.login.logo
+        } else {
+          this.logo = "/assets/rancher-labs-stacked-color.svg";
+        }
+        if (this.Config.login && this.Config.login.background) {
+          this.background = this._sanitizer.bypassSecurityTrustResourceUrl('data:image/jpg;base64,' + this.Config.login.background);
+        } else {
+          this.background = "url(/assets/login_container_farm.svg)";
+        }
     }
 
     public register() {
@@ -34,7 +52,7 @@ export class LoginComponent {
             .set("password", this.password)
             .set("access_code", this.accesscode);
 
-        this.http.post('//' + environment.server + "/auth/registerwithaccesscode", body)
+        this.http.post(environment.server + "/auth/registerwithaccesscode", body)
             .subscribe(
                 (s: ServerResponse) => {
                     this.success = "Success! User created. Please login.";
@@ -58,7 +76,7 @@ export class LoginComponent {
             .set("email", this.email)
             .set("password", this.password);
 
-        this.http.post('//' + environment.server + "/auth/authenticate", body)
+        this.http.post(environment.server + "/auth/authenticate", body)
             .subscribe(
                 (s: ServerResponse) => {
                     // should have a token here

@@ -21,13 +21,13 @@
             "assets": [
               "src/favicon.ico",
               "src/assets",
-              "src/env.json"
+              "src/env.json",
+              "src/config.json"
             ],
             "styles": [
               "node_modules/@clr/icons/clr-icons.min.css",
-              "node_modules/@clr/ui/clr-ui.min.css",
               "node_modules/xterm/dist/xterm.css",
-              "src/styles.css"
+              "src/styles.scss"
             ],
             "scripts": [
               "node_modules/@webcomponents/custom-elements/custom-elements.min.js",
