@@ -10,25 +10,25 @@
         </div>
         <clr-accordion>
             <clr-accordion-panel *ngFor="let c of courses; let i = index">
-                <clr-accordion-title>{{ c.name }}</clr-accordion-title>
+                <clr-accordion-title>{{ c.id }} - {{ c.name | atob }}</clr-accordion-title>
                 <clr-accordion-content *clrIfExpanded>
-                    <strong>Description: </strong>{{ c.description }}
+                    <strong>Description: </strong>{{ c.description | atob }}
 
                     <div class="clr-row">
                         <ng-container *ngIf="c.scenarios?.length > 0">
                             <div class="clr-col-3" *ngFor="let s of c.scenarios">
-                                <scenario-card [(scenarioid)]="s.id"></scenario-card>
+                                <scenario-card [(scenarioid)]="s"></scenario-card>
                             </div>
                         </ng-container>
                         <ng-container *ngIf="c.scenarios?.length <= 0">
                             <div class="clr-col-12">
                                 <p>
-                                    No scenarios found. 
+                                    No scenarios found.
                                 </p>
                             </div>
                         </ng-container>
                     </div>
-                
+
                 </clr-accordion-content>
             </clr-accordion-panel>
         </clr-accordion>
