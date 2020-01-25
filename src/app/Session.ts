@@ -1,4 +1,4 @@
-export class ScenarioSession {
+export class Session {
     id: string;
     scenario: string;
     user: string;
