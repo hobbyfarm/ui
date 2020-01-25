@@ -1,0 +1,87 @@
+<div class="clr-row">
+    <div class="clr-col-4 card" id="sidebar">
+        <div class="card-header">
+            <h3 id="scenario-name">{{ scenario.name | atob }}</h3>
+
+            <div class="progress labeled success">
+                <progress max="100" [value]="getProgress() || 0" data-displayval="0%"></progress>
+                <span>{{getProgress()}}%</span>
+            </div>
+
+            <button class="btn btn-outline btn-previous" (click)="goPrevious()" [disabled]="this.stepnumber < 1">
+                <clr-icon shape="arrow" dir="left"></clr-icon> Previous
+            </button>
+            <button class="btn btn-next" *ngIf="(this.scenario.stepcount-1) > this.stepnumber"
+                (click)="goNext()">Next <clr-icon shape="arrow" dir="right"></clr-icon></button>
+            <button class="btn btn-success btn-next" (click)="stepService.goFinish()"
+                *ngIf="(this.scenario.stepcount-1) == this.stepnumber">Finish <clr-icon shape="check">
+                </clr-icon></button>
+        </div>
+        <div class="card-block">
+            <h4 class="card-title">{{ step.title | atob }}</h4>
+            <div class="card-text">
+                <dynamic-html [content]="stepcontent | markdown"></dynamic-html>
+            </div>
+        </div>
+    </div>
+    <div class="clr-col-8" id="terminal-column">
+        <clr-tabs class="terminal-tabs">
+            <clr-tab *ngFor="let v of vmclaimvms | keyvalue" #tab>
+                <button clrTabLink [id]="v.key">
+                    <clr-icon size="24" shape="host"></clr-icon> {{ v.key }}
+                </button>
+                <clr-tab-content #tabcontent>
+                    <table class="table compact">
+                        <tr>
+                            <td><b>Public IP:</b> {{ getVm(v.value.vm_id)?.public_ip }}</td>
+                            <td><b>Private IP:</b> {{ getVm(v.value.vm_id)?.private_ip }}</td>
+                            <td><b>Hostname:</b> {{ getVm(v.value.vm_id)?.hostname }}</td>
+                            <td><b>Shell Status:</b> {{ getShellStatus(v.key) }} </td>
+                        </tr>
+                    </table>
+                    <terminal
+                        [vmname]="v.key"
+                        [vmid]="v.value.vm_id"
+                        [endpoint]="getVm(v.value.vm_id).ws_endpoint"
+                        #term></terminal>
+                </clr-tab-content>
+            </clr-tab>
+        </clr-tabs>
+    </div>
+</div>
+
+<clr-modal [(clrModalOpen)]="finishOpen">
+    <h3 class="modal-title">
+        Are you sure you want to finish?
+    </h3>
+    <div class="modal-body">
+      <p>
+        Finishing a scenario will immediately de-provision your resources. Any VMs that you are using will be wiped.
+      </p>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" (click)="finishOpen = false">Cancel</button>
+      <button class="btn btn-danger-outline" (click)="actuallyFinish()">Finish</button>
+    </div>
+</clr-modal>
+
+<clr-modal #pausemodal [(clrModalOpen)]="pauseOpen" [clrModalClosable]="false">
+    <h3 class="modal-title">
+        Scenario Paused
+    </h3>
+    <div class="modal-body">
+        <p>
+            This scenario has been paused. If you do nothing, the scenario will automatically resume in
+            {{ pauseRemainingString }}
+        </p>
+        <p>
+            <span class='clr-subtext'>Last updated at {{ pauseLastUpdated | date:'medium' }}</span>
+        </p>
+        <br />
+    </div>
+    <div class="modal-footer">
+        <button class="btn" (click)="resume()">
+            <clr-icon shape="play" class="is-solid"></clr-icon> Resume Scenario
+        </button>
+    </div>
+</clr-modal>

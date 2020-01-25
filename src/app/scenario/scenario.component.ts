@@ -3,12 +3,12 @@ import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 import { Scenario } from './Scenario';
 import { HttpClient } from '@angular/common/http';
 import { concatMap, delay, switchMap } from 'rxjs/operators';
-import { ScenarioSession } from '../ScenarioSession';
+import { Session } from '../Session';
 import { from, of, throwError } from 'rxjs';
 import { ScenarioService } from '../services/scenario.service';
-import { ScenarioSessionService } from '../services/scenariosession.service';
+import { SessionService } from '../services/session.service';
 import { VMClaimService } from '../services/vmclaim.service';
-import { VMClaim } from '../VMClaim';
+import { VMClaim } from '../vmclaim/VMClaim';
 
 @Component({
     selector: 'scenario-component',
@@ -17,16 +17,16 @@ import { VMClaim } from '../VMClaim';
 
 export class ScenarioComponent implements OnInit {
     public scenario: Scenario = new Scenario();
-    private _scenarioSession: ScenarioSession = new ScenarioSession();
+    private _session: Session = new Session();
     public vmclaims: VMClaim[] = [];
     public unreadyclaims: string[] = [];
 
-    public get scenarioSession(): ScenarioSession {
-        return this._scenarioSession;
+    public get session(): Session {
+        return this._session;
     }
 
-    public set scenarioSession(s: ScenarioSession) {
-        this._scenarioSession = s;
+    public set session(s: Session) {
+        this._session = s;
         this.ssService.keepalive(s.id).subscribe(); // keepalive subscription
     }
 
@@ -35,7 +35,7 @@ export class ScenarioComponent implements OnInit {
         public http: HttpClient,
         public router: Router,
         public scenarioService: ScenarioService,
-        public ssService: ScenarioSessionService,
+        public ssService: SessionService,
         public vmClaimService: VMClaimService
     ) {
     }
@@ -49,7 +49,7 @@ export class ScenarioComponent implements OnInit {
     }
 
     goSession() {
-        this.router.navigateByUrl("/app/session/" + this.scenarioSession.id + "/steps/0");
+        this.router.navigateByUrl("/app/session/" + this.session.id + "/steps/0");
     }
 
     ngOnInit() {
@@ -68,8 +68,8 @@ export class ScenarioComponent implements OnInit {
                     this.scenario = s;
                     return this.ssService.new(s.id);
                 }),
-                concatMap((s: ScenarioSession) => {
-                    this.scenarioSession = s;
+                concatMap((s: Session) => {
+                    this.session = s;
                     return from(s.vm_claim);
                 }),
                 delay(2000),

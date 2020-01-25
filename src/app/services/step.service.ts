@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Step } from '../Step';
+import { Step } from '../step/Step';
 import { HttpClient } from '@angular/common/http';
 import { map, tap } from 'rxjs/operators';
 import { ServerResponse } from '../ServerResponse';

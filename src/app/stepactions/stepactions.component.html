@@ -1,0 +1,24 @@
+<ng-container *ngIf="step">
+  <div id="step-buttons" class="clr-row">
+    <div class="clr-col">
+      <!-- <button class="btn" [class.btn-success-outline]="(step.scenario.stepcount-1) != step.stepnumber"
+        [class.btn-success]="(scenario.stepcount-1) == step.stepnumber" (click)="stepService.goFinish()">Finish <clr-icon
+          shape="check"></clr-icon></button> -->
+      <button class="btn" (click)="stepService.goFinish(step)">Finish <clr-icon
+          shape="check"></clr-icon></button>
+      <!-- <ng-container *ngIf="step.scenario.pauseable">
+        <button class="btn" (click)="pause()">
+          <clr-icon shape="pause" class="is-solid"></clr-icon> Pause Scenario
+        </button>
+        <clr-signpost>
+          <clr-signpost-content *clrIfOpen>
+            <p>
+              Pausing your scenario prevents removal of your VMs in case of network disconnection, timeout,
+              etc.
+            </p>
+          </clr-signpost-content>
+        </clr-signpost>
+      </ng-container> -->
+    </div>
+  </div>
+</ng-container>

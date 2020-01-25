@@ -8,24 +8,23 @@ import { environment } from 'src/environments/environment';
 
 @Injectable()
 export class SessionService {
-    private cachedSessions: Map<string, Session> = new Map();
+    private cachedScenarioSessions: Map<string, Session> = new Map();
 
     constructor(
         private http: HttpClient
     ) {
     }
 
-    public new(sessionId: string, courseId: string) {
+    public new(sessionId: string) {
         let params = new HttpParams()
-            .set("scenario", sessionId)
-            .set("course", courseId);
+            .set("scenario", sessionId);
         return this.http.post(environment.server + "/session/new", params)
             .pipe(
                 map((s: ServerResponse) => {
                     return JSON.parse(atob(s.content));
                 }),
                 tap((s: Session) => {
-                    this.cachedSessions.set(s.id, s);
+                    this.cachedScenarioSessions.set(s.id, s);
                 })
             )
     }
@@ -43,8 +42,8 @@ export class SessionService {
     }
 
     public get(id: string) {
-        if (this.cachedSessions.get(id) != null) {
-            return of(this.cachedSessions.get(id));
+        if (this.cachedScenarioSessions.get(id) != null) {
+            return of(this.cachedScenarioSessions.get(id));
             // HOW DO WE MAKE THIS EXPIRE?
         } else {
             return this.http.get(environment.server + "/session/" + id)
@@ -54,7 +53,7 @@ export class SessionService {
                         return JSON.parse(atob(s.content));
                     }),
                     tap((s: Session) => {
-                        this.cachedSessions.set(s.id, s);
+                        this.cachedScenarioSessions.set(s.id, s);
                     })
                 )
         }
