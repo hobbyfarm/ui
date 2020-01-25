@@ -1,6 +1,5 @@
 <div class="clr-row">
     <div class="clr-col-4 card" id="sidebar">
-        <div class="card-header">
             <h3 id="scenario-name">{{ scenario.name | atob }}</h3>
 
             <div class="progress labeled success">
@@ -8,6 +7,24 @@
                 <span>{{getProgress()}}%</span>
             </div>
 
+            <button class="btn" [class.btn-success-outline]="(this.scenario.stepcount-1) != this.stepnumber"
+                [class.btn-success]="(this.scenario.stepcount-1) == this.stepnumber" (click)="goFinish()">Finish <clr-icon
+                    shape="check"></clr-icon></button>
+            <ng-container *ngIf="scenario.pauseable">
+                <button class="btn" (click)="pause()">
+                    <clr-icon shape="pause" class="is-solid"></clr-icon> Pause Scenario
+                </button>
+                <clr-signpost>
+                    <clr-signpost-content *clrIfOpen>
+                        <p>
+                            Pausing your scenario prevents removal of your VMs in case of network disconnection, timeout,
+                            etc.
+                        </p>
+                    </clr-signpost-content>
+                </clr-signpost>
+            </ng-container>
+
+        <div class="card-footer">
             <button class="btn btn-outline btn-previous" (click)="goPrevious()" [disabled]="this.stepnumber < 1">
                 <clr-icon shape="arrow" dir="left"></clr-icon> Previous
             </button>
