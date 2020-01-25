@@ -1,30 +1,31 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpErrorResponse, HttpParams } from '@angular/common/http';
-import { ScenarioSession } from '../ScenarioSession';
+import { Session } from '../Session';
 import { of } from 'rxjs';
 import { tap, map, repeatWhen, delay } from 'rxjs/operators';
 import { ServerResponse } from '../ServerResponse';
 import { environment } from 'src/environments/environment';
 
 @Injectable()
-export class ScenarioSessionService {
-    private cachedScenarioSessions: Map<string, ScenarioSession> = new Map();
+export class SessionService {
+    private cachedSessions: Map<string, Session> = new Map();
 
     constructor(
         private http: HttpClient
     ) {
     }
 
-    public new(sessionId: string) {
+    public new(sessionId: string, courseId: string) {
         let params = new HttpParams()
-            .set("scenario", sessionId);
+            .set("scenario", sessionId)
+            .set("course", courseId);
         return this.http.post(environment.server + "/session/new", params)
             .pipe(
                 map((s: ServerResponse) => {
                     return JSON.parse(atob(s.content));
                 }),
-                tap((s: ScenarioSession) => {
-                    this.cachedScenarioSessions.set(s.id, s);
+                tap((s: Session) => {
+                    this.cachedSessions.set(s.id, s);
                 })
             )
     }
@@ -42,8 +43,8 @@ export class ScenarioSessionService {
     }
 
     public get(id: string) {
-        if (this.cachedScenarioSessions.get(id) != null) {
-            return of(this.cachedScenarioSessions.get(id));
+        if (this.cachedSessions.get(id) != null) {
+            return of(this.cachedSessions.get(id));
             // HOW DO WE MAKE THIS EXPIRE?
         } else {
             return this.http.get(environment.server + "/session/" + id)
@@ -52,8 +53,8 @@ export class ScenarioSessionService {
                     map((s: ServerResponse) => {
                         return JSON.parse(atob(s.content));
                     }),
-                    tap((s: ScenarioSession) => {
-                        this.cachedScenarioSessions.set(s.id, s);
+                    tap((s: Session) => {
+                        this.cachedSessions.set(s.id, s);
                     })
                 )
         }
