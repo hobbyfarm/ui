@@ -72,9 +72,13 @@
         Are you sure you want to finish?
     </h3>
     <div class="modal-body">
-      <p>
-        Finishing a scenario will immediately de-provision your resources. Any VMs that you are using will be wiped.
+      <p *ngIf="session.course; else no_course">
+        Your VMs will be kept until they expire or the course is marked as "complete".
       </p>
+      <ng-template #no_course>
+        Finishing a scenario will immediately de-provision your resources. Any VMs that you are using will be wiped.
+      </ng-template>
+
     </div>
     <div class="modal-footer">
       <button class="btn btn-outline" (click)="finishOpen = false">Cancel</button>

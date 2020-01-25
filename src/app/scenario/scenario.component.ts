@@ -9,6 +9,7 @@ import { ScenarioService } from '../services/scenario.service';
 import { SessionService } from '../services/session.service';
 import { VMClaimService } from '../services/vmclaim.service';
 import { VMClaim } from '../vmclaim/VMClaim';
+import { Course } from '../course/course';
 
 @Component({
     selector: 'scenario-component',
@@ -20,6 +21,7 @@ export class ScenarioComponent implements OnInit {
     private _session: Session = new Session();
     public vmclaims: VMClaim[] = [];
     public unreadyclaims: string[] = [];
+    public course: string = "";
 
     public get session(): Session {
         return this._session;
@@ -58,6 +60,7 @@ export class ScenarioComponent implements OnInit {
         this.route.paramMap
             .pipe(
                 switchMap((p: ParamMap) => {
+                    this.course = p.get("course");
                     if (p.get("scenario") == null || p.get("scenario").length == 0) {
                         throwError("invalid scenario"); // what do we do with this then?
                     } else {
@@ -66,7 +69,7 @@ export class ScenarioComponent implements OnInit {
                 }),
                 concatMap((s: Scenario) => {
                     this.scenario = s;
-                    return this.ssService.new(s.id);
+                    return this.ssService.new(s.id,this.course);
                 }),
                 concatMap((s: Session) => {
                     this.session = s;
@@ -82,6 +85,9 @@ export class ScenarioComponent implements OnInit {
             ).subscribe(
                 (s: VMClaim) => {
                     this.vmclaims.push(s);
+                },
+                (c: Course) => {
+                    this.course = c.id;
                 }
             )
     }

@@ -336,12 +336,16 @@ export class StepComponent implements OnInit, DoCheck {
     }
 
     actuallyFinish() {
+      if (this.session.course) {
+        this.router.navigateByUrl("/app/home");
+      } else {
         this.http.put(environment.server + "/session/" + this.route.snapshot.paramMap.get("session") + "/finished", {})
             .subscribe(
                 (s: ServerResponse) => {
                     this.router.navigateByUrl("/app/home");
                 }
             )
+      }
 
     }
 
