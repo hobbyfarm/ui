@@ -56,6 +56,10 @@ table {
   flex: 1 1 auto;
   overflow-y: auto;
 }
+#sidebar .card-footer {
+  flex: 0 1 40px;
+}
+
 
 #scenario-name {
   text-align: center;
