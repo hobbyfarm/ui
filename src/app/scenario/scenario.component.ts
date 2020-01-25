@@ -17,7 +17,6 @@ import { VMClaim } from '../vmclaim/VMClaim';
 
 export class ScenarioComponent implements OnInit {
     public scenario: Scenario = new Scenario();
-    private _scenarioSession: ScenarioSession = new ScenarioSession();
     private _session: Session = new Session();
     public vmclaims: VMClaim[] = [];
     public unreadyclaims: string[] = [];
