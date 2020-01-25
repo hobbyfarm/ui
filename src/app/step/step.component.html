@@ -1,5 +1,6 @@
 <div class="clr-row">
     <div class="clr-col-4 card" id="sidebar">
+        <div class="card-header">
             <h3 id="scenario-name">{{ scenario.name | atob }}</h3>
 
             <div class="progress labeled success">
@@ -7,12 +8,15 @@
                 <span>{{getProgress()}}%</span>
             </div>
 
-            <button class="btn" [class.btn-success-outline]="(this.scenario.stepcount-1) != this.stepnumber"
-                [class.btn-success]="(this.scenario.stepcount-1) == this.stepnumber" (click)="goFinish()">Finish <clr-icon
-                    shape="check"></clr-icon></button>
+            <button class="btn btn-next"
+                [class.btn-success-outline]="(this.scenario.stepcount-1) != this.stepnumber"
+                [class.btn-success]="(this.scenario.stepcount-1) == this.stepnumber" (click)="goFinish()">
+                Finish
+                <clr-icon shape="check"></clr-icon>
+            </button>
             <ng-container *ngIf="scenario.pauseable">
                 <button class="btn" (click)="pause()">
-                    <clr-icon shape="pause" class="is-solid"></clr-icon> Pause Scenario
+                    <clr-icon shape="pause" class="is-solid"></clr-icon> Pause
                 </button>
                 <clr-signpost>
                     <clr-signpost-content *clrIfOpen>
@@ -23,6 +27,14 @@
                     </clr-signpost-content>
                 </clr-signpost>
             </ng-container>
+        </div>
+
+        <div class="card-block">
+            <h4 class="card-title">{{ step.title | atob }}</h4>
+            <div class="card-text">
+                <dynamic-html [content]="stepcontent | markdown"></dynamic-html>
+            </div>
+        </div>
 
         <div class="card-footer">
             <button class="btn btn-outline btn-previous" (click)="goPrevious()" [disabled]="this.stepnumber < 1">
@@ -33,12 +45,6 @@
             <button class="btn btn-success btn-next" (click)="stepService.goFinish()"
                 *ngIf="(this.scenario.stepcount-1) == this.stepnumber">Finish <clr-icon shape="check">
                 </clr-icon></button>
-        </div>
-        <div class="card-block">
-            <h4 class="card-title">{{ step.title | atob }}</h4>
-            <div class="card-text">
-                <dynamic-html [content]="stepcontent | markdown"></dynamic-html>
-            </div>
         </div>
     </div>
     <div class="clr-col-8" id="terminal-column">
