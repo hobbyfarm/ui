@@ -43,13 +43,14 @@ export class TerminalComponent implements OnChanges {
 
     public resize() {
         // setTimeout(() => this.term.resize(80, 30), 150);
-        setTimeout(() => this.term.fit(), 150);
+        // setTimeout(() => this.term.fit(), 150);
         // setTimeout(() => {
         //     let height = document.getElementById('terminal').offsetHeight;
         //     let width = document.getElementById('terminal').offsetWidth;
         //     console.log("width x height: " + height + " x " + width)
         //     this.term.resize(height, width)
         // }, 150);
+        this.term.fit();
     }
 
     buildSocket() {
