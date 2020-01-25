@@ -1,4 +1,4 @@
-import { VMClaimVM } from './VMClaimVM';
+import { VMClaimVM } from '../VMClaimVM';
 
 export class VMClaim {
     id: string;

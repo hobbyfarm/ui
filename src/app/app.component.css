@@ -1,3 +1,7 @@
 .clr-subtext {
     color: #c72100;
 }
+
+#content-area {
+  padding: 0;
+}

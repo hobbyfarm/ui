@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { VMClaim } from '../VMClaim';
+import { VMClaim } from '../vmclaim/VMClaim';
 import { HttpClient } from '@angular/common/http';
 import { of, Observable } from 'rxjs';
 import { ServerResponse } from '../ServerResponse';

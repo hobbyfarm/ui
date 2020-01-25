@@ -3,10 +3,10 @@ import { Routes, RouterModule } from '@angular/router';
 import { HomeComponent } from './home.component';
 import { AppComponent } from './app.component';
 import { ScenarioComponent } from './scenario/scenario.component';
-import { TerminalComponent } from './scenario/terminal.component';
+import { TerminalComponent } from './terminal/terminal.component';
 import { LoginComponent } from './login/login.component';
 import { AuthGuard } from './auth.guard';
-import { StepComponent } from './scenario/step.component';
+import { StepComponent } from './step/step.component';
 
 const routes: Routes = [
   {path: '', redirectTo: '/app/home', pathMatch: 'full'},
@@ -20,7 +20,7 @@ const routes: Routes = [
     children: [
       {path: 'home', component: HomeComponent},
       {
-        path: 'scenario/:scenario', 
+        path: 'scenario/:scenario',
         component: ScenarioComponent
       },
       {

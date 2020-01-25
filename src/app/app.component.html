@@ -11,7 +11,8 @@
       <a href="javascript://" class="nav-link nav-text" [routerLink]="['/app/home']">Home</a>
     </div>
 
-    <div class="header-actions">
+    <div id="header-actions" class="header-actions">
+      <step-actions></step-actions>
       <clr-dropdown clrMenuPosition="bottom-right">
         <button class="nav-text" clrDropdownToggle>
           {{email}}
@@ -25,10 +26,11 @@
         </clr-dropdown-menu>
       </clr-dropdown>
     </div>
+
   </header>
 
   <div class="content-container">
-    <div class="content-area">
+    <div id="content-area" class="content-area">
       <router-outlet></router-outlet>
     </div>
   </div>

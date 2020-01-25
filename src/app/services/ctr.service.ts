@@ -1,7 +1,7 @@
 import {Injectable } from '@angular/core';
 import {Guid} from 'guid-typescript';
 import { BehaviorSubject } from 'rxjs';
-import {CodeExec} from './CodeExec';
+import {CodeExec} from '../ctr/CodeExec';
 
 
 @Injectable()
@@ -14,7 +14,7 @@ export class CtrService {
     public generateId() {
         return Guid.create().toString();
     }
-    
+
     public setTarget(id: string, target: string) {
         this.targets.set(id, target);
     }

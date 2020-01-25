@@ -3,8 +3,8 @@ import { Terminal } from 'xterm';
 import * as attach from 'xterm/lib/addons/attach/attach';
 import * as fit from 'xterm/lib/addons/fit/fit';
 import { JwtHelperService } from '@auth0/angular-jwt';
-import { CtrService } from './ctr.service';
-import { CodeExec } from './CodeExec';
+import { CtrService } from '../services/ctr.service';
+import { CodeExec } from '../ctr/CodeExec';
 import { ShellService } from '../services/shell.service';
 import { environment } from 'src/environments/environment';
 
@@ -42,7 +42,14 @@ export class TerminalComponent implements OnChanges {
     @ViewChild("terminal", { static: true }) terminalDiv: ElementRef;
 
     public resize() {
-        setTimeout(() => this.term.resize(80, 30), 150);
+        // setTimeout(() => this.term.resize(80, 30), 150);
+        setTimeout(() => this.term.fit(), 150);
+        // setTimeout(() => {
+        //     let height = document.getElementById('terminal').offsetHeight;
+        //     let width = document.getElementById('terminal').offsetWidth;
+        //     console.log("width x height: " + height + " x " + width)
+        //     this.term.resize(height, width)
+        // }, 150);
     }
 
     buildSocket() {
