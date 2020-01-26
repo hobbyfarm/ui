@@ -1,14 +1,14 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpErrorResponse, HttpParams } from '@angular/common/http';
-import { ScenarioSession } from '../ScenarioSession';
+import { Session } from '../Session';
 import { of } from 'rxjs';
 import { tap, map, repeatWhen, delay } from 'rxjs/operators';
 import { ServerResponse } from '../ServerResponse';
 import { environment } from 'src/environments/environment';
 
 @Injectable()
-export class ScenarioSessionService {
-    private cachedScenarioSessions: Map<string, ScenarioSession> = new Map();
+export class SessionService {
+    private cachedScenarioSessions: Map<string, Session> = new Map();
 
     constructor(
         private http: HttpClient
@@ -23,7 +23,7 @@ export class ScenarioSessionService {
                 map((s: ServerResponse) => {
                     return JSON.parse(atob(s.content));
                 }),
-                tap((s: ScenarioSession) => {
+                tap((s: Session) => {
                     this.cachedScenarioSessions.set(s.id, s);
                 })
             )
@@ -52,7 +52,7 @@ export class ScenarioSessionService {
                     map((s: ServerResponse) => {
                         return JSON.parse(atob(s.content));
                     }),
-                    tap((s: ScenarioSession) => {
+                    tap((s: Session) => {
                         this.cachedScenarioSessions.set(s.id, s);
                     })
                 )

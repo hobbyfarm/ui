@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { VMClaim } from '../VMClaim';
+import { VMClaim } from '../vmclaim/VMClaim';
 import { HttpClient } from '@angular/common/http';
 import { of, Observable } from 'rxjs';
 import { ServerResponse } from '../ServerResponse';
@@ -22,11 +22,11 @@ export class VMClaimService {
                     var v = JSON.parse(atob(s.content));
                     // The following is necessary because JSON.parse does not nicely
                     // handle string -> obj Maps
-                    var vMap = new Map();
-                    for (let k of Object.keys(v.vm)) {
-                        vMap.set(k, v.vm[k]);
-                    }
-                    v.vm = vMap;
+                    // var vMap = new Map();
+                    // for (let k of Object.keys(v.vm)) {
+                    //     vMap.set(k, v.vm[k]);
+                    // }
+                    // v.vm = vMap;
                     return v;
                 }),
                 tap((v: VMClaim) => {

@@ -25,12 +25,11 @@
         </clr-dropdown-menu>
       </clr-dropdown>
     </div>
+
   </header>
 
   <div class="content-container">
-    <div class="content-area">
-      <router-outlet></router-outlet>
-    </div>
+    <router-outlet></router-outlet>
   </div>
 
   <clr-modal #logoutmodal [(clrModalOpen)]="logoutModalOpened">

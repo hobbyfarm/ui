@@ -1,0 +1,77 @@
+// code {
+//     background-color: #b2b2b2;
+//     padding: 3px;
+//     border-radius: 3px;
+// }
+
+.btn-next {
+    float: right;
+}
+
+#terminal-column {
+    position: fixed;
+    right: 0;
+    padding: 0;
+    height: calc(100% - 130px);
+    width: 100%;
+}
+#editor {
+  display: flex;
+  flex-grow: 1;
+  height: calc(100% - 60px);
+  flex-direction: column;
+}
+#editor-iframe {
+  flex-grow: 1;
+  flex: 1 1 auto;
+  border: none;
+  margin: 0;
+  padding: 0;
+}
+
+span.shell-status {
+    width: 100%;
+    border: 1px solid #ccc;
+    background-color: white;
+}
+
+table {
+    margin-top: 0;
+}
+
+.progress span {
+  margin-top: -0.5em;
+}
+.progress {
+  margin-bottom: 1rem;
+}
+
+#sidebar {
+  position: fixed;
+  margin: 0;
+  height: calc(100% - 60px);
+  display: flex;
+  flex-flow: column;
+}
+#sidebar .card-header {
+  padding-top: 0;
+  flex: 0 1 auto;
+}
+#sidebar .card-block {
+  display: flex;
+  flex-flow: column;
+  flex: 1 1 auto;
+  overflow-y: auto;
+}
+#sidebar .card-footer {
+  flex: 0 1 40px;
+}
+
+
+#scenario-name {
+  text-align: center;
+  padding-bottom: 1rem;
+}
+.card-text {
+  padding-bottom: 2rem;
+}

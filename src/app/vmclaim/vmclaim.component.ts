@@ -4,7 +4,7 @@ import { map, delay, retryWhen, concatMap } from 'rxjs/operators';
 import { from } from 'rxjs';
 import { VM } from '../VM';
 import { VMClaimService } from '../services/vmclaim.service';
-import { VMClaim } from '../VMClaim';
+import { VMClaim } from './VMClaim';
 import { VMService } from '../services/vm.service';
 import { VMClaimVM } from '../VMClaimVM';
 

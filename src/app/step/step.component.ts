@@ -1,22 +1,22 @@
 import { Component, OnInit, ViewChildren, QueryList, DoCheck, ViewChild, Renderer2, ElementRef } from "@angular/core";
 import { ActivatedRoute, ParamMap, Router } from '@angular/router';
-import { Step } from '../Step';
+import { Step } from './Step';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { switchMap, concatMap, map, first, repeatWhen, delay, retryWhen, catchError, tap } from 'rxjs/operators';
-import { TerminalComponent } from './terminal.component';
+import { TerminalComponent } from '../terminal/terminal.component';
 import { ClrTabContent, ClrTab, ClrModal } from '@clr/angular';
 import { ServerResponse } from '../ServerResponse';
-import { Scenario } from './Scenario';
-import { ScenarioSession } from '../ScenarioSession';
+import { Scenario } from '../scenario/Scenario';
+import { Session } from '../Session';
 import { from, of, throwError, iif } from 'rxjs';
-import { VMClaim } from '../VMClaim';
+import { VMClaim } from '../vmclaim/VMClaim';
 import { VMClaimVM } from '../VMClaimVM';
 import { VM } from '../VM';
 import { MarkdownService } from 'ngx-markdown';
-import { CtrService } from './ctr.service';
-import { CodeExec } from './CodeExec';
-import { VMInfoService } from './vminfo.service';
-import { ScenarioSessionService } from '../services/scenariosession.service';
+import { CtrService } from '../services/ctr.service';
+import { CodeExec } from '../ctr/CodeExec';
+import { VMInfoService } from '../vminfo/vminfo.service';
+import { SessionService } from '../services/session.service';
 import { ScenarioService } from '../services/scenario.service';
 import { StepService } from '../services/step.service';
 import { VMClaimService } from '../services/vmclaim.service';
@@ -43,12 +43,12 @@ export class StepComponent implements OnInit, DoCheck {
     public stepcontent: string = "";
     public shellStatus: Map<string, string> = new Map();
 
+    public first: boolean = false;
     public finishOpen: boolean = false;
-
 
     public params: ParamMap;
 
-    public scenarioSession: ScenarioSession = new ScenarioSession();
+    public session: Session = new Session();
     public vmclaimvms: Map<string, VMClaimVM> = new Map();
     public vms: Map<string, VM> = new Map();
 
@@ -100,7 +100,7 @@ export class StepComponent implements OnInit, DoCheck {
         public renderer: Renderer2,
         public elRef: ElementRef,
         public ctr: CtrService,
-        public ssService: ScenarioSessionService,
+        public ssService: SessionService,
         public scenarioService: ScenarioService,
         public stepService: StepService,
         public vmClaimService: VMClaimService,
@@ -128,7 +128,7 @@ export class StepComponent implements OnInit, DoCheck {
                 config.id = this.vmInfoService.generateId();
                 config.name = language.split(":")[1];
                 config.info = language.split(":")[2];
-                config.ss = this.route.snapshot.paramMap.get("scenariosession");
+                config.ss = this.route.snapshot.paramMap.get("session");
                 config.mode = language.split(":")[3];
                 config.code = code;
                 this.vmInfoService.setConfig(config);
@@ -197,30 +197,30 @@ export class StepComponent implements OnInit, DoCheck {
                 switchMap((p: ParamMap) => {
                     this.params = p;
                     this.stepnumber = +p.get("step");
-                    return this.ssService.get(p.get("scenariosession"));
+                    return this.ssService.get(p.get("session"));
                 }),
-                switchMap((s: ScenarioSession) => {
-                    this.scenarioSession = s;
+                switchMap((s: Session) => {
+                    this.session = s;
                     return this.scenarioService.get(s.scenario);
                 }),
                 switchMap((s: Scenario) => {
                     this.scenario = s;
-                    return from(this.scenarioSession.vm_claim);
+                    return from(this.session.vm_claim);
                 }),
                 concatMap((v: string) => {
                     return this.vmClaimService.get(v);
                 }),
                 concatMap((v: VMClaim) => {
                     Object.keys(v.vm).reduce((c, k) => (c[k.toLowerCase()] = v.vm[k], c), {});
-                    this.vmclaimvms = v.vm;
-                    return from(v.vm.values());
+                    this.vmclaimvms.set(Object.keys(v.vm)[0], Object.values(v.vm)[0])
+                    return from(Object.values(v.vm));
                 }),
                 concatMap((v: VMClaimVM) => {
                     return this.vmService.get(v.vm_id);
                 }),
                 switchMap((v: VM) => {
                     this.vms.set(v.id, v);
-                    return this.stepService.get(this.scenarioSession.scenario, +this.params.get("step"));
+                    return this.stepService.get(this.session.scenario, +this.params.get("step"));
                 }),
                 switchMap((s: Step) => {
                     this.step = s;
@@ -235,7 +235,7 @@ export class StepComponent implements OnInit, DoCheck {
             )
 
         // setup keepalive
-        this.ssService.keepalive(this.route.snapshot.paramMap.get("scenariosession"))
+        this.ssService.keepalive(this.route.snapshot.paramMap.get("session"))
             .pipe(
                 repeatWhen(obs => {
                     return obs.pipe(
@@ -243,7 +243,7 @@ export class StepComponent implements OnInit, DoCheck {
                     )
                 }),
                 retryWhen(errors => errors.pipe(
-                    concatMap((e: HttpErrorResponse, i) => 
+                    concatMap((e: HttpErrorResponse, i) =>
                         iif(
                             () => e.status > 0,
                             throwError(e),
@@ -305,7 +305,7 @@ export class StepComponent implements OnInit, DoCheck {
 
     goNext() {
         this.stepnumber += 1;
-        this.router.navigateByUrl("/app/session/" + this.scenarioSession.id + "/steps/" + (this.stepnumber));
+        this.router.navigateByUrl("/app/session/" + this.session.id + "/steps/" + (this.stepnumber));
         this._loadStep();
     }
 
@@ -327,7 +327,7 @@ export class StepComponent implements OnInit, DoCheck {
 
     goPrevious() {
         this.stepnumber -= 1;
-        this.router.navigateByUrl("/app/session/" + this.scenarioSession.id + "/steps/" + (this.stepnumber));
+        this.router.navigateByUrl("/app/session/" + this.session.id + "/steps/" + (this.stepnumber));
         this._loadStep();
     }
 
@@ -336,21 +336,20 @@ export class StepComponent implements OnInit, DoCheck {
     }
 
     actuallyFinish() {
-        this.http.put(environment.server + "/session/" + this.route.snapshot.paramMap.get("scenariosession") + "/finished", {})
+        this.http.put(environment.server + "/session/" + this.route.snapshot.paramMap.get("session") + "/finished", {})
             .subscribe(
                 (s: ServerResponse) => {
                     this.router.navigateByUrl("/app/home");
                 }
             )
-
     }
 
     public pause() {
-        this.ssService.pause(this.scenarioSession.id)
+        this.ssService.pause(this.session.id)
             .pipe(
                 switchMap((s: ServerResponse) => {
                     // if successful, hit the keepalive endpoint to update time.
-                    return this.ssService.keepalive(this.scenarioSession.id);
+                    return this.ssService.keepalive(this.session.id);
                 })
             ).subscribe(
                 (s: ServerResponse) => {
@@ -365,7 +364,7 @@ export class StepComponent implements OnInit, DoCheck {
     }
 
     public resume() {
-        this.ssService.resume(this.scenarioSession.id)
+        this.ssService.resume(this.session.id)
             .subscribe(
                 (s: ServerResponse) => {
                     // successful means we're resumed
@@ -381,9 +380,9 @@ export class StepComponent implements OnInit, DoCheck {
         var splitTok = token.substring(2, token.length - 1)
         var name = splitTok.split(":")[1];
         var item = splitTok.split(":")[2];
-        return this.ssService.get(this.route.snapshot.paramMap.get("scenariosession"))
+        return this.ssService.get(this.route.snapshot.paramMap.get("session"))
             .pipe(
-                switchMap((s: ScenarioSession) => {
+                switchMap((s: Session) => {
                     return from(s.vm_claim);
                 }),
                 concatMap((claimid: string) => {
