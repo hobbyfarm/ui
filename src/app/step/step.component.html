@@ -1,5 +1,5 @@
 <div class="clr-row clr-no-gutters">
-    <div class="clr-col-4 card" id="sidebar">
+    <div class="clr-col-sm-4 clr-col-lg-3 card" id="sidebar">
         <div class="card-header">
             <h3 id="scenario-name">{{ scenario.name | atob }}</h3>
 
@@ -44,13 +44,13 @@
                 </clr-icon></button>
         </div>
     </div>
-    <div class="clr-col-8" id="terminal-column">
-        <clr-tabs class="terminal-tabs">
-            <clr-tab *ngFor="let v of vmclaimvms | keyvalue" #tab>
+    <div class="clr-col-sm-8 clr-col-lg-9" id="terminal-column">
+        <clr-tabs>
+            <clr-tab *ngFor="let v of vmclaimvms | keyvalue; let first = first;" #tab>
                 <button clrTabLink [id]="v.key">
                     <clr-icon size="24" shape="host"></clr-icon> {{ v.key }}
                 </button>
-                <clr-tab-content #tabcontent>
+                <clr-tab-content *clrIfActive="first" #tabcontent>
                     <table class="table compact">
                         <tr>
                             <td><b>Public IP:</b> {{ getVm(v.value.vm_id)?.public_ip }}</td>
@@ -63,9 +63,20 @@
                         [vmname]="v.key"
                         [vmid]="v.value.vm_id"
                         [endpoint]="getVm(v.value.vm_id).ws_endpoint"
-                        #term></terminal>
+                        #term>
+                      </terminal>
                 </clr-tab-content>
             </clr-tab>
+            <!-- <clr-tab>
+                <button clrTabLink>
+                    <clr-icon size="24" shape="file"></clr-icon> editor
+                </button>
+                <clr-tab-content>
+                  <div id="editor">
+                    <iframe id="editor-iframe" src="http://localhost:8080"></iframe>
+                  </div>
+                </clr-tab-content>
+            </clr-tab> -->
         </clr-tabs>
     </div>
 </div>

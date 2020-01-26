@@ -1,8 +1,8 @@
-code {
-    background-color: rgba(0,0,0,0.1);
-    padding: 3px;
-    border-radius: 3px;
-}
+// code {
+//     background-color: #b2b2b2;
+//     padding: 3px;
+//     border-radius: 3px;
+// }
 
 .btn-next {
     float: right;
@@ -12,13 +12,21 @@ code {
     position: fixed;
     right: 0;
     padding: 0;
-    height: 100%;
+    height: calc(100% - 130px);
+    width: 100%;
 }
-
-#terminal,
-.terminal-tabs,
-#terminal-column {
-  height: 100% !important;
+#editor {
+  display: flex;
+  flex-grow: 1;
+  height: calc(100% - 60px);
+  flex-direction: column;
+}
+#editor-iframe {
+  flex-grow: 1;
+  flex: 1 1 auto;
+  border: none;
+  margin: 0;
+  padding: 0;
 }
 
 span.shell-status {
@@ -40,7 +48,6 @@ table {
 
 #sidebar {
   position: fixed;
-  padding-right: 0;
   margin: 0;
   height: calc(100% - 60px);
   display: flex;

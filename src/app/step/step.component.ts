@@ -43,7 +43,9 @@ export class StepComponent implements OnInit, DoCheck {
     public stepcontent: string = "";
     public shellStatus: Map<string, string> = new Map();
 
-    public finishOpen: boolean = false;
+    public terminalActive: boolean = true;
+
+    public first: boolean = false;
 
 
     public params: ParamMap;
@@ -212,8 +214,8 @@ export class StepComponent implements OnInit, DoCheck {
                 }),
                 concatMap((v: VMClaim) => {
                     Object.keys(v.vm).reduce((c, k) => (c[k.toLowerCase()] = v.vm[k], c), {});
-                    this.vmclaimvms = v.vm;
-                    return from(v.vm.values());
+                    this.vmclaimvms.set(Object.keys(v.vm)[0], Object.values(v.vm)[0])
+                    return from(Object.values(v.vm));
                 }),
                 concatMap((v: VMClaimVM) => {
                     return this.vmService.get(v.vm_id);

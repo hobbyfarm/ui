@@ -1,7 +1,7 @@
-import { Component, ViewChild, ElementRef, OnInit, Input, OnChanges } from '@angular/core';
+import { Component, ViewChild, ElementRef, OnInit, Input, OnChanges, ViewEncapsulation } from '@angular/core';
 import { Terminal } from 'xterm';
-import * as attach from 'xterm/lib/addons/attach/attach';
-import * as fit from 'xterm/lib/addons/fit/fit';
+import { FitAddon } from 'xterm-addon-fit';
+import { AttachAddon } from 'xterm-addon-attach';
 import { JwtHelperService } from '@auth0/angular-jwt';
 import { CtrService } from '../services/ctr.service';
 import { CodeExec } from '../ctr/CodeExec';
@@ -12,8 +12,9 @@ import { environment } from 'src/environments/environment';
     selector: 'terminal',
     templateUrl: './terminal.component.html',
     styleUrls: [
-        'terminal.component.css'
-    ]
+        'terminal.component.scss'
+    ],
+    encapsulation: ViewEncapsulation.None,
 })
 export class TerminalComponent implements OnChanges {
     @Input()
@@ -26,6 +27,8 @@ export class TerminalComponent implements OnChanges {
     endpoint: string;
 
     public term: any;
+    public fitAddon: FitAddon;
+    public attachAddon: AttachAddon;
     public socket: WebSocket;
     constructor(
         public jwtHelper: JwtHelperService,
@@ -42,28 +45,21 @@ export class TerminalComponent implements OnChanges {
     @ViewChild("terminal", { static: true }) terminalDiv: ElementRef;
 
     public resize() {
-        // setTimeout(() => this.term.resize(80, 30), 150);
-        // setTimeout(() => this.term.fit(), 150);
-        // setTimeout(() => {
-        //     let height = document.getElementById('terminal').offsetHeight;
-        //     let width = document.getElementById('terminal').offsetWidth;
-        //     console.log("width x height: " + height + " x " + width)
-        //     this.term.resize(height, width)
-        // }, 150);
-        this.term.fit();
+        this.fitAddon.fit();
     }
 
     buildSocket() {
-        Terminal.applyAddon(attach);
-        Terminal.applyAddon(fit);
-        this.term = new Terminal();
-
         if (environment.server.startsWith("https")) {
             this.endpoint = "wss://" + this.endpoint
         } else {
             this.endpoint = "ws://" + this.endpoint
         }
         this.socket = new WebSocket(this.endpoint + "/shell/" + this.vmid + "/connect?auth=" + this.jwtHelper.tokenGetter());
+
+        this.term = new Terminal();
+        this.attachAddon = new AttachAddon(this.socket);
+        this.fitAddon = new FitAddon();
+        this.term.loadAddon(this.fitAddon)
 
         this.socket.onclose = (e) => {
             this.term.dispose(); // destroy the terminal on the page to avoid bad display
@@ -78,8 +74,10 @@ export class TerminalComponent implements OnChanges {
 
         this.socket.onopen = (e) => {
             this.shellService.setStatus(this.vmname, "Connected");
-            this.term.attach(this.socket, true, true);
+            this.term.loadAddon(this.attachAddon)
             this.term.open(this.terminalDiv.nativeElement);
+            this.fitAddon.fit();
+            this.term.focus();
 
             this.ctrService.getCodeStream()
                 .subscribe(
