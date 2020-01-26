@@ -9,19 +9,6 @@
     height: calc(100% - 130px);
     width: 100%;
 }
-#editor {
-  display: flex;
-  flex-grow: 1;
-  height: calc(100% - 60px);
-  flex-direction: column;
-}
-#editor-iframe {
-  flex-grow: 1;
-  flex: 1 1 auto;
-  border: none;
-  margin: 0;
-  padding: 0;
-}
 
 span.shell-status {
     width: 100%;

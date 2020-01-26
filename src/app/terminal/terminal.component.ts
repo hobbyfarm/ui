@@ -44,7 +44,7 @@ export class TerminalComponent implements OnChanges {
 
     @ViewChild("terminal", { static: true }) terminalDiv: ElementRef;
 
-    public resize() {
+    resize() {
         this.fitAddon.fit();
     }
 
