@@ -30,7 +30,9 @@
     "ngx-markdown": "^8.2.1",
     "rxjs": "^6.5.4",
     "tslib": "^1.10.0",
-    "xterm": "^3.14.5",
+    "xterm": "^4.3.0",
+    "xterm-addon-attach": "^0.4.0",
+    "xterm-addon-fit": "^0.3.0",
     "zone.js": "~0.9.1"
   },
   "devDependencies": {
