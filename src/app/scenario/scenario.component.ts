@@ -96,10 +96,10 @@ export class ScenarioComponent implements OnInit {
             ).subscribe(
                 (s: VMClaim) => {
                     this.vmclaims.push(s);
+                    this.dynamicallyBinding = this.vmclaims.filter(v => v.bind_mode == 'dynamic').every(v => !v.ready)
                 },
                 (c: Course) => {
                     this.course = c.id;
-                    this.dynamicallyBinding = this.vmclaims.filter(v => v.bind_mode == 'dynamic').every(v => !v.ready)
                 }
             )
     }

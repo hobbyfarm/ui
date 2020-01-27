@@ -7,10 +7,12 @@ import { Course } from './course/course';
 import { environment } from 'src/environments/environment';
 import { UserService } from './services/user.service';
 import { CourseService } from './services/course.service';
+import { ScenarioService } from './services/scenario.service';
 
 @Component({
     selector: 'home-component',
     templateUrl: 'home.component.html',
+    styleUrls: ['home.component.scss']
 })
 
 export class HomeComponent implements OnInit {
@@ -23,7 +25,8 @@ export class HomeComponent implements OnInit {
         public helper: JwtHelperService,
         public http: HttpClient,
         public userService: UserService,
-        public courseService: CourseService
+        public courseService: CourseService,
+        public scenarioService: ScenarioService,
     ) {
     }
 
@@ -41,6 +44,11 @@ export class HomeComponent implements OnInit {
         this.courseService.list().subscribe(
             (c: Course[]) => {
                 this.courses = c;
+            }
+        )
+        this.scenarioService.list().subscribe(
+            (s: Scenario[]) => {
+                this.scenarios = s;
             }
         )
     }

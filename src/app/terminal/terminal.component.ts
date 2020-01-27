@@ -69,6 +69,8 @@ export class TerminalComponent implements OnChanges {
         this.attachAddon = new AttachAddon(this.socket);
         this.fitAddon = new FitAddon();
         this.term.loadAddon(this.fitAddon)
+        this.term.open(this.terminalDiv.nativeElement);
+        this.fitAddon.fit();
 
         this.socket.onclose = (e) => {
             this.term.dispose(); // destroy the terminal on the page to avoid bad display
@@ -84,8 +86,6 @@ export class TerminalComponent implements OnChanges {
         this.socket.onopen = (e) => {
             this.shellService.setStatus(this.vmname, "Connected");
             this.term.loadAddon(this.attachAddon)
-            this.term.open(this.terminalDiv.nativeElement);
-            this.fitAddon.fit();
             this.term.focus();
 
             this.ctrService.getCodeStream()
