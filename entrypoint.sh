@@ -7,7 +7,7 @@ else
     HF_SERVER=http://$HF_SERVER
 fi
 
-sed -i "s|#####HF_SERVER#####|$HF_SERVER|g;" /usr/share/nginx/html/main*.*.js
+sed -i "s|#####HF_SERVER#####|$HF_SERVER|g;" /usr/share/nginx/html/main*.js
 
 echo "Configured with HF_SERVER=$HF_SERVER"
 
