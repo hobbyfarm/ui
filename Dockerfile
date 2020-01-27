@@ -5,7 +5,7 @@ COPY package*.json ./
 RUN npm install
 
 COPY . .
-RUN npm run build --prod --aot
+RUN $(npm bin)/ng build --prod --aot
 
 
 FROM nginx:1.17.6-alpine
