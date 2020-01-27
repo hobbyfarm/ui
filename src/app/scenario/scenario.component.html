@@ -1,42 +1,48 @@
-<div class="content-area">
-<div class="clr-row">
-    <div class="clr-col">
-        <h3>
-            <clr-icon shape="list" size="32"></clr-icon> {{ scenario?.name | atob }}
-        </h3>
-    </div>
-</div>
-<div class="clr-row">
-    <div class="clr-col">
-        <h5>
-            {{ scenario?.description | atob }}
-        </h5>
-    </div>
-</div>
-<div class="clr-row">
-    <div class="clr-col">
-        <button class="btn btn-success" [disabled]="unreadyclaims.length > 0" (click)="goSession()">Begin Scenario</button>
-        <ng-container *ngIf="unreadyclaims.length > 0">
-            <span class="spinner spinner-inline">
-                Please wait...
-            </span>
-            <span>
-                Please wait...
-            </span>
-        </ng-container>
-    </div>
-</div>
-<hr />
-<div class="clr-row" *ngIf="vmclaims.length == 0">
-    <div class="clr-col">
+<clr-modal [(clrModalOpen)]="showScenarioModal" [clrModalClosable]="false" [clrModalSize]="'lg'">
+  <h3 class="modal-title">
+    <clr-icon shape="list" size="32"></clr-icon> {{ scenario?.name | atob }}
+  </h3>
+  <div class="modal-body">
+    <h5>
+      {{ scenario?.description | atob }}
+    </h5>
+    <div class="clr-row" *ngIf="vmclaims.length == 0">
+
+      <div class="clr-col">
+        <br/>
         <span class="spinner spinner-inline">
-            Requesting virtual machine resources...
+          Requesting virtual machine resources...
         </span>
         <span>
-            Requesting virtual machine resources...
+          Requesting virtual machine resources...
         </span>
+      </div>
     </div>
-</div>
-<ng-container *ngFor="let vmc of vmclaims">
-    <vmclaim [(vmclaim)]="vmc" (ready)="ready($event)"></vmclaim>
-</ng-container>
+    <clr-alert [clrAlertType]="info" [clrAlertClosable]="false" *ngIf="dynamicallyBinding">
+      <clr-alert-item>
+        <span class="alert-text">
+          Virtual machines are being provisioned on-demand, this may take a few moments...
+        </span>
+      </clr-alert-item>
+    </clr-alert>
+    <table class="table">
+      <thead>
+        <tr>
+          <th class="left">name</th>
+          <th class="left">id</th>
+          <th class="left">template</th>
+          <th>status</th>
+          <th>public ip</th>
+          <th>private ip</th>
+          <th>hostname</th>
+        </tr>
+      </thead>
+      <tbody vmclaim *ngFor="let vmc of vmclaims" [(vmclaim)]="vmc" (ready)="ready($event)"></tbody>
+    </table>
+
+  </div>
+  <div class="modal-footer">
+    <button class="btn btn-warning-outline" (click)="close()" type="button">Cancel</button>
+    <button class="btn btn-success" [disabled]="unreadyclaims.length > 0" (click)="goSession()">Begin Scenario</button>
+  </div>
+</clr-modal>

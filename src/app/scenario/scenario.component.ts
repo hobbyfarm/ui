@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 import { Scenario } from './Scenario';
 import { HttpClient } from '@angular/common/http';
@@ -16,10 +16,18 @@ import { VMClaim } from '../vmclaim/VMClaim';
 })
 
 export class ScenarioComponent implements OnInit {
+    @Input()
+    public showScenarioModal: boolean;
+    @Input()
+    public scenarioid: string;
+    @Output()
+    public scenarioModal = new EventEmitter<string>();
+
     public scenario: Scenario = new Scenario();
     private _session: Session = new Session();
     public vmclaims: VMClaim[] = [];
     public unreadyclaims: string[] = [];
+    public dynamicallyBinding: boolean = false;
 
     public get session(): Session {
         return this._session;
@@ -46,10 +54,18 @@ export class ScenarioComponent implements OnInit {
 
     ready(claimid: string) {
         this.unreadyclaims = this.unreadyclaims.filter((id: string) => id != claimid);
+        if (this.unreadyclaims.length == 0) {
+          this.dynamicallyBinding = false
+        }
     }
 
     goSession() {
         this.router.navigateByUrl("/app/session/" + this.session.id + "/steps/0");
+    }
+
+    close() {
+      this.showScenarioModal = false;
+      this.scenarioModal.emit("");
     }
 
     ngOnInit() {
@@ -58,11 +74,7 @@ export class ScenarioComponent implements OnInit {
         this.route.paramMap
             .pipe(
                 switchMap((p: ParamMap) => {
-                    if (p.get("scenario") == null || p.get("scenario").length == 0) {
-                        throwError("invalid scenario"); // what do we do with this then?
-                    } else {
-                        return this.scenarioService.get(p.get("scenario"));
-                    }
+                    return this.scenarioService.get(this.scenarioid);
                 }),
                 concatMap((s: Scenario) => {
                     this.scenario = s;
@@ -82,6 +94,7 @@ export class ScenarioComponent implements OnInit {
             ).subscribe(
                 (s: VMClaim) => {
                     this.vmclaims.push(s);
+                    this.dynamicallyBinding = this.vmclaims.filter(v => v.bind_mode == 'dynamic').every(v => !v.ready)
                 }
             )
     }

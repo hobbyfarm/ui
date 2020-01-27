@@ -14,12 +14,25 @@ import { ScenarioService } from './services/scenario.service';
 
 export class HomeComponent implements OnInit {
     public scenarios: Scenario[] = [];
+    public showScenarioModal: boolean = false;
+    public scenarioid: string = "";
+
     constructor(
         public helper: JwtHelperService,
         public http: HttpClient,
         public userService: UserService,
         public scenarioService: ScenarioService
     ) {
+    }
+
+    toggleScenarioModal(scenarioid: string) {
+      if (scenarioid) {
+        this.scenarioid = scenarioid;
+        this.showScenarioModal = true;
+      } else {
+        this.scenarioid = "";
+        this.showScenarioModal = false;
+      }
     }
 
     _refresh() {

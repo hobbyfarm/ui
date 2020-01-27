@@ -20,10 +20,6 @@ const routes: Routes = [
     children: [
       {path: 'home', component: HomeComponent},
       {
-        path: 'scenario/:scenario',
-        component: ScenarioComponent
-      },
-      {
         path: 'session/:session/steps/:step',
         component: StepComponent
       },

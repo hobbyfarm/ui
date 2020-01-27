@@ -10,7 +10,7 @@ import { VMClaimVM } from '../VMClaimVM';
 
 @Component({
     templateUrl: 'vmclaim.component.html',
-    selector: 'vmclaim'
+    selector: '[vmclaim]'
 })
 
 export class VMClaimComponent implements OnChanges {
@@ -48,7 +48,7 @@ export class VMClaimComponent implements OnChanges {
                         throw 1;
                     } else {
                         this.ready.emit(s.id);
-                        return from(s.vm.values());
+                        return from(Object.values(s.vm));
                     }
                 }),
                 retryWhen(obs => {
