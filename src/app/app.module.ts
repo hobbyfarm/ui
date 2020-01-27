@@ -11,7 +11,7 @@ import '@clr/icons/shapes/all-shapes';
 import { CourseComponent } from './course/course.component';
 import { ScenarioComponent } from './scenario/scenario.component';
 import { TerminalComponent } from './terminal/terminal.component';
-import { JwtModule } from '@auth0/angular-jwt';
+import { JwtModule, JWT_OPTIONS } from '@auth0/angular-jwt';
 import { HttpClientModule } from '@angular/common/http';
 import { LoginComponent } from './login/login.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
@@ -45,6 +45,20 @@ const appInitializerFn = (appConfig: AppConfigService) => {
   };
 };
 
+export function jwtOptionsFactory() {
+  return {
+    tokenGetter: tokenGetter,
+    whitelistedDomains: [
+      environment.server.replace(/(^\w+:|^)\/\//, ''),
+    ],
+    blacklistedRoutes: [
+      environment.server.replace(/(^\w+:|^)\/\//, '') + "/auth/authenticate"
+    ],
+    skipWhenExpired: true
+  }
+}
+
+
 @NgModule({
   declarations: [
     AppComponent,
@@ -77,17 +91,11 @@ const appInitializerFn = (appConfig: AppConfigService) => {
       ]
     }),
     JwtModule.forRoot({
-      config: {
-        tokenGetter: tokenGetter,
-        whitelistedDomains: [
-          environment.server.match(/.*\:\/\/?([^\/]+)/)[1]
-        ],
-        blacklistedRoutes: [
-          environment.server.match(/.*\:\/\/?([^\/]+)/)[1] + "/auth/authenticate"
-        ],
-        skipWhenExpired: true
+      jwtOptionsProvider: {
+        provide: JWT_OPTIONS,
+        useFactory: jwtOptionsFactory
       }
-    })
+    }),
   ],
   providers: [
     AppComponent,
