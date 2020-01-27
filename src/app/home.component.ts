@@ -10,17 +10,31 @@ import { CourseService } from './services/course.service';
 
 @Component({
     selector: 'home-component',
-    template: `<course-component [courses]='courses'></course-component>`
+    templateUrl: 'home.component.html',
 })
 
 export class HomeComponent implements OnInit {
     public courses: Course[] = [];
+    public scenarios: Scenario[] = [];
+    public showScenarioModal: boolean = false;
+    public scenarioid: string = "";
+
     constructor(
         public helper: JwtHelperService,
         public http: HttpClient,
         public userService: UserService,
         public courseService: CourseService
     ) {
+    }
+
+    toggleScenarioModal(scenarioid: string) {
+      if (scenarioid) {
+        this.scenarioid = scenarioid;
+        this.showScenarioModal = true;
+      } else {
+        this.scenarioid = "";
+        this.showScenarioModal = false;
+      }
     }
 
     _refresh() {

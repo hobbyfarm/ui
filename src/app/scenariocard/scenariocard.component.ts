@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from "@angular/core";
+import { Component, Input, Output, OnInit, EventEmitter } from "@angular/core";
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Scenario } from '../scenario/Scenario';
 import { Router } from '@angular/router';
@@ -16,6 +16,8 @@ export class ScenarioCard implements OnInit {
     public scenarioid: string = "";
     @Input()
     public course: Course = new Course();
+    @Output()
+    scenarioModal = new EventEmitter<string>();
 
     public scenario: Scenario = new Scenario();
     public error: string = "";
@@ -41,10 +43,6 @@ export class ScenarioCard implements OnInit {
     }
 
     navScenario() {
-      if (this.course) {
-            this.router.navigateByUrl("/app/course/" + this.course.id + "/scenario/" + this.scenarioid)
-      } else {
-            this.router.navigateByUrl("/app/scenario/" + this.scenarioid)
-      }
+       this.scenarioModal.emit(this.scenarioid);
     }
 }

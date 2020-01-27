@@ -1,0 +1,29 @@
+<div class="content-area">
+  <div class="clr-row">
+    <div class="clr-col">
+      <h3>Select a scenario</h3>
+    </div>
+  </div>
+  <div class="clr-row">
+    <ng-container *ngIf="scenarios?.length > 0">
+      <div class="clr-col-3" *ngFor="let s of scenarios">
+        <scenario-card [(scenarioid)]="s.id" (scenarioModal)="toggleScenarioModal($event)"></scenario-card>
+      </div>
+    </ng-container>
+    <ng-container *ngIf="scenarios?.length <= 0">
+      <div class="clr-col-12">
+        <p>
+          No scenarios found.
+        </p>
+      </div>
+    </ng-container>
+  </div>
+  <course-component [courses]="courses"></course-component>
+</div>
+
+<scenario-component
+    *ngIf="scenarioid"
+    [(scenarioid)]="scenarioid"
+    (scenarioModal)="toggleScenarioModal($event)"
+    [(showScenarioModal)]="showScenarioModal">
+</scenario-component>

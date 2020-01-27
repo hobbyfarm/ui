@@ -44,9 +44,8 @@ export class StepComponent implements OnInit, DoCheck {
     public shellStatus: Map<string, string> = new Map();
 
     public terminalActive: boolean = true;
-
     public first: boolean = false;
-
+    public finishOpen: boolean = false;
 
     public params: ParamMap;
 

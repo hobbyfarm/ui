@@ -49,14 +49,23 @@ export class TerminalComponent implements OnChanges {
     }
 
     buildSocket() {
-        if (environment.server.startsWith("https")) {
-            this.endpoint = "wss://" + this.endpoint
-        } else {
-            this.endpoint = "ws://" + this.endpoint
+        if (!this.endpoint.startsWith("wss://") && !this.endpoint.startsWith("ws://")) {
+            if (environment.server.startsWith("https")) {
+              this.endpoint = "wss://" + this.endpoint
+            } else {
+              this.endpoint = "ws://" + this.endpoint
+            }
         }
         this.socket = new WebSocket(this.endpoint + "/shell/" + this.vmid + "/connect?auth=" + this.jwtHelper.tokenGetter());
 
-        this.term = new Terminal();
+        this.term = new Terminal({
+          theme: {
+            background: '#292b2e'
+          },
+          fontFamily: "monospace",
+          fontSize: 16,
+          letterSpacing: 1.1
+        });
         this.attachAddon = new AttachAddon(this.socket);
         this.fitAddon = new FitAddon();
         this.term.loadAddon(this.fitAddon)
@@ -110,5 +119,9 @@ export class TerminalComponent implements OnChanges {
         if (this.vmid != null && this.endpoint != null) {
             this.buildSocket();
         }
+    }
+
+    onResize() {
+      this.fitAddon.fit()
     }
 }

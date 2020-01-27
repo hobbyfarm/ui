@@ -19,15 +19,7 @@ export class VMClaimService {
         return this.http.get(environment.server + '/vmclaim/' + id)
             .pipe(
                 map((s: ServerResponse) => {
-                    var v = JSON.parse(atob(s.content));
-                    // The following is necessary because JSON.parse does not nicely
-                    // handle string -> obj Maps
-                    // var vMap = new Map();
-                    // for (let k of Object.keys(v.vm)) {
-                    //     vMap.set(k, v.vm[k]);
-                    // }
-                    // v.vm = vMap;
-                    return v;
+                    return JSON.parse(atob(s.content));
                 }),
                 tap((v: VMClaim) => {
                     this.cachedVmClaims.set(v.id, v);
