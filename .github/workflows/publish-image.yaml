@@ -10,5 +10,5 @@ jobs:
       with:
           name: ${{ github.repository }}
           username: ${{ secrets.REGISTRY_USER }}
-          password: ${{ secrets.REGISTRYPASSWORD }}
+          password: ${{ secrets.REGISTRY_PASSWORD }}
           tag_names: true
