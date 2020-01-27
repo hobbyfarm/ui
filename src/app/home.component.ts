@@ -19,7 +19,8 @@ export class HomeComponent implements OnInit {
     public courses: Course[] = [];
     public scenarios: Scenario[] = [];
     public showScenarioModal: boolean = false;
-    public scenarioid: string = "";
+    public scenarioid: string;
+    public courseid: string;
 
     constructor(
         public helper: JwtHelperService,
@@ -30,12 +31,14 @@ export class HomeComponent implements OnInit {
     ) {
     }
 
-    toggleScenarioModal(scenarioid: string) {
-      if (scenarioid) {
-        this.scenarioid = scenarioid;
+    toggleScenarioModal(obj) {
+      if (obj.s || obj.c) {
+        this.scenarioid = obj.s;
+        this.courseid = obj.c;
         this.showScenarioModal = true;
       } else {
         this.scenarioid = "";
+        this.courseid = "";
         this.showScenarioModal = false;
       }
     }

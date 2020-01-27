@@ -34,7 +34,7 @@
         <div class="clr-row">
           <ng-container *ngIf="c.scenarios?.length > 0; else no_scenarios">
             <div class="clr-col-3" *ngFor="let s of c.scenarios">
-              <scenario-card [(scenarioid)]="s" [(course)]="c" (scenarioModal)="toggleScenarioModal($event)">
+              <scenario-card [(scenarioid)]="s" [(courseid)]="c.id" (scenarioModal)="toggleScenarioModal($event)">
               </scenario-card>
             </div>
           </ng-container>
@@ -54,6 +54,6 @@
 
   </div>
 
-  <scenario-component *ngIf="scenarioid" [(scenarioid)]="scenarioid" (scenarioModal)="toggleScenarioModal($event)"
+  <scenario-component *ngIf="scenarioid" [(scenarioid)]="scenarioid" [(courseid)]="courseid" (scenarioModal)="toggleScenarioModal($event)"
     [(showScenarioModal)]="showScenarioModal">
   </scenario-component>

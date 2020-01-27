@@ -4,12 +4,11 @@ import { Scenario } from './Scenario';
 import { HttpClient } from '@angular/common/http';
 import { concatMap, delay, switchMap } from 'rxjs/operators';
 import { Session } from '../Session';
-import { from, of, throwError } from 'rxjs';
+import { from } from 'rxjs';
 import { ScenarioService } from '../services/scenario.service';
 import { SessionService } from '../services/session.service';
 import { VMClaimService } from '../services/vmclaim.service';
 import { VMClaim } from '../vmclaim/VMClaim';
-import { Course } from '../course/course';
 
 @Component({
     selector: 'scenario-component',
@@ -21,6 +20,8 @@ export class ScenarioComponent implements OnInit {
     public showScenarioModal: boolean;
     @Input()
     public scenarioid: string;
+    @Input()
+    public courseid: string;
     @Output()
     public scenarioModal = new EventEmitter<string>();
 
@@ -28,7 +29,6 @@ export class ScenarioComponent implements OnInit {
     private _session: Session = new Session();
     public vmclaims: VMClaim[] = [];
     public unreadyclaims: string[] = [];
-    public course: string = "";
     public dynamicallyBinding: boolean = false;
 
     public get session(): Session {
@@ -80,7 +80,8 @@ export class ScenarioComponent implements OnInit {
                 }),
                 concatMap((s: Scenario) => {
                     this.scenario = s;
-                    return this.ssService.new(s.id,this.course);
+                    console.log("course: " + this.courseid)
+                    return this.ssService.new(s.id,this.courseid);
                 }),
                 concatMap((s: Session) => {
                     this.session = s;
@@ -98,9 +99,9 @@ export class ScenarioComponent implements OnInit {
                     this.vmclaims.push(s);
                     this.dynamicallyBinding = this.vmclaims.filter(v => v.bind_mode == 'dynamic').every(v => !v.ready)
                 },
-                (c: Course) => {
-                    this.course = c.id;
-                }
+                // (c: Course) => {
+                //     this.courseid = c.id;
+                // }
             )
     }
 }

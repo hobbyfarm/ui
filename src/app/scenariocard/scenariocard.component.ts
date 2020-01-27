@@ -13,14 +13,14 @@ import { CourseService } from '../services/course.service';
 })
 export class ScenarioCard implements OnInit {
     @Input()
-    public scenarioid: string = "";
+    public scenarioid: string;
     @Input()
-    public course: Course = new Course();
+    public courseid: string;
     @Output()
-    scenarioModal = new EventEmitter<string>();
+    scenarioModal = new EventEmitter();
 
     public scenario: Scenario = new Scenario();
-    public error: string = "";
+    public error: string;
 
     constructor(
         public http: HttpClient,
@@ -43,6 +43,6 @@ export class ScenarioCard implements OnInit {
     }
 
     navScenario() {
-       this.scenarioModal.emit(this.scenarioid);
+       this.scenarioModal.emit({s:this.scenarioid,c:this.courseid});
     }
 }
