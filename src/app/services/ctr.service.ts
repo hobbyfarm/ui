@@ -1,6 +1,6 @@
 import {Injectable } from '@angular/core';
 import {Guid} from 'guid-typescript';
-import { BehaviorSubject } from 'rxjs';
+import { Subject } from 'rxjs';
 import {CodeExec} from '../ctr/CodeExec';
 
 
@@ -9,7 +9,7 @@ export class CtrService {
     private targets: Map<string, string> = new Map();
     private code: Map<string, string> = new Map();
 
-    private ctrstream: BehaviorSubject<CodeExec> = new BehaviorSubject(null);
+    private ctrstream: Subject<CodeExec> = new Subject;
 
     public generateId() {
         return Guid.create().toString();
