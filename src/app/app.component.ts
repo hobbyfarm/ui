@@ -45,7 +45,7 @@ export class AppComponent implements OnInit {
 
   private Config = this.config.getConfig();
   public title   = this.Config.title   || "Rancher's Hobby Farm";
-  public favicon = this.Config.favicon || "/assets/favicon.png";
+  favIcon: HTMLLinkElement = document.querySelector('#favIcon');
   public logo;
 
   constructor(
@@ -64,6 +64,10 @@ export class AppComponent implements OnInit {
       ClarityIcons.add({
         "logo": this.logo
       })
+
+      if (this.Config.favicon) {
+        this.favIcon.href = 'data:image/png;base64,' + this.Config.favicon;
+      }
 
   }
 
