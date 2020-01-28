@@ -6,4 +6,6 @@
 #login-logo {
     width: 75%;
     height: auto;
+    margin: 10% auto;
+    display: block;
 }
