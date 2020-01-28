@@ -34,12 +34,13 @@ export class LoginComponent {
         private _sanitizer: DomSanitizer
     ) {
         if (this.Config.login && this.Config.login.logo) {
-          this.logo = 'data:image/jpg;base64,' + this.Config.login.logo
+          this.logo = this._sanitizer.bypassSecurityTrustUrl('data:image/png;base64,' + this.Config.login.logo)
+          console.log("got logo")
         } else {
           this.logo = "/assets/rancher-labs-stacked-color.svg";
         }
         if (this.Config.login && this.Config.login.background) {
-          this.background = this._sanitizer.bypassSecurityTrustResourceUrl('data:image/jpg;base64,' + this.Config.login.background);
+          this.background = this._sanitizer.bypassSecurityTrustStyle('url(data:image/png;base64,' + this.Config.login.background + ')');
         } else {
           this.background = "url(/assets/login_container_farm.svg)";
         }
