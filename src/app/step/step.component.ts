@@ -24,6 +24,7 @@ import { VMService } from '../services/vm.service';
 import { VMInfoConfig } from '../VMInfoConfig';
 import { environment } from 'src/environments/environment';
 import { ShellService } from '../services/shell.service';
+import { escape } from 'lodash';
 
 
 @Component({
@@ -112,7 +113,7 @@ export class StepComponent implements OnInit, DoCheck {
         this.markdownService.renderer.code = (code: string, language: string, isEscaped: boolean) => {
             // non-special code
             if (language.length < 1) {
-                return "<pre>" + code + "</pre>";
+                return "<pre>" + escape(code) + "</pre>";
             }
 
             // determine what kind of special injection we need to do
