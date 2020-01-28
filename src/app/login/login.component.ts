@@ -35,7 +35,6 @@ export class LoginComponent {
     ) {
         if (this.Config.login && this.Config.login.logo) {
           this.logo = this._sanitizer.bypassSecurityTrustUrl('data:image/png;base64,' + this.Config.login.logo)
-          console.log("got logo")
         } else {
           this.logo = "/assets/rancher-labs-stacked-color.svg";
         }

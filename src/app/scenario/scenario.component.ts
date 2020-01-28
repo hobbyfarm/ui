@@ -80,7 +80,6 @@ export class ScenarioComponent implements OnInit {
                 }),
                 concatMap((s: Scenario) => {
                     this.scenario = s;
-                    console.log("course: " + this.courseid)
                     return this.ssService.new(s.id,this.courseid);
                 }),
                 concatMap((s: Session) => {

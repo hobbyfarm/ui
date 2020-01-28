@@ -188,7 +188,6 @@ export class AppComponent implements OnInit {
         setTimeout(() => this.doLogout(), 2000);
       },
       (s: ServerResponse) => {
-        console.log(s);
         this.changePwDangerAlert = s.message;
         this.changePwDangerClosed = false;
         setTimeout(() => this.changePwDangerClosed = true, 2000);
