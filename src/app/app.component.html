@@ -3,12 +3,10 @@
     <div class="branding">
       <a class="logo-and-title">
         <clr-icon shape="logo"></clr-icon>
-        <span class="title">{{ title }}</span>
+        <a href="javascript://" class="nav-link nav-text" [routerLink]="['/app/home']">
+          <span class="title">{{ title }}</span>
+        </a>
       </a>
-    </div>
-
-    <div class="header-nav">
-      <a href="javascript://" class="nav-link nav-text" [routerLink]="['/app/home']">Home</a>
     </div>
 
     <div class="header-actions">
