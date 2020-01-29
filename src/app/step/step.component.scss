@@ -6,6 +6,7 @@
     position: fixed;
     right: 0;
     padding: 0;
+    bottom: 0;
     height: calc(100% - 130px);
     width: 100%;
 }
@@ -15,6 +16,18 @@ span.shell-status {
     border: 1px solid #ccc;
     background-color: white;
 }
+
+// clr-col-md
+@media all and (max-width: 992px) {
+  #terminal-column {
+    height: calc(50% - 60px);
+  }
+  #sidebar {
+    height: calc(50%) !important;
+  }
+
+}
+
 
 table {
     margin-top: 0;

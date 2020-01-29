@@ -1,5 +1,5 @@
 <div class="clr-row clr-no-gutters">
-    <div class="clr-col-sm-4 clr-col-lg-3 card" id="sidebar">
+    <div class="clr-col-md-12 clr-col-lg-4 clr-col-xl-3 card" id="sidebar">
         <div class="card-header">
             <h3 id="scenario-name">{{ scenario.name | atob }}</h3>
 
@@ -44,7 +44,7 @@
                 </clr-icon></button>
         </div>
     </div>
-    <div class="clr-col-sm-8 clr-col-lg-9" id="terminal-column">
+    <div class="clr-col-md-12 clr-col-lg-8 clr-col-xl-9" id="terminal-column">
         <clr-tabs>
             <clr-tab *ngFor="let v of vmclaimvms | keyvalue; let first = first;" #tab>
                 <button clrTabLink [id]="v.key">
