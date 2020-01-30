@@ -93,6 +93,7 @@ export class StepComponent implements OnInit, DoCheck {
     @ViewChildren('tab') tabs: QueryList<ClrTab> = new QueryList();
     @ViewChild('markdown', { static: false }) markdownTemplate;
     @ViewChild('pausemodal', { static: true }) pauseModal: ClrModal;
+    @ViewChild('contentdiv', { static: false }) contentDiv: ElementRef;
 
     constructor(
         public route: ActivatedRoute,
@@ -309,6 +310,7 @@ export class StepComponent implements OnInit, DoCheck {
         this.stepnumber += 1;
         this.router.navigateByUrl("/app/session/" + this.session.id + "/steps/" + (this.stepnumber));
         this._loadStep();
+        this.contentDiv.nativeElement.scrollTop = 0;
     }
 
     private _loadStep() {
@@ -331,6 +333,7 @@ export class StepComponent implements OnInit, DoCheck {
         this.stepnumber -= 1;
         this.router.navigateByUrl("/app/session/" + this.session.id + "/steps/" + (this.stepnumber));
         this._loadStep();
+        this.contentDiv.nativeElement.scrollTop = 0;
     }
 
     public goFinish() {
