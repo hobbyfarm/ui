@@ -112,11 +112,6 @@ export class StepComponent implements OnInit, DoCheck {
         public shellService: ShellService
     ) {
         this.markdownService.renderer.code = (code: string, language: string, isEscaped: boolean) => {
-            // non-special code
-            if (language.length < 1) {
-                return "<pre>" + escape(code) + "</pre>";
-            }
-
             // determine what kind of special injection we need to do
             if (language.split(":")[0] == 'ctr') {
                 // generate a new ID
@@ -137,6 +132,9 @@ export class StepComponent implements OnInit, DoCheck {
                 this.vmInfoService.setConfig(config);
 
                 return `<vminfo id="${config.id}"></vminfo>`;
+            } else {
+                // non-special code
+                return "<pre>" + escape(code) + "</pre>";
             }
         }
     }
