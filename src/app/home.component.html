@@ -9,7 +9,7 @@
   <div class="clr-row">
 
     <div class="clr-col-12">
-      <div *ngIf="courses.length==0 && scenarios.length==0">
+      <div *ngIf="!courses && !scenarios">
         No scenarios or courses found.
       </div>
     </div>
@@ -23,7 +23,7 @@
 
   <div class="clr-row">
     <div class="clr-col-12">
-      <ng-container *ngFor="let c of courses; let i = index">
+      <ng-container *ngFor="let c of courses">
         <h2 class="course-header">{{ c.id }} - {{ c.name | atob }}</h2>
         <span *ngIf="c.inProgress">
           <button class="btn btn-info-outline">Complete</button>
@@ -33,7 +33,7 @@
 
         <div class="clr-row">
           <ng-container *ngIf="c.scenarios?.length > 0; else no_scenarios">
-            <div class="clr-col-12 clr-col-sm-6 clr-col-md-4 clr-col-lg-3 clr-col-xl" *ngFor="let s of c.scenarios">
+            <div class="clr-col-12 clr-col-sm-6 clr-col-md-4 clr-col-lg-3 clr-col-xl" *ngFor="let s of c?.scenarios">
               <scenario-card [(scenarioid)]="s" [(courseid)]="c.id" (scenarioModal)="toggleScenarioModal($event)">
               </scenario-card>
             </div>

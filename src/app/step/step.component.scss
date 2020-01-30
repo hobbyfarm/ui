@@ -28,6 +28,18 @@ span.shell-status {
 
 }
 
+#step-navigator {
+  display: flex;
+  align-items: center;
+  button {
+    margin: 0;
+  }
+}
+#step-counter {
+  flex-grow: 2;
+  text-align: center;
+}
+
 
 table {
     margin-top: 0;
