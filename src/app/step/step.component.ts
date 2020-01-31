@@ -138,7 +138,7 @@ export class StepComponent implements OnInit, DoCheck {
                 return `<vminfo id="${config.id}"></vminfo>`;
             } else {
                 // highlighted code
-                return "<pre class='language language-"+language+"'>" +
+                return "<pre class='language-"+language+"'>" +
                          "<code class='language-"+ language +"'>" +
                            escape(code) +
                          "</code>" +
@@ -196,7 +196,6 @@ export class StepComponent implements OnInit, DoCheck {
             content = content.replace(tokens[i][0], this.vms.get(this.vmclaimvms.get(vmname).vm_id)[tokens[i][2]]);
         }
 
-        console.log(content)
         return content;
     }
 
