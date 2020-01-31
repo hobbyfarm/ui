@@ -2,3 +2,10 @@
   height: calc(100% - 60px);
   width: 100%;
 }
+
+.xterm {
+  padding-bottom: 30px;
+}
+.xterm-viewport {
+  overflow: hidden !important;
+}
