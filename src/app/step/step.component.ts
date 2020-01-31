@@ -112,6 +112,10 @@ export class StepComponent implements OnInit, DoCheck {
         public shellService: ShellService
     ) {
         this.markdownService.renderer.code = (code: string, language: string, isEscaped: boolean) => {
+            // block text
+            if (language.length == 0) {
+                return "<pre>" + escape(code) + "</pre>";
+            }
             // determine what kind of special injection we need to do
             if (language.split(":")[0] == 'ctr') {
                 // generate a new ID
@@ -133,8 +137,12 @@ export class StepComponent implements OnInit, DoCheck {
 
                 return `<vminfo id="${config.id}"></vminfo>`;
             } else {
-                // non-special code
-                return "<pre>" + escape(code) + "</pre>";
+                // highlighted code
+                return "<pre class='language language-"+language+"'>" +
+                         "<code class='language-"+ language +"'>" +
+                           escape(code) +
+                         "</code>" +
+                       "</pre>";
             }
         }
     }
@@ -188,6 +196,7 @@ export class StepComponent implements OnInit, DoCheck {
             content = content.replace(tokens[i][0], this.vms.get(this.vmclaimvms.get(vmname).vm_id)[tokens[i][2]]);
         }
 
+        console.log(content)
         return content;
     }
 
