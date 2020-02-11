@@ -8,7 +8,6 @@ import { RootComponent } from './root.component';
 import { HomeComponent } from './home.component';
 import '@clr/icons';
 import '@clr/icons/shapes/all-shapes';
-import { CourseComponent } from './course/course.component';
 import { ScenarioComponent } from './scenario/scenario.component';
 import { TerminalComponent } from './terminal/terminal.component';
 import { JwtModule, JWT_OPTIONS } from '@auth0/angular-jwt';
@@ -64,7 +63,6 @@ export function jwtOptionsFactory() {
     AppComponent,
     RootComponent,
     HomeComponent,
-    CourseComponent,
     ScenarioComponent,
     TerminalComponent,
     LoginComponent,
