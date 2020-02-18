@@ -15,7 +15,7 @@ jobs:
           git push origin $version
         fi
     - name: publish to registry
-      uses: elgohr/Publish-Docker-Github-Action@master
+      uses: elgohr/Publish-Docker-Github-Action@2.11
       with:
           name: ${{ github.repository }}
           username: ${{ secrets.REGISTRY_USER }}
