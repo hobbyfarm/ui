@@ -4,7 +4,9 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@master
+    - uses: actions/checkout@v2
+      with:
+        fetch-depth: 2
     - name: tag version if bumped
       run: |
         if git diff HEAD~1 package.json | grep '"version":'; then
