@@ -1,29 +1,19 @@
 name: publish image
-
-on:
-  push:
-    branches:
-      - master
-    paths:
-      - 'package.json'
-
+on: push
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v1
-
-    - name: check if version was bumped
-      run: git diff HEAD~1 package.json | grep '"version":'
-
-    - name: login to the registry
-      run: echo ${{ secrets.REGISTRY_PASSWORD }} | docker login -u ${{ secrets.REGISTRY_USER }} --password-stdin
-
-    - name: get the version
-      id: vars
-      run: "echo ::set-output name=tag::$(cat package.json | grep version | head -1 | awk -F: '{ print $2 }' | sed 's/[\", ]//g')"
-
-    - name: build image
-      run: docker build . -t ${{ github.repository }}:latest -t ${{ github.repository }}:${{ steps.vars.outputs.tag }}
-    - name: push image
-      run: docker push ${{ github.repository }}:latest && docker push ${{ github.repository }}:${{ steps.vars.outputs.tag }}
+    - uses: actions/checkout@master
+    - name: tag version if bumped
+      run: |
+        if git diff HEAD~1 package.json | grep '"version":'; then
+          git tag "$(cat package.json | jq '.version')"
+        fi
+    - name: publish to registry
+      uses: elgohr/Publish-Docker-Github-Action@master
+      with:
+          name: ${{ github.repository }}
+          username: ${{ secrets.REGISTRY_USER }}
+          password: ${{ secrets.REGISTRY_PASSWORD }}
+          tag_names: true
