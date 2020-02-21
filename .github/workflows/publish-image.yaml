@@ -14,10 +14,13 @@ jobs:
           git tag $version
           git push origin $version
         fi
-    - name: publish to registry
-      uses: elgohr/Publish-Docker-Github-Action@2.11
-      with:
-          name: ${{ github.repository }}
-          username: ${{ secrets.REGISTRY_USER }}
-          password: ${{ secrets.REGISTRY_PASSWORD }}
-          tag_names: true
+    - name: build image
+      run: docker build . -t ${{ github.repository }}
+    - name: push image
+      run: |
+        echo ${{ secrets.REGISTRY_PASSWORD }} | docker login -u ${{ secrets.REGISTRY_USER }} --password-stdin
+
+        for tag in latest $(git tag -l --points-at HEAD); do
+          docker push ${{ github.repository }}:$tag
+        done
+
