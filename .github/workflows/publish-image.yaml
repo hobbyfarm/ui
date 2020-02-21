@@ -21,6 +21,7 @@ jobs:
     - name: push image
       run: |
         for tag in latest $(git tag -l --points-at HEAD); do
+          docker tag  ${{ github.repository }} ${{ github.repository }}:$tag
           docker push ${{ github.repository }}:$tag
         done
 
