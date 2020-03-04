@@ -13,6 +13,8 @@ import { environment } from 'src/environments/environment';
 export class ScenarioCard implements OnInit {
     @Input()
     public scenarioid: string = "";
+    @Input()
+    public courseid: string = "";
 
     public scenario: Scenario = new Scenario();
     public error: string = "";
@@ -37,6 +39,10 @@ export class ScenarioCard implements OnInit {
     }
 
     navScenario() {
-        this.router.navigateByUrl("/app/scenario/" + this.scenarioid)
+        if (this.courseid) {
+            this.router.navigateByUrl("/app/course/" + this.courseid + "/scenario/" + this.scenarioid)
+        } else {
+            this.router.navigateByUrl("/app/scenario/" + this.scenarioid)
+        }
     }
 }

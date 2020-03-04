@@ -26,7 +26,8 @@ import { VMInfoComponent } from './scenario/vminfo.component';
 import { CtrService } from './scenario/ctr.service';
 import { VMInfoService } from './scenario/vminfo.service';
 import { ScenarioService } from './services/scenario.service';
-import { ScenarioSessionService } from './services/scenariosession.service';
+import { CourseService } from './services/course.service';
+import { SessionService } from './services/session.service';
 import { StepService } from './services/step.service';
 import { VMService } from './services/vm.service';
 import { VMClaimService } from './services/vmclaim.service';
@@ -91,8 +92,9 @@ const appInitializerFn = (appConfig: AppConfigService) => {
     AuthGuard,
     CtrService,
     VMInfoService,
+    CourseService,
     ScenarioService,
-    ScenarioSessionService,
+    SessionService,
     StepService,
     VMService,
     VMClaimService,

@@ -1,12 +1,13 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Input } from '@angular/core';
 import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 import { Scenario } from './Scenario';
+import { Course } from '../course/course';
 import { HttpClient } from '@angular/common/http';
 import { concatMap, delay, switchMap } from 'rxjs/operators';
-import { ScenarioSession } from '../ScenarioSession';
+import { Session } from '../Session';
 import { from, of, throwError } from 'rxjs';
 import { ScenarioService } from '../services/scenario.service';
-import { ScenarioSessionService } from '../services/scenariosession.service';
+import { SessionService } from '../services/session.service';
 import { VMClaimService } from '../services/vmclaim.service';
 import { VMClaim } from '../VMClaim';
 
@@ -17,16 +18,17 @@ import { VMClaim } from '../VMClaim';
 
 export class ScenarioComponent implements OnInit {
     public scenario: Scenario = new Scenario();
-    private _scenarioSession: ScenarioSession = new ScenarioSession();
+    public course: string;
+    private _session: Session = new Session();
     public vmclaims: VMClaim[] = [];
     public unreadyclaims: string[] = [];
 
-    public get scenarioSession(): ScenarioSession {
-        return this._scenarioSession;
+    public get scenarioSession(): Session {
+        return this._session;
     }
 
-    public set scenarioSession(s: ScenarioSession) {
-        this._scenarioSession = s;
+    public set scenarioSession(s: Session) {
+        this._session = s;
         this.ssService.keepalive(s.id).subscribe(); // keepalive subscription
     }
 
@@ -35,7 +37,7 @@ export class ScenarioComponent implements OnInit {
         public http: HttpClient,
         public router: Router,
         public scenarioService: ScenarioService,
-        public ssService: ScenarioSessionService,
+        public ssService: SessionService,
         public vmClaimService: VMClaimService
     ) {
     }
@@ -58,6 +60,7 @@ export class ScenarioComponent implements OnInit {
         this.route.paramMap
             .pipe(
                 switchMap((p: ParamMap) => {
+                    this.course = p.get("course");
                     if (p.get("scenario") == null || p.get("scenario").length == 0) {
                         throwError("invalid scenario"); // what do we do with this then?
                     } else {
@@ -66,9 +69,9 @@ export class ScenarioComponent implements OnInit {
                 }),
                 concatMap((s: Scenario) => {
                     this.scenario = s;
-                    return this.ssService.new(s.id);
+                    return this.ssService.new(s.id, this.course);
                 }),
-                concatMap((s: ScenarioSession) => {
+                concatMap((s: Session) => {
                     this.scenarioSession = s;
                     return from(s.vm_claim);
                 }),

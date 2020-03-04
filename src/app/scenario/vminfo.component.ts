@@ -2,9 +2,9 @@ import { Component } from '@angular/core';
 import { OnMount } from '../dynamic-html';
 import { VM } from '../VM';
 import { delay, retryWhen, switchMap, concatMap, filter } from 'rxjs/operators';
-import { ScenarioSessionService } from '../services/scenariosession.service';
+import { SessionService } from '../services/session.service';
 import { VMClaimService } from '../services/vmclaim.service';
-import { ScenarioSession } from '../ScenarioSession';
+import { Session } from '../Session';
 import { from, of, Observable } from 'rxjs';
 import { VMClaim } from '../VMClaim';
 import { VMClaimVM } from '../VMClaimVM';
@@ -31,7 +31,7 @@ export class VMInfoComponent implements OnMount {
     public vm: VM = new VM();
 
     constructor(
-        public ssService: ScenarioSessionService,
+        public ssService: SessionService,
         public vmClaimService: VMClaimService,
         public vmService: VMService,
         public vmInfoService: VMInfoService
@@ -57,7 +57,7 @@ export class VMInfoComponent implements OnMount {
                         delay(3000)
                     )
                 }),
-                switchMap((s: ScenarioSession) => {
+                switchMap((s: Session) => {
                     return from(s.vm_claim);
                 }),
                 concatMap((claimid: string) => {
