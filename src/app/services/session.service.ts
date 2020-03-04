@@ -18,8 +18,10 @@ export class SessionService {
 
     public new(sessionId: string, courseId: string) {
         let params = new HttpParams()
-            .set("scenario", sessionId)
-            .set("course", courseId);
+            .set("scenario", sessionId);
+            if (courseId) {
+                params.set("course", courseId);
+            }
         return this.http.post(environment.server + "/session/new", params)
             .pipe(
                 map((s: ServerResponse) => {
