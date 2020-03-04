@@ -22,6 +22,7 @@ export class CourseService {
             return JSON.parse(atob(s.content));
         }),
         tap((c: Course[]) => {
+            if (!c) { return; }
             c.forEach((t: Course) => {
                 this.cachedCourses.set(t.id, t);
             })
