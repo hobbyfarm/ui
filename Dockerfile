@@ -1,12 +1,16 @@
 FROM node:13.1.0-alpine3.10 as build
 
+RUN apk update && \
+    apk add git && \
+    npm install -g ts-node
+
 WORKDIR /app
 COPY package*.json ./
 RUN npm install
 
 COPY . .
-RUN $(npm bin)/ng build --prod --aot
-
+RUN ts-node -O '{"module": "commonjs"}' src/git.version.ts && \
+    $(npm bin)/ng build --prod --aot
 
 FROM nginx:1.17.6-alpine
 
