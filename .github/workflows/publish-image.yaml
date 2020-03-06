@@ -5,15 +5,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
-      with:
-        fetch-depth: 2
-    - name: tag version if bumped
-      run: |
-        if git diff HEAD~1 package.json | grep '"version":'; then
-          version="$(cat package.json | jq -r '.version')"
-          git tag $version
-          git push origin $version
-        fi
     - name: build image
       run: docker build . -t ${{ github.repository }}
     - name: login to registry
