@@ -11,7 +11,7 @@ jobs:
       run: echo "${{ secrets.REGISTRY_PASSWORD }}" | docker login -u "${{ secrets.REGISTRY_USER }}" --password-stdin
     - name: push image
       run: |
-        for tag in latest $(git tag -l --points-at HEAD); do
+        for tag in latest $(git rev-parse --abbrev-ref HEAD) $(git tag -l --points-at HEAD); do
           docker tag  ${{ github.repository }} ${{ github.repository }}:$tag
           docker push ${{ github.repository }}:$tag
         done
