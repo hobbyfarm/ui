@@ -3,7 +3,7 @@ import { ClarityIcons } from '@clr/icons';
 import { JwtHelperService } from '@auth0/angular-jwt';
 import { ClrModal } from '@clr/angular';
 import { Router } from '@angular/router';
-import { environment } from 'src/environments/environment';
+import { version } from 'src/environments/version';
 import { UserService } from './services/user.service';
 import { FormGroup, FormControl, Validators, ValidatorFn, ValidationErrors } from '@angular/forms';
 import { ServerResponse } from './ServerResponse';
@@ -20,7 +20,7 @@ export class AppComponent implements OnInit {
   public changePasswordModalOpened: boolean = false;
   public new_password1: string = "";
   public new_password2: string = "";
-  public version: string = environment.version;
+  public version: string;
 
   public changePwDangerClosed: boolean = true;
   public changePwSuccessClosed: boolean = true;
@@ -62,6 +62,11 @@ export class AppComponent implements OnInit {
       this.logo = "<img src='" + this.config.getConfig().logo + "' />"
     }
 
+    if (version.tag) {
+      this.version = version.tag;
+    } else {
+      this.version = version.revision;
+    }
   }
 
   public matchedPasswordValidator: ValidatorFn = (control: FormGroup): ValidationErrors | null => {

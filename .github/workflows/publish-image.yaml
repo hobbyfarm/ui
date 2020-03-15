@@ -1,29 +1,21 @@
 name: publish image
-
 on:
   push:
     branches:
-      - master
-    paths:
-      - 'package.json'
-
+      - 'release/**'
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v1
-
-    - name: check if version was bumped
-      run: git diff HEAD~1 package.json | grep '"version":'
-
-    - name: login to the registry
-      run: echo ${{ secrets.REGISTRY_PASSWORD }} | docker login -u ${{ secrets.REGISTRY_USER }} --password-stdin
-
-    - name: get the version
-      id: vars
-      run: "echo ::set-output name=tag::$(cat package.json | grep version | head -1 | awk -F: '{ print $2 }' | sed 's/[\", ]//g')"
-
+    - uses: actions/checkout@v2
     - name: build image
-      run: docker build . -t ${{ github.repository }}:latest -t ${{ github.repository }}:${{ steps.vars.outputs.tag }}
+      run: docker build . -t ${{ github.repository }}
+    - name: login to registry
+      run: echo "${{ secrets.REGISTRY_PASSWORD }}" | docker login -u "${{ secrets.REGISTRY_USER }}" --password-stdin
     - name: push image
-      run: docker push ${{ github.repository }}:latest && docker push ${{ github.repository }}:${{ steps.vars.outputs.tag }}
+      run: |
+        for tag in latest $(git rev-parse --abbrev-ref HEAD) $(git tag -l --points-at HEAD); do
+          docker tag  ${{ github.repository }} ${{ github.repository }}:$tag
+          docker push ${{ github.repository }}:$tag
+        done
+
