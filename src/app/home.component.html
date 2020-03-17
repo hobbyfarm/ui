@@ -1,19 +1,55 @@
-<div class="clr-row">
+<div class="content-area">
+
+  <div class="clr-row">
     <div class="clr-col">
-        <h3>Select a scenario</h3>
+      <h1>Select a scenario</h1>
     </div>
-</div>
-<div class="clr-row">
+  </div>
+
+  <div class="clr-row">
+
+    <div class="clr-col-12">
+      <div *ngIf="!courses && !scenarios">
+        No scenarios or courses found.
+      </div>
+    </div>
+
     <ng-container *ngIf="scenarios?.length > 0">
-        <div class="clr-col-3" *ngFor="let s of scenarios">
-            <scenario-card [(scenarioid)]="s.id"></scenario-card>
-        </div>
+      <div class="clr-col-12 clr-col-sm-6 clr-col-md-4 clr-col-lg-3" *ngFor="let s of scenarios">
+        <scenario-card [(scenarioid)]="s.id" (scenarioModal)="toggleScenarioModal($event)"></scenario-card>
+      </div>
     </ng-container>
-    <ng-container *ngIf="scenarios?.length <= 0">
-        <div class="clr-col-12">
-            <p>
-                No scenarios found. 
-            </p>
+  </div>
+
+  <div class="clr-row">
+    <div class="clr-col-12">
+      <ng-container *ngFor="let c of courses">
+        <h2 class="course-header">{{ c.id }} - {{ c.name | atob }}</h2>
+        <span *ngIf="c.inProgress">
+          <button class="btn btn-info-outline">Complete</button>
+        </span>
+        <hr />
+        <p class="course-description">{{ c.description | atob }}</p>
+
+        <div class="clr-row">
+          <ng-container *ngIf="c.scenarios?.length > 0; else no_scenarios">
+            <div class="clr-col-12 clr-col-sm-6 clr-col-md-4 clr-col-lg-3" *ngFor="let s of c?.scenarios">
+              <scenario-card [(scenarioid)]="s" [(courseid)]="c.id" (scenarioModal)="toggleScenarioModal($event)">
+              </scenario-card>
+            </div>
+          </ng-container>
+          <ng-template #no_scenarios>
+            <div class="clr-col-12">
+              <p>
+                No scenarios found.
+              </p>
+            </div>
+          </ng-template>
         </div>
-    </ng-container>
-</div>
+
+      </ng-container>
+    </div>
+  </div>
+
+
+  </div>
