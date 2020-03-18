@@ -1,0 +1,9 @@
+version: "3.4"
+
+services:
+  ui:
+    build:
+      context: ../../
+      dockerfile: cicd/docker/Dockerfile
+      target: sdk
+    image: hobbyfarm/ui-sdk:${GIT_COMMIT_SHORT_HASH:-dev}
