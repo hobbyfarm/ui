@@ -1,4 +1,4 @@
-import { Component, OnInit, Input } from '@angular/core';
+import { Component, OnInit, Input, EventEmitter, Output } from '@angular/core';
 import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 import { Scenario } from './Scenario';
 import { Course } from '../course/course';
@@ -17,17 +17,26 @@ import { VMClaim } from '../VMClaim';
 })
 
 export class ScenarioComponent implements OnInit {
+    @Input()
+    public showScenarioModal: boolean;
+    @Input()
+    public scenarioid: string;
+    @Input()
+    public courseid: string;
+    @Output()
+    public scenarioModal = new EventEmitter<string>();
+
     public scenario: Scenario = new Scenario();
-    public course: string;
     private _session: Session = new Session();
     public vmclaims: VMClaim[] = [];
     public unreadyclaims: string[] = [];
+    public dynamicallyBinding: boolean = false;
 
-    public get scenarioSession(): Session {
+    public get session(): Session {
         return this._session;
     }
 
-    public set scenarioSession(s: Session) {
+    public set session(s: Session) {
         this._session = s;
         this.ssService.keepalive(s.id).subscribe(); // keepalive subscription
     }
@@ -48,10 +57,18 @@ export class ScenarioComponent implements OnInit {
 
     ready(claimid: string) {
         this.unreadyclaims = this.unreadyclaims.filter((id: string) => id != claimid);
+        if (this.unreadyclaims.length == 0) {
+          this.dynamicallyBinding = false
+        }
     }
 
     goSession() {
-        this.router.navigateByUrl("/app/session/" + this.scenarioSession.id + "/steps/0");
+        this.router.navigateByUrl("/app/session/" + this.session.id + "/steps/0");
+    }
+
+    close() {
+      this.showScenarioModal = false;
+      this.scenarioModal.emit("");
     }
 
     ngOnInit() {
@@ -60,19 +77,14 @@ export class ScenarioComponent implements OnInit {
         this.route.paramMap
             .pipe(
                 switchMap((p: ParamMap) => {
-                    this.course = p.get("course");
-                    if (p.get("scenario") == null || p.get("scenario").length == 0) {
-                        throwError("invalid scenario"); // what do we do with this then?
-                    } else {
-                        return this.scenarioService.get(p.get("scenario"));
-                    }
+                    return this.scenarioService.get(this.scenarioid);
                 }),
                 concatMap((s: Scenario) => {
                     this.scenario = s;
-                    return this.ssService.new(s.id, this.course);
+                    return this.ssService.new(s.id, this.courseid);
                 }),
                 concatMap((s: Session) => {
-                    this.scenarioSession = s;
+                    this.session = s;
                     return from(s.vm_claim);
                 }),
                 delay(2000),
@@ -85,6 +97,7 @@ export class ScenarioComponent implements OnInit {
             ).subscribe(
                 (s: VMClaim) => {
                     this.vmclaims.push(s);
+                    this.dynamicallyBinding = this.vmclaims.filter(v => v.bind_mode == 'dynamic').every(v => !v.ready)
                 }
             )
     }

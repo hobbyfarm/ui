@@ -1,48 +1,13 @@
-<div class="clr-row">
-    <div class="clr-col-12">
-        <h5>VM Set {{ vmclaim?.id }}</h5>
-    </div>
-    <div class="clr-col-12">
-        <span *ngIf="!vmclaim?.ready && vmclaim?.bind_mode != 'dynamic'">Status: Preparing <span class="spinner spinner-inline"></span></span>
-        <span *ngIf="vmclaim?.ready">Status: Ready <clr-icon shape="check" class="is-success"></clr-icon></span>
-        <span *ngIf="!vmclaim?.ready && vmclaim?.bind_mode == 'dynamic'">Status: Virtual machines are being provisioned on-demand, this may take a few moments... <span class="spinner spinner-inline"></span></span>
-    </div>
-    <div class="clr-col-lg-4 clr-col-xl-4 clr-col-md-6 clr-col-sm-12" *ngFor="let vm of vmclaim.vm | keyvalue">
-        <div class="card">
-            <div class="card-header">
-                {{ vm.key }}
-            </div>
-            <div class="card-block">
-                <div class="card-text">
-                    <span *ngIf="!vmclaim?.ready">Requesting VM Information<span class="spinner spinner-inline"></span></span>
-                    <table class="table compact" *ngIf="vmclaim.ready">
-                        <tr>
-                            <td>Id</td>
-                            <td>{{ vm.value.vm_id}} </td>
-                        </tr>
-                        <tr>
-                            <td>Template</td>
-                            <td>{{ getVm(vm.value.vm_id)?.vm_template_id }}</td>
-                        </tr>
-                        <tr>
-                            <td>Status</td>
-                            <td>{{ getVm(vm.value.vm_id)?.status }}</td>
-                        </tr>
-                        <tr>
-                            <td>Public IP</td>
-                            <td>{{ getVm(vm.value.vm_id)?.public_ip }}</td>
-                        </tr>
-                        <tr>
-                            <td>Private IP</td>
-                            <td>{{ getVm(vm.value.vm_id)?.private_ip }}</td>
-                        </tr>
-                        <tr>
-                            <td>Hostname</td>
-                            <td>{{ getVm(vm.value.vm_id)?.hostname }}</td>
-                        </tr>
-                    </table>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
+<tr *ngFor="let vm of vmclaim.vm | keyvalue">
+  <td class="left">{{ vm.key }}</td>
+  <td class="left">{{ vm.value.vm_id}}</td>
+  <td class="left">{{ vm.value.template }}</td>
+  <td>
+    <clr-icon *ngIf="vmclaim?.ready" shape="check" class="is-success"></clr-icon>
+    <clr-spinner *ngIf="!vmclaim?.ready" [clrInline]="true"></clr-spinner>
+    {{ getVm(vm.value.vm_id)?.status }}
+  </td>
+  <td>{{ getVm(vm.value.vm_id)?.public_ip }}</td>
+  <td>{{ getVm(vm.value.vm_id)?.private_ip }}</td>
+  <td>{{ getVm(vm.value.vm_id)?.hostname }}</td>
+</tr>

@@ -53,3 +53,7 @@
 
 
   </div>
+
+  <scenario-component *ngIf="scenarioid" [(scenarioid)]="scenarioid" [(courseid)]="courseid" (scenarioModal)="toggleScenarioModal($event)"
+    [(showScenarioModal)]="showScenarioModal">
+  </scenario-component>

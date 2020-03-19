@@ -1,7 +1,6 @@
-import { Component, Input, OnInit } from "@angular/core";
+import { Component, Input, Output, OnInit, EventEmitter } from "@angular/core";
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
-import { Scenario } from './Scenario';
-import { Router } from '@angular/router';
+import { Scenario } from '../scenario/Scenario';
 import { ServerResponse } from '../ServerResponse';
 import { environment } from 'src/environments/environment';
 
@@ -9,19 +8,19 @@ import { environment } from 'src/environments/environment';
     templateUrl: 'scenariocard.component.html',
     selector: 'scenario-card'
 })
-
 export class ScenarioCard implements OnInit {
     @Input()
     public scenarioid: string = "";
     @Input()
     public courseid: string = "";
+    @Output()
+    scenarioModal = new EventEmitter();
 
     public scenario: Scenario = new Scenario();
     public error: string = "";
 
     constructor(
-        public http: HttpClient,
-        public router: Router
+        public http: HttpClient
     ) {
     }
 
@@ -39,10 +38,6 @@ export class ScenarioCard implements OnInit {
     }
 
     navScenario() {
-        if (this.courseid) {
-            this.router.navigateByUrl("/app/course/" + this.courseid + "/scenario/" + this.scenarioid)
-        } else {
-            this.router.navigateByUrl("/app/scenario/" + this.scenarioid)
-        }
+       this.scenarioModal.emit({s:this.scenarioid,c:this.courseid});
     }
 }
