@@ -18,6 +18,10 @@ import { ScenarioService } from './services/scenario.service';
 export class HomeComponent implements OnInit {
     public courses: Course[] = [];
     public scenarios: Scenario[] = [];
+    public showScenarioModal: boolean = false;
+    public scenarioid: string;
+    public courseid: string;
+
     constructor(
         public helper: JwtHelperService,
         public http: HttpClient,
@@ -25,6 +29,18 @@ export class HomeComponent implements OnInit {
         public scenarioService: ScenarioService,
         public courseService: CourseService
     ) {
+    }
+
+    toggleScenarioModal(obj) {
+      if (obj.s || obj.c) {
+        this.scenarioid = obj.s;
+        this.courseid = obj.c;
+        this.showScenarioModal = true;
+      } else {
+        this.scenarioid = "";
+        this.courseid = "";
+        this.showScenarioModal = false;
+      }
     }
 
     _refresh() {

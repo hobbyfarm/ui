@@ -10,7 +10,7 @@ import { VMClaimVM } from '../VMClaimVM';
 
 @Component({
     templateUrl: 'vmclaim.component.html',
-    selector: 'vmclaim'
+    selector: 'tbody[vmclaim]'
 })
 
 export class VMClaimComponent implements OnChanges {

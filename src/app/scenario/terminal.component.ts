@@ -50,10 +50,12 @@ export class TerminalComponent implements OnChanges {
         Terminal.applyAddon(fit);
         this.term = new Terminal();
 
-        if (environment.server.startsWith("https")) {
-            this.endpoint = "wss://" + this.endpoint
-        } else {
-            this.endpoint = "ws://" + this.endpoint
+        if (!this.endpoint.startsWith("wss://") && !this.endpoint.startsWith("ws://")) {
+            if (environment.server.startsWith("https")) {
+              this.endpoint = "wss://" + this.endpoint
+            } else {
+              this.endpoint = "ws://" + this.endpoint
+            }
         }
         this.socket = new WebSocket(this.endpoint + "/shell/" + this.vmid + "/connect?auth=" + this.jwtHelper.tokenGetter());
 
