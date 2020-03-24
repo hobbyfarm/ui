@@ -8,7 +8,7 @@ import { DynamicHTMLRenderer } from './renderer';
     exports: [DynamicHTMLComponent],
 })
 export class DynamicHTMLModule {
-    static forRoot(options: DynamicHTMLOptions): ModuleWithProviders {
+    static forRoot(options: DynamicHTMLOptions): ModuleWithProviders<DynamicHTMLModule> {
         return {
             ngModule: DynamicHTMLModule,
             providers: [
