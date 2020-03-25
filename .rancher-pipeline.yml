@@ -1,22 +1,8 @@
 stages:
-- name: Build
-  steps:
-  - runScriptConfig:
-      image: node:10
-      shellScript: |-
-        PACKAGE_VERSION=$(cat package.json \
-          | grep version \
-          | head -1 \
-          | awk -F: '{ print $2 }' \
-          | sed 's/[", ]//g')
-        echo "Building HobbyFarm UI $PACKAGE_VERSION"
-        npm install -g @angular/cli
-        npm install
-        ng build --aot
 - name: Publish
   steps:
   - publishImageConfig:
-      dockerfilePath: ./Dockerfile
+      dockerfilePath: ./cicd/docker/Dockerfile
       buildContext: .
       tag: hfui:${CICD_EXECUTION_SEQUENCE}
 - name: Deploy
