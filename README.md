@@ -1,5 +1,7 @@
 # HobbyFarm User Interface
 
+![Main](https://github.com/hobbyfarm/ui/workflows/Main/badge.svg?branch=master)
+
 This is the user interface for HobbyFarm - an interactive learning system.
 
 This is meant to be used in conjunction with github.com/hobbyfarm/gargantua.
