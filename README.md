@@ -1,6 +1,7 @@
 # HobbyFarm User Interface
 
 ![Main](https://github.com/hobbyfarm/ui/workflows/Main/badge.svg?branch=master)
+![docker version latest](https://img.shields.io/docker/v/hobbyfarm/ui?color=green&label=latest%20version&sort=semver)
 
 This is the user interface for HobbyFarm - an interactive learning system.
 
