@@ -1,3 +1,8 @@
 @import "./theme.scss";
 @import "../node_modules/@clr/ui/src/main.scss";
 
+:not(pre) > code[class*="language-"],
+pre[class*="language-"] {
+  background: #f8f8f8 !important;
+}
+
