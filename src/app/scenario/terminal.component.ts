@@ -1,7 +1,7 @@
 import { Component, ViewChild, ElementRef, OnInit, Input, OnChanges, ViewEncapsulation } from '@angular/core';
 import { Terminal } from 'xterm';
 import { AttachAddon } from 'xterm-addon-attach';
-import { FitAddon } from 'xterm-addon-fit';
+import { FitAddon, ITerminalDimensions } from 'xterm-addon-fit';
 import { JwtHelperService } from '@auth0/angular-jwt';
 import { CtrService } from './ctr.service';
 import { CodeExec } from './CodeExec';
@@ -31,6 +31,7 @@ export class TerminalComponent implements OnChanges {
     public fitAddon: FitAddon;
     public attachAddon: AttachAddon;
     public socket: WebSocket;
+    public dimensions: ITerminalDimensions;
     constructor(
         public jwtHelper: JwtHelperService,
         public ctrService: CtrService,
@@ -45,7 +46,12 @@ export class TerminalComponent implements OnChanges {
 
     @ViewChild("terminal", { static: true }) terminalDiv: ElementRef;
 
-    public resize() {
+    @HostListener('window:resize', ['$event'])
+    public resize(event?) {
+        this.dimensions = this.fitAddon.proposeDimensions()
+        let height = this.dimensions.rows
+        let width = this.dimensions.cols
+        this.socket.send(`\u001b[8;${height};${width}t`)
         this.fitAddon.fit();
     }
 
@@ -88,6 +94,7 @@ export class TerminalComponent implements OnChanges {
             this.shellService.setStatus(this.vmname, "Connected");
             this.term.loadAddon(this.attachAddon)
             this.term.focus();
+            this.resize();
 
             this.ctrService.getCodeStream()
                 .subscribe(
