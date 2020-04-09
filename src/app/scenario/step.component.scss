@@ -1,20 +1,19 @@
-code {
-    background-color: rgba(0,0,0,0.1);
-    padding: 3px;
-    border-radius: 3px;
+.clr-no-gutters {
+  // undo the padding added by .content-area
+  margin: -1rem;
 }
 
 .btn-next {
     float: right;
 }
 
-.sticky-terminal {
+#terminal-column {
     position: fixed;
-    right: 0.25em;
-}
-
-.terminals {
-    padding: 3px;
+    right: 0;
+    padding: 0;
+    bottom: 0;
+    height: calc(100% - 60px);
+    width: 100%;
 }
 
 span.shell-status {
@@ -23,7 +22,67 @@ span.shell-status {
     background-color: white;
 }
 
+// clr-col-md
+@media all and (max-width: 992px) {
+  #terminal-column {
+    height: calc(50% - 60px);
+  }
+  #sidebar {
+    height: calc(50%) !important;
+  }
+
+}
+
+#step-navigator {
+  display: flex;
+  align-items: center;
+  button {
+    margin: 0;
+  }
+}
+#step-counter {
+  flex-grow: 2;
+  text-align: center;
+}
+
+
 table {
     margin-top: 0;
 }
 
+.progress span {
+  margin-top: -0.5em;
+}
+.progress {
+  margin-bottom: 1rem;
+}
+
+#sidebar {
+  position: fixed;
+  margin: 0;
+  height: calc(100% - 60px);
+  display: flex;
+  flex-flow: column;
+}
+#sidebar .card-header {
+  padding-top: 0;
+  flex: 0 1 auto;
+}
+#sidebar .card-block {
+  display: flex;
+  flex-flow: column;
+  flex: 1 1 auto;
+  overflow-y: auto;
+}
+#sidebar .card-footer {
+  flex: 0 1 40px;
+}
+
+
+#scenario-name {
+  text-align: center;
+  padding-bottom: 1rem;
+}
+.card-text {
+  padding-bottom: 2rem;
+}

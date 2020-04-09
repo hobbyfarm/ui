@@ -24,6 +24,7 @@ import { VMService } from '../services/vm.service';
 import { VMInfoConfig } from '../VMInfoConfig';
 import { environment } from 'src/environments/environment';
 import { ShellService } from '../services/shell.service';
+import { escape } from 'lodash';
 
 
 @Component({
@@ -43,6 +44,8 @@ export class StepComponent implements OnInit, DoCheck {
     public stepcontent: string = "";
     public shellStatus: Map<string, string> = new Map();
 
+    public terminalActive: boolean = true;
+    public first: boolean = false;
     public finishOpen: boolean = false;
 
 
@@ -91,6 +94,7 @@ export class StepComponent implements OnInit, DoCheck {
     @ViewChildren('tab') tabs: QueryList<ClrTab> = new QueryList();
     @ViewChild('markdown', { static: false }) markdownTemplate;
     @ViewChild('pausemodal', { static: true }) pauseModal: ClrModal;
+    @ViewChild('contentdiv', { static: false }) contentDiv: ElementRef;
 
     constructor(
         public route: ActivatedRoute,
@@ -109,11 +113,10 @@ export class StepComponent implements OnInit, DoCheck {
         public shellService: ShellService
     ) {
         this.markdownService.renderer.code = (code: string, language: string, isEscaped: boolean) => {
-            // non-special code
-            if (language.length < 1) {
-                return "<pre>" + code + "</pre>";
+            // block text
+            if (language.length == 0) {
+                return "<pre  style='padding: 5px 10px;'>" + escape(code) + "</pre>";
             }
-
             // determine what kind of special injection we need to do
             if (language.split(":")[0] == 'ctr') {
                 // generate a new ID
@@ -134,6 +137,13 @@ export class StepComponent implements OnInit, DoCheck {
                 this.vmInfoService.setConfig(config);
 
                 return `<vminfo id="${config.id}"></vminfo>`;
+            } else {
+                // highlighted code
+                return "<pre style='padding: 5px 10px;' class='language-"+language+"'>" +
+                         "<code class='language-"+ language +"'>" +
+                           escape(code) +
+                         "</code>" +
+                       "</pre>";
             }
         }
     }
@@ -307,6 +317,7 @@ export class StepComponent implements OnInit, DoCheck {
         this.stepnumber += 1;
         this.router.navigateByUrl("/app/session/" + this.session.id + "/steps/" + (this.stepnumber));
         this._loadStep();
+        this.contentDiv.nativeElement.scrollTop = 0;
     }
 
     private _loadStep() {
@@ -329,19 +340,24 @@ export class StepComponent implements OnInit, DoCheck {
         this.stepnumber -= 1;
         this.router.navigateByUrl("/app/session/" + this.session.id + "/steps/" + (this.stepnumber));
         this._loadStep();
+        this.contentDiv.nativeElement.scrollTop = 0;
     }
 
-    goFinish() {
+    public goFinish() {
         this.finishOpen = true;
     }
 
     actuallyFinish() {
+      if (this.session.course) {
+        this.router.navigateByUrl("/app/home");
+      } else {
         this.http.put(environment.server + "/session/" + this.route.snapshot.paramMap.get("session") + "/finished", {})
             .subscribe(
                 (s: ServerResponse) => {
                     this.router.navigateByUrl("/app/home");
                 }
             )
+      }
 
     }
 

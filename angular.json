@@ -26,13 +26,20 @@
             ],
             "styles": [
               "node_modules/@clr/icons/clr-icons.min.css",
-              "node_modules/xterm/dist/xterm.css",
-              "src/styles.scss"
+              "node_modules/xterm/css/xterm.css",
+              "src/styles.scss",
+              "node_modules/prismjs/themes/prism.css"
             ],
             "scripts": [
               "node_modules/@webcomponents/custom-elements/custom-elements.min.js",
-              "node_modules/xterm/dist/xterm.js",
-              "node_modules/marked/lib/marked.js"
+              "node_modules/xterm/lib/xterm.js",
+              "node_modules/marked/lib/marked.js",
+              "node_modules/prismjs/prism.js",
+              "node_modules/prismjs/components/prism-yaml.min.js",
+              "node_modules/prismjs/components/prism-python.min.js",
+              "node_modules/prismjs/components/prism-go.min.js",
+              "node_modules/prismjs/components/prism-docker.min.js",
+              "node_modules/prismjs/components/prism-json.min.js"
             ],
             "es5BrowserSupport": true
           },

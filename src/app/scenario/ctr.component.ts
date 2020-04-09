@@ -8,11 +8,7 @@ import { OnMount } from '../dynamic-html';
         <pre (click)="ctr()">{{code}}</pre>
         <i><clr-icon shape="angle"></clr-icon> Click to run on {{target}}</i>
     `,
-    styles: [
-        'pre { margin-bottom: 0; }',
-        'pre { padding-left: 5px; }',
-        'i { font-size: 0.7em; }'
-    ]
+    styleUrls: ['ctr.component.scss']
 })
 export class CtrComponent implements OnMount {
     public id: string = "";
