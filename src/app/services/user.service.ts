@@ -4,6 +4,7 @@ import { environment } from 'src/environments/environment';
 import { switchMap, catchError } from 'rxjs/operators';
 import { ServerResponse } from '../ServerResponse';
 import { from, of, throwError, BehaviorSubject } from 'rxjs';
+import { atou } from '../unicode';
 
 @Injectable({
   providedIn: 'root'
@@ -36,7 +37,7 @@ export class UserService {
     return this.http.get(environment.server + "/auth/accesscode")
     .pipe(
       switchMap((s: ServerResponse) => {
-        return of(JSON.parse(atob(s.content)))
+        return of(JSON.parse(atou(s.content)))
       }),
       catchError((e: HttpErrorResponse) => {
         return throwError(e.error);

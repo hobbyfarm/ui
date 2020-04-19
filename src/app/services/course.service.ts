@@ -6,6 +6,7 @@ import { map, tap } from 'rxjs/operators';
 import { Scenario } from '../scenario/Scenario';
 import { Course } from '../course/course';
 import { of } from 'rxjs';
+import { atou } from '../unicode';
 
 @Injectable()
 export class CourseService {
@@ -19,7 +20,7 @@ export class CourseService {
     return this.http.get(environment.server + "/course/list")
       .pipe(
         map((s: ServerResponse) => {
-            return JSON.parse(atob(s.content));
+            return JSON.parse(atou(s.content));
         }),
         tap((c: Course[]) => {
             if (!c) { return; }
@@ -37,7 +38,7 @@ export class CourseService {
         return this.http.get(environment.server + '/course/' + id)
             .pipe(
                 map((s: ServerResponse) => {
-                    return JSON.parse(atob(s.content));
+                    return JSON.parse(atou(s.content));
                 }),
                 tap((c: Course) => {
                     this.cachedCourses.set(c.id, c);

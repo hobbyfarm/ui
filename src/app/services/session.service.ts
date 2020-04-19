@@ -6,6 +6,7 @@ import { of } from 'rxjs';
 import { tap, map, repeatWhen, delay } from 'rxjs/operators';
 import { ServerResponse } from '../ServerResponse';
 import { environment } from 'src/environments/environment';
+import { atou } from '../unicode';
 
 @Injectable()
 export class SessionService {
@@ -25,7 +26,7 @@ export class SessionService {
         return this.http.post(environment.server + "/session/new", params)
             .pipe(
                 map((s: ServerResponse) => {
-                    return JSON.parse(atob(s.content));
+                    return JSON.parse(atou(s.content));
                 }),
                 tap((s: Session) => {
                     this.cachedScenarioSessions.set(s.id, s);
@@ -54,7 +55,7 @@ export class SessionService {
                 .pipe(
                     // do a "map and tap"
                     map((s: ServerResponse) => {
-                        return JSON.parse(atob(s.content));
+                        return JSON.parse(atou(s.content));
                     }),
                     tap((s: Session) => {
                         this.cachedScenarioSessions.set(s.id, s);

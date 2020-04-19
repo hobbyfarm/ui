@@ -5,6 +5,7 @@ import { map, tap } from 'rxjs/operators';
 import { ServerResponse } from '../ServerResponse';
 import { of } from 'rxjs';
 import { environment } from 'src/environments/environment';
+import { atou } from '../unicode';
 
 @Injectable()
 export class StepService {
@@ -23,7 +24,7 @@ export class StepService {
             return this.http.get(environment.server + '/scenario/' + scenario + '/step/' + index)
             .pipe(
                 map((s: ServerResponse) => {
-                    return JSON.parse(atob(s.content));
+                    return JSON.parse(atou(s.content));
                 }),
                 tap((s: Step) => {
                     this.cachedSteps.set(scenario + ":" + index, s);
