@@ -24,6 +24,7 @@ import { VMService } from '../services/vm.service';
 import { VMInfoConfig } from '../VMInfoConfig';
 import { environment } from 'src/environments/environment';
 import { ShellService } from '../services/shell.service';
+import { atou } from '../unicode';
 
 
 @Component({
@@ -225,7 +226,7 @@ export class StepComponent implements OnInit, DoCheck {
                 switchMap((s: Step) => {
                     this.step = s;
 
-                    var rawcontent = atob(s.content);
+                    var rawcontent = atou(s.content);
                     return of(this.replaceTokens(rawcontent));
                 }),
             ).subscribe(
@@ -315,7 +316,7 @@ export class StepComponent implements OnInit, DoCheck {
                 switchMap((s: Step) => {
                     this.step = s;
 
-                    var rawcontent = atob(s.content);
+                    var rawcontent = atou(s.content);
                     return of(this.replaceTokens(rawcontent));
                 }),
             ).subscribe(
