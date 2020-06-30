@@ -3,6 +3,8 @@
         <button class="btn" [class.btn-success-outline]="(this.scenario.stepcount-1) != this.stepnumber"
             [class.btn-success]="(this.scenario.stepcount-1) == this.stepnumber" (click)="goFinish()">Finish <clr-icon
                 shape="check"></clr-icon></button>
+        <button class="btn" [class.btn-outline]="(this.scenario.stepcount-1) != this.stepnumber" (click)="goClose()">Close Scenario <clr-icon
+                shape="window-close"></clr-icon></button>
         <ng-container *ngIf="scenario.pauseable">
             <button class="btn" (click)="pause()">
                 <clr-icon shape="pause" class="is-solid"></clr-icon> Pause Scenario
@@ -80,6 +82,21 @@
         </clr-tabs>
     </div>
 </div>
+
+<clr-modal [(clrModalOpen)]="closeOpen">
+    <h3 class="modal-title">
+        Are you sure you want to close this scenario?
+    </h3>
+    <div class="modal-body">
+        <p>
+            Closing a scenario will retain your existing VMs. You may choose another scenario or return to this one. 
+        </p>
+    </div>
+    <div class="modal-footer">
+        <button class="btn btn-outline" (click)="closeOpen = false">Cancel</button>
+        <button class="btn btn-success-outline" (click)="actuallyClose()">Close Scenario</button>
+    </div>
+</clr-modal>
 
 <clr-modal [(clrModalOpen)]="finishOpen">
     <h3 class="modal-title">

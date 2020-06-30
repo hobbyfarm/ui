@@ -44,7 +44,7 @@ export class StepComponent implements OnInit, DoCheck {
     public shellStatus: Map<string, string> = new Map();
 
     public finishOpen: boolean = false;
-
+    public closeOpen: boolean = false;
 
     public params: ParamMap;
 
@@ -343,6 +343,14 @@ export class StepComponent implements OnInit, DoCheck {
                 }
             )
 
+    }
+
+    goClose() {
+        this.closeOpen = true;
+    }
+
+    actuallyClose() {
+        this.router.navigateByUrl("/app/home");
     }
 
     public pause() {
