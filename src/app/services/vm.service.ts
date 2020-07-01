@@ -4,6 +4,7 @@ import { HttpClient } from '@angular/common/http';
 import { ServerResponse } from '../ServerResponse';
 import { map, tap } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
+import { atou } from '../unicode';
 
 @Injectable()
 export class VMService {
@@ -17,7 +18,7 @@ export class VMService {
         return this.http.get(environment.server + '/vm/' + id)
             .pipe(
                 map((s: ServerResponse) => {
-                    return JSON.parse(atob(s.content));
+                    return JSON.parse(atou(s.content));
                 }),
                 tap((v: VM) => {
                     this.cachedVms.set(v.id, v);

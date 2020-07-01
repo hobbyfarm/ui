@@ -3,6 +3,7 @@ import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Scenario } from '../scenario/Scenario';
 import { ServerResponse } from '../ServerResponse';
 import { environment } from 'src/environments/environment';
+import { atou } from '../unicode';
 
 @Component({
     templateUrl: 'scenariocard.component.html',
@@ -29,7 +30,7 @@ export class ScenarioCard implements OnInit {
         this.http.get(environment.server + "/scenario/" + this.scenarioid)
         .subscribe(
             (s: ServerResponse) => {
-                this.scenario = JSON.parse(atob(s.content));
+                this.scenario = JSON.parse(atou(s.content));
             },
             (e: HttpErrorResponse) => {
                 this.error = e.error;

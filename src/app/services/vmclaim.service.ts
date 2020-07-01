@@ -5,6 +5,7 @@ import { of, Observable } from 'rxjs';
 import { ServerResponse } from '../ServerResponse';
 import { map, tap } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
+import { atou } from '../unicode';
 
 @Injectable()
 export class VMClaimService {
@@ -19,7 +20,7 @@ export class VMClaimService {
         return this.http.get(environment.server + '/vmclaim/' + id)
             .pipe(
                 map((s: ServerResponse) => {
-                    var v = JSON.parse(atob(s.content));
+                    var v = JSON.parse(atou(s.content));
                     // The following is necessary because JSON.parse does not nicely
                     // handle string -> obj Maps
                     var vMap = new Map();
