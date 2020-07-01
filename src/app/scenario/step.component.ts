@@ -212,8 +212,10 @@ export class StepComponent implements OnInit, DoCheck {
                     return this.vmClaimService.get(v);
                 }),
                 concatMap((v: VMClaim) => {
-                    Object.keys(v.vm).reduce((c, k) => (c[k.toLowerCase()] = v.vm[k], c), {});
-                    this.vmclaimvms = v.vm;
+                    for (let k of v.vm.keys()) {
+                        let newKey = k.toLowerCase()
+                        this.vmclaimvms.set(newKey, v.vm.get(k));
+                    }
                     return from(v.vm.values());
                 }),
                 concatMap((v: VMClaimVM) => {
