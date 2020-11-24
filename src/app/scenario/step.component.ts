@@ -147,8 +147,8 @@ export class StepComponent implements OnInit, DoCheck {
         return this.vmclaimvms.get(key);
     }
 
-    getVm(key: string) {
-        return this.vms.get(key) || {};
+    getVm(key: string) : VM {
+        return this.vms.get(key);
     }
 
     getShellStatus(key: string) {
