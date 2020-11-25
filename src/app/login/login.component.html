@@ -44,7 +44,7 @@
                         <div class="error" [class.active]="error.length != 0">
                             {{ error }}
                         </div>
-                        <button type="submit" class="btn btn-primary" (click)="register()">REGISTER</button>
+                        <button [disabled]="registrationDisabled" type="submit" class="btn btn-primary" (click)="register()">REGISTER</button>
                     </div>
                 </clr-tab-content>
             </clr-tab>

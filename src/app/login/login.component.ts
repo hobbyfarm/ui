@@ -1,4 +1,4 @@
-import { Component } from "@angular/core";
+import { Component, ElementRef, ViewChild } from "@angular/core";
 import { HttpClient, HttpHeaders, HttpErrorResponse, HttpResponse, HttpParams } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { User } from './User';
@@ -21,6 +21,8 @@ export class LoginComponent {
     public error: string = "";
     public success: string = "";
     public accesscode: string = "";
+
+    public registrationDisabled: boolean = false;
 
     private Config = this.config.getConfig();
     public logo;
@@ -46,6 +48,7 @@ export class LoginComponent {
     }
 
     public register() {
+        this.registrationDisabled = true;
         this.error = "";
         let body = new HttpParams()
             .set("email", this.email)
@@ -57,6 +60,7 @@ export class LoginComponent {
                 (s: ServerResponse) => {
                     this.success = "Success! User created. Please login.";
                     this.loginactive = true;
+                    this.registrationDisabled = false;
                 },
                 (e: HttpErrorResponse) => {
                     if (e.error instanceof ErrorEvent) {
@@ -66,6 +70,7 @@ export class LoginComponent {
                         // backend
                         this.error = e.error.message;
                     }
+                    this.registrationDisabled = false;
                 }
             )
     }
