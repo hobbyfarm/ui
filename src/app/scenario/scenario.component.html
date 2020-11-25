@@ -18,7 +18,7 @@
         </span>
       </div>
     </div>
-    <clr-alert [clrAlertType]="info" [clrAlertClosable]="false" *ngIf="dynamicallyBinding">
+    <clr-alert [clrAlertType]="'info'" [clrAlertClosable]="false" *ngIf="dynamicallyBinding">
       <clr-alert-item>
         <span class="alert-text">
           Virtual machines are being provisioned on-demand, this may take a few moments...
@@ -37,7 +37,7 @@
           <th>hostname</th>
         </tr>
       </thead>
-      <tbody vmclaim *ngFor="let vmc of vmclaims" [(vmclaim)]="vmc" (ready)="ready($event)"></tbody>
+      <tbody vmclaim *ngFor="let vmc of vmclaims" [vmclaim]="vmc" (ready)="ready($event)"></tbody>
     </table>
 
   </div>

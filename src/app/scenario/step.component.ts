@@ -90,7 +90,7 @@ export class StepComponent implements OnInit, DoCheck {
     @ViewChildren('term') terms: QueryList<TerminalComponent> = new QueryList();
     @ViewChildren('tabcontent') tabContents: QueryList<ClrTabContent> = new QueryList();
     @ViewChildren('tab') tabs: QueryList<ClrTab> = new QueryList();
-    @ViewChild('markdown', { static: false }) markdownTemplate;
+    @ViewChild('markdown') markdownTemplate;
     @ViewChild('pausemodal', { static: true }) pauseModal: ClrModal;
 
     constructor(
@@ -147,8 +147,8 @@ export class StepComponent implements OnInit, DoCheck {
         return this.vmclaimvms.get(key);
     }
 
-    getVm(key: string) {
-        return this.vms.get(key) || {};
+    getVm(key: string) : VM {
+        return this.vms.get(key);
     }
 
     getShellStatus(key: string) {
