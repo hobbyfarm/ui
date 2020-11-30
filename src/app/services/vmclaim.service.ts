@@ -25,7 +25,7 @@ export class VMClaimService {
                     // handle string -> obj Maps
                     var vMap = new Map();
                     for (let k of Object.keys(v.vm)) {
-                        vMap.set(k, v.vm[k]);
+                        vMap.set(k.toLowerCase(), v.vm[k]);
                     }
                     v.vm = vMap;
                     return v;
