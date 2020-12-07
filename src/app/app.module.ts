@@ -47,10 +47,10 @@ const appInitializerFn = (appConfig: AppConfigService) => {
 export function jwtOptionsFactory() {
   return {
     tokenGetter: tokenGetter,
-    whitelistedDomains: [
+    allowedDomains: [
       environment.server.replace(/(^\w+:|^)\/\//, ''),
     ],
-    blacklistedRoutes: [
+    disallowedRoutes: [
       environment.server.replace(/(^\w+:|^)\/\//, '') + "/auth/authenticate"
     ],
     skipWhenExpired: true
