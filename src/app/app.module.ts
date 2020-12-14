@@ -1,5 +1,5 @@
 import { BrowserModule } from '@angular/platform-browser';
-import { NgModule, APP_INITIALIZER } from '@angular/core';
+import { NgModule, APP_INITIALIZER, SecurityContext } from '@angular/core';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { ClarityModule } from '@clr/angular';
@@ -47,10 +47,10 @@ const appInitializerFn = (appConfig: AppConfigService) => {
 export function jwtOptionsFactory() {
   return {
     tokenGetter: tokenGetter,
-    whitelistedDomains: [
+    allowedDomains: [
       environment.server.replace(/(^\w+:|^)\/\//, ''),
     ],
-    blacklistedRoutes: [
+    disallowedRoutes: [
       environment.server.replace(/(^\w+:|^)\/\//, '') + "/auth/authenticate"
     ],
     skipWhenExpired: true
@@ -80,7 +80,9 @@ export function jwtOptionsFactory() {
     ClarityModule,
     BrowserAnimationsModule,
     HttpClientModule,
-    MarkdownModule.forRoot(),
+    MarkdownModule.forRoot({
+      sanitize: SecurityContext.NONE
+    }),
     DynamicHTMLModule.forRoot({
       components: [
         { component: CtrComponent, selector: 'ctr' },
