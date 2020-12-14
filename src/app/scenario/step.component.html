@@ -75,7 +75,7 @@
                             <td><b>Shell Status:</b> {{ getShellStatus(v.key) }} </td>
                         </tr>
                     </table>
-                    <terminal [vmname]="v.key" [vmid]="v.value.vm_id" [endpoint]="getVm(v.value.vm_id).ws_endpoint"
+                    <terminal [vmname]="v.key" [vmid]="v.value.vm_id" [endpoint]="getVm(v.value.vm_id)?.ws_endpoint"
                         #term></terminal>
                 </clr-tab-content>
             </clr-tab>

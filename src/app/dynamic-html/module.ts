@@ -14,7 +14,6 @@ export class DynamicHTMLModule {
             providers: [
                 DynamicHTMLRenderer,
                 { provide: DynamicHTMLOptions, useValue: options },
-                { provide: ANALYZE_FOR_ENTRY_COMPONENTS, useValue: options.components, multi: true },
             ],
         };
     }

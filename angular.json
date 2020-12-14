@@ -34,7 +34,9 @@
               "node_modules/xterm/dist/xterm.js",
               "node_modules/marked/lib/marked.js"
             ],
-            "es5BrowserSupport": true
+            "allowedCommonJsDependencies": [
+              "xterm"
+            ]
           },
           "configurations": {
             "local": {
