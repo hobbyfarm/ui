@@ -1,6 +1,6 @@
 <div class="clr-row">
     <div class="clr-col">
-        <button class="btn" [class.btn-success-outline]="(this.scenario.stepcount-1) != this.stepnumber"
+        <button id="finishbutton" class="btn" [class.btn-success-outline]="(this.scenario.stepcount-1) != this.stepnumber"
             [class.btn-success]="(this.scenario.stepcount-1) == this.stepnumber" (click)="goFinish()">Finish <clr-icon
                 shape="check"></clr-icon></button>
         <button class="btn" [class.btn-outline]="(this.scenario.stepcount-1) != this.stepnumber" (click)="goClose()">Close Scenario <clr-icon
