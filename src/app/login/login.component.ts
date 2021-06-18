@@ -36,14 +36,10 @@ export class LoginComponent {
         private _sanitizer: DomSanitizer
     ) {
         if (this.Config.login && this.Config.login.logo) {
-          this.logo = 'data:image/jpg;base64,' + this.Config.login.logo
-        } else {
-          this.logo = "/assets/rancher-labs-stacked-color.svg";
+            this.logo = this.Config.login.logo
         }
         if (this.Config.login && this.Config.login.background) {
-          this.background = this._sanitizer.bypassSecurityTrustResourceUrl('data:image/jpg;base64,' + this.Config.login.background);
-        } else {
-          this.background = "url(/assets/login_container_farm.svg)";
+            this.background = "url(" + this.Config.login.background + ")";
         }
     }
 

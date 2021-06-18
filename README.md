@@ -13,15 +13,17 @@ A file placed at `/config.json` will allow for runtime configuration (e.g., cust
 
 ```json
 {
-  "title": "Old MacDonald's Farm",
-  "favicon": "<base64-encoded image>",
-  "logo": "<base64-encoded image>",
-  "login": {
-    "logo": "<base64-encoded image>",
-    "background": "<base64-encoded image>"
-  }
+    "title": "Old MacDonald's Farm",
+    "favicon": "/assets/default/favicon.png",
+    "login": {
+        "logo": "/assets/default/rancher-labs-stacked-color.svg",
+        "background": "/assets/default/login_container_farm.svg"
+    },
+    "logo": "/assets/default/logo.svg"
 }
 ```
+
+To customize logos, mount them into the container at `/usr/share/nginx/html/assets`, and then reference the file names in `config.json`. 
 
 ## Contributing
 

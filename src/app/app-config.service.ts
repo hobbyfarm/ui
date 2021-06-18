@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 
 @Injectable()
 export class AppConfigService {
@@ -13,6 +13,13 @@ export class AppConfigService {
       .then(data => {
         this.appConfig = data;
       });
+  }
+
+  getLogo(logoPath: string) {
+    const headers = new HttpHeaders();
+    headers.set('Accept', '*')
+    return this.http.get(logoPath, {headers, responseType: 'text'})
+    .toPromise()
   }
 
   getConfig() {
