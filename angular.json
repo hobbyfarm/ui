@@ -27,14 +27,21 @@
             ],
             "styles": [
               "node_modules/@clr/icons/clr-icons.min.css",
-              "node_modules/xterm/dist/xterm.css",
-              "src/styles.scss"
+              "node_modules/xterm/css/xterm.css",
+              "src/styles.scss",
+              "node_modules/prismjs/themes/prism.css"
             ],
             "scripts": [
               "node_modules/@webcomponents/webcomponentsjs/custom-elements-es5-adapter.js",
               "node_modules/@webcomponents/webcomponentsjs/webcomponents-bundle.js",
-              "node_modules/xterm/dist/xterm.js",
-              "node_modules/marked/lib/marked.js"
+              "node_modules/xterm/lib/xterm.js",
+              "node_modules/marked/lib/marked.js",
+              "node_modules/prismjs/prism.js",
+              "node_modules/prismjs/components/prism-yaml.min.js",
+              "node_modules/prismjs/components/prism-python.min.js",
+              "node_modules/prismjs/components/prism-go.min.js",
+              "node_modules/prismjs/components/prism-docker.min.js",
+              "node_modules/prismjs/components/prism-json.min.js"
             ],
             "allowedCommonJsDependencies": [
               "xterm"
