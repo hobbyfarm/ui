@@ -11,18 +11,18 @@
             </button>
 
             <ng-container *ngIf="scenario.pauseable">
-                <button class="btn" (click)="pause()">
+                <button class="btn btn-pause" (click)="pause()">
                     <clr-icon shape="pause" class="is-solid"></clr-icon> Pause
                 </button>
-                <clr-signpost style="z-index: 100000;">
+                <clr-signpost class="signpost-after" style="z-index: 100000;">
                     <clr-signpost-content [clrPosition]="'bottom-right'" *clrIfOpen>
                         Pausing your scenario prevents removal of your VMs in case of network disconnection, timeout, etc.
                     </clr-signpost-content>
                 </clr-signpost>
             </ng-container>
 
-            <button class="btn" [class.btn-outline]="(this.scenario.stepcount-1) != this.stepnumber" (click)="goClose()">Close Scenario <clr-icon
-            shape="window-close"></clr-icon></button>
+            <button class="btn" [class.btn-outline]="(this.scenario.stepcount-1) != this.stepnumber" (click)="goClose()"><clr-icon
+            shape="window-close"></clr-icon>Close</button>
         </div>
 
         <div class="card-block" #contentdiv>
@@ -48,7 +48,7 @@
                     Next <clr-icon shape="arrow" dir="right"></clr-icon>
                 </button>
                 <button class="btn btn-success btn-next" (click)="goFinish()" *ngIf="(this.scenario.stepcount-1) == this.stepnumber">
-                    Finish <clr-icon shape="check"></clr-icon>
+                    <clr-icon shape="check"></clr-icon> Finish 
                 </button>
             </div>
         </div>

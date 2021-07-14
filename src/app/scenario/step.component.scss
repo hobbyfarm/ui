@@ -5,6 +5,16 @@
 
 .btn-next {
     float: right;
+    margin-right: 0;
+}
+
+.btn-pause {
+  margin-right: 0;
+}
+
+.signpost-after{
+  margin-right: .6rem;
+  margin-right: var(--clr-btn-horizontal-margin,.6rem);
 }
 
 #terminal-column {

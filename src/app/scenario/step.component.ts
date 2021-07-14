@@ -140,6 +140,11 @@ export class StepComponent implements OnInit, DoCheck {
                 this.vmInfoService.setConfig(config);
 
                 return `<vminfo id="${config.id}"></vminfo>`;
+            }else if (language.split(":")[0] == 'hidden') {
+                return "<details>" +
+                            "<summary>" + language.split(":")[1] + "</summary>"+
+                             escape(code) +
+                        "</details>";
             }else{
                 // highlighted code
                 return "<pre style='padding: 5px 10px;' class='language-"+language+"'>" +
@@ -322,7 +327,7 @@ export class StepComponent implements OnInit, DoCheck {
         this.stepnumber += 1;
         this.router.navigateByUrl("/app/session/" + this.session.id + "/steps/" + (this.stepnumber));
         this._loadStep();
-        //this.contentDiv.nativeElement.scrollTop = 0;
+        this.contentDiv.nativeElement.scrollTop = 0;
     }
 
     private _loadStep() {
@@ -345,7 +350,7 @@ export class StepComponent implements OnInit, DoCheck {
         this.stepnumber -= 1;
         this.router.navigateByUrl("/app/session/" + this.session.id + "/steps/" + (this.stepnumber));
         this._loadStep();
-        //this.contentDiv.nativeElement.scrollTop = 0;
+        this.contentDiv.nativeElement.scrollTop = 0;
     }
 
     public goFinish() {
