@@ -76,12 +76,16 @@ export class StepComponent implements OnInit, DoCheck {
             remaining += this.pauseremaining["h"] + ":";
         }
 
-        if (this.pauseremaining["m"] != 0) {
+        if (this.pauseremaining["m"] >= 10) {
             remaining += this.pauseremaining["m"];
+        } else {
+            remaining += "0" + this.pauseremaining["m"];
         }
 
-        if (this.pauseremaining["."] != 0) {
+        if (this.pauseremaining["."] >= 10) {
             remaining += ":" + this.pauseremaining["."];
+        } else {
+            remaining += ":0" + this.pauseremaining["."];
         }
 
         return remaining;
