@@ -1,11 +1,12 @@
 .terminal-div {
-    height: calc(100% - 60px);
+    height: calc(100% - 84px);
     width: 100%;
   }
-  
+
   .xterm {
-    padding-bottom: 30px;
+    padding-bottom: 12px;
   }
+  
   .xterm-viewport {
     overflow: hidden !important;
   }

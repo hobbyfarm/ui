@@ -24,7 +24,7 @@
     bottom: 0;
     height: calc(100% - 60px);
     width: 100%;
-    padding-left: 15px;
+    padding: 0 24px 0 50px;
 }
 
 span.shell-status {
@@ -38,8 +38,10 @@ span.shell-status {
     #terminal-column {
       height: calc(50% - 60px);
     }
-    #sidebar {
+    step-component #sidebar {
       height: calc(50%) !important;
+      width: calc(100% - 10px);
+      margin: 0;
     }
   
   }
@@ -71,8 +73,8 @@ table {
   
   #sidebar {
     position: fixed;
-    margin: 0;
-    height: calc(100% - 60px);
+    margin: 0px 0px 24px 24px;
+    height: calc(100% - 90px);
     display: flex;
     flex-flow: column;
   }
