@@ -50,6 +50,7 @@ export class StepComponent implements OnInit, DoCheck {
     public params: ParamMap;
 
     public session: Session = new Session();
+    public sessionExpired: boolean = false;
     public vmclaimvms: Map<string, VMClaimVM> = new Map();
     public vms: Map<string, VM> = new Map();
 
@@ -151,7 +152,7 @@ export class StepComponent implements OnInit, DoCheck {
         return this.vmclaimvms.get(key);
     }
 
-    getVm(key: string) : VM {
+    getVm(key: string): VM {
         return this.vms.get(key);
     }
 
@@ -252,7 +253,12 @@ export class StepComponent implements OnInit, DoCheck {
                 retryWhen(errors => errors.pipe(
                     concatMap((e: HttpErrorResponse, i) =>
                         iif(
-                            () => e.status > 0,
+                            () => {
+                                if (e.status == 404) {
+                                    this.sessionExpired = true;
+                                }
+                                return e.status > 0
+                            },
                             throwError(e),
                             of(e).pipe(delay(10000))
                         )
@@ -292,11 +298,11 @@ export class StepComponent implements OnInit, DoCheck {
         )
 
         this.shellService.watch()
-        .subscribe(
-            (ss: Map<string, string>) => {
-                this.shellStatus = ss;
-            }
-        )
+            .subscribe(
+                (ss: Map<string, string>) => {
+                    this.shellStatus = ss;
+                }
+            )
     }
 
     private _splitTime(t: string) {
