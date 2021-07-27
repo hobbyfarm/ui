@@ -308,6 +308,7 @@ export class StepComponent implements OnInit, DoCheck {
 
     goNext() {
         this.stepnumber += 1;
+        document.querySelector("#finishbutton").scrollIntoView();
         this.router.navigateByUrl("/app/session/" + this.session.id + "/steps/" + (this.stepnumber));
         this._loadStep();
     }
