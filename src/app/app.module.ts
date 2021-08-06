@@ -33,6 +33,7 @@ import { VMService } from './services/vm.service';
 import { VMClaimService } from './services/vmclaim.service';
 import { environment } from 'src/environments/environment';
 import { AppConfigService } from './app-config.service';
+import { AngularSplitModule } from 'angular-split';
 
 export function tokenGetter() {
   return localStorage.getItem("hobbyfarm_token");
@@ -80,6 +81,7 @@ export function jwtOptionsFactory() {
     ClarityModule,
     BrowserAnimationsModule,
     HttpClientModule,
+    AngularSplitModule,
     MarkdownModule.forRoot({
       sanitize: SecurityContext.NONE
     }),

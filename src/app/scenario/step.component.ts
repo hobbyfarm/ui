@@ -25,7 +25,8 @@ import { VMInfoConfig } from '../VMInfoConfig';
 import { environment } from 'src/environments/environment';
 import { ShellService } from '../services/shell.service';
 import { atou } from '../unicode';
-import {escape} from 'lodash';
+import { escape } from 'lodash';
+import { SplitAreaDirective, SplitComponent } from "angular-split";
 
 
 @Component({
@@ -70,6 +71,13 @@ export class StepComponent implements OnInit, DoCheck {
 
     public pauseLastUpdated: Date = new Date();
 
+    public sizes: { percent: { area1: number, area2: number } } = {
+        percent: {
+            area1: 40,
+            area2: 60
+        }
+    }
+
     public get pauseRemainingString() {
         var remaining = "";
         if (this.pauseremaining["d"] != 0) {
@@ -97,6 +105,9 @@ export class StepComponent implements OnInit, DoCheck {
     @ViewChild('markdown') markdownTemplate;
     @ViewChild('pausemodal', { static: true }) pauseModal: ClrModal;
     @ViewChild('contentdiv', { static: false }) contentDiv: ElementRef;
+    @ViewChild('split') split: SplitComponent;
+    @ViewChild('area1') area1: SplitAreaDirective;
+    @ViewChild('area2') area2: SplitAreaDirective;
 
     constructor(
         public route: ActivatedRoute,
@@ -140,18 +151,18 @@ export class StepComponent implements OnInit, DoCheck {
                 this.vmInfoService.setConfig(config);
 
                 return `<vminfo id="${config.id}"></vminfo>`;
-            }else if (language.split(":")[0] == 'hidden') {
+            } else if (language.split(":")[0] == 'hidden') {
                 return "<details>" +
-                            "<summary>" + language.split(":")[1] + "</summary>"+
-                             escape(code) +
-                        "</details>";
-            }else{
+                    "<summary>" + language.split(":")[1] + "</summary>" +
+                    escape(code) +
+                    "</details>";
+            } else {
                 // highlighted code
-                return "<pre style='padding: 5px 10px;' class='language-"+language+"'>" +
-                         "<code class='language-"+ language +"'>" +
-                           escape(code) +
-                         "</code>" +
-                       "</pre>";
+                return "<pre style='padding: 5px 10px;' class='language-" + language + "'>" +
+                    "<code class='language-" + language + "'>" +
+                    escape(code) +
+                    "</code>" +
+                    "</pre>";
             }
         }
     }
@@ -164,7 +175,7 @@ export class StepComponent implements OnInit, DoCheck {
         return this.vmclaimvms.get(key);
     }
 
-    getVm(key: string) : VM {
+    getVm(key: string): VM {
         return this.vms.get(key);
     }
 
@@ -305,11 +316,11 @@ export class StepComponent implements OnInit, DoCheck {
         )
 
         this.shellService.watch()
-        .subscribe(
-            (ss: Map<string, string>) => {
-                this.shellStatus = ss;
-            }
-        )
+            .subscribe(
+                (ss: Map<string, string>) => {
+                    this.shellStatus = ss;
+                }
+            )
     }
 
     private _splitTime(t: string) {
@@ -433,6 +444,20 @@ export class StepComponent implements OnInit, DoCheck {
                     return text.replace(new RegExp(this.escapeRegExp(token), 'g'), v[item]);
                 })
             )
+    }
+
+    public dragEnd({ sizes }: {gutterNum: number, sizes: Array<number>}) {
+        this.sizes.percent.area1 = sizes[0];
+        this.sizes.percent.area2 = sizes[1];
+        // For each tab...
+        this.tabContents.forEach((t: ClrTabContent, i: number) => {
+                    // ... if the active tab is the same as itself ...
+                    if (t.ifActiveService.current == t.id) {
+                        // ... resize the terminal that corresponds to the index of the active tab.
+                        // e.g. tab could have ID of 45, but would be index 2 in list of tabs, so reload terminal with index 2.
+                        this.terms.toArray()[i].resize();
+                    }
+        });
     }
 
     escapeRegExp(string) {

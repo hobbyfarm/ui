@@ -18,13 +18,10 @@
 }
 
 #terminal-column {
-    position: fixed;
     right: 0;
-    padding: 0;
     bottom: 0;
-    height: calc(100% - 60px);
+    height: 100%;
     width: 100%;
-    padding: 0 24px 0 50px;
 }
 
 span.shell-status {
@@ -35,9 +32,6 @@ span.shell-status {
 
 // clr-col-md
 @media all and (max-width: 992px) {
-    #terminal-column {
-      height: calc(50% - 60px);
-    }
     step-component #sidebar {
       height: calc(50%) !important;
       width: calc(100% - 10px);
@@ -72,9 +66,8 @@ table {
   }
   
   #sidebar {
-    position: fixed;
-    margin: 0px 0px 24px 24px;
-    height: calc(100% - 90px);
+    margin: 0px 0px 24px 0;
+    height: 100%;
     display: flex;
     flex-flow: column;
   }
@@ -99,4 +92,18 @@ table {
   }
   .card-text {
     padding-bottom: 2rem;
+  }
+
+  .clr-row.full-height {
+    height: 100%;
+  }
+
+  .split-area-1 {
+    overflow-y: hidden !important;
+    padding-right: 0.6rem;
+  }
+
+  .split-area-2 {
+    overflow-y: hidden !important;
+    padding-left: 0.6rem;
   }

@@ -1,80 +1,91 @@
-<div class="clr-row clr-no-gutters">
-    <div class="clr-col-md-12 clr-col-lg-4 clr-col-xl-4 card" id="sidebar">
-        <div class="card-header">
-            <h3 id="scenario-name">{{ scenario.name | atob }}</h3>
+<div class="clr-row full-height">
+    <as-split unit="percent" direction="horizontal" (dragEnd)="dragEnd($event)" #split="asSplit">
+        <as-split-area size="40" #area1="asSplitArea" class="split-area-1">
+            <div class="card" id="sidebar">
+                <div class="card-header">
+                    <h3 id="scenario-name">{{ scenario.name | atob }}</h3>
 
-            <button class="btn btn-next"
-                [class.btn-success-outline]="(this.scenario.stepcount-1) != this.stepnumber"
-                [class.btn-success]="(this.scenario.stepcount-1) == this.stepnumber" (click)="goFinish()">
-                <clr-icon shape="check"></clr-icon>
-                Finish
-            </button>
+                    <button class="btn btn-next"
+                        [class.btn-success-outline]="(this.scenario.stepcount-1) != this.stepnumber"
+                        [class.btn-success]="(this.scenario.stepcount-1) == this.stepnumber" (click)="goFinish()">
+                        <clr-icon shape="check"></clr-icon>
+                        Finish
+                    </button>
 
-            <ng-container *ngIf="scenario.pauseable">
-                <button class="btn btn-pause" (click)="pause()">
-                    <clr-icon shape="pause" class="is-solid"></clr-icon> Pause
-                </button>
-                <clr-signpost class="signpost-after" style="z-index: 100000;">
-                    <clr-signpost-content [clrPosition]="'bottom-right'" *clrIfOpen>
-                        Pausing your scenario prevents removal of your VMs in case of network disconnection, timeout, etc.
-                    </clr-signpost-content>
-                </clr-signpost>
-            </ng-container>
+                    <ng-container *ngIf="scenario.pauseable">
+                        <button class="btn btn-pause" (click)="pause()">
+                            <clr-icon shape="pause" class="is-solid"></clr-icon> Pause
+                        </button>
+                        <clr-signpost class="signpost-after" style="z-index: 100000;">
+                            <clr-signpost-content [clrPosition]="'bottom-right'" *clrIfOpen>
+                                Pausing your scenario prevents removal of your VMs in case of network disconnection,
+                                timeout, etc.
+                            </clr-signpost-content>
+                        </clr-signpost>
+                    </ng-container>
 
-            <button class="btn" [class.btn-outline]="(this.scenario.stepcount-1) != this.stepnumber" (click)="goClose()"><clr-icon
-            shape="window-close"></clr-icon>Close</button>
-        </div>
+                    <button class="btn" [class.btn-outline]="(this.scenario.stepcount-1) != this.stepnumber"
+                        (click)="goClose()">
+                        <clr-icon shape="window-close"></clr-icon>Close
+                    </button>
+                </div>
 
-        <div class="card-block" #contentdiv>
-            <h4 class="card-title">{{this.stepnumber + 1}}. {{ step.title | atob }}</h4>
-            <div class="card-text">
-                <dynamic-html [content]="stepcontent | markdown"></dynamic-html>
+                <div class="card-block" #contentdiv>
+                    <h4 class="card-title">{{this.stepnumber + 1}}. {{ step.title | atob }}</h4>
+                    <div class="card-text">
+                        <dynamic-html [content]="stepcontent | markdown"></dynamic-html>
+                    </div>
+                </div>
+
+                <div class="card-footer">
+                    <div class="progress">
+                        <!-- <div class="progress-meter" data-value="getProgress()"></div> -->
+                        <progress [value]="getProgress() || 0" max="100"></progress>
+                    </div>
+                    <div id="step-navigator">
+                        <button class="btn btn-outline btn-previous" (click)="goPrevious()"
+                            [disabled]="this.stepnumber < 1">
+                            <clr-icon shape="arrow" dir="left"></clr-icon> Prev
+                        </button>
+                        <span id="step-counter">
+                            {{ this.stepnumber + 1 }}/{{( this.scenario.stepcount) }}
+                        </span>
+                        <button class="btn btn-next" *ngIf="(this.scenario.stepcount-1) > this.stepnumber"
+                            (click)="goNext()">
+                            Next <clr-icon shape="arrow" dir="right"></clr-icon>
+                        </button>
+                        <button class="btn btn-success btn-next" (click)="goFinish()"
+                            *ngIf="(this.scenario.stepcount-1) == this.stepnumber">
+                            <clr-icon shape="check"></clr-icon> Finish
+                        </button>
+                    </div>
+                </div>
             </div>
-        </div>
-
-        <div class="card-footer">
-            <div class="progress">
-                <!-- <div class="progress-meter" data-value="getProgress()"></div> -->
-                <progress [value]="getProgress() || 0" max="100"></progress>
+        </as-split-area>
+        <as-split-area size="60" #area2="asSplitArea" class="split-area-2">
+            <div id="terminal-column">
+                <clr-tabs>
+                    <clr-tab *ngFor="let v of vmclaimvms | keyvalue; let first = first;" #tab>
+                        <button clrTabLink [id]="v.key">
+                            <clr-icon size="24" shape="host"></clr-icon> {{ v.key }}
+                        </button>
+                        <clr-tab-content *clrIfActive="first" #tabcontent>
+                            <table class="table compact">
+                                <tr>
+                                    <td><b>Public IP:</b> {{ getVm(v.value.vm_id)?.public_ip }}</td>
+                                    <td><b>Private IP:</b> {{ getVm(v.value.vm_id)?.private_ip }}</td>
+                                    <td><b>Hostname:</b> {{ getVm(v.value.vm_id)?.hostname }}</td>
+                                    <td><b>Shell Status:</b> {{ getShellStatus(v.key) }} </td>
+                                </tr>
+                            </table>
+                            <terminal [vmname]="v.key" [vmid]="v.value.vm_id"
+                                [endpoint]="getVm(v.value.vm_id)?.ws_endpoint" #term></terminal>
+                        </clr-tab-content>
+                    </clr-tab>
+                </clr-tabs>
             </div>
-            <div id="step-navigator">
-                <button class="btn btn-outline btn-previous" (click)="goPrevious()" [disabled]="this.stepnumber < 1">
-                    <clr-icon shape="arrow" dir="left"></clr-icon> Prev
-                </button>
-                <span id="step-counter">
-                    {{ this.stepnumber + 1 }}/{{( this.scenario.stepcount) }}
-                </span>
-                <button class="btn btn-next" *ngIf="(this.scenario.stepcount-1) > this.stepnumber" (click)="goNext()">
-                    Next <clr-icon shape="arrow" dir="right"></clr-icon>
-                </button>
-                <button class="btn btn-success btn-next" (click)="goFinish()" *ngIf="(this.scenario.stepcount-1) == this.stepnumber">
-                    <clr-icon shape="check"></clr-icon> Finish 
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <div class="clr-col-md-12 clr-col-lg-8 clr-col-xl-8" id="terminal-column">
-        <clr-tabs>
-            <clr-tab *ngFor="let v of vmclaimvms | keyvalue; let first = first;" #tab>
-                <button clrTabLink [id]="v.key">
-                    <clr-icon size="24" shape="host"></clr-icon> {{ v.key }}
-                </button>
-                <clr-tab-content *clrIfActive="first" #tabcontent>
-                    <table class="table compact">
-                        <tr>
-                            <td><b>Public IP:</b> {{ getVm(v.value.vm_id)?.public_ip }}</td>
-                            <td><b>Private IP:</b> {{ getVm(v.value.vm_id)?.private_ip }}</td>
-                            <td><b>Hostname:</b> {{ getVm(v.value.vm_id)?.hostname }}</td>
-                            <td><b>Shell Status:</b> {{ getShellStatus(v.key) }} </td>
-                        </tr>
-                    </table>
-                    <terminal [vmname]="v.key" [vmid]="v.value.vm_id" [endpoint]="getVm(v.value.vm_id)?.ws_endpoint"
-                        #term></terminal>
-                </clr-tab-content>
-            </clr-tab>
-        </clr-tabs>
-    </div>
+        </as-split-area>
+    </as-split>
 </div>
 
 <clr-modal [(clrModalOpen)]="closeOpen">
@@ -83,7 +94,7 @@
     </h3>
     <div class="modal-body">
         <p>
-            Closing a scenario will retain your existing VMs. You may choose another scenario or return to this one. 
+            Closing a scenario will retain your existing VMs. You may choose another scenario or return to this one.
         </p>
     </div>
     <div class="modal-footer">
@@ -99,10 +110,10 @@
     <div class="modal-body">
         <p *ngIf="session.course; else no_course">
             Your VMs will be kept until they expire or the course is marked as "complete".
-          </p>
-          <ng-template #no_course>
+        </p>
+        <ng-template #no_course>
             Finishing a scenario will immediately de-provision your resources. Any VMs that you are using will be wiped.
-          </ng-template>
+        </ng-template>
     </div>
     <div class="modal-footer">
         <button class="btn btn-outline" (click)="finishOpen = false">Cancel</button>
