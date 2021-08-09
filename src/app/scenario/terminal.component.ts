@@ -1,7 +1,7 @@
-import { Component, ViewChild, ElementRef, OnInit, Input, OnChanges } from '@angular/core';
+import { Component, ViewChild, ElementRef, OnInit, Input, OnChanges, ViewEncapsulation } from '@angular/core';
 import { Terminal } from 'xterm';
-import * as attach from 'xterm/lib/addons/attach/attach';
-import * as fit from 'xterm/lib/addons/fit/fit';
+import { AttachAddon } from 'xterm-addon-attach';
+import { FitAddon, ITerminalDimensions } from 'xterm-addon-fit';
 import { JwtHelperService } from '@auth0/angular-jwt';
 import { CtrService } from './ctr.service';
 import { CodeExec } from './CodeExec';
@@ -13,8 +13,9 @@ import { HostListener } from '@angular/core';
     selector: 'terminal',
     templateUrl: './terminal.component.html',
     styleUrls: [
-        'terminal.component.css'
-    ]
+        'terminal.component.scss'
+    ],
+    encapsulation: ViewEncapsulation.None,
 })
 export class TerminalComponent implements OnChanges {
     @Input()
@@ -26,61 +27,35 @@ export class TerminalComponent implements OnChanges {
     @Input()
     endpoint: string;
 
-    terminalWidth: number = 80;
-
-    public screenHeight: number;
-    public screenWidth: number;
-
     public term: any;
+    public fitAddon: FitAddon;
+    public attachAddon: AttachAddon;
     public socket: WebSocket;
+    public dimensions: ITerminalDimensions;
     constructor(
         public jwtHelper: JwtHelperService,
         public ctrService: CtrService,
         public shellService: ShellService
     ) {
-        this.screenHeight = window.innerHeight;
-        this.screenWidth = window.innerWidth;
-    }
 
-    @HostListener('window:resize', ['$event'])
-    onResize(event?) {
-        this.screenHeight = window.innerHeight;
-        this.screenWidth = window.innerWidth;
-        this.term.resize(this.terminalWidth, Math.floor(this.screenHeight * this.scalingFactor));
     }
 
     public paste(code: string) {
         this.term.write(code);
     }
 
-    public get scalingFactor() {
-        // determine scaling factor. 
-        if (this.screenHeight >= 1200) {
-            return 0.04;
-        } else if (this.screenHeight >= 992) {
-            return 0.03;
-        } else if (this.screenHeight >= 768) {
-            return 0.03;
-        } else if (this.screenHeight >= 576) {
-            return 0.03;
-        } else if (this.screenHeight < 576) {
-            return 0.025;
-        } else {
-            return 0.04;
-        }
-    }
-
     @ViewChild("terminal", { static: true }) terminalDiv: ElementRef;
 
-    public resize() {
-        setTimeout(() => this.term.resize(this.terminalWidth, Math.floor(this.screenHeight * this.scalingFactor)), 150);
+    @HostListener('window:resize', ['$event'])
+    public resize(event?) {
+        this.dimensions = this.fitAddon.proposeDimensions()
+        let height = this.dimensions.rows
+        let width = this.dimensions.cols
+        this.socket.send(`\u001b[8;${height};${width}t`)
+        this.fitAddon.fit();
     }
 
     buildSocket() {
-        Terminal.applyAddon(attach);
-        Terminal.applyAddon(fit);
-        this.term = new Terminal();
-
         if (!this.endpoint.startsWith("wss://") && !this.endpoint.startsWith("ws://")) {
             if (environment.server.startsWith("https")) {
               this.endpoint = "wss://" + this.endpoint
@@ -89,6 +64,20 @@ export class TerminalComponent implements OnChanges {
             }
         }
         this.socket = new WebSocket(this.endpoint + "/shell/" + this.vmid + "/connect?auth=" + this.jwtHelper.tokenGetter());
+
+        this.term = new Terminal({
+            theme: {
+              background: '#292b2e'
+            },
+            fontFamily: "monospace",
+            fontSize: 16,
+            letterSpacing: 1.1
+          });
+          this.attachAddon = new AttachAddon(this.socket);
+          this.fitAddon = new FitAddon();
+          this.term.loadAddon(this.fitAddon)
+          this.term.open(this.terminalDiv.nativeElement);
+          this.fitAddon.fit();
 
         this.socket.onclose = (e) => {
             this.term.dispose(); // destroy the terminal on the page to avoid bad display
@@ -103,8 +92,9 @@ export class TerminalComponent implements OnChanges {
 
         this.socket.onopen = (e) => {
             this.shellService.setStatus(this.vmname, "Connected");
-            this.term.attach(this.socket, true, true);
-            this.term.open(this.terminalDiv.nativeElement);
+            this.term.loadAddon(this.attachAddon)
+            this.term.focus();
+            this.resize();
 
             this.ctrService.getCodeStream()
                 .subscribe(
@@ -138,4 +128,8 @@ export class TerminalComponent implements OnChanges {
             this.buildSocket();
         }
     }
+
+    onResize() {
+        this.fitAddon.fit()
+      }
 }
