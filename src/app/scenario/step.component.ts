@@ -151,18 +151,18 @@ export class StepComponent implements OnInit, DoCheck {
                 this.vmInfoService.setConfig(config);
 
                 return `<vminfo id="${config.id}"></vminfo>`;
-            } else if (language.split(":")[0] == 'hidden') {
+            }else if (language.split(":")[0] == 'hidden') {
                 return "<details>" +
-                    "<summary>" + language.split(":")[1] + "</summary>" +
-                    escape(code) +
-                    "</details>";
-            } else {
+                            "<summary>" + language.split(":")[1] + "</summary>"+
+                             escape(code) +
+                        "</details>";
+            }else{
                 // highlighted code
-                return "<pre style='padding: 5px 10px;' class='language-" + language + "'>" +
-                    "<code class='language-" + language + "'>" +
-                    escape(code) +
-                    "</code>" +
-                    "</pre>";
+                return "<pre style='padding: 5px 10px;' class='language-"+language+"'>" +
+                         "<code class='language-"+ language +"'>" +
+                           escape(code) +
+                         "</code>" +
+                       "</pre>";
             }
         }
     }
