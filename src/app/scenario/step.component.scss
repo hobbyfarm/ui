@@ -1,8 +1,3 @@
-.clr-no-gutters {
-    // undo the padding added by .content-area
-    margin: -1rem;
-  }
-
 .btn-next {
     float: right;
     margin-right: 0;
@@ -94,7 +89,8 @@ table {
     padding-bottom: 2rem;
   }
 
-  .clr-row.full-height {
+  .split-container {
+    display: flex;
     height: 100%;
   }
 
