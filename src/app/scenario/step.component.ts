@@ -55,6 +55,7 @@ export class StepComponent implements OnInit, DoCheck {
     public params: ParamMap;
 
     public session: Session = new Session();
+    public sessionExpired: boolean = false;
     public vmclaimvms: Map<string, VMClaimVM> = new Map();
     public vms: Map<string, VM> = new Map();
 
@@ -88,12 +89,16 @@ export class StepComponent implements OnInit, DoCheck {
             remaining += this.pauseremaining["h"] + ":";
         }
 
-        if (this.pauseremaining["m"] != 0) {
+        if (this.pauseremaining["m"] >= 10) {
             remaining += this.pauseremaining["m"];
+        } else {
+            remaining += "0" + this.pauseremaining["m"];
         }
 
-        if (this.pauseremaining["."] != 0) {
+        if (this.pauseremaining["."] >= 10) {
             remaining += ":" + this.pauseremaining["."];
+        } else {
+            remaining += ":0" + this.pauseremaining["."];
         }
 
         return remaining;
@@ -276,7 +281,12 @@ export class StepComponent implements OnInit, DoCheck {
                 retryWhen(errors => errors.pipe(
                     concatMap((e: HttpErrorResponse, i) =>
                         iif(
-                            () => e.status > 0,
+                            () => {
+                                if (e.status == 404) {
+                                    this.sessionExpired = true;
+                                }
+                                return e.status > 0
+                            },
                             throwError(e),
                             of(e).pipe(delay(10000))
                         )
