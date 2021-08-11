@@ -130,3 +130,17 @@
         </button>
     </div>
 </clr-modal>
+
+<clr-modal #sessionExpiredModal [(clrModalOpen)]="sessionExpired" [clrModalClosable]="false">
+    <h3 class="modal-title">
+        Your session has expired! 
+    </h3>
+    <div class="modal-body">
+        <p>
+            Please return back to the home page.
+        </p>
+    </div>
+    <div class="modal-footer">
+        <button class="btn btn-outline" (click)="actuallyClose()">Ok</button>
+    </div>
+</clr-modal>
