@@ -23,7 +23,8 @@
               "src/favicon.ico",
               "src/assets",
               "src/env.json",
-              "src/config.json"
+              "src/config.json",
+              "src/custom.css"
             ],
             "styles": [
               "node_modules/@clr/icons/clr-icons.min.css",
