@@ -27,17 +27,17 @@ export class TerminalComponent implements OnChanges {
     @Input()
     endpoint: string;
 
-    public term: any;
-    public fitAddon: FitAddon;
+    public term: Terminal;
+    public fitAddon: FitAddon = new FitAddon();
     public attachAddon: AttachAddon;
     public socket: WebSocket;
     public dimensions: ITerminalDimensions;
+    public isActive: boolean = false;
     constructor(
         public jwtHelper: JwtHelperService,
         public ctrService: CtrService,
         public shellService: ShellService
     ) {
-
     }
 
     public paste(code: string) {
@@ -48,36 +48,36 @@ export class TerminalComponent implements OnChanges {
 
     @HostListener('window:resize', ['$event'])
     public resize(event?) {
-        this.dimensions = this.fitAddon.proposeDimensions()
-        let height = this.dimensions.rows
-        let width = this.dimensions.cols
-        this.socket.send(`\u001b[8;${height};${width}t`)
-        this.fitAddon.fit();
+        if (this.isActive) {
+            this.dimensions = this.fitAddon.proposeDimensions()
+            let height = this.dimensions.rows
+            let width = this.dimensions.cols
+            this.socket.send(`\u001b[8;${height};${width}t`)
+            this.fitAddon.fit();
+        }
     }
 
     buildSocket() {
         if (!this.endpoint.startsWith("wss://") && !this.endpoint.startsWith("ws://")) {
             if (environment.server.startsWith("https")) {
-              this.endpoint = "wss://" + this.endpoint
+                this.endpoint = "wss://" + this.endpoint
             } else {
-              this.endpoint = "ws://" + this.endpoint
+                this.endpoint = "ws://" + this.endpoint
             }
         }
         this.socket = new WebSocket(this.endpoint + "/shell/" + this.vmid + "/connect?auth=" + this.jwtHelper.tokenGetter());
 
         this.term = new Terminal({
             theme: {
-              background: '#292b2e'
+                background: '#292b2e'
             },
             fontFamily: "monospace",
             fontSize: 16,
             letterSpacing: 1.1
-          });
-          this.attachAddon = new AttachAddon(this.socket);
-          this.fitAddon = new FitAddon();
-          this.term.loadAddon(this.fitAddon)
-          this.term.open(this.terminalDiv.nativeElement);
-          this.fitAddon.fit();
+        });
+        this.attachAddon = new AttachAddon(this.socket);
+        this.term.loadAddon(this.fitAddon)
+        this.term.open(this.terminalDiv.nativeElement);
 
         this.socket.onclose = (e) => {
             this.term.dispose(); // destroy the terminal on the page to avoid bad display
@@ -92,9 +92,8 @@ export class TerminalComponent implements OnChanges {
 
         this.socket.onopen = (e) => {
             this.shellService.setStatus(this.vmname, "Connected");
-            this.term.loadAddon(this.attachAddon)
+            this.term.loadAddon(this.attachAddon);
             this.term.focus();
-            this.resize();
 
             this.ctrService.getCodeStream()
                 .subscribe(
@@ -129,7 +128,7 @@ export class TerminalComponent implements OnChanges {
         }
     }
 
-    onResize() {
-        this.fitAddon.fit()
-      }
+    setIsActive(isActive: boolean) {
+        this.isActive = isActive;
+    }
 }
