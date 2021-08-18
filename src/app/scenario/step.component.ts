@@ -170,6 +170,19 @@ export class StepComponent implements OnInit, DoCheck {
                        "</pre>";
             }
         }
+
+        // Overriding the default link renderer to provide >> target="_blank" <<
+        this.markdownService.renderer.link = (href: string, title: string, text: string) => {
+            if (href === null) {
+              return text;
+            }
+            let out = '<a href="' + escape(href) + '" target="_blank"';
+            if (title) {
+              out += ' title="' + title + '"';
+            }
+            out += '>' + text + '</a>';
+            return out;
+        }
     }
 
     getVmClaimVmKeys() {
