@@ -351,7 +351,7 @@ export class StepComponent implements OnInit, AfterViewInit {
                                         term.resize();
                                     }, 500)
                                 } else {
-                                    this.terms.toArray()[index].setIsActive(false);
+                                    term.setIsActive(false);
                                 }
                             })
                         }
