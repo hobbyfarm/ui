@@ -133,7 +133,7 @@ export class StepComponent implements OnInit, DoCheck {
         this.markdownService.renderer.code = (code: string, language: string, isEscaped: boolean) => {
             // block text
             if (language.length == 0) {
-                return "<pre  style='padding: 5px 10px;'>" + escape(code) + "</pre>";
+                return "<pre style='padding: 5px 10px;overflow-x: auto;'>" + escape(code) + "</pre>";
             }
 
             // determine what kind of special injection we need to do
@@ -156,31 +156,49 @@ export class StepComponent implements OnInit, DoCheck {
                 this.vmInfoService.setConfig(config);
 
                 return `<vminfo id="${config.id}"></vminfo>`;
-            }else if (language.split(":")[0] == 'hidden') {
+            } else if (language.split(":")[0] == 'hidden') {
                 return "<details>" +
-                            "<summary>" + language.split(":")[1] + "</summary>"+
-                             escape(code) +
-                        "</details>";
-            }else{
+                    "<summary>" + language.split(":")[1] + "</summary>" +
+                    escape(code) +
+                    "</details>";
+            } else {
                 // highlighted code
-                return "<pre style='padding: 5px 10px;' class='language-"+language+"'>" +
-                         "<code class='language-"+ language +"'>" +
-                           escape(code) +
-                         "</code>" +
-                       "</pre>";
+                return "<pre style='padding: 5px 10px;' class='language-" + language + "'>" +
+                    "<code class='language-" + language + "'>" +
+                    escape(code) +
+                    "</code>" +
+                    "</pre>";
             }
         }
 
         // Overriding the default link renderer to provide >> target="_blank" <<
         this.markdownService.renderer.link = (href: string, title: string, text: string) => {
             if (href === null) {
-              return text;
+                return text;
             }
             let out = '<a href="' + escape(href) + '" target="_blank"';
             if (title) {
-              out += ' title="' + title + '"';
+                out += ' title="' + title + '"';
             }
             out += '>' + text + '</a>';
+            return out;
+        }
+
+        this.markdownService.renderer.codespan = (code: string) => {
+            const style: string = 'style="color:#039BE5;font-weight:bold;background-color:#ddd;padding:1px 10px 2px 10px;border-radius:10px;display:inline-block;"';
+            return '<code ' + style + '>' + code + '</code>';
+        }
+
+        this.markdownService.renderer.image = (href: string, title: string, text: string) => {
+            if (href === null) {
+                return text;
+            }
+
+            const style = 'width: 100%;height: auto;';
+            let out = '<img src="' + href + '" alt="' + text + '" style="' + style + '"';
+            if (title) {
+                out += ' title="' + title + '"';
+            }
             return out;
         }
     }
@@ -469,17 +487,17 @@ export class StepComponent implements OnInit, DoCheck {
             )
     }
 
-    public dragEnd({ sizes }: {gutterNum: number, sizes: Array<number>}) {
+    public dragEnd({ sizes }: { gutterNum: number, sizes: Array<number> }) {
         this.sizes.percent.area1 = sizes[0];
         this.sizes.percent.area2 = sizes[1];
         // For each tab...
         this.tabContents.forEach((t: ClrTabContent, i: number) => {
-                    // ... if the active tab is the same as itself ...
-                    if (t.ifActiveService.current == t.id) {
-                        // ... resize the terminal that corresponds to the index of the active tab.
-                        // e.g. tab could have ID of 45, but would be index 2 in list of tabs, so reload terminal with index 2.
-                        this.terms.toArray()[i].resize();
-                    }
+            // ... if the active tab is the same as itself ...
+            if (t.ifActiveService.current == t.id) {
+                // ... resize the terminal that corresponds to the index of the active tab.
+                // e.g. tab could have ID of 45, but would be index 2 in list of tabs, so reload terminal with index 2.
+                this.terms.toArray()[i].resize();
+            }
         });
     }
 
