@@ -58,26 +58,30 @@ export class TerminalComponent implements OnChanges {
     buildSocket() {
         if (!this.endpoint.startsWith("wss://") && !this.endpoint.startsWith("ws://")) {
             if (environment.server.startsWith("https")) {
-              this.endpoint = "wss://" + this.endpoint
+                this.endpoint = "wss://" + this.endpoint
             } else {
-              this.endpoint = "ws://" + this.endpoint
+                this.endpoint = "ws://" + this.endpoint
             }
         }
         this.socket = new WebSocket(this.endpoint + "/shell/" + this.vmid + "/connect?auth=" + this.jwtHelper.tokenGetter());
 
+        // Check if current browser is firefox by useragent and use "duck-typing" as a fallback.
+        const regExp: RegExp = /firefox|fxios/i;
+        const isFirefox: boolean = regExp.test(navigator.userAgent.toLowerCase()) || typeof InstallTrigger !== 'undefined';
         this.term = new Terminal({
             theme: {
-              background: '#292b2e'
+                background: '#292b2e'
             },
             fontFamily: "monospace",
             fontSize: 16,
-            letterSpacing: 1.1
-          });
-          this.attachAddon = new AttachAddon(this.socket);
-          this.fitAddon = new FitAddon();
-          this.term.loadAddon(this.fitAddon)
-          this.term.open(this.terminalDiv.nativeElement);
-          this.fitAddon.fit();
+            letterSpacing: 1.1,
+            rendererType: isFirefox ? 'dom' : 'canvas',
+        });
+        this.attachAddon = new AttachAddon(this.socket);
+        this.fitAddon = new FitAddon();
+        this.term.loadAddon(this.fitAddon)
+        this.term.open(this.terminalDiv.nativeElement);
+        this.fitAddon.fit();
 
         this.socket.onclose = (e) => {
             this.term.dispose(); // destroy the terminal on the page to avoid bad display
@@ -131,5 +135,5 @@ export class TerminalComponent implements OnChanges {
 
     onResize() {
         this.fitAddon.fit()
-      }
+    }
 }
