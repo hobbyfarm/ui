@@ -23,7 +23,9 @@ A file placed at `/config.json` will allow for runtime configuration (e.g., cust
 }
 ```
 
-To customize logos, mount them into the container at `/usr/share/nginx/html/assets`, and then reference the file names in `config.json`. 
+To customize logos, mount them into the container at `/usr/share/nginx/html/assets`, and then reference the file names in `config.json`. Alternatively, you can reference files from an object store.
+
+A file placed at `/custom.css` will allow for runtime style customization. To do so, mount a file called `custom.css` into the container at `/usr/share/nginx/html/`.
 
 ## Contributing
 

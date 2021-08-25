@@ -133,7 +133,7 @@ export class StepComponent implements OnInit, DoCheck {
         this.markdownService.renderer.code = (code: string, language: string, isEscaped: boolean) => {
             // block text
             if (language.length == 0) {
-                return "<pre style='padding: 5px 10px;overflow-x: auto;'>" + escape(code) + "</pre>";
+                return "<pre style='padding: 5px 10px;overflow-x: auto;'>" + this.markdownService.compile(code) + "</pre>";
             }
 
             // determine what kind of special injection we need to do
@@ -159,7 +159,7 @@ export class StepComponent implements OnInit, DoCheck {
             } else if (language.split(":")[0] == 'hidden') {
                 return "<details>" +
                     "<summary>" + language.split(":")[1] + "</summary>" +
-                    escape(code) +
+                    this.markdownService.compile(code) +
                     "</details>";
             } else {
                 // highlighted code
