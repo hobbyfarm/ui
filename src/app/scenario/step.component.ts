@@ -133,7 +133,7 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
         this.markdownService.renderer.code = (code: string, language: string, isEscaped: boolean) => {
             // block text
             if (language.length == 0) {
-                return "<pre  style='padding: 5px 10px;'>" + escape(code) + "</pre>";
+                return "<pre style='padding: 5px 10px;overflow-x: auto;'>" + this.markdownService.compile(code) + "</pre>";
             }
 
             // determine what kind of special injection we need to do
@@ -156,19 +156,50 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
                 this.vmInfoService.setConfig(config);
 
                 return `<vminfo id="${config.id}"></vminfo>`;
-            }else if (language.split(":")[0] == 'hidden') {
+            } else if (language.split(":")[0] == 'hidden') {
                 return "<details>" +
-                            "<summary>" + language.split(":")[1] + "</summary>"+
-                             escape(code) +
-                        "</details>";
-            }else{
+                    "<summary>" + language.split(":")[1] + "</summary>" +
+                    this.markdownService.compile(code) +
+                    "</details>";
+            } else {
                 // highlighted code
-                return "<pre style='padding: 5px 10px;' class='language-"+language+"'>" +
-                         "<code class='language-"+ language +"'>" +
-                           escape(code) +
-                         "</code>" +
-                       "</pre>";
+                return "<pre style='padding: 5px 10px;' class='language-" + language + "'>" +
+                    "<code class='language-" + language + "'>" +
+                    escape(code) +
+                    "</code>" +
+                    "</pre>";
             }
+        }
+
+        // Overriding the default link renderer to provide >> target="_blank" <<
+        this.markdownService.renderer.link = (href: string, title: string, text: string) => {
+            if (href === null) {
+                return text;
+            }
+            let out = '<a href="' + escape(href) + '" target="_blank"';
+            if (title) {
+                out += ' title="' + title + '"';
+            }
+            out += '>' + text + '</a>';
+            return out;
+        }
+
+        this.markdownService.renderer.codespan = (code: string) => {
+            const style: string = 'style="color:#039BE5;font-weight:bold;background-color:#ddd;padding:1px 10px 2px 10px;border-radius:10px;display:inline-block;"';
+            return '<code ' + style + '>' + code + '</code>';
+        }
+
+        this.markdownService.renderer.image = (href: string, title: string, text: string) => {
+            if (href === null) {
+                return text;
+            }
+
+            const style = 'width: 100%;height: auto;';
+            let out = '<img src="' + href + '" alt="' + text + '" style="' + style + '"';
+            if (title) {
+                out += ' title="' + title + '"';
+            }
+            return out;
         }
     }
 

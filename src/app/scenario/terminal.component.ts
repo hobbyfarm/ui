@@ -69,13 +69,17 @@ export class TerminalComponent implements OnChanges, AfterViewInit {
         }
         this.socket = new WebSocket(this.endpoint + "/shell/" + this.vmid + "/connect?auth=" + this.jwtHelper.tokenGetter());
 
+        // Check if current browser is firefox by useragent and use "duck-typing" as a fallback.
+        const regExp: RegExp = /firefox|fxios/i;
+        const isFirefox: boolean = regExp.test(navigator.userAgent.toLowerCase()) || typeof InstallTrigger !== 'undefined';
         this.term = new Terminal({
             theme: {
                 background: '#292b2e'
             },
             fontFamily: "monospace",
             fontSize: 16,
-            letterSpacing: 1.1
+            letterSpacing: 1.1,
+            rendererType: isFirefox ? 'dom' : 'canvas',
         });
         this.attachAddon = new AttachAddon(this.socket);
         this.term.loadAddon(this.fitAddon)
