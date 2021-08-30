@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChildren, QueryList, DoCheck, ViewChild, Renderer2, ElementRef } from "@angular/core";
+import { Component, OnInit, ViewChildren, QueryList, ViewChild, Renderer2, ElementRef, AfterViewInit, OnDestroy } from "@angular/core";
 import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 import { Step } from '../Step';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
@@ -37,7 +37,7 @@ import { SplitAreaDirective, SplitComponent } from "angular-split";
     ]
 })
 
-export class StepComponent implements OnInit, DoCheck {
+export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
     public scenario: Scenario = new Scenario();
     public step: Step = new Step();
     public steps: string[] = [];
@@ -364,6 +364,18 @@ export class StepComponent implements OnInit, DoCheck {
             )
     }
 
+    ngAfterViewInit() {
+        this.tabs.changes.pipe(first()).subscribe((tabs: QueryList<ClrTab>) => {
+            tabs.first.tabLink.activate();
+        })
+    }
+
+    ngOnDestroy() {
+        this.terms.forEach(term => {
+            term.mutationObserver.disconnect();
+        })
+    }
+
     private _splitTime(t: string) {
         var times: string[] = [];
         var timesegments = Object.keys(this.pauseremaining);
@@ -503,22 +515,5 @@ export class StepComponent implements OnInit, DoCheck {
 
     escapeRegExp(string) {
         return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); // $& means the whole matched string
-    }
-
-    ngDoCheck() {
-        // For each tab...
-        this.tabContents.forEach((t: ClrTabContent, i: number) => {
-            // ... watch the change stream for the active tab in the set ...
-            t.ifActiveService.currentChange.subscribe(
-                (activeTabId: number) => {
-                    // ... if the active tab is the same as itself ...
-                    if (activeTabId == t.id) {
-                        // ... resize the terminal that corresponds to the index of the active tab.
-                        // e.g. tab could have ID of 45, but would be index 2 in list of tabs, so reload terminal with index 2.
-                        this.terms.toArray()[i].resize();
-                    }
-                }
-            )
-        });
     }
 }

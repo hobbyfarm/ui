@@ -1,4 +1,4 @@
-import { Component, ViewChild, ElementRef, OnInit, Input, OnChanges, ViewEncapsulation } from '@angular/core';
+import { Component, ViewChild, ElementRef, Input, OnChanges, ViewEncapsulation, AfterViewInit } from '@angular/core';
 import { Terminal } from 'xterm';
 import { AttachAddon } from 'xterm-addon-attach';
 import { FitAddon, ITerminalDimensions } from 'xterm-addon-fit';
@@ -17,7 +17,7 @@ import { HostListener } from '@angular/core';
     ],
     encapsulation: ViewEncapsulation.None,
 })
-export class TerminalComponent implements OnChanges {
+export class TerminalComponent implements OnChanges, AfterViewInit {
     @Input()
     vmid: string;
 
@@ -27,17 +27,19 @@ export class TerminalComponent implements OnChanges {
     @Input()
     endpoint: string;
 
-    public term: any;
-    public fitAddon: FitAddon;
+    public term: Terminal;
+    public fitAddon: FitAddon = new FitAddon();
     public attachAddon: AttachAddon;
     public socket: WebSocket;
     public dimensions: ITerminalDimensions;
+    public firstTabChange: boolean = true;
+    public isVisible: boolean = false;
+    public mutationObserver: MutationObserver;
     constructor(
         public jwtHelper: JwtHelperService,
         public ctrService: CtrService,
         public shellService: ShellService
     ) {
-
     }
 
     public paste(code: string) {
@@ -48,11 +50,13 @@ export class TerminalComponent implements OnChanges {
 
     @HostListener('window:resize', ['$event'])
     public resize(event?) {
-        this.dimensions = this.fitAddon.proposeDimensions()
-        let height = this.dimensions.rows
-        let width = this.dimensions.cols
-        this.socket.send(`\u001b[8;${height};${width}t`)
-        this.fitAddon.fit();
+        if (this.isVisible && this.socket && this.socket.readyState == WebSocket.OPEN) {
+            this.dimensions = this.fitAddon.proposeDimensions()
+            let height = this.dimensions.rows
+            let width = this.dimensions.cols
+            this.socket.send(`\u001b[8;${height};${width}t`)
+            this.fitAddon.fit();
+        }
     }
 
     buildSocket() {
@@ -78,10 +82,8 @@ export class TerminalComponent implements OnChanges {
             rendererType: isFirefox ? 'dom' : 'canvas',
         });
         this.attachAddon = new AttachAddon(this.socket);
-        this.fitAddon = new FitAddon();
         this.term.loadAddon(this.fitAddon)
         this.term.open(this.terminalDiv.nativeElement);
-        this.fitAddon.fit();
 
         this.socket.onclose = (e) => {
             this.term.dispose(); // destroy the terminal on the page to avoid bad display
@@ -96,8 +98,9 @@ export class TerminalComponent implements OnChanges {
 
         this.socket.onopen = (e) => {
             this.shellService.setStatus(this.vmname, "Connected");
-            this.term.loadAddon(this.attachAddon)
+            this.term.loadAddon(this.attachAddon);
             this.term.focus();
+            // In case the socket takes longer to load than the terminal on the first start, do a resize here
             this.resize();
 
             this.ctrService.getCodeStream()
@@ -133,7 +136,47 @@ export class TerminalComponent implements OnChanges {
         }
     }
 
-    onResize() {
-        this.fitAddon.fit()
+    ngAfterViewInit(): void {
+        // Options for the observer (which mutations to observe)
+        const config: MutationObserverInit = { attributes: true, childList: true, subtree: true };
+
+        // Callback function to execute when mutations are observed
+        const callback: MutationCallback = (mutationsList: MutationRecord[], _observer: MutationObserver) => {
+            mutationsList.forEach(mutation => {
+                // After the first start of the scenario, wait until the visible terminal element is added to the DOM.
+                if (mutation.type === 'childList') {
+                    if (this.term && this.term.element && this.term.element.offsetParent && !this.isVisible) {
+                        this.isVisible = true;
+                        this.firstTabChange = false;
+                        this.resize();
+                    } else if (!(this.term && this.term.element && this.term.element.offsetParent) && this.isVisible) {
+                        this.isVisible = false;
+                    }
+                }
+                else if (mutation.type === 'attributes') {
+                    // Is triggered if aria-selected changes (on tab button) and terminal should be visible.
+                    // Should only be called after the first tab change.
+                    if (this.term && this.term.element && this.term.element.offsetParent && !this.isVisible && !this.firstTabChange) {
+                        this.isVisible = true;
+                        this.resize();
+                    
+                    // After the first switch between tabs, do not change the terminal's visibility before the (xterm) canvas element attributes are changed. 
+                    // The terminal is now visible and the xterm.fit() function can be called without throwing errors.
+                    } else if (this.term && this.term.element && this.term.element.offsetParent && !this.isVisible && mutation.target.nodeName == "CANVAS") {
+                        this.isVisible = true;
+                        this.firstTabChange = false;
+                        this.resize();
+
+                    // Is triggered if aria-selected changes (on tab button) and terminal should not be visible anymore.
+                    } else if (!(this.term && this.term.element && this.term.element.offsetParent) && this.isVisible) {
+                        this.isVisible = false;
+                    }
+                }
+            })
+        };
+        // Create an observer instance linked to the callback function
+        this.mutationObserver = new MutationObserver(callback);
+
+        this.mutationObserver.observe(this.terminalDiv.nativeElement.offsetParent, config);
     }
 }
