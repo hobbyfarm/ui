@@ -133,7 +133,29 @@ export class StepComponent implements OnInit, DoCheck {
         this.markdownService.renderer.code = (code: string, language: string, isEscaped: boolean) => {
             // block text
             if (language.length == 0) {
-                return "<pre  style='padding: 5px 10px;'>" + this.markdownService.compile(code) + "</pre>";
+                if (/~~~([\s\S]*?)~~~/.test(code)) {
+                    let content: string = "";
+                    const codeArray: string[] = code.split("~~~")
+                    codeArray.forEach((codePart: string, index: number) => {
+
+                        // This case occurs outside nested blocks 
+                        if (codePart && index % 2 == 0) {
+                            content += escape(codePart);
+
+                        // This case occurs when an odd number of tildes appear within a fenced block 
+                        // and therefore not all of them can be resolved.
+                        } else if (codePart && index % 2 != 0 && index == codeArray.length - 1) {
+                            content += escape("~~~" + codePart);
+
+                        // This case occurs inside nested blocks 
+                        } else if (codePart) {
+                            content += this.markdownService.compile("~~~" + codePart + "~~~");
+                        }
+                    })
+                    return "<pre style='padding: 5px 10px;overflow-x: auto;'>" + content + "</pre>";
+                } else {
+                    return "<pre style='padding: 5px 10px;overflow-x: auto;'>" + escape(code) + "</pre>";
+                }
             }
 
             // determine what kind of special injection we need to do
