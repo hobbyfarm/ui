@@ -140,7 +140,7 @@ export class StepComponent implements OnInit, DoCheck {
 
                         // This case occurs outside nested blocks 
                         if (codePart && index % 2 == 0) {
-                            content += escape(codePart);
+                            content += escape(codePart).replace(/^\s/g, '');
 
                         // This case occurs when an odd number of tildes appear within a fenced block 
                         // and therefore not all of them can be resolved.
@@ -179,7 +179,7 @@ export class StepComponent implements OnInit, DoCheck {
 
                 return `<vminfo id="${config.id}"></vminfo>`;
             } else if (language.split(":")[0] == 'hidden') {
-                return "<details>" +
+                return "<details style='margin: 10px 0px;'>" +
                     "<summary>" + language.split(":")[1] + "</summary>" +
                     this.markdownService.compile(code) +
                     "</details>";
@@ -222,6 +222,10 @@ export class StepComponent implements OnInit, DoCheck {
                 out += ' title="' + title + '"';
             }
             return out;
+        }
+
+        this.markdownService.renderer.paragraph = (text: string) => {
+            return "<p style='margin-top: 0;'>" + text + "</p>\n";
         }
     }
 
