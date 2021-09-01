@@ -65,11 +65,11 @@
         <as-split-area size="60" #area2="asSplitArea" class="split-area-2">
             <div id="terminal-column">
                 <clr-tabs>
-                    <clr-tab *ngFor="let v of vmclaimvms | keyvalue; let first = first;" #tab>
+                    <clr-tab *ngFor="let v of vmclaimvms | keyvalue" #tab>
                         <button clrTabLink [id]="v.key">
                             <clr-icon size="24" shape="host"></clr-icon> {{ v.key }}
                         </button>
-                        <clr-tab-content *clrIfActive="first" #tabcontent>
+                        <clr-tab-content #tabcontent>
                             <table class="table compact">
                                 <tr>
                                     <td><b>Public IP:</b> {{ getVm(v.value.vm_id)?.public_ip }}</td>
