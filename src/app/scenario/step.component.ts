@@ -140,7 +140,7 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
 
                         // First part inside a block outside nested blocks
                         if (index == 0) {
-                            content += escape(codePart)
+                            content += escape("\n" + codePart);
                         
                         // This case occurs outside nested blocks 
                         } else if (index % 2 == 0) {
@@ -152,8 +152,10 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
                             content += escape("~~~" + codePart);
 
                         // This case occurs inside nested blocks 
-                        } else {
+                        } else if (codePart) {
                             content += this.markdownService.compile("~~~" + codePart + "~~~");
+                        } else {
+                            content += escape(codePart);
                         }
                     })
                     return "<pre style='padding: 5px 10px;overflow-x: auto;'>" + content + "</pre>";
