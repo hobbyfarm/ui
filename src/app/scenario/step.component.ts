@@ -144,7 +144,7 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
                         
                         // This case occurs outside nested blocks 
                         } else if (index % 2 == 0) {
-                            content += escape(codePart).replace(/^\s/g, '');
+                            content += escape(codePart).replace(/^\s/, '');
 
                         // This case occurs when an odd number of tildes appear within a fenced block 
                         // and therefore not all of them can be resolved.
