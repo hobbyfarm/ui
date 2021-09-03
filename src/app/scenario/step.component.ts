@@ -138,8 +138,12 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
                     const codeArray: string[] = code.split("~~~")
                     codeArray.forEach((codePart: string, index: number) => {
 
+                        // First part inside a block outside nested blocks
+                        if (codePart && index == 0) {
+                            content += escape(codePart)
+                        
                         // This case occurs outside nested blocks 
-                        if (codePart && index % 2 == 0) {
+                        } else if (codePart && index % 2 == 0) {
                             content += escape(codePart).replace(/^\s/g, '');
 
                         // This case occurs when an odd number of tildes appear within a fenced block 
