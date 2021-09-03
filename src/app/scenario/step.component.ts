@@ -139,20 +139,20 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
                     codeArray.forEach((codePart: string, index: number) => {
 
                         // First part inside a block outside nested blocks
-                        if (codePart && index == 0) {
+                        if (index == 0) {
                             content += escape(codePart)
                         
                         // This case occurs outside nested blocks 
-                        } else if (codePart && index % 2 == 0) {
+                        } else if (index % 2 == 0) {
                             content += escape(codePart).replace(/^\s/g, '');
 
                         // This case occurs when an odd number of tildes appear within a fenced block 
                         // and therefore not all of them can be resolved.
-                        } else if (codePart && index % 2 != 0 && index == codeArray.length - 1) {
+                        } else if (index % 2 != 0 && index == codeArray.length - 1) {
                             content += escape("~~~" + codePart);
 
                         // This case occurs inside nested blocks 
-                        } else if (codePart) {
+                        } else {
                             content += this.markdownService.compile("~~~" + codePart + "~~~");
                         }
                     })
