@@ -12,13 +12,14 @@
     </div>
 
     <div class="header-actions">
-      <clr-dropdown clrMenuPosition="bottom-right">
+      <clr-dropdown>
         <button class="nav-text" clrDropdownToggle>
           {{email}}
           <clr-icon shape="caret down"></clr-icon>
         </button>
-        <clr-dropdown-menu>
+        <clr-dropdown-menu *clrIfOpen clrPosition="bottom-right">
           <a (click)="openAccessCodes()" clrDropdownItem>Manage Access Codes</a>
+          <a (click)="openSettings()" clrDropdownItem>Options</a>
           <a (click)="changePassword()" clrDropdownItem>Change Password</a>
           <a (click)="about()" clrDropdownItem>About</a>
           <a (click)="logout()" clrDropdownItem>Logout</a>
@@ -123,6 +124,26 @@
     </div>
     <div class="modal-footer">
       <button class="btn" (click)="accessCodeModalOpened = false">Close</button>
+    </div>
+  </clr-modal>
+
+  <clr-modal #settingsmodal [(clrModalOpen)]="settingsModalOpened">
+    <h3 class="modal-title">Settings</h3>
+    <div class="modal-body">
+      <form clrForm [formGroup]="settingsForm">
+        <label>Terminal Theme</label>
+        <clr-radio-container>
+          <clr-radio-wrapper *ngFor="let theme of available_themes" >
+            <input type="radio" clrRadio name="settings" [value]="theme.theme" formControlName="selected_theme" />
+            <label>{{theme.name}}</label>
+          </clr-radio-wrapper>
+        </clr-radio-container>
+        Reloading the page after saving the settings is required in order to update the terminal theme.
+      </form>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" (click)="settingsModalOpened = false">Close</button>
+      <button class="btn btn-success" (click)="doSaveSettings()">Save</button>
     </div>
   </clr-modal>
 

@@ -39,6 +39,8 @@ export class AppComponent implements OnInit {
 
   public accessCodeModalOpened: boolean = false;
 
+  public settingsModalOpened: boolean = false;
+
   public accesscodes: string[] = [];
 
   public email: string = "";
@@ -47,6 +49,8 @@ export class AppComponent implements OnInit {
   public title   = this.Config.title   || "Rancher's Hobby Farm";
   public favicon = this.Config.favicon || "/assets/default/favicon.png";
   public logo    = this.Config.logo    || '/assets/default/logo.svg';
+
+  public available_themes = [{'theme': 'default', 'name': 'Default Hobbyfarm Terminal'}, {'theme': 'Solarized_Light', 'name': 'Solarized Light'}, {'theme': 'Solarized_Dark', 'name': 'Solarized Dark'}];
 
   constructor(
     public helper: JwtHelperService,
@@ -84,6 +88,7 @@ export class AppComponent implements OnInit {
   @ViewChild("aboutmodal", { static: true }) aboutModal: ClrModal;
   @ViewChild("changepasswordmodal", { static: true }) changePasswordModal: ClrModal;
   @ViewChild("accesscodemodal", {static: true}) accessCodeModal: ClrModal;
+  @ViewChild("settingsmodal", {static: true}) settingsModal: ClrModal;
 
   public passwordChangeForm: FormGroup = new FormGroup({
     'old_password': new FormControl(null, [
@@ -101,6 +106,12 @@ export class AppComponent implements OnInit {
     'access_code': new FormControl(null, [
       Validators.required,
       Validators.minLength(4)
+    ])
+  })
+
+  public settingsForm: FormGroup = new FormGroup({
+    'selected_theme': new FormControl(null, [
+      Validators.required
     ])
   })
 
@@ -138,6 +149,10 @@ export class AppComponent implements OnInit {
       }
     )
     this.accessCodeModal.open();
+  }
+
+  public openSettings() {
+    this.settingsModal.open();
   }
 
   public saveAccessCode() {
@@ -183,6 +198,11 @@ export class AppComponent implements OnInit {
         setTimeout(() => this.accessCodeDangerClosed = true, 2000);
       }
     )
+  }
+
+  public doSaveSettings(){
+    console.log(this.settingsForm.get('selected_theme').value)
+    this.settingsModalOpened = false
   }
 
   public doChangePassword() {

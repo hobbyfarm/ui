@@ -8,6 +8,7 @@ import { CodeExec } from './CodeExec';
 import { ShellService } from '../services/shell.service';
 import { environment } from 'src/environments/environment';
 import { HostListener } from '@angular/core';
+import {Solarized_Light, Solarized_Dark, Solarized_Dark_Higher_Contrast, Hobbyfarm_Default} from 'src/app/scenario/terminal-themes/themes';
 
 @Component({
     selector: 'terminal',
@@ -73,9 +74,7 @@ export class TerminalComponent implements OnChanges, AfterViewInit {
         const regExp: RegExp = /firefox|fxios/i;
         const isFirefox: boolean = regExp.test(navigator.userAgent.toLowerCase()) || typeof InstallTrigger !== 'undefined';
         this.term = new Terminal({
-            theme: {
-                background: '#292b2e'
-            },
+            theme: this.getTerminalTheme("Solarized_Dark"),
             fontFamily: "monospace",
             fontSize: 16,
             letterSpacing: 1.1,
@@ -178,5 +177,16 @@ export class TerminalComponent implements OnChanges, AfterViewInit {
         this.mutationObserver = new MutationObserver(callback);
 
         this.mutationObserver.observe(this.terminalDiv.nativeElement.offsetParent, config);
+    }
+    
+    getTerminalTheme(theme: string) {
+        switch (theme) {
+            case "Solarized_Light": 
+              return Solarized_Light
+            case "Solarized_Dark":
+                return Solarized_Dark
+            case "default": 
+                return Hobbyfarm_Default
+        }
     }
 }
