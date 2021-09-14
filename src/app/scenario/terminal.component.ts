@@ -188,5 +188,6 @@ export class TerminalComponent implements OnChanges, AfterViewInit {
             case "default": 
                 return Hobbyfarm_Default
         }
+        return Hobbyfarm_Default
     }
 }

@@ -201,8 +201,17 @@ export class AppComponent implements OnInit {
   }
 
   public doSaveSettings(){
-    console.log(this.settingsForm.get('selected_theme').value)
-    this.settingsModalOpened = false
+    let newSettings = new Map<string, string>();
+    newSettings.set('terminal_theme', this.settingsForm.get('selected_theme').value);
+    this.userService.updateSettings(newSettings)
+    .subscribe(
+      (s: ServerResponse) => {
+        this.settingsModalOpened = false
+      },
+      (s: ServerResponse) => {
+        setTimeout(() => this.settingsModalOpened = false, 2000);
+      }
+    ); 
   }
 
   public doChangePassword() {

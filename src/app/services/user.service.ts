@@ -33,6 +33,21 @@ export class UserService {
     )
   }
 
+  public updateSettings(newSettings: Map<string, string>) {
+    //Add all settings that need to be updated
+    var params = new HttpParams()
+    for (let entry of newSettings.entries()) {
+      params = params.set(entry[0], entry[1]);
+  }
+
+    return this.http.post<ServerResponse>(environment.server + "/auth/updatesettings", params)
+    .pipe(
+      catchError((e: HttpErrorResponse) => {
+        return throwError(e.error);
+      })
+    )
+  }
+
   public getAccessCodes() {
     return this.http.get(environment.server + "/auth/accesscode")
     .pipe(
