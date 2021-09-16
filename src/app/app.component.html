@@ -130,16 +130,30 @@
   <clr-modal #settingsmodal [(clrModalOpen)]="settingsModalOpened">
     <h3 class="modal-title">Settings</h3>
     <div class="modal-body">
-      <form clrForm [formGroup]="settingsForm">
-        <label>Terminal Theme</label>
-        <clr-radio-container>
-          <clr-radio-wrapper *ngFor="let theme of available_themes" >
-            <input type="radio" clrRadio name="settings" [value]="theme.theme" formControlName="selected_theme" />
-            <label>{{theme.name}}</label>
-          </clr-radio-wrapper>
-        </clr-radio-container>
-        Reloading the page after saving the settings is required in order to update the terminal theme.
-      </form>
+      <ng-container *ngIf="fetchingSettings">
+        <span class="spinner spinner-inline">
+          Loading...
+        </span>
+        <span>
+          Loading...
+        </span>
+      </ng-container>
+      <ng-container *ngIf="!fetchingSettings">
+        <form clrForm [formGroup]="settingsForm">
+          <clr-combobox-container>
+            <label class="clr-col-md-4">Terminal Theme</label>
+            <clr-combobox class="clr-col-md-8" name="terminal-theme" formControlName="selected_theme" required>
+              <clr-options>
+                <clr-option *clrOptionItems="let theme of available_themes; field:'name'" [clrValue]="theme">
+                  {{theme.name}}
+                </clr-option>
+              </clr-options>
+            </clr-combobox>
+          </clr-combobox-container>
+          Reloading the page after saving the settings is required in order to update the terminal theme.
+        </form>
+      </ng-container>
+
     </div>
     <div class="modal-footer">
       <button class="btn" (click)="settingsModalOpened = false">Close</button>

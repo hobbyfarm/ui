@@ -8,6 +8,8 @@ import { UserService } from './services/user.service';
 import { FormGroup, FormControl, Validators, ValidatorFn, ValidationErrors } from '@angular/forms';
 import { ServerResponse } from './ServerResponse';
 import { AppConfigService } from './app-config.service';
+import { SettingsService } from './services/settings.service';
+import { Settings } from './Settings';
 
 @Component({
   selector: 'app-root',
@@ -40,6 +42,8 @@ export class AppComponent implements OnInit {
   public accessCodeModalOpened: boolean = false;
 
   public settingsModalOpened: boolean = false;
+  public fetchingSettings: boolean = false;
+  public settings: Settings;
 
   public accesscodes: string[] = [];
 
@@ -57,6 +61,7 @@ export class AppComponent implements OnInit {
     public userService: UserService,
     public router: Router,
     public config: AppConfigService,
+    public settingsService: SettingsService
   ) {
     this.config.getLogo(this.logo)
     .then((obj: string) => {
@@ -152,6 +157,24 @@ export class AppComponent implements OnInit {
   }
 
   public openSettings() {
+    this.settingsForm.reset();
+    this.fetchingSettings = true;
+    this.settingsService.get(true)
+    .subscribe(
+      (a: Settings) => {
+        this.settings = a;
+        let selected_theme = this.available_themes[0]; //Default to "Hobbyfarm Default Terminal" if no settings for theme are provided
+        this.available_themes.forEach(element => {
+          if(element.theme === a.terminal_theme){
+            selected_theme = element;
+          }
+        });
+        this.settingsForm.setValue({
+          'selected_theme': selected_theme
+        });
+        this.fetchingSettings = false;
+      }
+    );
     this.settingsModal.open();
   }
 
@@ -201,9 +224,13 @@ export class AppComponent implements OnInit {
   }
 
   public doSaveSettings(){
-    let newSettings = new Map<string, string>();
-    newSettings.set('terminal_theme', this.settingsForm.get('selected_theme').value);
-    this.userService.updateSettings(newSettings)
+    if(!this.settings){
+      this.settings = new Settings();
+    }
+    this.settings.terminal_theme = this.settingsForm.get('selected_theme').value.theme
+    this.settingsService.set(this.settings);
+
+    this.userService.updateSettings(this.settings)
     .subscribe(
       (s: ServerResponse) => {
         this.settingsModalOpened = false

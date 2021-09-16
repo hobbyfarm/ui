@@ -27,6 +27,7 @@ import { CtrService } from './scenario/ctr.service';
 import { VMInfoService } from './scenario/vminfo.service';
 import { ScenarioService } from './services/scenario.service';
 import { CourseService } from './services/course.service';
+import { SettingsService } from './services/settings.service';
 import { SessionService } from './services/session.service';
 import { StepService } from './services/step.service';
 import { VMService } from './services/vm.service';
@@ -104,6 +105,7 @@ export function jwtOptionsFactory() {
     CtrService,
     VMInfoService,
     CourseService,
+    SettingsService,
     ScenarioService,
     SessionService,
     StepService,
