@@ -144,10 +144,9 @@
             <clr-tab>
               <button clrTabLink>Terminal Theme</button>
               <clr-tab-content *clrIfActive="true">
-                <clr-radio-container>
-                  <clr-radio-wrapper *ngFor="let theme of availableThemes">
-                    <label class="theme-preview-radio-box">
-                      <input class="theme-preview-radio-button" type="radio" clrRadio [value]="theme" name="terminal-theme" formControlName="selected_theme"/>
+                  <div *ngFor="let theme of availableThemes" class="radio-box-container clr-col-6">
+                    <label class="theme-preview-radio-box clr-col-md-12">
+                      <input class="theme-preview-radio-button" type="radio" [value]="theme" name="terminal-theme" formControlName="selected_theme"/>
                       <div class="theme-preview-container">
                         <div class="theme-preview-terminal" [ngStyle]="{'background-color': theme.styles.background}">
                           <div class="theme-preview-terminal-text">
@@ -215,20 +214,10 @@
                         </div>
                       </div>
                     </label>
-                  </clr-radio-wrapper>                  
-                </clr-radio-container>
+                  </div>                  
               </clr-tab-content>
-            </clr-tab>
-            <clr-tab>
-              <button clrTabLink>Coming soon</button>
-              <clr-tab-content *clrIfActive>
-                In the future there will be more settings.
-              </clr-tab-content>
-            </clr-tab>
-          
+            </clr-tab>         
           </clr-tabs>
-          
-
         </form>
       </ng-container>
 
