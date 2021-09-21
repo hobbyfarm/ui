@@ -8,7 +8,7 @@ import { CodeExec } from './CodeExec';
 import { ShellService } from '../services/shell.service';
 import { environment } from 'src/environments/environment';
 import { HostListener } from '@angular/core';
-import {Solarized_Light, Solarized_Dark, Solarized_Dark_Higher_Contrast, Hobbyfarm_Default} from 'src/app/scenario/terminal-themes/themes';
+import {availableThemes} from 'src/app/scenario/terminal-themes/themes';
 import { SettingsService } from '../services/settings.service';
 import { Settings } from '../Settings';
 
@@ -205,15 +205,12 @@ export class TerminalComponent implements OnChanges, AfterViewInit {
         }
     }
     
-    getTerminalTheme(theme: string) {
-        switch (theme) {
-            case "Solarized_Light": 
-              return Solarized_Light
-            case "Solarized_Dark":
-                return Solarized_Dark
-            case "default": 
-                return Hobbyfarm_Default
-        }
-        return Hobbyfarm_Default
+    getTerminalTheme(chosenTheme: string) {
+        for (let theme of availableThemes) {
+            if (theme.theme === chosenTheme) {
+                return theme.styles;
+            }
+        } 
+        return availableThemes[0].styles;
     }
 }

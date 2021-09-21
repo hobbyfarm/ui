@@ -129,7 +129,7 @@
 
   <clr-modal #settingsmodal [(clrModalOpen)]="settingsModalOpened">
     <h3 class="modal-title">Settings</h3>
-    <div class="modal-body">
+    <div class="modal-body">    
       <ng-container *ngIf="fetchingSettings">
         <span class="spinner spinner-inline">
           Loading...
@@ -140,16 +140,95 @@
       </ng-container>
       <ng-container *ngIf="!fetchingSettings">
         <form clrForm [formGroup]="settingsForm">
-          <clr-combobox-container>
-            <label class="clr-col-md-4">Terminal Theme</label>
-            <clr-combobox class="clr-col-md-8" name="terminal-theme" formControlName="selected_theme" required>
-              <clr-options>
-                <clr-option *clrOptionItems="let theme of available_themes; field:'name'" [clrValue]="theme">
-                  {{theme.name}}
-                </clr-option>
-              </clr-options>
-            </clr-combobox>
-          </clr-combobox-container>
+          <clr-tabs>
+            <clr-tab>
+              <button clrTabLink>Terminal Theme</button>
+              <clr-tab-content *clrIfActive="true">
+                <clr-radio-container>
+                  <clr-radio-wrapper *ngFor="let theme of availableThemes">
+                    <label class="theme-preview-radio-box">
+                      <input class="theme-preview-radio-button" type="radio" clrRadio [value]="theme" name="terminal-theme" formControlName="selected_theme"/>
+                      <div class="theme-preview-container">
+                        <div class="theme-preview-terminal" [ngStyle]="{'background-color': theme.styles.background}">
+                          <div class="theme-preview-terminal-text">
+                            <div class="theme-preview-terminal-text-bar" [ngStyle]="{'background-color': theme.styles.foreground}">
+                            </div>
+                          </div>
+                          <br>
+                          <div class="theme-preview-terminal-text" style="width: 10%;">
+                            <div class="theme-preview-terminal-text-bar" [ngStyle]="{'background-color': theme.styles.foreground}"></div>
+                          </div>
+                          <div class="theme-preview-terminal-space"></div>
+                          <div class="theme-preview-terminal-text" style="width: 10%;">
+                            <div class="theme-preview-terminal-text-bar" [ngStyle]="{'background-color': theme.styles.foreground}"></div>
+                          </div>
+                          <div class="theme-preview-terminal-text" style="background-color: rgba(255, 255, 255, 0.3); width: 50%;">
+                            <div class="theme-preview-terminal-text-bar" [ngStyle]="{'background-color': theme.styles.foreground}"></div>
+                          </div>
+                          <div class="theme-preview-terminal-text" style="background-color: rgba(255, 255, 255, 0.3); width: 27%;">
+                          </div>
+                          <br> 
+                          <div class="theme-preview-terminal-text" style="background-color: rgba(255, 255, 255, 0.3); width: 4%;">
+                            <div class="theme-preview-terminal-text-bar" [ngStyle]="{'background-color': theme.styles.foreground}"></div>
+                          </div>
+                          <div class="theme-preview-terminal-text" style="background-color: rgba(255, 255, 255, 0.3); width: 5%;">
+                          </div>
+                          <div class="theme-preview-terminal-text" style="background-color: rgba(255, 255, 255, 0.3); width: 6%;">
+                            <div class="theme-preview-terminal-text-bar" [ngStyle]="{'background-color': theme.styles.foreground}"></div>
+                          </div>
+                          <div class="theme-preview-terminal-text" style="width: 10%;">
+                            <div class="theme-preview-terminal-text-bar" [ngStyle]="{'background-color': theme.styles.foreground}"></div>
+                          </div>
+                          <br>
+                          <div class="theme-preview-terminal-text" style="width: 10%;">
+                            <div class="theme-preview-terminal-text-bar" [ngStyle]="{'background-color': theme.styles.blue}"></div>
+                          </div>
+                          <div class="theme-preview-terminal-space"></div>
+                          <div class="theme-preview-terminal-text" style="width: 10%;">
+                            <div class="theme-preview-terminal-text-bar" [ngStyle]="{'background-color': theme.styles.green}"></div>
+                          </div>
+                          <div class="theme-preview-terminal-space"></div>
+                          <div class="theme-preview-terminal-text" style="width: 10%;">
+                            <div class="theme-preview-terminal-text-bar" [ngStyle]="{'background-color': theme.styles.red}"></div>
+                          </div>
+                          <div class="theme-preview-terminal-space"></div>
+                          <div class="theme-preview-terminal-text" style="width: 10%;">
+                            <div class="theme-preview-terminal-text-bar" [ngStyle]="{'background-color': theme.styles.cyan}"></div>
+                          </div>
+                          <div class="theme-preview-terminal-space"></div>
+                          <div class="theme-preview-terminal-text" style="width: 10%;">
+                            <div class="theme-preview-terminal-text-bar" [ngStyle]="{'background-color': theme.styles.yellow}"></div>
+                          </div>
+                          <div class="theme-preview-terminal-space"></div>
+                          <div class="theme-preview-terminal-text" style="width: 10%;">
+                            <div class="theme-preview-terminal-text-bar" [ngStyle]="{'background-color': theme.styles.magenta}"></div>
+                          </div>
+
+                          <br>
+                          <div class="theme-preview-terminal-text" style="width: 4%;">
+                            <div class="theme-preview-terminal-text-bar" [ngStyle]="{'background-color': theme.styles.foreground}"></div>
+                          </div>
+                          <div class="theme-preview-terminal-cursor" [ngStyle]="{'background-color': theme.styles.cursor}"></div>
+                        </div>
+                        <div class="theme-preview-name">
+                          {{theme.name}}
+                        </div>
+                      </div>
+                    </label>
+                  </clr-radio-wrapper>                  
+                </clr-radio-container>
+              </clr-tab-content>
+            </clr-tab>
+            <clr-tab>
+              <button clrTabLink>Coming soon</button>
+              <clr-tab-content *clrIfActive>
+                In the future there will be more settings.
+              </clr-tab-content>
+            </clr-tab>
+          
+          </clr-tabs>
+          
+
         </form>
       </ng-container>
 

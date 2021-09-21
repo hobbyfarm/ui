@@ -10,6 +10,7 @@ import { ServerResponse } from './ServerResponse';
 import { AppConfigService } from './app-config.service';
 import { SettingsService } from './services/settings.service';
 import { Settings } from './Settings';
+import { availableThemes } from './scenario/terminal-themes/themes';
 
 @Component({
   selector: 'app-root',
@@ -54,7 +55,8 @@ export class AppComponent implements OnInit {
   public favicon = this.Config.favicon || "/assets/default/favicon.png";
   public logo    = this.Config.logo    || '/assets/default/logo.svg';
 
-  public available_themes = [{'theme': 'default', 'name': 'Default Hobbyfarm Terminal'}, {'theme': 'Solarized_Light', 'name': 'Solarized Light'}, {'theme': 'Solarized_Dark', 'name': 'Solarized Dark'}];
+  public availableThemes = availableThemes;
+  public selectedTheme = availableThemes[0];
 
   constructor(
     public helper: JwtHelperService,
@@ -163,20 +165,25 @@ export class AppComponent implements OnInit {
     .subscribe(
       (a: Settings) => {
         this.settings = a;
-        let selected_theme = this.available_themes[0]; //Default to "Hobbyfarm Default Terminal" if no settings for theme are provided
-        this.available_themes.forEach(element => {
+        this.selectedTheme = availableThemes[0]; //Default to "Hobbyfarm Default Terminal" if no settings for theme are provided
+        availableThemes.forEach(element => {
           if(element.theme === a.terminal_theme){
-            selected_theme = element;
+            this.selectedTheme = element;
           }
         });
         this.settingsForm.setValue({
-          'selected_theme': selected_theme
+          'selected_theme': this.selectedTheme
         });
         this.fetchingSettings = false;
       }
     );
     this.settingsModal.open();
   }
+
+  public isSelected(theme){
+    return theme.theme == this.selectedTheme.theme;
+  }
+
 
   public saveAccessCode() {
     var a = this.newAccessCodeForm.get("access_code").value;
