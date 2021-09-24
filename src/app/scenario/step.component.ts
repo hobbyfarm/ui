@@ -161,7 +161,11 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
                     "<summary>" + language.split(":")[1] + "</summary>" +
                     this.markdownService.compile(code) +
                     "</details>";
-            } else {
+            } else if (language.split(":")[0] == 'glossary') {
+                return "<div class='glossary'>" + language.split(":")[1] +
+                    "<span class='glossary-content'>" + this.markdownService.compile(code) + 
+                    "</span></div>";
+            }else {
                 // highlighted code
                 return "<pre style='padding: 5px 10px;' class='language-" + language + "'>" +
                     "<code class='language-" + language + "'>" +
