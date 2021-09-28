@@ -8,6 +8,7 @@ import { CodeExec } from './CodeExec';
 import { ShellService } from '../services/shell.service';
 import { environment } from 'src/environments/environment';
 import { HostListener } from '@angular/core';
+import { Subscription } from 'rxjs';
 
 @Component({
     selector: 'terminal',
@@ -35,6 +36,7 @@ export class TerminalComponent implements OnChanges, AfterViewInit {
     public firstTabChange: boolean = true;
     public isVisible: boolean = false;
     public mutationObserver: MutationObserver;
+    private subscription: Subscription
     constructor(
         public jwtHelper: JwtHelperService,
         public ctrService: CtrService,
@@ -103,7 +105,7 @@ export class TerminalComponent implements OnChanges, AfterViewInit {
             // In case the socket takes longer to load than the terminal on the first start, do a resize here
             this.resize();
 
-            this.ctrService.getCodeStream()
+            this.subscription = this.ctrService.getCodeStream()
                 .subscribe(
                     (c: CodeExec) => {
                         if (!c) {
@@ -133,6 +135,13 @@ export class TerminalComponent implements OnChanges, AfterViewInit {
     ngOnChanges() {
         if (this.vmid != null && this.endpoint != null) {
             this.buildSocket();
+        }
+    }
+
+    ngOnDestroy() {
+        if(this.subscription) {
+            (this.ctrService.getCodeStream().source as any).next();
+            this.subscription.unsubscribe();
         }
     }
 
