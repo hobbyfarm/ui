@@ -1,4 +1,4 @@
-import { Component, ViewChild, ElementRef, Input, OnChanges, ViewEncapsulation, AfterViewInit } from '@angular/core';
+import { Component, ViewChild, ElementRef, Input, OnChanges, ViewEncapsulation, AfterViewInit, OnDestroy } from '@angular/core';
 import { Terminal } from 'xterm';
 import { AttachAddon } from 'xterm-addon-attach';
 import { FitAddon, ITerminalDimensions } from 'xterm-addon-fit';
@@ -18,7 +18,7 @@ import { Subscription } from 'rxjs';
     ],
     encapsulation: ViewEncapsulation.None,
 })
-export class TerminalComponent implements OnChanges, AfterViewInit {
+export class TerminalComponent implements OnChanges, AfterViewInit, OnDestroy {
     @Input()
     vmid: string;
 
