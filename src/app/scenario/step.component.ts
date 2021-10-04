@@ -155,12 +155,21 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
                         } else if (codePart) {
                             content += this.markdownService.compile("~~~" + codePart + "~~~");
                         } else {
-                            content += escape(codePart);
+                            content += "~~~~~~";
                         }
                     })
                     return "<pre style='padding: 5px 10px;overflow-x: auto;'>" + content + "</pre>";
                 } else {
-                    return "<pre style='padding: 5px 10px;overflow-x: auto;'>" + escape(code) + "</pre>";
+                    // code block is empty or only contains white spaces
+                    if(!code.trim()) {
+                        return "<pre style='padding: 5px 10px;overflow-x: auto;'></pre>";
+                    }
+                    // Prevent leading blank lines from being removed on non-empty code blocks 
+                    else if (/^\n/.test(code)) {
+                        return "<pre style='padding: 5px 10px;overflow-x: auto;'>" + "\n" + escape(code) + "</pre>";
+                    } else {
+                        return "<pre style='padding: 5px 10px;overflow-x: auto;'>" + escape(code) + "</pre>";
+                    }
                 }
             }
 
