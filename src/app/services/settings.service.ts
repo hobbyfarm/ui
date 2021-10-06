@@ -5,13 +5,12 @@ import { ServerResponse } from '../ServerResponse';
 import { of } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { atou } from '../unicode';
-import { Settings } from '../Settings';
 import { BehaviorSubject } from 'rxjs';
 
 @Injectable()
 export class SettingsService {
-    private cachedSettings: Settings = new Settings();
-    private bh: BehaviorSubject<Settings> = new BehaviorSubject(this.cachedSettings);
+    private cachedSettings: Map<string,string> = new Map();
+    private bh: BehaviorSubject<Map<string,string>> = new BehaviorSubject(this.cachedSettings);
     private fetchedSettings = false;
 
     constructor(
@@ -31,16 +30,23 @@ export class SettingsService {
             return this.http.get(environment.server + '/auth/settings')
             .pipe(
                 map((s: ServerResponse) => {
-                    return JSON.parse(atou(s.content));
+                    let map = new Map();
+                    let content = JSON.parse(atou(s.content))
+                    if(content){
+                        Object.keys(content).forEach(key => {
+                            map.set(key, content[key]);
+                        });
+                    }
+                    return map 
                 }),
-                tap((s: Settings) => {
+                tap((s: Map<string,string>) => {
                     this.set(s);
                 })
             )
         }
     }
 
-    public set(settings: Settings){
+    public set(settings: Map<string, string>){
         this.cachedSettings = settings;
         this.fetchedSettings = true;
         this.bh.next(settings);

@@ -5,7 +5,6 @@ import { switchMap, catchError } from 'rxjs/operators';
 import { ServerResponse } from '../ServerResponse';
 import { from, of, throwError, BehaviorSubject } from 'rxjs';
 import { atou } from '../unicode';
-import { Settings } from '../Settings';
 
 @Injectable({
   providedIn: 'root'
@@ -34,14 +33,14 @@ export class UserService {
     )
   }
 
-  public updateSettings(newSettings: Settings) {
+  public updateSettings(newSettings: Map<string,string>) {
     //Add all settings that need to be updated
     var params = new HttpParams()
-    for (let [key, value] of Object.entries(newSettings)) {
+    for (let [key, value] of newSettings.entries()) {
       params = params.set(key, value);
   }
 
-    return this.http.post<ServerResponse>(environment.server + "/auth/updatesettings", params)
+    return this.http.post<ServerResponse>(environment.server + "/auth/settings", params)
     .pipe(
       catchError((e: HttpErrorResponse) => {
         return throwError(e.error);

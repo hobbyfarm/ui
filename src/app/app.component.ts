@@ -9,7 +9,6 @@ import { FormGroup, FormControl, Validators, ValidatorFn, ValidationErrors } fro
 import { ServerResponse } from './ServerResponse';
 import { AppConfigService } from './app-config.service';
 import { SettingsService } from './services/settings.service';
-import { Settings } from './Settings';
 import { availableThemes } from './scenario/terminal-themes/themes';
 
 @Component({
@@ -44,7 +43,7 @@ export class AppComponent implements OnInit {
 
   public settingsModalOpened: boolean = false;
   public fetchingSettings: boolean = false;
-  public settings: Settings;
+  public settings: Map<string,string>;
 
   public accesscodes: string[] = [];
 
@@ -163,11 +162,11 @@ export class AppComponent implements OnInit {
     this.fetchingSettings = true;
     this.settingsService.get(true)
     .subscribe(
-      (a: Settings) => {
+      (a: Map<string,string>) => {
         this.settings = a;
         this.selectedTheme = availableThemes[0]; //Default to "Hobbyfarm Default Terminal" if no settings for theme are provided
         availableThemes.forEach(element => {
-          if(element.theme === a.terminal_theme){
+          if(element.theme === a.get("terminal_theme")){
             this.selectedTheme = element;
           }
         });
@@ -232,9 +231,9 @@ export class AppComponent implements OnInit {
 
   public doSaveSettings(){
     if(!this.settings){
-      this.settings = new Settings();
+      this.settings = new Map<string,string>();
     }
-    this.settings.terminal_theme = this.settingsForm.get('selected_theme').value.theme
+    this.settings.set("terminal_theme", this.settingsForm.get('selected_theme').value.theme);
     this.settingsService.set(this.settings);
 
     this.userService.updateSettings(this.settings)

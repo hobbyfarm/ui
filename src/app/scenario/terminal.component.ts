@@ -10,7 +10,6 @@ import { environment } from 'src/environments/environment';
 import { HostListener } from '@angular/core';
 import {availableThemes} from 'src/app/scenario/terminal-themes/themes';
 import { SettingsService } from '../services/settings.service';
-import { Settings } from '../Settings';
 
 @Component({
     selector: 'terminal',
@@ -86,8 +85,8 @@ export class TerminalComponent implements OnChanges, AfterViewInit {
         });
         this.settingsService.watch()
         .subscribe(
-            (a: Settings) => {
-              this.setTerminalTheme(a.terminal_theme);
+            (a: Map<string, string>) => {
+              this.setTerminalTheme(a.get("terminal_theme"));
             }
           )
         this.loadTerminalTheme();
@@ -192,8 +191,8 @@ export class TerminalComponent implements OnChanges, AfterViewInit {
 
     loadTerminalTheme(){
         this.settingsService.get().subscribe(
-            (a: Settings) => {
-              this.setTerminalTheme(a.terminal_theme);
+            (a: Map<string,string>) => {
+              this.setTerminalTheme(a.get("terminal_theme"));
             }
           )
     }
