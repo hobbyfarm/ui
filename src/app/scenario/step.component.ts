@@ -140,9 +140,16 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
             if (language.split(":")[0] == 'ctr') {
                 // generate a new ID
                 var id = ctr.generateId();
+                let maxCount = Number.POSITIVE_INFINITY;
                 ctr.setCode(id, code);
                 // split the language (ctr:target)
                 ctr.setTarget(id, language.split(":")[1]);
+
+                if(language.split(":").length > 2 && !isNaN(Number(language.split(":")[2]))){
+                    maxCount = Number(language.split(":")[2]);
+                }
+
+                ctr.setCount(id, maxCount)
 
                 return '<ctr ctrid="' + id + '"></ctr>'
             } else if (language.split(":")[0] == 'vminfo') {
