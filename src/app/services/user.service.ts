@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams, HttpErrorResponse } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
-import { switchMap, catchError } from 'rxjs/operators';
+import { switchMap, catchError, tap } from 'rxjs/operators';
 import { ServerResponse } from '../ServerResponse';
 import { from, of, throwError, BehaviorSubject } from 'rxjs';
 import { atou } from '../unicode';
@@ -48,22 +48,22 @@ export class UserService {
   public addAccessCode(a: string) {
     var params = new HttpParams()
     .set("access_code", a);
-    this._acModified.next(true);
     return this.http.post<ServerResponse>(environment.server + "/auth/accesscode", params)
     .pipe(
       catchError((e: HttpErrorResponse) => {
         return throwError(e.error);
-      })
+      }),
+      tap(()=>this._acModified.next(true))
     )
   }
 
   public deleteAccessCode(a: string) {
-    this._acModified.next(true);
     return this.http.delete<ServerResponse>(environment.server + "/auth/accesscode/" + a)
     .pipe(
       catchError((e: HttpErrorResponse) => {
         return throwError(e.error);
-      })
+      }),
+      tap(()=>this._acModified.next(true))
     )
   }
 

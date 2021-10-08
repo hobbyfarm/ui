@@ -9,8 +9,11 @@
   <div class="clr-row">
 
     <div class="clr-col-12">
-      <div *ngIf="!courses && !scenarios">
+      <div *ngIf="!courses && !scenarios && loadedScenarios && loadedCourses">
         No scenarios or courses found.
+      </div>
+      <div *ngIf="!loadedScenarios && !loadedCourses">
+        Loading scenarios...
       </div>
     </div>
 
