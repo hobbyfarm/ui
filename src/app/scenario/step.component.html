@@ -108,7 +108,7 @@
         Are you sure you want to finish?
     </h3>
     <div class="modal-body">
-        <p *ngIf="session.course; else no_course">
+        <p *ngIf="session.course && this.session.keep_course_vm; else no_course">
             Your VMs will be kept until they expire or the course is marked as "complete".
         </p>
         <ng-template #no_course>
