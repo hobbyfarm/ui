@@ -8,6 +8,8 @@ import { CodeExec } from './CodeExec';
 import { ShellService } from '../services/shell.service';
 import { environment } from 'src/environments/environment';
 import { HostListener } from '@angular/core';
+import {availableThemes} from 'src/app/scenario/terminal-themes/themes';
+import { SettingsService } from '../services/settings.service';
 
 @Component({
     selector: 'terminal',
@@ -35,10 +37,12 @@ export class TerminalComponent implements OnChanges, AfterViewInit {
     public firstTabChange: boolean = true;
     public isVisible: boolean = false;
     public mutationObserver: MutationObserver;
+    public terminal_theme: string = "default"
     constructor(
         public jwtHelper: JwtHelperService,
         public ctrService: CtrService,
-        public shellService: ShellService
+        public shellService: ShellService,
+        public settingsService: SettingsService
     ) {
     }
 
@@ -73,14 +77,19 @@ export class TerminalComponent implements OnChanges, AfterViewInit {
         const regExp: RegExp = /firefox|fxios/i;
         const isFirefox: boolean = regExp.test(navigator.userAgent.toLowerCase()) || typeof InstallTrigger !== 'undefined';
         this.term = new Terminal({
-            theme: {
-                background: '#292b2e'
-            },
+            theme: this.getTerminalTheme(this.terminal_theme),
             fontFamily: "monospace",
             fontSize: 16,
             letterSpacing: 1.1,
             rendererType: isFirefox ? 'dom' : 'canvas',
         });
+        this.settingsService.watch()
+        .subscribe(
+            (a: Map<string, string>) => {
+              this.setTerminalTheme(a.get("terminal_theme"));
+            }
+          )
+        this.loadTerminalTheme();
         this.attachAddon = new AttachAddon(this.socket);
         this.term.loadAddon(this.fitAddon)
         this.term.open(this.terminalDiv.nativeElement);
@@ -178,5 +187,29 @@ export class TerminalComponent implements OnChanges, AfterViewInit {
         this.mutationObserver = new MutationObserver(callback);
 
         this.mutationObserver.observe(this.terminalDiv.nativeElement.offsetParent, config);
+    }
+
+    loadTerminalTheme(){
+        this.settingsService.get().subscribe(
+            (a: Map<string,string>) => {
+              this.setTerminalTheme(a.get("terminal_theme"));
+            }
+          )
+    }
+
+    setTerminalTheme(theme: string){
+        this.terminal_theme = theme;
+        if(this.term){
+            this.term.setOption('theme', this.getTerminalTheme(this.terminal_theme));
+        }
+    }
+    
+    getTerminalTheme(chosenTheme: string) {
+        for (let theme of availableThemes) {
+            if (theme.theme === chosenTheme) {
+                return theme.styles;
+            }
+        } 
+        return availableThemes[0].styles;
     }
 }
