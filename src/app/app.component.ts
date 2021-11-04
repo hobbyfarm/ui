@@ -8,6 +8,8 @@ import { UserService } from './services/user.service';
 import { FormGroup, FormControl, Validators, ValidatorFn, ValidationErrors } from '@angular/forms';
 import { ServerResponse } from './ServerResponse';
 import { AppConfigService } from './app-config.service';
+import { SettingsService } from './services/settings.service';
+import { availableThemes } from './scenario/terminal-themes/themes';
 
 @Component({
   selector: 'app-root',
@@ -39,6 +41,10 @@ export class AppComponent implements OnInit {
 
   public accessCodeModalOpened: boolean = false;
 
+  public settingsModalOpened: boolean = false;
+  public fetchingSettings: boolean = false;
+  public settings: Map<string,string>;
+
   public accesscodes: string[] = [];
 
   public email: string = "";
@@ -48,11 +54,15 @@ export class AppComponent implements OnInit {
   public favicon = this.Config.favicon || "/assets/default/favicon.png";
   public logo    = this.Config.logo    || '/assets/default/logo.svg';
 
+  public availableThemes = availableThemes;
+  public selectedTheme = availableThemes[0];
+
   constructor(
     public helper: JwtHelperService,
     public userService: UserService,
     public router: Router,
     public config: AppConfigService,
+    public settingsService: SettingsService
   ) {
     this.config.getLogo(this.logo)
     .then((obj: string) => {
@@ -84,6 +94,7 @@ export class AppComponent implements OnInit {
   @ViewChild("aboutmodal", { static: true }) aboutModal: ClrModal;
   @ViewChild("changepasswordmodal", { static: true }) changePasswordModal: ClrModal;
   @ViewChild("accesscodemodal", {static: true}) accessCodeModal: ClrModal;
+  @ViewChild("settingsmodal", {static: true}) settingsModal: ClrModal;
 
   public passwordChangeForm: FormGroup = new FormGroup({
     'old_password': new FormControl(null, [
@@ -101,6 +112,12 @@ export class AppComponent implements OnInit {
     'access_code': new FormControl(null, [
       Validators.required,
       Validators.minLength(4)
+    ])
+  })
+
+  public settingsForm: FormGroup = new FormGroup({
+    'selected_theme': new FormControl(null, [
+      Validators.required
     ])
   })
 
@@ -139,6 +156,33 @@ export class AppComponent implements OnInit {
     )
     this.accessCodeModal.open();
   }
+
+  public openSettings() {
+    this.settingsForm.reset();
+    this.fetchingSettings = true;
+    this.settingsService.get(true)
+    .subscribe(
+      (a: Map<string,string>) => {
+        this.settings = a;
+        this.selectedTheme = availableThemes[0]; //Default to "Hobbyfarm Default Terminal" if no settings for theme are provided
+        availableThemes.forEach(element => {
+          if(element.theme === a.get("terminal_theme")){
+            this.selectedTheme = element;
+          }
+        });
+        this.settingsForm.setValue({
+          'selected_theme': this.selectedTheme
+        });
+        this.fetchingSettings = false;
+      }
+    );
+    this.settingsModal.open();
+  }
+
+  public isSelected(theme){
+    return theme.theme == this.selectedTheme.theme;
+  }
+
 
   public saveAccessCode() {
     var a = this.newAccessCodeForm.get("access_code").value;
@@ -183,6 +227,24 @@ export class AppComponent implements OnInit {
         setTimeout(() => this.accessCodeDangerClosed = true, 2000);
       }
     )
+  }
+
+  public doSaveSettings(){
+    if(!this.settings){
+      this.settings = new Map<string,string>();
+    }
+    this.settings.set("terminal_theme", this.settingsForm.get('selected_theme').value.theme);
+    this.settingsService.set(this.settings);
+
+    this.userService.updateSettings(this.settings)
+    .subscribe(
+      (s: ServerResponse) => {
+        this.settingsModalOpened = false
+      },
+      (s: ServerResponse) => {
+        setTimeout(() => this.settingsModalOpened = false, 2000);
+      }
+    ); 
   }
 
   public doChangePassword() {

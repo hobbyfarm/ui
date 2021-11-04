@@ -133,16 +133,60 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
         this.markdownService.renderer.code = (code: string, language: string, isEscaped: boolean) => {
             // block text
             if (language.length == 0) {
-                return "<pre style='padding: 5px 10px;overflow-x: auto;'>" + this.markdownService.compile(code) + "</pre>";
+                if (/~~~([\s\S]*?)~~~/.test(code)) {
+                    let content: string = "";
+                    const codeArray: string[] = code.split("~~~")
+                    codeArray.forEach((codePart: string, index: number) => {
+
+                        // First part inside a block outside nested blocks
+                        if (index == 0) {
+                            content += escape("\n" + codePart);
+                        
+                        // This case occurs outside nested blocks 
+                        } else if (index % 2 == 0) {
+                            content += escape(codePart).replace(/^\s/, '');
+
+                        // This case occurs when an odd number of tildes appear within a fenced block 
+                        // and therefore not all of them can be resolved.
+                        } else if (index % 2 != 0 && index == codeArray.length - 1) {
+                            content += escape("~~~" + codePart);
+
+                        // This case occurs inside nested blocks 
+                        } else if (codePart) {
+                            content += this.markdownService.compile("~~~" + codePart + "~~~");
+                        } else {
+                            content += "~~~~~~";
+                        }
+                    })
+                    return "<pre style='padding: 5px 10px;overflow-x: auto;'>" + content + "</pre>";
+                } else {
+                    // code block is empty or only contains white spaces
+                    if(!code.trim()) {
+                        return "<pre style='padding: 5px 10px;overflow-x: auto;'></pre>";
+                    }
+                    // Prevent leading blank lines from being removed on non-empty code blocks 
+                    else if (/^\n/.test(code)) {
+                        return "<pre style='padding: 5px 10px;overflow-x: auto;'>" + "\n" + escape(code) + "</pre>";
+                    } else {
+                        return "<pre style='padding: 5px 10px;overflow-x: auto;'>" + escape(code) + "</pre>";
+                    }
+                }
             }
 
             // determine what kind of special injection we need to do
             if (language.split(":")[0] == 'ctr') {
                 // generate a new ID
                 var id = ctr.generateId();
+                let maxCount = Number.POSITIVE_INFINITY;
                 ctr.setCode(id, code);
                 // split the language (ctr:target)
                 ctr.setTarget(id, language.split(":")[1]);
+
+                if(language.split(":").length > 2 && !isNaN(Number(language.split(":")[2]))){
+                    maxCount = Number(language.split(":")[2]);
+                }
+
+                ctr.setCount(id, maxCount)
 
                 return '<ctr ctrid="' + id + '"></ctr>'
             } else if (language.split(":")[0] == 'vminfo') {
@@ -157,11 +201,15 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
 
                 return `<vminfo id="${config.id}"></vminfo>`;
             } else if (language.split(":")[0] == 'hidden') {
-                return "<details>" +
+                return "<details style='margin: 10px 0px;'>" +
                     "<summary>" + language.split(":")[1] + "</summary>" +
                     this.markdownService.compile(code) +
                     "</details>";
-            } else {
+            } else if (language.split(":")[0] == 'glossary') {
+                return "<div class='glossary'>" + language.split(":")[1] +
+                    "<span class='glossary-content'>" + this.markdownService.compile(code) + 
+                    "</span></div>";
+            }else {
                 // highlighted code
                 return "<pre style='padding: 5px 10px;' class='language-" + language + "'>" +
                     "<code class='language-" + language + "'>" +
@@ -200,6 +248,10 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
                 out += ' title="' + title + '"';
             }
             return out;
+        }
+
+        this.markdownService.renderer.paragraph = (text: string) => {
+            return "<p style='margin-top: 0;'>" + text + "</p>\n";
         }
     }
 
