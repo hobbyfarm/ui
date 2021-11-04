@@ -18,6 +18,8 @@ import { ScenarioService } from './services/scenario.service';
 export class HomeComponent implements OnInit {
     public courses: Course[] = [];
     public scenarios: Scenario[] = [];
+    public loadedScenarios = false;
+    public loadedCourses = false;
     public showScenarioModal: boolean = false;
     public scenarioid: string;
     public courseid: string;
@@ -47,11 +49,19 @@ export class HomeComponent implements OnInit {
         this.courseService.list().subscribe(
             (c: Course[]) => {
                 this.courses = c;
+                this.loadedCourses = true;
+            },
+            (error: any)=>{
+                this.loadedCourses = false;
             }
         )
         this.scenarioService.list().subscribe(
             (s: Scenario[]) => {
                 this.scenarios = s;
+                this.loadedScenarios = true;
+            },
+            (error: any)=>{
+                this.loadedScenarios = false;
             }
         )
     }
