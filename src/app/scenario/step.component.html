@@ -110,6 +110,8 @@
     <div class="modal-body">
         <p *ngIf="session.course && this.session.keep_course_vm; else no_course">
             Your VMs will be kept until they expire or the course is marked as "complete".
+            <br>
+            Forcing the finish will immediately de-provision your resources. Any VMs that you are using will be wiped.
         </p>
         <ng-template #no_course>
             Finishing a scenario will immediately de-provision your resources. Any VMs that you are using will be wiped.
@@ -117,6 +119,9 @@
     </div>
     <div class="modal-footer">
         <button class="btn btn-outline" (click)="finishOpen = false">Cancel</button>
+        <div *nfIg="session.course && this.session.keep_course_vm" style="display: inline-block;">
+            <button class="btn btn-danger-outline" (click)="actuallyFinish(true)">Force</button>
+        </div>
         <button class="btn btn-danger-outline" (click)="actuallyFinish()">Finish</button>
     </div>
 </clr-modal>

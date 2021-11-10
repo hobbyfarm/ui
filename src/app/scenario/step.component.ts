@@ -473,8 +473,8 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
         this.finishOpen = true;
     }
 
-    actuallyFinish() {
-        if (this.session.course && this.session.keep_course_vm) {
+    actuallyFinish(force: boolean = false) {
+        if (this.session.course && this.session.keep_course_vm && !force) {
             this.router.navigateByUrl("/app/home");
         } else {
             this.http.put(environment.server + "/session/" + this.route.snapshot.paramMap.get("session") + "/finished", {})
