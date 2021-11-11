@@ -1,5 +1,4 @@
-import { Component, Input, OnInit, OnChanges, Output, EventEmitter } from "@angular/core";
-import { HttpClient } from '@angular/common/http';
+import { Component, Input, OnChanges, Output, EventEmitter } from "@angular/core";
 import { map, delay, retryWhen, concatMap } from 'rxjs/operators';
 import { from } from 'rxjs';
 import { VM } from '../VM';
@@ -20,22 +19,17 @@ export class VMClaimComponent implements OnChanges {
     @Output()
     ready: EventEmitter<string> = new EventEmitter(false);
 
-    public vms: Map<string, VM> = new Map();
+    private vms: Map<string, VM> = new Map();
 
     constructor(
-        public http: HttpClient,
-        public vmClaimService: VMClaimService,
-        public vmService: VMService
+        private vmClaimService: VMClaimService,
+        private vmService: VMService
     ) {
 
     }
 
     getVm(key: string) {
         return this.vms.get(key);
-    }
-
-    getVms() {
-        return this.vmclaim.vm.entries();
     }
 
     ngOnChanges() {

@@ -43,7 +43,7 @@ export class AppComponent implements OnInit {
 
   public settingsModalOpened: boolean = false;
   public fetchingSettings: boolean = false;
-  public settings: Map<string,string>;
+  private settings: Map<string,string>;
 
   public accesscodes: string[] = [];
 
@@ -51,18 +51,17 @@ export class AppComponent implements OnInit {
 
   private Config = this.config.getConfig();
   public title   = this.Config.title   || "Rancher's Hobby Farm";
-  public favicon = this.Config.favicon || "/assets/default/favicon.png";
-  public logo    = this.Config.logo    || '/assets/default/logo.svg';
+  private logo    = this.Config.logo    || '/assets/default/logo.svg';
 
   public availableThemes = availableThemes;
-  public selectedTheme = availableThemes[0];
+  private selectedTheme = availableThemes[0];
 
   constructor(
-    public helper: JwtHelperService,
-    public userService: UserService,
-    public router: Router,
-    public config: AppConfigService,
-    public settingsService: SettingsService
+    private helper: JwtHelperService,
+    private userService: UserService,
+    private router: Router,
+    private config: AppConfigService,
+    private settingsService: SettingsService
   ) {
     this.config.getLogo(this.logo)
     .then((obj: string) => {
@@ -179,11 +178,6 @@ export class AppComponent implements OnInit {
     this.settingsModal.open();
   }
 
-  public isSelected(theme){
-    return theme.theme == this.selectedTheme.theme;
-  }
-
-
   public saveAccessCode() {
     var a = this.newAccessCodeForm.get("access_code").value;
     this.userService.addAccessCode(a)
@@ -205,7 +199,7 @@ export class AppComponent implements OnInit {
     )
   }
 
-  public _removeAccessCode(a: string) {
+  private _removeAccessCode(a: string) {
     var acIndex = this.accesscodes.findIndex((v: string) => {
       return v == a;
     });

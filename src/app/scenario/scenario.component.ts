@@ -1,11 +1,9 @@
 import { Component, OnInit, Input, EventEmitter, Output } from '@angular/core';
 import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 import { Scenario } from './Scenario';
-import { Course } from '../course/course';
-import { HttpClient } from '@angular/common/http';
 import { concatMap, delay, switchMap } from 'rxjs/operators';
 import { Session } from '../Session';
-import { from, of, throwError } from 'rxjs';
+import { from } from 'rxjs';
 import { ScenarioService } from '../services/scenario.service';
 import { SessionService } from '../services/session.service';
 import { VMClaimService } from '../services/vmclaim.service';
@@ -32,27 +30,22 @@ export class ScenarioComponent implements OnInit {
     public unreadyclaims: string[] = [];
     public dynamicallyBinding: boolean = false;
 
-    public get session(): Session {
+    private get session(): Session {
         return this._session;
     }
 
-    public set session(s: Session) {
+    private set session(s: Session) {
         this._session = s;
         this.ssService.keepalive(s.id).subscribe(); // keepalive subscription
     }
 
     constructor(
-        public route: ActivatedRoute,
-        public http: HttpClient,
-        public router: Router,
-        public scenarioService: ScenarioService,
-        public ssService: SessionService,
-        public vmClaimService: VMClaimService
+        private route: ActivatedRoute,
+        private router: Router,
+        private scenarioService: ScenarioService,
+        private ssService: SessionService,
+        private vmClaimService: VMClaimService
     ) {
-    }
-
-    getVms(vmc: VMClaim) {
-        return Object.entries(vmc.vm);
     }
 
     ready(claimid: string) {

@@ -5,7 +5,7 @@ import { delay, retryWhen, switchMap, concatMap, filter } from 'rxjs/operators';
 import { SessionService } from '../services/session.service';
 import { VMClaimService } from '../services/vmclaim.service';
 import { Session } from '../Session';
-import { from, of, Observable } from 'rxjs';
+import { from, of } from 'rxjs';
 import { VMClaim } from '../VMClaim';
 import { VMClaimVM } from '../VMClaimVM';
 import { VMService } from '../services/vm.service';
@@ -20,21 +20,16 @@ import { VMInfoConfig } from '../VMInfoConfig';
     `,
 })
 export class VMInfoComponent implements OnMount {
-    public name: string = "";
-    public info: string = "";
-    public ss: string = "";
-    public id: string = "";
+    private id: string = "";
     public config: VMInfoConfig = new VMInfoConfig();
 
     public code: string = "";
 
-    public vm: VM = new VM();
-
     constructor(
-        public ssService: SessionService,
-        public vmClaimService: VMClaimService,
-        public vmService: VMService,
-        public vmInfoService: VMInfoService
+        private ssService: SessionService,
+        private vmClaimService: VMClaimService,
+        private vmService: VMService,
+        private vmInfoService: VMInfoService
     ) {
     }
 

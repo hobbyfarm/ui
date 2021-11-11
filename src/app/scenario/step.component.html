@@ -1,6 +1,6 @@
 <div class="split-container">
-    <as-split unit="percent" direction="horizontal" (dragEnd)="dragEnd($event)" #split="asSplit">
-        <as-split-area size="40" #area1="asSplitArea" class="split-area-1">
+    <as-split unit="percent" direction="horizontal" (dragEnd)="dragEnd()">
+        <as-split-area size="40" class="split-area-1">
             <div class="card" id="sidebar">
                 <div class="card-header">
                     <h3 id="scenario-name">{{ scenario.name | atob }}</h3>
@@ -62,7 +62,7 @@
                 </div>
             </div>
         </as-split-area>
-        <as-split-area size="60" #area2="asSplitArea" class="split-area-2">
+        <as-split-area size="60" class="split-area-2">
             <div id="terminal-column">
                 <clr-tabs>
                     <clr-tab *ngFor="let v of vmclaimvms | keyvalue" #tab>

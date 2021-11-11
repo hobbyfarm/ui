@@ -1,8 +1,8 @@
-import { Component, OnInit, ViewChildren, QueryList, ViewChild, Renderer2, ElementRef, AfterViewInit, OnDestroy } from "@angular/core";
+import { Component, OnInit, ViewChildren, QueryList, ViewChild, ElementRef, AfterViewInit, OnDestroy } from "@angular/core";
 import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 import { Step } from '../Step';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
-import { switchMap, concatMap, map, first, repeatWhen, delay, retryWhen, catchError, tap } from 'rxjs/operators';
+import { switchMap, concatMap, first, repeatWhen, delay, retryWhen } from 'rxjs/operators';
 import { TerminalComponent } from './terminal.component';
 import { ClrTabContent, ClrTab, ClrModal } from '@clr/angular';
 import { ServerResponse } from '../ServerResponse';
@@ -26,8 +26,6 @@ import { environment } from 'src/environments/environment';
 import { ShellService } from '../services/shell.service';
 import { atou } from '../unicode';
 import { escape } from 'lodash';
-import { SplitAreaDirective, SplitComponent } from "angular-split";
-
 
 @Component({
     templateUrl: 'step.component.html',
@@ -40,30 +38,23 @@ import { SplitAreaDirective, SplitComponent } from "angular-split";
 export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
     public scenario: Scenario = new Scenario();
     public step: Step = new Step();
-    public steps: string[] = [];
-    public progress = 0;
     public stepnumber: number = 0;
     public stepcontent: string = "";
-    public shellStatus: Map<string, string> = new Map();
-
-    public terminalActive: boolean = true;
-    public first: boolean = false;
+    private shellStatus: Map<string, string> = new Map();
 
     public finishOpen: boolean = false;
     public closeOpen: boolean = false;
 
-    public params: ParamMap;
+    private params: ParamMap;
 
     public session: Session = new Session();
     public sessionExpired: boolean = false;
     public vmclaimvms: Map<string, VMClaimVM> = new Map();
-    public vms: Map<string, VM> = new Map();
-
-    public text: string = "";
+    private vms: Map<string, VM> = new Map();
 
     public pauseOpen: boolean = false;
 
-    public pauseremaining = {
+    private pauseremaining = {
         "d": 0,
         "h": 0,
         "m": 0,
@@ -71,13 +62,6 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
     };
 
     public pauseLastUpdated: Date = new Date();
-
-    public sizes: { percent: { area1: number, area2: number } } = {
-        percent: {
-            area1: 40,
-            area2: 60
-        }
-    }
 
     public get pauseRemainingString() {
         var remaining = "";
@@ -104,31 +88,25 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
         return remaining;
     }
 
-    @ViewChildren('term') terms: QueryList<TerminalComponent> = new QueryList();
-    @ViewChildren('tabcontent') tabContents: QueryList<ClrTabContent> = new QueryList();
-    @ViewChildren('tab') tabs: QueryList<ClrTab> = new QueryList();
-    @ViewChild('markdown') markdownTemplate;
-    @ViewChild('pausemodal', { static: true }) pauseModal: ClrModal;
-    @ViewChild('contentdiv', { static: false }) contentDiv: ElementRef;
-    @ViewChild('split') split: SplitComponent;
-    @ViewChild('area1') area1: SplitAreaDirective;
-    @ViewChild('area2') area2: SplitAreaDirective;
+    @ViewChildren('term') private terms: QueryList<TerminalComponent> = new QueryList();
+    @ViewChildren('tabcontent') private tabContents: QueryList<ClrTabContent> = new QueryList();
+    @ViewChildren('tab') private tabs: QueryList<ClrTab> = new QueryList();
+    @ViewChild('pausemodal', { static: true }) private pauseModal: ClrModal;
+    @ViewChild('contentdiv', { static: false }) private contentDiv: ElementRef;
 
     constructor(
-        public route: ActivatedRoute,
-        public router: Router,
-        public http: HttpClient,
-        public markdownService: MarkdownService,
-        public renderer: Renderer2,
-        public elRef: ElementRef,
-        public ctr: CtrService,
-        public ssService: SessionService,
-        public scenarioService: ScenarioService,
-        public stepService: StepService,
-        public vmClaimService: VMClaimService,
-        public vmService: VMService,
-        public vmInfoService: VMInfoService,
-        public shellService: ShellService
+        private route: ActivatedRoute,
+        private router: Router,
+        private http: HttpClient,
+        private markdownService: MarkdownService,
+        private ctr: CtrService,
+        private ssService: SessionService,
+        private scenarioService: ScenarioService,
+        private stepService: StepService,
+        private vmClaimService: VMClaimService,
+        private vmService: VMService,
+        private vmInfoService: VMInfoService,
+        private shellService: ShellService
     ) {
         this.markdownService.renderer.code = (code: string, language: string, isEscaped: boolean) => {
             // block text
@@ -255,14 +233,6 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
         }
     }
 
-    getVmClaimVmKeys() {
-        return this.vmclaimvms.keys();
-    }
-
-    getVmClaimVm(key: string) {
-        return this.vmclaimvms.get(key);
-    }
-
     getVm(key: string): VM {
         return this.vms.get(key);
     }
@@ -275,7 +245,7 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
         return Math.floor(((this.stepnumber + 1) / (this.scenario.stepcount)) * 100);
     }
 
-    getAllReplacementTokens(content: string, replacementTokens: string[][]) {
+    private getAllReplacementTokens(content: string, replacementTokens: string[][]) {
         let tok = content.match(/\$\{vminfo:([^:]*):([^}]*)\}/);
         if (tok == null) { // didn't find anythning
             return replacementTokens;
@@ -289,7 +259,7 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
         }
     }
 
-    replaceTokens(content: string) {
+    private replaceTokens(content: string) {
         let tokens = this.getAllReplacementTokens(content, []);
         for (var i = 0; i < tokens.length; i++) {
             var vmname = tokens[i][1].toLowerCase();
@@ -429,7 +399,6 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     private _splitTime(t: string) {
-        var times: string[] = [];
         var timesegments = Object.keys(this.pauseremaining);
         timesegments.forEach((ts: string) => {
             if (t.split(ts).length > 1) {
@@ -527,33 +496,7 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
             )
     }
 
-    private replaceValue(text: string, token: string) {
-        var splitTok = token.substring(2, token.length - 1)
-        var name = splitTok.split(":")[1];
-        var item = splitTok.split(":")[2];
-        return this.ssService.get(this.route.snapshot.paramMap.get("session"))
-            .pipe(
-                switchMap((s: Session) => {
-                    return from(s.vm_claim);
-                }),
-                concatMap((claimid: string) => {
-                    return this.vmClaimService.get(claimid);
-                }),
-                concatMap((v: VMClaim) => {
-                    return of(v.vm.get(name.toLowerCase()));
-                }),
-                switchMap((v: VMClaimVM) => {
-                    return this.vmService.get(v.vm_id);
-                }),
-                map((v: VM) => {
-                    return text.replace(new RegExp(this.escapeRegExp(token), 'g'), v[item]);
-                })
-            )
-    }
-
-    public dragEnd({ sizes }: { gutterNum: number, sizes: Array<number> }) {
-        this.sizes.percent.area1 = sizes[0];
-        this.sizes.percent.area2 = sizes[1];
+    public dragEnd() {
         // For each tab...
         this.tabContents.forEach((t: ClrTabContent, i: number) => {
             // ... if the active tab is the same as itself ...
@@ -563,9 +506,5 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
                 this.terms.toArray()[i].resize();
             }
         });
-    }
-
-    escapeRegExp(string) {
-        return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); // $& means the whole matched string
     }
 }

@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { VMClaim } from '../VMClaim';
 import { HttpClient } from '@angular/common/http';
-import { of, Observable } from 'rxjs';
+import { Observable } from 'rxjs';
 import { ServerResponse } from '../ServerResponse';
 import { map, tap } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';

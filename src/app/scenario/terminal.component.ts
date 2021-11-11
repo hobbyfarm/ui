@@ -30,27 +30,23 @@ export class TerminalComponent implements OnChanges, AfterViewInit, OnDestroy {
     @Input()
     endpoint: string;
 
-    public term: Terminal;
-    public fitAddon: FitAddon = new FitAddon();
-    public attachAddon: AttachAddon;
-    public socket: WebSocket;
-    public dimensions: ITerminalDimensions;
-    public firstTabChange: boolean = true;
-    public isVisible: boolean = false;
+    private term: Terminal;
+    private fitAddon: FitAddon = new FitAddon();
+    private attachAddon: AttachAddon;
+    private socket: WebSocket;
+    private dimensions: ITerminalDimensions;
+    private firstTabChange: boolean = true;
+    private isVisible: boolean = false;
     public mutationObserver: MutationObserver;
     private subscription: Subscription
-    public terminal_theme: string = "default"
+    private terminal_theme: string = "default"
 
     constructor(
-        public jwtHelper: JwtHelperService,
-        public ctrService: CtrService,
-        public shellService: ShellService,
-        public settingsService: SettingsService
+        private jwtHelper: JwtHelperService,
+        private ctrService: CtrService,
+        private shellService: ShellService,
+        private settingsService: SettingsService
     ) {
-    }
-
-    public paste(code: string) {
-        this.term.write(code);
     }
 
     @ViewChild("terminal", { static: true }) terminalDiv: ElementRef;
@@ -66,7 +62,7 @@ export class TerminalComponent implements OnChanges, AfterViewInit, OnDestroy {
         }
     }
 
-    buildSocket() {
+    private buildSocket() {
         if (!this.endpoint.startsWith("wss://") && !this.endpoint.startsWith("ws://")) {
             if (environment.server.startsWith("https")) {
                 this.endpoint = "wss://" + this.endpoint
@@ -199,7 +195,7 @@ export class TerminalComponent implements OnChanges, AfterViewInit, OnDestroy {
         this.mutationObserver.observe(this.terminalDiv.nativeElement.offsetParent, config);
     }
 
-    loadTerminalTheme(){
+    private loadTerminalTheme(){
         this.settingsService.get().subscribe(
             (a: Map<string,string>) => {
               this.setTerminalTheme(a.get("terminal_theme"));
@@ -207,14 +203,14 @@ export class TerminalComponent implements OnChanges, AfterViewInit, OnDestroy {
           )
     }
 
-    setTerminalTheme(theme: string){
+    private setTerminalTheme(theme: string){
         this.terminal_theme = theme;
         if(this.term){
             this.term.setOption('theme', this.getTerminalTheme(this.terminal_theme));
         }
     }
     
-    getTerminalTheme(chosenTheme: string) {
+    private getTerminalTheme(chosenTheme: string) {
         for (let theme of availableThemes) {
             if (theme.theme === chosenTheme) {
                 return theme.styles;

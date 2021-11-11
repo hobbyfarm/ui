@@ -11,15 +11,15 @@ import { OnMount } from '../dynamic-html';
     styleUrls: ['ctr.component.scss']
 })
 export class CtrComponent implements OnMount {
-    public id: string = "";
+    private id: string = "";
 
     public code: string = "";
     public target: string = "";
-    public count: number = Number.POSITIVE_INFINITY;
+    private count: number = Number.POSITIVE_INFINITY;
     public countContent: string = "";
 
     constructor(
-        public ctrService: CtrService
+        private ctrService: CtrService
     ) {
     }
 
