@@ -218,18 +218,13 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
                     "</pre>";
             }
         }
+    }
 
-        // Overriding the default link renderer to provide >> target="_blank" <<
-        this.markdownService.renderer.link = (href: string, title: string, text: string) => {
-            if (href === null) {
-                return text;
-            }
-            let out = '<a href="' + escape(href) + '" target="_blank"';
-            if (title) {
-                out += ' title="' + title + '"';
-            }
-            out += '>' + text + '</a>';
-            return out;
+    handleStepContentClick(e: MouseEvent) {
+        // Open all links in a new window
+        if (e.target instanceof HTMLAnchorElement && e.target.href) {
+            e.preventDefault();
+            window.open(e.target.href, '_blank');
         }
     }
 

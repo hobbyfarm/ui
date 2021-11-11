@@ -36,6 +36,7 @@
                         <dynamic-html
                             id="step-content"
                             [content]="stepcontent | markdown"
+                            (click)="handleStepContentClick($event)"
                         ></dynamic-html>
                     </div>
                 </div>
