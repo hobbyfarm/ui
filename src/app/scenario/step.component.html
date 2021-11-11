@@ -33,7 +33,10 @@
                 <div class="card-block" #contentdiv>
                     <h4 class="card-title">{{this.stepnumber + 1}}. {{ step.title | atob }}</h4>
                     <div class="card-text">
-                        <dynamic-html [content]="stepcontent | markdown"></dynamic-html>
+                        <dynamic-html
+                            id="step-content"
+                            [content]="stepcontent | markdown"
+                        ></dynamic-html>
                     </div>
                 </div>
 
