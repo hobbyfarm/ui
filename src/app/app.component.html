@@ -146,7 +146,7 @@
               <clr-tab-content *clrIfActive="true">
                   <div *ngFor="let theme of availableThemes" class="radio-box-container clr-col-6">
                     <label class="theme-preview-radio-box clr-col-md-12">
-                      <input class="theme-preview-radio-button" type="radio" [value]="theme" name="terminal-theme" formControlName="selected_theme"/>
+                      <input class="theme-preview-radio-button" type="radio" [value]="theme" name="selected_theme" formControlName="selected_theme"/>
                       <div class="theme-preview-container">
                         <div class="theme-preview-terminal" [ngStyle]="{'background-color': theme.styles.background}">
                           <div class="theme-preview-terminal-text">
