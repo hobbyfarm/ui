@@ -1,11 +1,9 @@
-import { Component, ElementRef, ViewChild } from "@angular/core";
-import { HttpClient, HttpHeaders, HttpErrorResponse, HttpResponse, HttpParams } from '@angular/common/http';
+import { Component } from "@angular/core";
+import { HttpClient, HttpErrorResponse, HttpParams } from '@angular/common/http';
 import { Router } from '@angular/router';
-import { User } from './User';
 import { ServerResponse } from '../ServerResponse';
 import { environment } from 'src/environments/environment';
 import { AppConfigService } from '../app-config.service';
-import { DomSanitizer } from '@angular/platform-browser';
 
 @Component({
     templateUrl: './login.component.html',
@@ -33,7 +31,6 @@ export class LoginComponent {
         public http: HttpClient,
         public router: Router,
         public config: AppConfigService,
-        private _sanitizer: DomSanitizer
     ) {
         if (this.Config.login && this.Config.login.logo) {
             this.logo = this.Config.login.logo

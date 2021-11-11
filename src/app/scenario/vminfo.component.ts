@@ -5,7 +5,7 @@ import { delay, retryWhen, switchMap, concatMap, filter } from 'rxjs/operators';
 import { SessionService } from '../services/session.service';
 import { VMClaimService } from '../services/vmclaim.service';
 import { Session } from '../Session';
-import { from, of, Observable } from 'rxjs';
+import { from, of } from 'rxjs';
 import { VMClaim } from '../VMClaim';
 import { VMClaimVM } from '../VMClaimVM';
 import { VMService } from '../services/vm.service';

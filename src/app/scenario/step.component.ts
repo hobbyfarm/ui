@@ -2,7 +2,7 @@ import { Component, OnInit, ViewChildren, QueryList, ViewChild, Renderer2, Eleme
 import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 import { Step } from '../Step';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
-import { switchMap, concatMap, map, first, repeatWhen, delay, retryWhen, catchError, tap } from 'rxjs/operators';
+import { switchMap, concatMap, first, repeatWhen, delay, retryWhen } from 'rxjs/operators';
 import { TerminalComponent } from './terminal.component';
 import { ClrTabContent, ClrTab, ClrModal } from '@clr/angular';
 import { ServerResponse } from '../ServerResponse';
@@ -429,7 +429,6 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     private _splitTime(t: string) {
-        var times: string[] = [];
         var timesegments = Object.keys(this.pauseremaining);
         timesegments.forEach((ts: string) => {
             if (t.split(ts).length > 1) {
@@ -524,30 +523,6 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
                 (s: ServerResponse) => {
                     // something went wrong
                 }
-            )
-    }
-
-    private replaceValue(text: string, token: string) {
-        var splitTok = token.substring(2, token.length - 1)
-        var name = splitTok.split(":")[1];
-        var item = splitTok.split(":")[2];
-        return this.ssService.get(this.route.snapshot.paramMap.get("session"))
-            .pipe(
-                switchMap((s: Session) => {
-                    return from(s.vm_claim);
-                }),
-                concatMap((claimid: string) => {
-                    return this.vmClaimService.get(claimid);
-                }),
-                concatMap((v: VMClaim) => {
-                    return of(v.vm.get(name.toLowerCase()));
-                }),
-                switchMap((v: VMClaimVM) => {
-                    return this.vmService.get(v.vm_id);
-                }),
-                map((v: VM) => {
-                    return text.replace(new RegExp(this.escapeRegExp(token), 'g'), v[item]);
-                })
             )
     }
 

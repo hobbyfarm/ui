@@ -1,10 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { JwtHelperService } from '@auth0/angular-jwt';
 import { HttpClient } from '@angular/common/http';
-import { ServerResponse } from './ServerResponse';
 import { Scenario } from './scenario/Scenario';
 import { Course } from './course/course';
-import { environment } from 'src/environments/environment';
 import { UserService } from './services/user.service';
 import { CourseService } from './services/course.service';
 import { ScenarioService } from './services/scenario.service';
