@@ -6,7 +6,7 @@ RUN apk add python make g++
 WORKDIR /app
 
 COPY package*.json ./
-RUN npm install
+RUN npm ci
 
 COPY . .
 RUN npm run build:prod
