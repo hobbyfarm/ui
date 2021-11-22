@@ -17,7 +17,7 @@ import { SessionService } from '../services/session.service';
   templateUrl: 'scenariocard.component.html',
   styleUrls: ['./scenariocard.component.scss'],
 })
-export class ScenarioCard implements OnChanges {
+export class ScenarioCardComponent implements OnChanges {
   @Input()
   public scenarioid: string = '';
   @Input()
