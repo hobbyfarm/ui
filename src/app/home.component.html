@@ -61,7 +61,7 @@
               <scenario-card
                 [scenarioid]="sId"
                 [activeSession]="
-                  (!!activeSession && c.id != activeSession.course) ||
+                  (!!activeSession && c.id !== activeSession.course) ||
                   (!c.keep_vm && !!activeSession)
                 "
                 (scenarioModal)="toggleScenarioModal(sId, c.id)"

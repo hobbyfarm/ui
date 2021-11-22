@@ -28,7 +28,7 @@
                   placeholder="Password"
                 />
               </clr-input-container>
-              <div class="error" [class.active]="error.length != 0">
+              <div class="error" [class.active]="error.length > 0">
                 {{ error }}
               </div>
               <button type="submit" class="btn btn-primary" (click)="login()">
@@ -69,7 +69,7 @@
                 placeholder="Password"
               />
             </clr-input-container>
-            <div class="error" [class.active]="error.length != 0">
+            <div class="error" [class.active]="error.length > 0">
               {{ error }}
             </div>
             <button
