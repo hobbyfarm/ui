@@ -35,6 +35,10 @@ jobs:
         run: |
           docker build -f $dockerfile --tag $sdk_image --target sdk .
 
+      - name: Check Code Style
+        run: |
+          docker run $sdk_image npm run prettier:check
+
       - name: Build Release
         if: fromJSON(env.should_push_image)
         run: |
