@@ -23,34 +23,34 @@ import { first } from 'rxjs/operators';
   styleUrls: ['./app.component.css'],
 })
 export class AppComponent implements OnInit {
-  public logoutModalOpened: boolean = false;
-  public aboutModalOpened: boolean = false;
-  public changePasswordModalOpened: boolean = false;
+  public logoutModalOpened = false;
+  public aboutModalOpened = false;
+  public changePasswordModalOpened = false;
   public version: string;
 
-  public changePwDangerClosed: boolean = true;
-  public changePwSuccessClosed: boolean = true;
+  public changePwDangerClosed = true;
+  public changePwSuccessClosed = true;
 
-  public changePwDangerAlert: string = '';
-  public changePwSuccessAlert: string = '';
+  public changePwDangerAlert = '';
+  public changePwSuccessAlert = '';
 
-  public accessCodeDangerClosed: boolean = true;
-  public accessCodeSuccessClosed: boolean = true;
+  public accessCodeDangerClosed = true;
+  public accessCodeSuccessClosed = true;
 
-  public accessCodeDangerAlert: string = '';
-  public accessCodeSuccessAlert: string = '';
+  public accessCodeDangerAlert = '';
+  public accessCodeSuccessAlert = '';
 
-  public newAccessCode: boolean = false;
-  public fetchingAccessCodes: boolean = false;
+  public newAccessCode = false;
+  public fetchingAccessCodes = false;
 
-  public accessCodeModalOpened: boolean = false;
+  public accessCodeModalOpened = false;
 
-  public settingsModalOpened: boolean = false;
-  public fetchingSettings: boolean = false;
+  public settingsModalOpened = false;
+  public fetchingSettings = false;
 
   public accesscodes: string[] = [];
 
-  public email: string = '';
+  public email = '';
 
   private Config = this.config.getConfig();
   public title = this.Config.title || "Rancher's Hobby Farm";
@@ -72,7 +72,7 @@ export class AppComponent implements OnInit {
     });
 
     if (this.Config.favicon) {
-      var fi = <HTMLLinkElement>document.querySelector('#favicon');
+      const fi = <HTMLLinkElement>document.querySelector('#favicon');
       fi.href = this.Config.favicon;
     }
 
@@ -116,7 +116,7 @@ export class AppComponent implements OnInit {
   });
 
   ngOnInit() {
-    var tok = this.helper.decodeToken(this.helper.tokenGetter());
+    const tok = this.helper.decodeToken(this.helper.tokenGetter());
     this.email = tok.email;
   }
 
@@ -183,7 +183,7 @@ export class AppComponent implements OnInit {
   }
 
   private _removeAccessCode(a: string) {
-    var acIndex = this.accesscodes.findIndex((v: string) => {
+    const acIndex = this.accesscodes.findIndex((v: string) => {
       return v == a;
     });
     this.accesscodes.splice(acIndex, 1);

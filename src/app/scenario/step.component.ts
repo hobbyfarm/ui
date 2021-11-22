@@ -51,20 +51,20 @@ import { HfMarkdownRenderContext } from '../hf-markdown/hf-markdown.component';
 export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
   public scenario: Scenario = new Scenario();
   public step: Step = new Step();
-  public stepnumber: number = 0;
-  public stepcontent: string = '';
+  public stepnumber = 0;
+  public stepcontent = '';
   private shellStatus: Map<string, string> = new Map();
 
-  public finishOpen: boolean = false;
-  public closeOpen: boolean = false;
+  public finishOpen = false;
+  public closeOpen = false;
 
   public session: Session = new Session();
-  public sessionExpired: boolean = false;
+  public sessionExpired = false;
   public vms: Map<string, VM> = new Map();
 
   mdContext: HfMarkdownRenderContext = { vmInfo: {} };
 
-  public pauseOpen: boolean = false;
+  public pauseOpen = false;
 
   public pauseLastUpdated: Date = new Date();
   public pauseRemainingString = '';
@@ -263,7 +263,7 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
     this.finishOpen = true;
   }
 
-  actuallyFinish(force: boolean = false) {
+  actuallyFinish(force = false) {
     if (this.shouldKeepVmOnFinish && !force) {
       this.router.navigateByUrl('/app/home');
     } else {

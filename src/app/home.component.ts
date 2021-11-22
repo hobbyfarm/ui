@@ -17,7 +17,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   public scenarios: Scenario[] = [];
   public loadedScenarios = false;
   public loadedCourses = false;
-  public showScenarioModal: boolean = false;
+  public showScenarioModal = false;
   public scenarioid: string;
   public courseid: string;
   public activeSession?: Progress;

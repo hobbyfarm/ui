@@ -42,8 +42,8 @@ export class TerminalComponent implements OnChanges, AfterViewInit, OnDestroy {
   private attachAddon: AttachAddon;
   private socket: WebSocket;
   private dimensions: ITerminalDimensions;
-  private firstTabChange: boolean = true;
-  private isVisible: boolean = false;
+  private firstTabChange = true;
+  private isVisible = false;
   public mutationObserver: MutationObserver;
   private subscription: Subscription;
 
@@ -64,8 +64,8 @@ export class TerminalComponent implements OnChanges, AfterViewInit, OnDestroy {
       this.socket.readyState == WebSocket.OPEN
     ) {
       this.dimensions = this.fitAddon.proposeDimensions();
-      let height = this.dimensions.rows;
-      let width = this.dimensions.cols;
+      const height = this.dimensions.rows;
+      const width = this.dimensions.cols;
       this.socket.send(`\u001b[8;${height};${width}t`);
       this.fitAddon.fit();
     }
@@ -91,7 +91,7 @@ export class TerminalComponent implements OnChanges, AfterViewInit, OnDestroy {
     );
 
     // Check if current browser is firefox by useragent and use "duck-typing" as a fallback.
-    const regExp: RegExp = /firefox|fxios/i;
+    const regExp = /firefox|fxios/i;
     const isFirefox: boolean =
       regExp.test(navigator.userAgent.toLowerCase()) ||
       'InstallTrigger' in window;
@@ -135,7 +135,7 @@ export class TerminalComponent implements OnChanges, AfterViewInit, OnDestroy {
           // if the code exec is target at us,execute it
           if (c.target.toLowerCase() == this.vmname.toLowerCase()) {
             // break up the code by lines
-            var codeArray: string[] = c.code.split('\n');
+            const codeArray: string[] = c.code.split('\n');
             // drop each line
             codeArray.forEach((s: string) => {
               // this.term.writeln(s)

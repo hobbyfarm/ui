@@ -23,7 +23,7 @@ export class ProgressService {
     return this.bh.asObservable();
   }
 
-  public list(force: boolean = false) {
+  public list(force = false) {
     if (!force && this.fetchedList) {
       return of(this.cachedProgressList);
     } else {
@@ -54,7 +54,7 @@ export class ProgressService {
   }
 
   public update(session: string, step: number) {
-    let body = new HttpParams().set('step', step.toString());
+    const body = new HttpParams().set('step', step.toString());
 
     return this.garg.post('/update/' + session, body);
   }

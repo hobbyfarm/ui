@@ -44,7 +44,7 @@ export class UserService {
   }
 
   public changepassword(oldPassword: string, newPassword: string) {
-    var params = new HttpParams()
+    const params = new HttpParams()
       .set('old_password', oldPassword)
       .set('new_password', newPassword);
 
@@ -65,7 +65,7 @@ export class UserService {
   }
 
   public addAccessCode(a: string) {
-    var params = new HttpParams().set('access_code', a);
+    const params = new HttpParams().set('access_code', a);
     return this.garg.post('/accesscode', params).pipe(
       catchError((e: HttpErrorResponse) => {
         return throwError(e.error);

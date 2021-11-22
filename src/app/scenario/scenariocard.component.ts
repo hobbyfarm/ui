@@ -19,13 +19,13 @@ import { SessionService } from '../services/session.service';
 })
 export class ScenarioCardComponent implements OnChanges {
   @Input()
-  public scenarioid: string = '';
+  public scenarioid = '';
   @Input()
-  public activeSession: boolean = false;
+  public activeSession = false;
   @Input()
   public progress?: Progress;
 
-  public terminated: boolean = false;
+  public terminated = false;
 
   @Output()
   scenarioModal = new EventEmitter();

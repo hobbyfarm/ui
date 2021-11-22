@@ -14,11 +14,11 @@ import { CtrService } from './ctr.service';
   styleUrls: ['ctr.component.scss'],
 })
 export class CtrComponent implements OnInit {
-  @Input() target: string = '';
+  @Input() target = '';
   @Input() count: number = Number.POSITIVE_INFINITY;
   @ViewChild('code') code: ElementRef<HTMLElement>;
 
-  public countContent: string = '';
+  public countContent = '';
 
   constructor(private ctrService: CtrService) {}
 
@@ -40,8 +40,8 @@ export class CtrComponent implements OnInit {
   }
 
   private updateCount() {
-    let clicks = this.count == 1 ? 'click' : 'clicks';
-    let content = `(${this.count} ${clicks} left)`;
+    const clicks = this.count == 1 ? 'click' : 'clicks';
+    const content = `(${this.count} ${clicks} left)`;
     this.countContent = content;
   }
 }

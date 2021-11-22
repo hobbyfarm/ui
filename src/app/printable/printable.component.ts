@@ -10,7 +10,7 @@ import { ScenarioService } from '../services/scenario.service';
   styleUrls: ['./printable.component.scss'],
 })
 export class PrintableComponent implements OnInit, AfterViewChecked {
-  public scenario: string = '';
+  public scenario = '';
 
   constructor(
     public route: ActivatedRoute,
