@@ -9,7 +9,7 @@ import { VMClaimService } from '../services/vmclaim.service';
 import { VMClaim } from '../VMClaim';
 
 @Component({
-  selector: 'scenario-component',
+  selector: 'app-scenario',
   templateUrl: './scenario.component.html',
 })
 export class ScenarioComponent implements OnInit {

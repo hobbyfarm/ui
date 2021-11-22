@@ -4,8 +4,8 @@ import { AppConfigService } from '../app-config.service';
 import { UserService } from '../services/user.service';
 
 @Component({
+  selector: 'app-login',
   templateUrl: './login.component.html',
-  selector: 'login',
   styleUrls: ['./login.component.css'],
 })
 export class LoginComponent {

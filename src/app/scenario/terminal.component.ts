@@ -22,7 +22,7 @@ import { themes } from './terminal-themes/themes';
 import { SettingsService } from '../services/settings.service';
 
 @Component({
-  selector: 'terminal',
+  selector: 'app-terminal',
   templateUrl: './terminal.component.html',
   styleUrls: ['terminal.component.scss'],
   encapsulation: ViewEncapsulation.None,

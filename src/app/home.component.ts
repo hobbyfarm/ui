@@ -8,7 +8,7 @@ import { ProgressService } from './services/progress.service';
 import { Progress } from './Progress';
 
 @Component({
-  selector: 'home-component',
+  selector: 'app-home',
   templateUrl: 'home.component.html',
   styleUrls: ['home.component.scss'],
 })

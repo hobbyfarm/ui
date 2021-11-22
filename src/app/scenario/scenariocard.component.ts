@@ -13,8 +13,8 @@ import { ScenarioService } from '../services/scenario.service';
 import { SessionService } from '../services/session.service';
 
 @Component({
+  selector: 'app-scenario-card',
   templateUrl: 'scenariocard.component.html',
-  selector: 'scenario-card',
   styleUrls: ['./scenariocard.component.scss'],
 })
 export class ScenarioCard implements OnChanges {

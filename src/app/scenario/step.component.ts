@@ -44,8 +44,8 @@ import { ProgressService } from '../services/progress.service';
 import { HfMarkdownRenderContext } from '../hf-markdown/hf-markdown.component';
 
 @Component({
+  selector: 'app-step',
   templateUrl: 'step.component.html',
-  selector: 'step-component',
   styleUrls: ['step.component.scss'],
 })
 export class StepComponent implements OnInit, AfterViewInit, OnDestroy {

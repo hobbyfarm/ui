@@ -2,6 +2,7 @@ import { Component, ElementRef, Input, OnInit, ViewChild } from '@angular/core';
 import { CtrService } from './ctr.service';
 
 @Component({
+  // eslint-disable-next-line @angular-eslint/component-selector
   selector: 'ctr',
   template: `
     <pre (click)="ctr()" #code><ng-content></ng-content></pre>
