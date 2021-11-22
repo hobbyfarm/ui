@@ -5,12 +5,7 @@ import { ClrModal } from '@clr/angular';
 import { Router } from '@angular/router';
 import { version } from 'src/environments/version';
 import { UserService } from './services/user.service';
-import {
-  FormGroup,
-  FormControl,
-  Validators,
-  ValidatorFn,
-} from '@angular/forms';
+import { FormGroup, FormControl, Validators } from '@angular/forms';
 import { ServerResponse } from './ServerResponse';
 import { AppConfigService } from './app-config.service';
 import { SettingsService } from './services/settings.service';
@@ -83,11 +78,6 @@ export class AppComponent implements OnInit {
     }
   }
 
-  public matchedPasswordValidator: ValidatorFn = (control) => {
-    const { new_password1: pw1, new_password1: pw2 } = control.value;
-    return pw1 && pw1 == pw2 ? null : { passwordMismatch: true };
-  };
-
   @ViewChild('logoutmodal', { static: true }) logoutModal: ClrModal;
   @ViewChild('aboutmodal', { static: true }) aboutModal: ClrModal;
   @ViewChild('changepasswordmodal', { static: true })
@@ -101,7 +91,10 @@ export class AppComponent implements OnInit {
       new_password1: new FormControl(null, [Validators.required]),
       new_password2: new FormControl(null, [Validators.required]),
     },
-    { validators: this.matchedPasswordValidator },
+    {
+      validators: ({ value: { new_password1: pw1, new_password1: pw2 } }) =>
+        pw1 && pw1 == pw2 ? null : { passwordMismatch: true },
+    },
   );
 
   public newAccessCodeForm: FormGroup = new FormGroup({

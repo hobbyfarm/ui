@@ -47,14 +47,14 @@ export class TerminalComponent implements OnChanges, AfterViewInit, OnDestroy {
   public mutationObserver: MutationObserver;
   private subscription: Subscription;
 
+  @ViewChild('terminal', { static: true }) terminalDiv: ElementRef;
+
   constructor(
     private jwtHelper: JwtHelperService,
     private ctrService: CtrService,
     private shellService: ShellService,
     private settingsService: SettingsService,
   ) {}
-
-  @ViewChild('terminal', { static: true }) terminalDiv: ElementRef;
 
   @HostListener('window:resize')
   public resize() {
