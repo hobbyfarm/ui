@@ -214,6 +214,10 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
         return this.shellStatus.get(key);
     }
 
+    get isLastStepActive() {
+        return this.stepnumber + 1 === this.scenario.stepcount;
+    }
+
     getProgress() {
         return Math.floor(((this.stepnumber + 1) / (this.scenario.stepcount)) * 100);
     }
