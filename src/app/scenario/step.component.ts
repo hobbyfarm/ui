@@ -2,7 +2,7 @@ import { Component, OnInit, ViewChildren, QueryList, ViewChild, ElementRef, Afte
 import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 import { Step } from '../Step';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
-import { switchMap, concatMap, first, repeatWhen, delay, retryWhen } from 'rxjs/operators';
+import { switchMap, concatMap, first, repeatWhen, delay, retryWhen, tap } from 'rxjs/operators';
 import { TerminalComponent } from './terminal.component';
 import { ClrTabContent, ClrTab, ClrModal } from '@clr/angular';
 import { ServerResponse } from '../ServerResponse';
@@ -44,8 +44,6 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
 
     public finishOpen: boolean = false;
     public closeOpen: boolean = false;
-
-    private params: ParamMap;
 
     public session: Session = new Session();
     public sessionExpired: boolean = false;
@@ -237,7 +235,6 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
             .pipe(
                 first(),
                 switchMap((p: ParamMap) => {
-                    this.params = p;
                     this.stepnumber = +p.get("step");
                     return this.ssService.get(p.get("session"));
                 }),
@@ -245,8 +242,11 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
                     this.session = s;
                     return this.scenarioService.get(s.scenario);
                 }),
-                switchMap((s: Scenario) => {
+                tap((s: Scenario) => {
                     this.scenario = s;
+                    this._loadStep();
+                }),
+                switchMap(() => {
                     return from(this.session.vm_claim);
                 }),
                 concatMap((v: string) => {
@@ -262,21 +262,9 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
                 concatMap((v: VMClaimVM) => {
                     return this.vmService.get(v.vm_id);
                 }),
-                switchMap((v: VM) => {
-                    this.vms.set(v.id, v);
-                    return this.stepService.get(this.session.scenario, +this.params.get("step"));
-                }),
-                switchMap((s: Step) => {
-                    this.step = s;
-
-                    var rawcontent = atou(s.content);
-                    return of(this.replaceTokens(rawcontent));
-                }),
-            ).subscribe(
-                (s: string) => {
-                    this.stepcontent = s;
-                }
-            )
+            ).subscribe((v: VM) => {
+                this.vms.set(v.id, v);
+            });
 
         // setup keepalive
         this.ssService.keepalive(this.route.snapshot.paramMap.get("session"))
