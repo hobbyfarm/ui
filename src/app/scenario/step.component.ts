@@ -360,18 +360,10 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
 
     private _loadStep() {
         this.stepService.get(this.scenario.id, this.stepnumber)
-            .pipe(
-                switchMap((s: Step) => {
-                    this.step = s;
-
-                    var rawcontent = atou(s.content);
-                    return of(this.replaceTokens(rawcontent));
-                }),
-            ).subscribe(
-                (s: string) => {
-                    this.stepcontent = s;
-                }
-            )
+            .subscribe((s: Step) => {
+                this.step = s;
+                this.stepcontent = this.replaceTokens(atou(s.content));
+            });
     }
 
     goPrevious() {
