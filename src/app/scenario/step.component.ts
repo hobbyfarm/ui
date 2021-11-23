@@ -222,36 +222,14 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
         return Math.floor(((this.stepnumber + 1) / (this.scenario.stepcount)) * 100);
     }
 
-    private getAllReplacementTokens(content: string, replacementTokens: string[][]) {
-        let tok = content.match(/\$\{vminfo:([^:]*):([^}]*)\}/);
-        if (tok == null) { // didn't find anythning
-            return replacementTokens;
-        } else {
-            if (tok.length == 3) {
-                // valid matches are len=3
-                // found something, add it
-                replacementTokens.push([tok[0], tok[1], tok[2]]) // token, vm, property
-            }
-            return this.getAllReplacementTokens(content.substring(tok.index + tok[0].length), replacementTokens)
-        }
-    }
-
     private replaceTokens(content: string) {
-        let tokens = this.getAllReplacementTokens(content, []);
-        for (var i = 0; i < tokens.length; i++) {
-            var vmname = tokens[i][1].toLowerCase();
-            // get the vm and property
-            if (!this.vmclaimvms.has(vmname)) {
-                continue; // no valid VM
-            }
-
-            if (!this.vms.has(this.vmclaimvms.get(vmname).vm_id)) {
-                continue; // no valid VM
-            }
-            content = content.replace(tokens[i][0], this.vms.get(this.vmclaimvms.get(vmname).vm_id)[tokens[i][2]]);
-        }
-
-        return content;
+        return content.replace(
+            /\$\{vminfo:([^:]*):([^}]*)\}/g,
+            (match, vmName, propName) => {
+                const vmId = this.vmclaimvms.get(vmName.toLowerCase())?.vm_id;
+                return this.vms.get(vmId)?.[propName] ?? match;
+            },
+        );
     }
 
     ngOnInit() {
