@@ -474,7 +474,7 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     actuallyFinish(force: boolean = false) {
-        if (this.session.course && this.session.keep_course_vm && !force) {
+        if (this.shouldKeepVmOnFinish && !force) {
             this.router.navigateByUrl("/app/home");
         } else {
             this.http.put(environment.server + "/session/" + this.route.snapshot.paramMap.get("session") + "/finished", {})
@@ -485,6 +485,10 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
                 )
         }
 
+    }
+
+    get shouldKeepVmOnFinish() {
+      return this.session.course && this.session.keep_course_vm;
     }
 
     goClose() {
