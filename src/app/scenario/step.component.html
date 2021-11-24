@@ -119,7 +119,7 @@
     </div>
     <div class="modal-footer">
         <button class="btn btn-outline" (click)="finishOpen = false">Cancel</button>
-        <div *nfIg="shouldKeepVmOnFinish" style="display: inline-block;">
+        <div *ngIf="shouldKeepVmOnFinish" style="display: inline-block;">
             <button class="btn btn-danger-outline" (click)="actuallyFinish(true)">Force</button>
         </div>
         <button class="btn btn-danger-outline" (click)="actuallyFinish()">Finish</button>
