@@ -50,8 +50,8 @@ export class TerminalComponent implements OnChanges, AfterViewInit, OnDestroy {
 
     @ViewChild("terminal", { static: true }) terminalDiv: ElementRef;
 
-    @HostListener('window:resize', ['$event'])
-    public resize(event?) {
+    @HostListener('window:resize')
+    public resize() {
         if (this.isVisible && this.socket && this.socket.readyState == WebSocket.OPEN) {
             this.dimensions = this.fitAddon.proposeDimensions()
             let height = this.dimensions.rows
