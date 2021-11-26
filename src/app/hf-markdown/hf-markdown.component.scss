@@ -1,0 +1,29 @@
+// Styles for the rendered markdown
+.hf-md-content ::ng-deep {
+  p {
+    margin: 0;
+
+    code {
+      display: inline-block;
+      padding: 1px 10px 2px 10px;
+      font-weight: bold;
+      color: #039be5;
+      background-color: #ddd;
+      border-radius: 10px;
+    }
+  }
+
+  pre {
+    padding: 5px 10px;
+    overflow-x: auto;
+  }
+
+  details {
+    margin: 10px 0;
+  }
+
+  img {
+    width: 100%;
+    height: auto;
+  }
+}
