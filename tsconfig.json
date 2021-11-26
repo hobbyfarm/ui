@@ -12,7 +12,6 @@
     "strictNullChecks": false,
     "strictFunctionTypes": false,
     "strictPropertyInitialization": false,
-    "noImplicitAny": false,
     // end strict mode WIP
 
     "noImplicitReturns": true,
