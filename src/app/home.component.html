@@ -12,9 +12,8 @@
         <div class="clr-col-12 clr-col-sm-6 clr-col-md-4 clr-col-lg-3">
           <scenario-card
             [scenarioid]="activeSession.scenario"
-            [courseid]="activeSession.course"
             [progress]="activeSession"
-            (scenarioModal)="toggleScenarioModal($event)"
+            (scenarioModal)="toggleScenarioModal(activeSession.scenario)"
           ></scenario-card>
         </div>
       </ng-container>
@@ -44,7 +43,7 @@
           [scenarioid]="s.id"
           [activeSession]="!!activeSession"
           [printable]="s.printable"
-          (scenarioModal)="toggleScenarioModal($event)"
+          (scenarioModal)="toggleScenarioModal(s.id)"
         ></scenario-card>
       </div>
     </ng-container>
@@ -62,9 +61,8 @@
             <div class="clr-col-12 clr-col-sm-6 clr-col-md-4 clr-col-lg-3" *ngFor="let sId of c?.scenarios">
               <scenario-card
                 [scenarioid]="sId"
-                [courseid]="c.id"
                 [activeSession]="!!activeSession && c.id != activeSession.course || !c.keep_vm && !!activeSession"
-                (scenarioModal)="toggleScenarioModal($event)"
+                (scenarioModal)="toggleScenarioModal(sId, c.id)"
               ></scenario-card>
             </div>
           </ng-container>
@@ -89,5 +87,5 @@
   [scenarioid]="scenarioid"
   [courseid]="courseid"
   [showScenarioModal]="showScenarioModal"
-  (scenarioModal)="toggleScenarioModal($event)"
+  (scenarioModal)="toggleScenarioModal()"
 ></scenario-component>
