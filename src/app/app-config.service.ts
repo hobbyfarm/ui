@@ -1,14 +1,24 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 
+export interface Config {
+  title: string;
+  favicon: string;
+  login: {
+    logo: string;
+    background: string;
+  };
+  logo: string;
+}
+
 @Injectable()
 export class AppConfigService {
-  private appConfig;
+  private appConfig: Config;
 
   constructor(private http: HttpClient) { }
 
   loadAppConfig() {
-    return this.http.get('/config.json')
+    return this.http.get<Config>('/config.json')
       .toPromise()
       .then(data => {
         this.appConfig = data;
