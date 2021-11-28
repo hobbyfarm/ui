@@ -1,8 +1,6 @@
 import { Component, Input } from '@angular/core';
 import { MarkdownService } from 'ngx-markdown';
 import { CtrService } from '../scenario/ctr.service';
-import { VMInfoService } from '../scenario/vminfo.service';
-import { VMInfoConfig } from '../VMInfoConfig';
 
 // Replacement for lodash's escape
 const escape = (s: string) =>
@@ -24,7 +22,6 @@ export class HfMarkdownComponent {
 
   constructor(
     public ctrService: CtrService,
-    public vmInfoService: VMInfoService,
     public markdownService: MarkdownService
   ) {
     this.markdownService.renderer.code = (code: string, language: string) => {
@@ -60,16 +57,13 @@ export class HfMarkdownComponent {
     },
 
     vminfo(code: string, name: string, info: string, mode: string) {
-      const config = new VMInfoConfig();
-      config.id = this.vmInfoService.generateId();
-      config.name = name;
-      config.info = info;
-      config.ss = this.sessionId;
-      config.mode = mode;
-      config.code = code;
-      this.vmInfoService.setConfig(config);
-
-      return `<vminfo id="${config.id}"></vminfo>`;
+      return `<vminfo
+        sessionId="${this.sessionId}"
+        name="${name}"
+        info="${info}"
+        mode="${mode}"
+        template="${code}"
+      ></vminfo>`;
     },
 
     hidden(code: string, summary: string) {

@@ -24,7 +24,6 @@ import { DynamicHooksModule } from 'ngx-dynamic-hooks';
 import { CtrComponent } from './scenario/ctr.component';
 import { VMInfoComponent } from './scenario/vminfo.component';
 import { CtrService } from './scenario/ctr.service';
-import { VMInfoService } from './scenario/vminfo.service';
 import { ScenarioService } from './services/scenario.service';
 import { CourseService } from './services/course.service';
 import { SettingsService } from './services/settings.service';
@@ -109,7 +108,6 @@ export function jwtOptionsFactory() {
     AppComponent,
     AuthGuard,
     CtrService,
-    VMInfoService,
     CourseService,
     SettingsService,
     ScenarioService,

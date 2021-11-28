@@ -1,6 +1,6 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { VM } from '../VM';
-import { delay, retryWhen, switchMap, concatMap, filter } from 'rxjs/operators';
+import { delay, retryWhen, switchMap, concatMap } from 'rxjs/operators';
 import { SessionService } from '../services/session.service';
 import { VMClaimService } from '../services/vmclaim.service';
 import { Session } from '../Session';
@@ -8,20 +8,20 @@ import { from, of } from 'rxjs';
 import { VMClaim } from '../VMClaim';
 import { VMClaimVM } from '../VMClaimVM';
 import { VMService } from '../services/vm.service';
-import { VMInfoService } from './vminfo.service';
-import { VMInfoConfig } from '../VMInfoConfig';
 
 @Component({
     selector: 'vminfo',
     template: `
-    <pre *ngIf="config.mode != 'inline'">{{code}}</pre>
-    <a *ngIf="config.mode == 'link'" [href]="code">{{code}}<ng-container>
+    <pre *ngIf="mode != 'inline'">{{code}}</pre>
+    <a *ngIf="mode == 'link'" [href]="code">{{code}}<ng-container>
     `,
 })
 export class VMInfoComponent implements OnInit {
-    @Input() id: string = "";
-
-    public config: VMInfoConfig = new VMInfoConfig();
+    @Input() sessionId: string = "";
+    @Input() name: string = "";
+    @Input() info: string = "";
+    @Input() mode: string = "";
+    @Input() template: string = "";
 
     public code: string = "";
 
@@ -29,22 +29,12 @@ export class VMInfoComponent implements OnInit {
         private ssService: SessionService,
         private vmClaimService: VMClaimService,
         private vmService: VMService,
-        private vmInfoService: VMInfoService
     ) {
     }
 
     public ngOnInit() {
-        this.vmInfoService.getConfigStream()
+        this.ssService.get(this.sessionId)
             .pipe(
-                filter((v: VMInfoConfig) => {
-                    return v.id == this.id;
-                }),
-                switchMap((v: VMInfoConfig) => {
-                    if (v.id == this.id) {
-                        this.config = v;
-                        return this.ssService.get(v.ss);
-                    }
-                }),
                 retryWhen(obs => {
                     return obs.pipe(
                         delay(3000)
@@ -57,14 +47,14 @@ export class VMInfoComponent implements OnInit {
                     return this.vmClaimService.get(claimid);
                 }),
                 concatMap((v: VMClaim) => {
-                    return of(v.vm.get(this.config.name.toLowerCase()));
+                    return of(v.vm.get(this.name.toLowerCase()));
                 }),
                 switchMap((v: VMClaimVM) => {
                     return this.vmService.get(v.vm_id);
                 })
             ).subscribe(
                 (v: VM) => {
-                    this.code = this.config.code.replace('${val}', v[this.config.info])
+                    this.code = this.template.replace('${val}', v[this.info])
                 }
             )
     }
