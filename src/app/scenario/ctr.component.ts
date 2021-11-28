@@ -10,11 +10,10 @@ import { CtrService } from './ctr.service';
     styleUrls: ['ctr.component.scss']
 })
 export class CtrComponent implements OnInit {
-    @Input('ctrid') id: string = "";
+    @Input() code: string = "";
+    @Input() target: string = "";
+    @Input() count: number = Number.POSITIVE_INFINITY;
 
-    public code: string = "";
-    public target: string = "";
-    private count: number = Number.POSITIVE_INFINITY;
     public countContent: string = "";
 
     constructor(
@@ -23,9 +22,6 @@ export class CtrComponent implements OnInit {
     }
 
     public ngOnInit() {
-        this.code = this.ctrService.getCode(this.id);
-        this.target = this.ctrService.getTarget(this.id);
-        this.count = this.ctrService.getCount(this.id);
         if(this.count != Number.POSITIVE_INFINITY){
             this.updateCount();
         }

@@ -1,6 +1,5 @@
 import { Component, Input } from '@angular/core';
 import { MarkdownService } from 'ngx-markdown';
-import { CtrService } from '../scenario/ctr.service';
 
 // Replacement for lodash's escape
 const escape = (s: string) =>
@@ -21,7 +20,6 @@ export class HfMarkdownComponent {
   @Input() sessionId: string;
 
   constructor(
-    public ctrService: CtrService,
     public markdownService: MarkdownService
   ) {
     this.markdownService.renderer.code = (code: string, language: string) => {
@@ -43,17 +41,12 @@ export class HfMarkdownComponent {
     [tag: string]: (this: HfMarkdownComponent, code: string, ...args: string[]) => string;
   } = {
     ctr(code: string, target: string, countStr: string) {
-      var id = this.ctrService.generateId();
-      this.ctrService.setCode(id, code);
-      this.ctrService.setTarget(id, target);
-
-      let count = Number(countStr);
-      if (isNaN(count)) {
-        count = Number.POSITIVE_INFINITY;
-      }
-      this.ctrService.setCount(id, count);
-
-      return `<ctr ctrid="${id}"></ctr>`;
+      const count = Number(countStr);
+      return `<ctr
+        target="${target}"
+        code="${code}"
+        ${isNaN(count) ? '' :  `[count]="${count}"`}
+      ></ctr>`;
     },
 
     vminfo(code: string, name: string, info: string, mode: string) {
