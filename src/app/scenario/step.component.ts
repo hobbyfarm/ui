@@ -128,12 +128,16 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     private replaceTokens(content: string) {
+        const sessionId = this.route.snapshot.paramMap.get('session');
         return content.replace(
             /\$\{vminfo:([^:]*):([^}]*)\}/g,
-            (match, vmName, propName) => {
-                const vmId = this.vmclaimvms.get(vmName.toLowerCase())?.vm_id;
-                return this.vms.get(vmId)?.[propName] ?? match;
-            },
+            (match, vmName, propName) =>
+                `<vminfo
+                    sessionId="${sessionId}"
+                    name="${vmName}"
+                    info="${propName}"
+                    mode="inline"
+                ></vminfo>`,
         );
     }
 

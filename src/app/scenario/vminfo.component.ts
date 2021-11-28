@@ -12,8 +12,11 @@ import { VMService } from '../services/vm.service';
 @Component({
     selector: 'vminfo',
     template: `
-    <pre *ngIf="mode != 'inline'">{{code}}</pre>
-    <a *ngIf="mode == 'link'" [href]="code">{{code}}<ng-container>
+      <ng-container [ngSwitch]="mode">
+        <a *ngSwitchCase="'link'" [href]="content">{{content}}</a>
+        <ng-container *ngSwitchCase="'inline'">{{content}}</ng-container>
+        <pre *ngSwitchDefault>{{content}}</pre>
+      </ng-container>
     `,
 })
 export class VMInfoComponent implements OnInit {
@@ -21,9 +24,9 @@ export class VMInfoComponent implements OnInit {
     @Input() name: string = "";
     @Input() info: string = "";
     @Input() mode: string = "";
-    @Input() template: string = "";
+    @Input() template: string = "${val}";
 
-    public code: string = "";
+    content = '';
 
     constructor(
         private ssService: SessionService,
@@ -54,7 +57,7 @@ export class VMInfoComponent implements OnInit {
                 })
             ).subscribe(
                 (v: VM) => {
-                    this.code = this.template.replace('${val}', v[this.info])
+                    this.content = this.template.replace('${val}', v[this.info])
                 }
             )
     }
