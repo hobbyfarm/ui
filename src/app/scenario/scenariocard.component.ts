@@ -1,9 +1,6 @@
 import { Component, Input, Output, OnInit, EventEmitter } from "@angular/core";
-import { HttpClient } from '@angular/common/http';
 import { Scenario } from '../scenario/Scenario';
-import { ServerResponse } from '../ServerResponse';
-import { environment } from 'src/environments/environment';
-import { atou } from '../unicode';
+import { ScenarioService } from '../services/scenario.service';
 
 @Component({
     templateUrl: 'scenariocard.component.html',
@@ -20,17 +17,15 @@ export class ScenarioCard implements OnInit {
     public scenario: Scenario = new Scenario();
 
     constructor(
-        private http: HttpClient
+        private scenarioService: ScenarioService
     ) {
     }
 
     ngOnInit() {
-        this.http.get(environment.server + "/scenario/" + this.scenarioid)
-        .subscribe(
-            (s: ServerResponse) => {
-                this.scenario = JSON.parse(atou(s.content));
-            },
-        )
+        this.scenarioService.get(this.scenarioid)
+            .subscribe((s: Scenario) => {
+                this.scenario = s;
+            });
     }
 
     navScenario() {
