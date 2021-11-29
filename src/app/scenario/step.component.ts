@@ -136,17 +136,17 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
                             content += "~~~~~~";
                         }
                     })
-                    return "<pre style='padding: 5px 10px;overflow-x: auto;'>" + content + "</pre>";
+                    return "<pre>" + content + "</pre>";
                 } else {
                     // code block is empty or only contains white spaces
                     if(!code.trim()) {
-                        return "<pre style='padding: 5px 10px;overflow-x: auto;'></pre>";
+                        return "<pre></pre>";
                     }
                     // Prevent leading blank lines from being removed on non-empty code blocks 
                     else if (/^\n/.test(code)) {
-                        return "<pre style='padding: 5px 10px;overflow-x: auto;'>" + "\n" + escape(code) + "</pre>";
+                        return "<pre>" + "\n" + escape(code) + "</pre>";
                     } else {
-                        return "<pre style='padding: 5px 10px;overflow-x: auto;'>" + escape(code) + "</pre>";
+                        return "<pre>" + escape(code) + "</pre>";
                     }
                 }
             }
@@ -179,7 +179,7 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
 
                 return `<vminfo id="${config.id}"></vminfo>`;
             } else if (language.split(":")[0] == 'hidden') {
-                return "<details style='margin: 10px 0px;'>" +
+                return "<details>" +
                     "<summary>" + language.split(":")[1] + "</summary>" +
                     this.markdownService.compile(code) +
                     "</details>";
@@ -189,47 +189,20 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
                     "</span></div>";
             }else {
                 // highlighted code
-                return "<pre style='padding: 5px 10px;' class='language-" + language + "'>" +
+                return "<pre class='language-" + language + "'>" +
                     "<code class='language-" + language + "'>" +
                     escape(code) +
                     "</code>" +
                     "</pre>";
             }
         }
+    }
 
-        // Overriding the default link renderer to provide >> target="_blank" <<
-        this.markdownService.renderer.link = (href: string, title: string, text: string) => {
-            if (href === null) {
-                return text;
-            }
-            let out = '<a href="' + escape(href) + '" target="_blank"';
-            if (title) {
-                out += ' title="' + title + '"';
-            }
-            out += '>' + text + '</a>';
-            return out;
-        }
-
-        this.markdownService.renderer.codespan = (code: string) => {
-            const style: string = 'style="color:#039BE5;font-weight:bold;background-color:#ddd;padding:1px 10px 2px 10px;border-radius:10px;display:inline-block;"';
-            return '<code ' + style + '>' + code + '</code>';
-        }
-
-        this.markdownService.renderer.image = (href: string, title: string, text: string) => {
-            if (href === null) {
-                return text;
-            }
-
-            const style = 'width: 100%;height: auto;';
-            let out = '<img src="' + href + '" alt="' + text + '" style="' + style + '"';
-            if (title) {
-                out += ' title="' + title + '"';
-            }
-            return out;
-        }
-
-        this.markdownService.renderer.paragraph = (text: string) => {
-            return "<p style='margin-top: 0;'>" + text + "</p>\n";
+    handleStepContentClick(e: MouseEvent) {
+        // Open all links in a new window
+        if (e.target instanceof HTMLAnchorElement && e.target.href) {
+            e.preventDefault();
+            window.open(e.target.href, '_blank');
         }
     }
 
