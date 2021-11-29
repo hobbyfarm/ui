@@ -1,10 +1,6 @@
 import { Component, OnInit } from '@angular/core';
-import { JwtHelperService } from '@auth0/angular-jwt';
-import { HttpClient } from '@angular/common/http';
-import { ServerResponse } from './ServerResponse';
 import { Scenario } from './scenario/Scenario';
 import { Course } from './course/course';
-import { environment } from 'src/environments/environment';
 import { UserService } from './services/user.service';
 import { CourseService } from './services/course.service';
 import { ScenarioService } from './services/scenario.service';
@@ -25,11 +21,9 @@ export class HomeComponent implements OnInit {
     public courseid: string;
 
     constructor(
-        public helper: JwtHelperService,
-        public http: HttpClient,
-        public userService: UserService,
-        public scenarioService: ScenarioService,
-        public courseService: CourseService
+        private userService: UserService,
+        private scenarioService: ScenarioService,
+        private courseService: CourseService
     ) {
     }
 
@@ -45,7 +39,7 @@ export class HomeComponent implements OnInit {
       }
     }
 
-    _refresh() {
+    private _refresh() {
         this.courseService.list().subscribe(
             (c: Course[]) => {
                 this.courses = c;

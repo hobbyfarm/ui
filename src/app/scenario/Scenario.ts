@@ -1,5 +1,3 @@
-import { VMTemplate } from '../virtualmachine/vmtemplate';
-
 export class Scenario {
     id: string;
     name: string;

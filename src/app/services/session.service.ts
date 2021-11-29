@@ -1,9 +1,8 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpErrorResponse, HttpParams } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Session } from '../Session';
-import { Course } from '../course/course';
 import { of } from 'rxjs';
-import { tap, map, repeatWhen, delay } from 'rxjs/operators';
+import { tap, map } from 'rxjs/operators';
 import { ServerResponse } from '../ServerResponse';
 import { environment } from 'src/environments/environment';
 import { atou } from '../unicode';
