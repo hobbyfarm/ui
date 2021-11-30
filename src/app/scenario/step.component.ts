@@ -23,6 +23,7 @@ import { environment } from 'src/environments/environment';
 import { ShellService } from '../services/shell.service';
 import { atou } from '../unicode';
 import { ProgressService } from "../services/progress.service";
+import { HfMarkdownRenderContext } from '../hf-markdown/hf-markdown.component';
 
 @Component({
     templateUrl: 'step.component.html',
@@ -46,6 +47,8 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
     public sessionExpired: boolean = false;
     public vmclaimvms: Map<string, VMClaimVM> = new Map();
     private vms: Map<string, VM> = new Map();
+
+    mdContext: HfMarkdownRenderContext = { vmInfo: {} };
 
     public pauseOpen: boolean = false;
 
@@ -162,6 +165,12 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
             ).subscribe((v: VM) => {
                 this.vms.set(v.id, v);
                 this.sendProgressUpdate();
+
+                const vmInfo = {};
+                for (const [k, v] of this.vmclaimvms) {
+                    vmInfo[k.toLowerCase()] = this.vms.get(v.vm_id);
+                }
+                this.mdContext.vmInfo = vmInfo;
             });
 
         // setup keepalive

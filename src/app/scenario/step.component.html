@@ -34,8 +34,8 @@
                     <h4 class="card-title">{{this.stepnumber + 1}}. {{ step.title | atob }}</h4>
                     <div class="card-text">
                         <app-hf-markdown
-                            [sessionId]="session.id"
                             [content]="stepcontent"
+                            [context]="mdContext"
                             (click)="handleStepContentClick($event)"
                         ></app-hf-markdown>
                     </div>

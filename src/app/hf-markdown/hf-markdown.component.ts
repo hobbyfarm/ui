@@ -1,9 +1,14 @@
 import { Component, Input, OnChanges } from '@angular/core';
 import { MarkdownService } from 'ngx-markdown';
+import { VM } from '../VM';
 
 // Replacement for lodash's escape
 const escape = (s: string) =>
   s.replace(/[&<>"']/g, (c) => `&#${c.charCodeAt(0)};`);
+
+export interface HfMarkdownRenderContext {
+  vmInfo: {[vmName: string]: VM};
+}
 
 @Component({
   selector: 'app-hf-markdown',
@@ -11,13 +16,14 @@ const escape = (s: string) =>
     <ngx-dynamic-hooks
       class="hf-md-content"
       [content]="processedContent | markdown"
+      [context]="context"
     ></ngx-dynamic-hooks>
   `,
   styleUrls: ['./hf-markdown.component.scss'],
 })
 export class HfMarkdownComponent implements OnChanges {
   @Input() content: string;
-  @Input() sessionId: string;
+  @Input() context: HfMarkdownRenderContext = { vmInfo: {} };
 
   processedContent: string;
 
@@ -53,7 +59,7 @@ export class HfMarkdownComponent implements OnChanges {
 
     vminfo(code: string, name: string, info: string, mode: string) {
       return `<vminfo
-        sessionId="${this.sessionId}"
+        [vms]="context.vmInfo"
         name="${name}"
         info="${info}"
         mode="${mode}"
@@ -136,12 +142,12 @@ export class HfMarkdownComponent implements OnChanges {
     return content.replace(
         /\$\{vminfo:([^:]*):([^}]*)\}/g,
         (match, vmName, propName) =>
-            `<vminfo
-              sessionId="${this.sessionId}"
-              name="${vmName}"
-              info="${propName}"
-              mode="inline"
-            ></vminfo>`,
+        `<vminfo
+          [vms]="context.vmInfo"
+          name="${vmName}"
+          info="${propName}"
+          mode="inline"
+        ></vminfo>`,
     );
   }
 }
