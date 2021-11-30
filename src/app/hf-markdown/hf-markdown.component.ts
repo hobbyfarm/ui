@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, OnChanges } from '@angular/core';
 import { MarkdownService } from 'ngx-markdown';
 
 // Replacement for lodash's escape
@@ -10,14 +10,16 @@ const escape = (s: string) =>
   template: `
     <ngx-dynamic-hooks
       class="hf-md-content"
-      [content]="content | markdown"
+      [content]="processedContent | markdown"
     ></ngx-dynamic-hooks>
   `,
   styleUrls: ['./hf-markdown.component.scss'],
 })
-export class HfMarkdownComponent {
+export class HfMarkdownComponent implements OnChanges {
   @Input() content: string;
   @Input() sessionId: string;
+
+  processedContent: string;
 
   constructor(
     public markdownService: MarkdownService
@@ -124,5 +126,22 @@ export class HfMarkdownComponent {
     } else {
       return '<pre>' + escape(code) + '</pre>';
     }
+  }
+
+  ngOnChanges() {
+    this.processedContent = this.replaceVmInfoTokens(this.content);
+  }
+
+  private replaceVmInfoTokens(content: string) {
+    return content.replace(
+        /\$\{vminfo:([^:]*):([^}]*)\}/g,
+        (match, vmName, propName) =>
+            `<vminfo
+              sessionId="${this.sessionId}"
+              name="${vmName}"
+              info="${propName}"
+              mode="inline"
+            ></vminfo>`,
+    );
   }
 }

@@ -127,20 +127,6 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
         return Math.floor(((this.stepnumber + 1) / (this.scenario.stepcount)) * 100);
     }
 
-    private replaceTokens(content: string) {
-        const sessionId = this.route.snapshot.paramMap.get('session');
-        return content.replace(
-            /\$\{vminfo:([^:]*):([^}]*)\}/g,
-            (match, vmName, propName) =>
-                `<vminfo
-                    sessionId="${sessionId}"
-                    name="${vmName}"
-                    info="${propName}"
-                    mode="inline"
-                ></vminfo>`,
-        );
-    }
-
     ngOnInit() {
         this.route.paramMap
             .pipe(
@@ -275,7 +261,7 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
         this.stepService.get(this.scenario.id, this.stepnumber)
             .subscribe((s: Step) => {
                 this.step = s;
-                this.stepcontent = this.replaceTokens(atou(s.content));
+                this.stepcontent = atou(s.content);
             });
     }
 
