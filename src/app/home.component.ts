@@ -1,9 +1,9 @@
 import { Component, OnInit } from '@angular/core';
-import { Scenario } from './scenario/Scenario';
 import { Course } from './course/course';
 import { UserService } from './services/user.service';
 import { CourseService } from './services/course.service';
 import { ScenarioService } from './services/scenario.service';
+import { PrintableScenario } from './scenario/PrintableScenario';
 import { ProgressService } from './services/progress.service';
 import { Progress } from './Progress';
 
@@ -15,7 +15,7 @@ import { Progress } from './Progress';
 
 export class HomeComponent implements OnInit {
     public courses: Course[] = [];
-    public scenarios: Scenario[] = [];
+    public scenarios: PrintableScenario[] = [];
     public loadedScenarios = false;
     public loadedCourses = false;
     public showScenarioModal: boolean = false;
@@ -72,7 +72,7 @@ export class HomeComponent implements OnInit {
             }
         )
         this.scenarioService.list().subscribe(
-            (s: Scenario[]) => {
+            (s: PrintableScenario[]) => {
                 this.scenarios = s;
                 this.loadedScenarios = true;
             },

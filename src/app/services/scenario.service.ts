@@ -47,4 +47,8 @@ export class ScenarioService {
                 )
         }
     }
+
+    public printable(id: string) {
+        return this.http.get(environment.server + "/scenario/" + id + "/printable", { responseType: 'text' })
+    }
 }
