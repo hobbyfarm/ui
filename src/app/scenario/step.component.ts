@@ -410,11 +410,7 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
 
     private sendProgressUpdate(){
         // Subscribe needed to actually call update
-        this.progressService.update(this.session.id, this.stepnumber + 1).subscribe(
-            (s: ServerResponse) => {
-                console.log(JSON.parse(atou(s.content)));
-            }
-        ); 
+        this.progressService.update(this.session.id, this.stepnumber + 1).subscribe();
     }
 
     goPrevious() {
