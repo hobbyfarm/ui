@@ -1,4 +1,7 @@
 <div class="card">
+    <div *ngIf="hasProgress" class="progress">
+        <progress class="{{getProgressColorClass()}}" [value]="getProgress() || 0" max="100"></progress>
+    </div>
     <div class="card-header">
         {{ scenario.name | atob }}
     </div>
@@ -7,7 +10,11 @@
             {{ scenario.description | atob }}
         </div>
     </div>
-    <div class="card-footer">
-        <button class="btn btn-sm btn-link" (click)="navScenario()">Start Scenario</button>
+    <div *ngIf="!hasProgress || progress.finished" class="card-footer">
+        <button class="btn btn-sm btn-link" (click)="navScenario()" [disabled] = "activeSession" >Start Scenario</button>
+    </div>
+    <div *ngIf="hasProgress && !progress.finished" class="card-footer">
+        <button class="btn btn-danger-outline" (click)="terminate()" [disabled]="terminated">Terminate Session</button>
+        <button class="btn btn-success" (click)="continue()" [disabled]="terminated" >Continue</button>
     </div>
 </div>
