@@ -5,7 +5,7 @@ import { ClrModal } from '@clr/angular';
 import { Router } from '@angular/router';
 import { version } from 'src/environments/version';
 import { UserService } from './services/user.service';
-import { FormGroup, FormControl, Validators, ValidatorFn, ValidationErrors } from '@angular/forms';
+import { FormGroup, FormControl, Validators, ValidatorFn } from '@angular/forms';
 import { ServerResponse } from './ServerResponse';
 import { AppConfigService } from './app-config.service';
 import { SettingsService } from './services/settings.service';
@@ -81,7 +81,7 @@ export class AppComponent implements OnInit {
     }
   }
 
-  public matchedPasswordValidator: ValidatorFn = (control: FormGroup): ValidationErrors | null => {
+  public matchedPasswordValidator: ValidatorFn = control => {
     var pw1 = control.get("new_password1").value;
     var pw2 = control.get("new_password2").value;
 
