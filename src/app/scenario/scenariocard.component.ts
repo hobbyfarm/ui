@@ -1,13 +1,10 @@
 import { Component, Input, Output, OnInit, EventEmitter, OnChanges } from "@angular/core";
-import { HttpClient } from '@angular/common/http';
 import { Scenario } from '../scenario/Scenario';
-import { ServerResponse } from '../ServerResponse';
-import { environment } from 'src/environments/environment';
-import { atou } from '../unicode';
 import { ProgressService } from "../services/progress.service";
 import { Progress } from "../Progress";
 import { Router } from "@angular/router";
 import { ScenarioService } from '../services/scenario.service';
+import { SessionService } from '../services/session.service';
 
 @Component({
     templateUrl: 'scenariocard.component.html',
@@ -35,8 +32,8 @@ export class ScenarioCard implements OnInit, OnChanges {
     public scenario: Scenario = new Scenario();
 
     constructor(
-        private http: HttpClient,
         private router: Router,
+        private sessionService: SessionService,
         private progressService: ProgressService,
         private scenarioService: ScenarioService
     ) {
@@ -55,12 +52,11 @@ export class ScenarioCard implements OnInit, OnChanges {
     }
 
     update(){
-        this.http.get(environment.server + "/scenario/" + this.scenarioid)
-        .subscribe(
-            (s: ServerResponse) => {
-                this.scenario = JSON.parse(atou(s.content));
-            },
-        )
+        this.scenarioService.get(this.scenarioid)
+            .subscribe((s: Scenario) => {
+                this.scenario = s;
+            });
+
         if(!this.progress){
             this.getProgressData();
         }else{
@@ -74,8 +70,7 @@ export class ScenarioCard implements OnInit, OnChanges {
 
     terminate(){
         this.terminated = true;
-        this.http.put(environment.server + "/session/" + this.progress.session + "/finished", {})
-        .subscribe()
+        this.sessionService.finish(this.progress.session).subscribe();
     }
 
     getProgressData(){

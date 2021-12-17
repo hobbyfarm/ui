@@ -1,21 +1,18 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpParams } from '@angular/common/http';
-import { environment } from 'src/environments/environment';
-import { ServerResponse } from '../ServerResponse';
+import { HttpParams } from '@angular/common/http';
 import { map, tap } from 'rxjs/operators';
-import { atou } from '../unicode';
 import { Progress, ProgressStep } from '../Progress';
 import { BehaviorSubject, of } from 'rxjs';
+import { extractResponseContent, GargantuaClientFactory } from './gargantua.service';
 
 @Injectable()
 export class ProgressService {
+    constructor(private gcf: GargantuaClientFactory) {}
+    private garg = this.gcf.scopedClient('/progress');
+
     private cachedProgressList: Progress[] = []
     private bh: BehaviorSubject<Progress[]> = new BehaviorSubject(this.cachedProgressList);
     private fetchedList = false;
-
-    constructor(
-        private http: HttpClient
-    ){}
 
     public watch(){
         return this.bh.asObservable();
@@ -25,11 +22,9 @@ export class ProgressService {
         if (!force && this.fetchedList)  {
             return of(this.cachedProgressList);
         } else{
-            return this.http.get(environment.server + "/progress/list")
+            return this.garg.get('/list')
             .pipe(
-                map((s: ServerResponse) => {
-                    return JSON.parse(atou(s.content));
-                }),
+                map(extractResponseContent),
                 map((pList: Progress[]) => {
                     pList.forEach((p: Progress) => {
                         p.last_update = new Date(p.last_update);
@@ -59,6 +54,6 @@ export class ProgressService {
         let body = new HttpParams()
         .set("step", step.toString());
 
-        return this.http.post(environment.server + '/progress/update/' + session, body)
+        return this.garg.post('/update/' + session, body);
     }
 }

@@ -1,29 +1,17 @@
 import { Injectable } from '@angular/core';
+import { ResourceClient, GargantuaClientFactory } from './gargantua.service';
 import { VM } from '../VM';
-import { HttpClient } from '@angular/common/http';
-import { ServerResponse } from '../ServerResponse';
-import { map, tap } from 'rxjs/operators';
-import { environment } from 'src/environments/environment';
-import { atou } from '../unicode';
 
 @Injectable()
-export class VMService {
-    private cachedVms: Map<string, VM> = new Map();
+export class VMService extends ResourceClient<VM> {
+  constructor(gcf: GargantuaClientFactory) {
+    super(gcf.scopedClient('/vm'));
+  }
 
-    constructor(
-        private http: HttpClient
-    ) { }
+  get(id: string) {
+    // Do not use cached responses
+    this.cache.clear();
 
-    public get(id: string) {
-        return this.http.get(environment.server + '/vm/' + id)
-            .pipe(
-                map((s: ServerResponse) => {
-                    return JSON.parse(atou(s.content));
-                }),
-                tap((v: VM) => {
-                    this.cachedVms.set(v.id, v);
-                })
-            )
-
-    }
+    return super.get(id);
+  }
 }

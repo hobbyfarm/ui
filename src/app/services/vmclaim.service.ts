@@ -1,38 +1,27 @@
 import { Injectable } from '@angular/core';
-import { VMClaim } from '../VMClaim';
-import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { ServerResponse } from '../ServerResponse';
-import { map, tap } from 'rxjs/operators';
-import { environment } from 'src/environments/environment';
-import { atou } from '../unicode';
+import { map } from 'rxjs/operators';
+import { ResourceClient, GargantuaClientFactory } from './gargantua.service';
+import { VMClaim } from '../VMClaim';
 
 @Injectable()
-export class VMClaimService {
-    private cachedVmClaims: Map<string, VMClaim> = new Map<string, VMClaim>();
+export class VMClaimService extends ResourceClient<any> {
+  constructor(gcf: GargantuaClientFactory) {
+    super(gcf.scopedClient('/vmclaim'));
+  }
 
-    constructor(
-        private http: HttpClient
-    ) {
-    }
+  get(id: string): Observable<VMClaim> {
+    // Do not use cached responses
+    this.cache.clear();
 
-    public get(id: string): Observable<VMClaim> {
-        return this.http.get(environment.server + '/vmclaim/' + id)
-            .pipe(
-                map((s: ServerResponse) => {
-                    var v = JSON.parse(atou(s.content));
-                    // The following is necessary because JSON.parse does not nicely
-                    // handle string -> obj Maps
-                    var vMap = new Map();
-                    for (let k of Object.keys(v.vm)) {
-                        vMap.set(k.toLowerCase(), v.vm[k]);
-                    }
-                    v.vm = vMap;
-                    return v;
-                }),
-                tap((v: VMClaim) => {
-                    this.cachedVmClaims.set(v.id, v);
-                })
-            )
-    }
+    return super.get(id).pipe(
+      map((v: any) => {
+        // Convert object to Map
+        const vm = new Map(
+          Object.keys(v.vm).map((k) => [k.toLowerCase(), v.vm[k]])
+        );
+        return { ...v, vm };
+      })
+    );
+  }
 }

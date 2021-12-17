@@ -1,7 +1,7 @@
 import { Component, OnInit, ViewChildren, QueryList, ViewChild, ElementRef, AfterViewInit, OnDestroy } from "@angular/core";
 import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 import { Step } from '../Step';
-import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { HttpErrorResponse } from '@angular/common/http';
 import { switchMap, concatMap, first, repeatWhen, delay, retryWhen, tap } from 'rxjs/operators';
 import { TerminalComponent } from './terminal.component';
 import { ClrTabContent, ClrTab, ClrModal } from '@clr/angular';
@@ -19,7 +19,6 @@ import { ScenarioService } from '../services/scenario.service';
 import { StepService } from '../services/step.service';
 import { VMClaimService } from '../services/vmclaim.service';
 import { VMService } from '../services/vm.service';
-import { environment } from 'src/environments/environment';
 import { ShellService } from '../services/shell.service';
 import { atou } from '../unicode';
 import { ProgressService } from "../services/progress.service";
@@ -95,7 +94,6 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
     constructor(
         private route: ActivatedRoute,
         private router: Router,
-        private http: HttpClient,
         private ctr: CtrService,
         private ssService: SessionService,
         private scenarioService: ScenarioService,
@@ -295,7 +293,7 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
         if (this.shouldKeepVmOnFinish && !force) {
             this.router.navigateByUrl("/app/home");
         } else {
-            this.http.put(environment.server + "/session/" + this.route.snapshot.paramMap.get("session") + "/finished", {})
+            this.ssService.finish(this.session.id)
                 .subscribe(
                     (s: ServerResponse) => {
                         this.router.navigateByUrl("/app/home");

@@ -1,48 +1,10 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { environment } from 'src/environments/environment';
-import { ServerResponse } from '../ServerResponse';
-import { map, tap } from 'rxjs/operators';
+import { ListableResourceClient, GargantuaClientFactory } from './gargantua.service';
 import { Course } from '../course/course';
-import { of } from 'rxjs';
-import { atou } from '../unicode';
 
 @Injectable()
-export class CourseService {
-  private cachedCourses: Map<string, Course> = new Map();
-
-  constructor(
-    private http: HttpClient
-  ) { }
-
-  public list() {
-    return this.http.get(environment.server + "/course/list")
-      .pipe(
-        map((s: ServerResponse) => {
-            return JSON.parse(atou(s.content));
-        }),
-        tap((c: Course[]) => {
-            if (!c) { return; }
-            c.forEach((t: Course) => {
-                this.cachedCourses.set(t.id, t);
-            })
-        })
-      )
-  }
-
-  public get(id: string) {
-    if (this.cachedCourses.get(id) != null) {
-        return of(this.cachedCourses.get(id));
-    } else {
-        return this.http.get(environment.server + '/course/' + id)
-            .pipe(
-                map((s: ServerResponse) => {
-                    return JSON.parse(atou(s.content));
-                }),
-                tap((c: Course) => {
-                    this.cachedCourses.set(c.id, c);
-                })
-            )
-    }
+export class CourseService extends ListableResourceClient<Course> {
+  constructor(gcf: GargantuaClientFactory) {
+    super(gcf.scopedClient('/course'));
   }
 }
