@@ -183,10 +183,6 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
         this.ctr.getCodeStream().subscribe(
             (c: CodeExec) => {
                 // watch for tab changes
-                if (!c) {
-                    return;
-                }
-
                 this.tabs.forEach((i: ClrTab) => {
                     if (c.target.toLowerCase() == i.tabLink.tabLinkId.toLowerCase()) {
                         i.ifActiveService.current = i.id;
