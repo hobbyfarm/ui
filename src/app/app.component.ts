@@ -82,9 +82,7 @@ export class AppComponent implements OnInit {
   }
 
   public matchedPasswordValidator: ValidatorFn = control => {
-    var pw1 = control.get("new_password1").value;
-    var pw2 = control.get("new_password2").value;
-
+    const { new_password1: pw1, new_password1: pw2 } = control.value;
     return (pw1 && (pw1 == pw2)) ? null : { 'passwordMismatch': true }
   }
 
@@ -168,7 +166,7 @@ export class AppComponent implements OnInit {
   }
 
   public saveAccessCode() {
-    var a = this.newAccessCodeForm.get("access_code").value;
+    const { access_code: a } = this.newAccessCodeForm.value;
     this.userService.addAccessCode(a)
     .subscribe(
       (s: ServerResponse) => {
@@ -225,7 +223,8 @@ export class AppComponent implements OnInit {
   }
 
   public doChangePassword() {
-    this.userService.changepassword(this.passwordChangeForm.get('old_password').value, this.passwordChangeForm.get('new_password2').value)
+    const { old_password, new_password1 } = this.passwordChangeForm.value;
+    this.userService.changepassword(old_password, new_password1)
     .subscribe(
       (s: ServerResponse) => {
         this.changePwSuccessAlert = s.message + ". Logging you out..."
