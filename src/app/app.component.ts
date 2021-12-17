@@ -21,8 +21,6 @@ export class AppComponent implements OnInit {
   public logoutModalOpened: boolean = false;
   public aboutModalOpened: boolean = false;
   public changePasswordModalOpened: boolean = false;
-  public new_password1: string = "";
-  public new_password2: string = "";
   public version: string;
 
   public changePwDangerClosed: boolean = true;
