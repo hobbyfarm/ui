@@ -1,4 +1,4 @@
-import { Component, Input, Output, OnInit, EventEmitter } from "@angular/core";
+import { Component, Input, Output, OnInit, EventEmitter, OnChanges } from "@angular/core";
 import { HttpClient } from '@angular/common/http';
 import { Scenario } from '../scenario/Scenario';
 import { ServerResponse } from '../ServerResponse';
@@ -13,7 +13,7 @@ import { Router } from "@angular/router";
     selector: 'scenario-card',
     styleUrls: ['./scenariocard.component.scss']
 })
-export class ScenarioCard implements OnInit {
+export class ScenarioCard implements OnInit, OnChanges {
     @Input()
     public scenarioid: string = "";
     @Input()
@@ -39,6 +39,14 @@ export class ScenarioCard implements OnInit {
     }
 
     ngOnInit() {
+        this.update();
+    }
+
+    ngOnChanges() {
+        this.update();
+    }
+
+    update(){
         this.http.get(environment.server + "/scenario/" + this.scenarioid)
         .subscribe(
             (s: ServerResponse) => {
