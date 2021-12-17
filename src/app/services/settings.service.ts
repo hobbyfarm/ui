@@ -1,54 +1,52 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { map, tap } from 'rxjs/operators';
+import { HttpClient, HttpErrorResponse, HttpParams } from '@angular/common/http';
+import { Subject, concat, throwError } from 'rxjs';
+import { catchError, first, map, shareReplay, switchMap, tap } from 'rxjs/operators';
 import { ServerResponse } from '../ServerResponse';
-import { of } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { atou } from '../unicode';
-import { BehaviorSubject } from 'rxjs';
+import { themes } from '../scenario/terminal-themes/themes';
+
+export interface Settings {
+  terminal_theme: typeof themes[number]['id'];
+}
 
 @Injectable()
 export class SettingsService {
-    private cachedSettings: Map<string,string> = new Map();
-    private bh: BehaviorSubject<Map<string,string>> = new BehaviorSubject(this.cachedSettings);
-    private fetchedSettings = false;
+  constructor(private http: HttpClient) {}
 
-    constructor(
-        private http: HttpClient
-    ){
+  private subject = new Subject<Readonly<Settings>>();
+  readonly settings$ = concat(this.fetch(), this.subject).pipe(shareReplay(1));
 
-    }
+  fetch() {
+    return this.http
+      .get<ServerResponse>(environment.server + '/auth/settings')
+      .pipe(
+        map((s) => JSON.parse(atou(s.content))),
+        tap((s: Readonly<Settings>) => {
+          this.subject.next(s);
+        })
+      );
+  }
 
-    public watch() {
-        return this.bh.asObservable();
-    }
+  set(newSettings: Readonly<Settings>) {
+    const params = new HttpParams({ fromObject: newSettings });
+    return this.http
+      .post<ServerResponse>(environment.server + '/auth/settings', params)
+      .pipe(
+        catchError((e: HttpErrorResponse) => {
+          return throwError(e.error);
+        }),
+        tap(() => this.subject.next(newSettings))
+      );
+  }
 
-    public get(force=false) {
-        if (!force && this.fetchedSettings)  {
-            return of(this.cachedSettings);
-        } else {
-            return this.http.get(environment.server + '/auth/settings')
-            .pipe(
-                map((s: ServerResponse) => {
-                    let map = new Map();
-                    let content = JSON.parse(atou(s.content))
-                    if(content){
-                        Object.keys(content).forEach(key => {
-                            map.set(key, content[key]);
-                        });
-                    }
-                    return map 
-                }),
-                tap((s: Map<string,string>) => {
-                    this.set(s);
-                })
-            )
-        }
-    }
-
-    public set(settings: Map<string, string>){
-        this.cachedSettings = settings;
-        this.fetchedSettings = true;
-        this.bh.next(settings);
-    }
+  update(update: Partial<Readonly<Settings>>) {
+    return this.settings$.pipe(
+      first(),
+      switchMap((currentSettings) => {
+        return this.set({ ...currentSettings, ...update });
+      })
+    );
+  }
 }

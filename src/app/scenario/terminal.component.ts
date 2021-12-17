@@ -9,7 +9,7 @@ import { ShellService } from '../services/shell.service';
 import { environment } from 'src/environments/environment';
 import { HostListener } from '@angular/core';
 import { Subscription } from 'rxjs';
-import {availableThemes} from 'src/app/scenario/terminal-themes/themes';
+import { themes } from './terminal-themes/themes';
 import { SettingsService } from '../services/settings.service';
 
 @Component({
@@ -39,7 +39,6 @@ export class TerminalComponent implements OnChanges, AfterViewInit, OnDestroy {
     private isVisible: boolean = false;
     public mutationObserver: MutationObserver;
     private subscription: Subscription
-    private terminal_theme: string = "default"
 
     constructor(
         private jwtHelper: JwtHelperService,
@@ -76,19 +75,15 @@ export class TerminalComponent implements OnChanges, AfterViewInit, OnDestroy {
         const regExp: RegExp = /firefox|fxios/i;
         const isFirefox: boolean = regExp.test(navigator.userAgent.toLowerCase()) || 'InstallTrigger' in window;
         this.term = new Terminal({
-            theme: this.getTerminalTheme(this.terminal_theme),
             fontFamily: "monospace",
             fontSize: 16,
             letterSpacing: 1.1,
             rendererType: isFirefox ? 'dom' : 'canvas',
         });
-        this.settingsService.watch()
-        .subscribe(
-            (a: Map<string, string>) => {
-              this.setTerminalTheme(a.get("terminal_theme"));
-            }
-          )
-        this.loadTerminalTheme();
+        this.settingsService.settings$
+            .subscribe(({ terminal_theme }) => {
+                this.setTerminalTheme(terminal_theme);
+            });
         this.attachAddon = new AttachAddon(this.socket);
         this.term.loadAddon(this.fitAddon)
         this.term.open(this.terminalDiv.nativeElement);
@@ -195,27 +190,9 @@ export class TerminalComponent implements OnChanges, AfterViewInit, OnDestroy {
         this.mutationObserver.observe(this.terminalDiv.nativeElement.offsetParent, config);
     }
 
-    private loadTerminalTheme(){
-        this.settingsService.get().subscribe(
-            (a: Map<string,string>) => {
-              this.setTerminalTheme(a.get("terminal_theme"));
-            }
-          )
-    }
-
-    private setTerminalTheme(theme: string){
-        this.terminal_theme = theme;
-        if(this.term){
-            this.term.setOption('theme', this.getTerminalTheme(this.terminal_theme));
-        }
-    }
-    
-    private getTerminalTheme(chosenTheme: string) {
-        for (let theme of availableThemes) {
-            if (theme.theme === chosenTheme) {
-                return theme.styles;
-            }
-        } 
-        return availableThemes[0].styles;
+    private setTerminalTheme(themeId: string) {
+        if (!this.term) return;
+        const theme = themes.find(t => t.id === themeId) || themes[0];
+        this.term.setOption('theme', theme.styles);
     }
 }

@@ -9,7 +9,8 @@ import { FormGroup, FormControl, Validators, ValidatorFn, ValidationErrors } fro
 import { ServerResponse } from './ServerResponse';
 import { AppConfigService } from './app-config.service';
 import { SettingsService } from './services/settings.service';
-import { availableThemes } from './scenario/terminal-themes/themes';
+import { themes } from './scenario/terminal-themes/themes';
+import { first } from 'rxjs/operators';
 
 @Component({
   selector: 'app-root',
@@ -43,7 +44,6 @@ export class AppComponent implements OnInit {
 
   public settingsModalOpened: boolean = false;
   public fetchingSettings: boolean = false;
-  private settings: Map<string,string>;
 
   public accesscodes: string[] = [];
 
@@ -53,8 +53,7 @@ export class AppComponent implements OnInit {
   public title   = this.Config.title   || "Rancher's Hobby Farm";
   private logo    = this.Config.logo    || '/assets/default/logo.svg';
 
-  public availableThemes = availableThemes;
-  private selectedTheme = availableThemes[0];
+  public themes = themes;
 
   constructor(
     private helper: JwtHelperService,
@@ -115,7 +114,7 @@ export class AppComponent implements OnInit {
   })
 
   public settingsForm: FormGroup = new FormGroup({
-    'selected_theme': new FormControl(null, [
+    'terminal_theme': new FormControl(null, [
       Validators.required
     ])
   })
@@ -159,22 +158,12 @@ export class AppComponent implements OnInit {
   public openSettings() {
     this.settingsForm.reset();
     this.fetchingSettings = true;
-    this.settingsService.get(true)
-    .subscribe(
-      (a: Map<string,string>) => {
-        this.settings = a;
-        this.selectedTheme = availableThemes[0]; //Default to "Hobbyfarm Default Terminal" if no settings for theme are provided
-        availableThemes.forEach(element => {
-          if(element.theme === a.get("terminal_theme")){
-            this.selectedTheme = element;
-          }
-        });
-        this.settingsForm.setValue({
-          'selected_theme': this.selectedTheme
-        });
+    this.settingsService.settings$
+      .pipe(first())
+      .subscribe(({ terminal_theme }) => {
+        this.settingsForm.setValue({ terminal_theme });
         this.fetchingSettings = false;
-      }
-    );
+      });
     this.settingsModal.open();
   }
 
@@ -224,13 +213,7 @@ export class AppComponent implements OnInit {
   }
 
   public doSaveSettings(){
-    if(!this.settings){
-      this.settings = new Map<string,string>();
-    }
-    this.settings.set("terminal_theme", this.settingsForm.get('selected_theme').value.theme);
-    this.settingsService.set(this.settings);
-
-    this.userService.updateSettings(this.settings)
+    this.settingsService.update(this.settingsForm.value)
     .subscribe(
       (s: ServerResponse) => {
         this.settingsModalOpened = false
