@@ -10,7 +10,6 @@
     // begin strict mode WIP
     "strict": true,
     "strictNullChecks": false,
-    "strictFunctionTypes": false,
     "strictPropertyInitialization": false,
     // end strict mode WIP
 
