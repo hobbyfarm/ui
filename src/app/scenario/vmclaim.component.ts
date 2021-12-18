@@ -45,11 +45,6 @@ export class VMClaimComponent implements OnChanges {
                         return from(s.vm.values());
                     }
                 }),
-                retryWhen(obs => {
-                    return obs.pipe(
-                        delay(5000)
-                    )
-                }),
                 concatMap((vcv: VMClaimVM) => {
                     if (!vcv) {
                         throw 1;
