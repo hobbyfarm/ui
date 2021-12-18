@@ -17,9 +17,11 @@ import { CodeExec } from './CodeExec';
 import { ShellService } from '../services/shell.service';
 import { environment } from 'src/environments/environment';
 import { HostListener } from '@angular/core';
-import { Subscription } from 'rxjs';
+import { interval, Subscription, timer } from 'rxjs';
 import { themes } from './terminal-themes/themes';
 import { SettingsService } from '../services/settings.service';
+
+const WS_CODE_NORMAL_CLOSURE = 1000;
 
 @Component({
   selector: 'app-terminal',
@@ -45,7 +47,7 @@ export class TerminalComponent implements OnChanges, AfterViewInit, OnDestroy {
   private firstTabChange = true;
   private isVisible = false;
   public mutationObserver: MutationObserver;
-  private subscription: Subscription;
+  private subscription = new Subscription();
 
   @ViewChild('terminal', { static: true }) terminalDiv: ElementRef;
 
@@ -111,14 +113,14 @@ export class TerminalComponent implements OnChanges, AfterViewInit, OnDestroy {
     this.socket.onclose = (e) => {
       this.term.dispose(); // destroy the terminal on the page to avoid bad display
       this.shellService.setStatus(this.vmname, 'Disconnected (' + e.code + ')');
-      if (!e.wasClean) {
+      if (e.code !== WS_CODE_NORMAL_CLOSURE) {
         this.shellService.setStatus(
           this.vmname,
           'Reconnecting ' + new Date().toLocaleTimeString(),
         );
         // we're going to try and rebuild things
         // but only after waiting an appropriate mourning period...
-        setTimeout(() => this.buildSocket(), 5000);
+        this.subscription.add(timer(5000).subscribe(() => this.buildSocket()));
       }
     };
 
@@ -144,19 +146,28 @@ export class TerminalComponent implements OnChanges, AfterViewInit, OnDestroy {
           }
         });
 
-      setInterval(() => {
-        this.socket.send(''); // websocket keepalive
-      }, 5000);
+      this.subscription.add(
+        interval(5000).subscribe(() => {
+          this.socket.send(''); // websocket keepalive
+        }),
+      );
     };
+  }
+
+  private closeSocket() {
+    if (!this.socket) return;
+    this.socket.close(WS_CODE_NORMAL_CLOSURE);
   }
 
   ngOnChanges() {
     if (this.vmid != null && this.endpoint != null) {
+      this.closeSocket();
       this.buildSocket();
     }
   }
 
   ngOnDestroy() {
+    this.closeSocket();
     if (this.subscription) {
       this.subscription.unsubscribe();
     }
