@@ -24,42 +24,32 @@ export class VMClaimComponent implements OnChanges {
     constructor(
         private vmClaimService: VMClaimService,
         private vmService: VMService
-    ) {
-
-    }
+    ) {}
 
     getVm(key: string) {
         return this.vms.get(key);
     }
 
     ngOnChanges() {
-        if (this.vmclaim.id != null) {
-            this.vmClaimService.get(this.vmclaim.id)
+        if (!this.vmclaim.id) return;
+
+        this.vmClaimService.get(this.vmclaim.id)
             .pipe(
                 concatMap((s: VMClaim) => {
                     this.vmclaim = s;
-                    if (!s.ready) {
-                        throw 1;
-                    } else {
-                        this.ready.emit(s.id);
-                        return from(s.vm.values());
-                    }
+                    if (!s.ready) throw 1;
+
+                    this.ready.emit(s.id);
+                    return from(s.vm.values());
                 }),
                 concatMap((vcv: VMClaimVM) => {
-                    if (!vcv) {
-                        throw 1;
-                    }
+                    if (!vcv) throw 1;
                     return this.vmService.get(vcv.vm_id);
                 }),
-                retryWhen(obs => {
-                    return obs.pipe(
-                        delay(5000)
-                    )
-                }),
-                map((vm: VM) => {
-                    this.vms.set(vm.id, vm);
-                })
-            ).subscribe();
-        }
+                retryWhen(obs => obs.pipe(delay(5000))),
+            )
+            .subscribe((vm: VM) => {
+                this.vms.set(vm.id, vm);
+            });
     }
 }
