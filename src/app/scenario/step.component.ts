@@ -1,5 +1,5 @@
 import { Component, OnInit, ViewChildren, QueryList, ViewChild, ElementRef, AfterViewInit, OnDestroy } from "@angular/core";
-import { ActivatedRoute, ParamMap, Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { Step } from '../Step';
 import { HttpErrorResponse } from '@angular/common/http';
 import { switchMap, concatMap, first, repeatWhen, delay, retryWhen, tap, map } from 'rxjs/operators';
@@ -93,13 +93,12 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     ngOnInit() {
-        this.route.paramMap
+        const { paramMap } = this.route.snapshot;
+        const sessionId = paramMap.get('session')!;
+        this.stepnumber = Number(paramMap.get('step') ?? 0);
+
+        this.ssService.get(sessionId)
             .pipe(
-                first(),
-                switchMap((p: ParamMap) => {
-                    this.stepnumber = +p.get("step");
-                    return this.ssService.get(p.get("session"));
-                }),
                 switchMap((s: Session) => {
                     this.session = s;
                     return this.scenarioService.get(s.scenario);
@@ -134,7 +133,7 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
             });
 
         // setup keepalive
-        this.ssService.keepalive(this.route.snapshot.paramMap.get("session"))
+        this.ssService.keepalive(sessionId)
             .pipe(
                 repeatWhen(obs => {
                     return obs.pipe(
