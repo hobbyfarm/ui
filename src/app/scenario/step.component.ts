@@ -2,7 +2,7 @@ import { Component, OnInit, ViewChildren, QueryList, ViewChild, ElementRef, Afte
 import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 import { Step } from '../Step';
 import { HttpErrorResponse } from '@angular/common/http';
-import { switchMap, concatMap, first, repeatWhen, delay, retryWhen, tap } from 'rxjs/operators';
+import { switchMap, concatMap, first, repeatWhen, delay, retryWhen, tap, map } from 'rxjs/operators';
 import { TerminalComponent } from './terminal.component';
 import { ClrTabContent, ClrTab, ClrModal } from '@clr/angular';
 import { ServerResponse } from '../ServerResponse';
@@ -44,8 +44,7 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
 
     public session: Session = new Session();
     public sessionExpired: boolean = false;
-    public vmclaimvms: Map<string, VMClaimVM> = new Map();
-    private vms: Map<string, VM> = new Map();
+    public vms: Map<string, VM> = new Map();
 
     mdContext: HfMarkdownRenderContext = { vmInfo: {} };
 
@@ -79,10 +78,6 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
             e.preventDefault();
             window.open(e.target.href, '_blank');
         }
-    }
-
-    getVm(key: string): VM {
-        return this.vms.get(key);
     }
 
     getShellStatus(key: string) {
@@ -120,22 +115,20 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
                     return this.vmClaimService.get(v);
                 }),
                 concatMap((v: VMClaim) => {
-                    for (let k of v.vm.keys()) {
-                        let newKey = k.toLowerCase()
-                        this.vmclaimvms.set(newKey, v.vm.get(k));
-                    }
-                    return from(v.vm.values());
+                    return from(v.vm);
                 }),
-                concatMap((v: VMClaimVM) => {
-                    return this.vmService.get(v.vm_id);
+                concatMap(([k, v]: [string, VMClaimVM]) => {
+                    return this.vmService.get(v.vm_id).pipe(
+                        map(vm => [k, vm] as const)
+                    );
                 }),
-            ).subscribe((v: VM) => {
-                this.vms.set(v.id, v);
+            ).subscribe(([k, v]) => {
+                this.vms.set(k, v);
                 this.sendProgressUpdate();
 
                 const vmInfo: HfMarkdownRenderContext['vmInfo'] = {};
-                for (const [k, v] of this.vmclaimvms) {
-                    vmInfo[k.toLowerCase()] = this.vms.get(v.vm_id);
+                for (const [k, v] of this.vms) {
+                    vmInfo[k.toLowerCase()] = v;
                 }
                 this.mdContext = { vmInfo };
             });
