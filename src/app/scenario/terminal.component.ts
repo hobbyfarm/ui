@@ -74,7 +74,7 @@ export class TerminalComponent implements OnChanges, AfterViewInit, OnDestroy {
 
         // Check if current browser is firefox by useragent and use "duck-typing" as a fallback.
         const regExp: RegExp = /firefox|fxios/i;
-        const isFirefox: boolean = regExp.test(navigator.userAgent.toLowerCase()) || typeof InstallTrigger !== 'undefined';
+        const isFirefox: boolean = regExp.test(navigator.userAgent.toLowerCase()) || 'InstallTrigger' in window;
         this.term = new Terminal({
             theme: this.getTerminalTheme(this.terminal_theme),
             fontFamily: "monospace",
