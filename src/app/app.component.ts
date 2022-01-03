@@ -86,7 +86,7 @@ export class AppComponent implements OnInit {
     var pw1 = control.get("new_password1").value;
     var pw2 = control.get("new_password2").value;
 
-    return (pw1 && pw1 && (pw1 == pw2)) ? null : { 'passwordMismatch': true }
+    return (pw1 && (pw1 == pw2)) ? null : { 'passwordMismatch': true }
   }
 
   @ViewChild("logoutmodal", { static: true }) logoutModal: ClrModal;
