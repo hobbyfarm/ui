@@ -271,7 +271,7 @@
     </div>
     <div class="modal-footer">
       <button class="btn btn-danger-outline" (click)="changePasswordModalOpened = false">Cancel</button>
-      <button class="btn btn-success" [disabled]="!passwordChangeForm.valid || (new_password1 != new_password2)"
+      <button class="btn btn-success" [disabled]="!passwordChangeForm.valid"
         (click)="doChangePassword()">Change Password</button>
     </div>
   </clr-modal>

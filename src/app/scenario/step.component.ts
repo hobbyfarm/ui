@@ -2,7 +2,7 @@ import { Component, OnInit, ViewChildren, QueryList, ViewChild, ElementRef, Afte
 import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 import { Step } from '../Step';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
-import { switchMap, concatMap, first, repeatWhen, delay, retryWhen } from 'rxjs/operators';
+import { switchMap, concatMap, first, repeatWhen, delay, retryWhen, tap } from 'rxjs/operators';
 import { TerminalComponent } from './terminal.component';
 import { ClrTabContent, ClrTab, ClrModal } from '@clr/angular';
 import { ServerResponse } from '../ServerResponse';
@@ -45,8 +45,6 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
 
     public finishOpen: boolean = false;
     public closeOpen: boolean = false;
-
-    private params: ParamMap;
 
     public session: Session = new Session();
     public sessionExpired: boolean = false;
@@ -216,40 +214,22 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
         return this.shellStatus.get(key);
     }
 
+    get isLastStepActive() {
+        return this.stepnumber + 1 === this.scenario.stepcount;
+    }
+
     getProgress() {
         return Math.floor(((this.stepnumber + 1) / (this.scenario.stepcount)) * 100);
     }
 
-    private getAllReplacementTokens(content: string, replacementTokens: string[][]) {
-        let tok = content.match(/\$\{vminfo:([^:]*):([^}]*)\}/);
-        if (tok == null) { // didn't find anythning
-            return replacementTokens;
-        } else {
-            if (tok.length == 3) {
-                // valid matches are len=3
-                // found something, add it
-                replacementTokens.push([tok[0], tok[1], tok[2]]) // token, vm, property
-            }
-            return this.getAllReplacementTokens(content.substring(tok.index + tok[0].length), replacementTokens)
-        }
-    }
-
     private replaceTokens(content: string) {
-        let tokens = this.getAllReplacementTokens(content, []);
-        for (var i = 0; i < tokens.length; i++) {
-            var vmname = tokens[i][1].toLowerCase();
-            // get the vm and property
-            if (!this.vmclaimvms.has(vmname)) {
-                continue; // no valid VM
-            }
-
-            if (!this.vms.has(this.vmclaimvms.get(vmname).vm_id)) {
-                continue; // no valid VM
-            }
-            content = content.replace(tokens[i][0], this.vms.get(this.vmclaimvms.get(vmname).vm_id)[tokens[i][2]]);
-        }
-
-        return content;
+        return content.replace(
+            /\$\{vminfo:([^:]*):([^}]*)\}/g,
+            (match, vmName, propName) => {
+                const vmId = this.vmclaimvms.get(vmName.toLowerCase())?.vm_id;
+                return this.vms.get(vmId)?.[propName] ?? match;
+            },
+        );
     }
 
     ngOnInit() {
@@ -257,7 +237,6 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
             .pipe(
                 first(),
                 switchMap((p: ParamMap) => {
-                    this.params = p;
                     this.stepnumber = +p.get("step");
                     return this.ssService.get(p.get("session"));
                 }),
@@ -265,8 +244,11 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
                     this.session = s;
                     return this.scenarioService.get(s.scenario);
                 }),
-                switchMap((s: Scenario) => {
+                tap((s: Scenario) => {
                     this.scenario = s;
+                    this._loadStep();
+                }),
+                switchMap(() => {
                     return from(this.session.vm_claim);
                 }),
                 concatMap((v: string) => {
@@ -282,22 +264,10 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
                 concatMap((v: VMClaimVM) => {
                     return this.vmService.get(v.vm_id);
                 }),
-                switchMap((v: VM) => {
-                    this.vms.set(v.id, v);
-                    return this.stepService.get(this.session.scenario, +this.params.get("step"));
-                }),
-                switchMap((s: Step) => {
-                    this.step = s;
-
-                    var rawcontent = atou(s.content);
-                    return of(this.replaceTokens(rawcontent));
-                }),
-            ).subscribe(
-                (s: string) => {
-                    this.stepcontent = s;
-                    this.sendProgressUpdate();
-                }
-            )
+            ).subscribe((v: VM) => {
+                this.vms.set(v.id, v);
+                this.sendProgressUpdate();
+            });
 
         // setup keepalive
         this.ssService.keepalive(this.route.snapshot.paramMap.get("session"))
@@ -394,18 +364,10 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
 
     private _loadStep() {
         this.stepService.get(this.scenario.id, this.stepnumber)
-            .pipe(
-                switchMap((s: Step) => {
-                    this.step = s;
-
-                    var rawcontent = atou(s.content);
-                    return of(this.replaceTokens(rawcontent));
-                }),
-            ).subscribe(
-                (s: string) => {
-                    this.stepcontent = s;
-                }
-            )
+            .subscribe((s: Step) => {
+                this.step = s;
+                this.stepcontent = this.replaceTokens(atou(s.content));
+            });
     }
 
     private sendProgressUpdate(){
@@ -425,8 +387,8 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
         this.finishOpen = true;
     }
 
-    actuallyFinish() {
-        if (this.session.course) {
+    actuallyFinish(force: boolean = false) {
+        if (this.shouldKeepVmOnFinish && !force) {
             this.router.navigateByUrl("/app/home");
         } else {
             this.http.put(environment.server + "/session/" + this.route.snapshot.paramMap.get("session") + "/finished", {})
@@ -437,6 +399,10 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
                 )
         }
 
+    }
+
+    get shouldKeepVmOnFinish() {
+      return this.session.course && this.session.keep_course_vm;
     }
 
     goClose() {

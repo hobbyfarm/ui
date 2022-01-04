@@ -7,6 +7,7 @@ import { atou } from '../unicode';
 import { ProgressService } from "../services/progress.service";
 import { Progress } from "../Progress";
 import { Router } from "@angular/router";
+import { ScenarioService } from '../services/scenario.service';
 
 @Component({
     templateUrl: 'scenariocard.component.html',
@@ -34,11 +35,16 @@ export class ScenarioCard implements OnInit, OnChanges {
     constructor(
         private http: HttpClient,
         private router: Router,
-        private progressService: ProgressService
+        private progressService: ProgressService,
+        private scenarioService: ScenarioService
     ) {
     }
 
     ngOnInit() {
+        this.scenarioService.get(this.scenarioid)
+            .subscribe((s: Scenario) => {
+                this.scenario = s;
+            });
         this.update();
     }
 
