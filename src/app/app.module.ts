@@ -32,6 +32,7 @@ import { SessionService } from './services/session.service';
 import { StepService } from './services/step.service';
 import { VMService } from './services/vm.service';
 import { VMClaimService } from './services/vmclaim.service';
+import { ProgressService } from './services/progress.service';
 import { environment } from 'src/environments/environment';
 import { AppConfigService } from './app-config.service';
 import { AngularSplitModule } from 'angular-split';
@@ -112,6 +113,7 @@ export function jwtOptionsFactory() {
     VMService,
     VMClaimService,
     AppConfigService,
+    ProgressService,
     {
       provide: APP_INITIALIZER,
       useFactory: appInitializerFn,

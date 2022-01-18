@@ -26,6 +26,7 @@ import { environment } from 'src/environments/environment';
 import { ShellService } from '../services/shell.service';
 import { atou } from '../unicode';
 import { escape } from 'lodash';
+import { ProgressService } from "../services/progress.service";
 
 @Component({
     templateUrl: 'step.component.html',
@@ -104,7 +105,8 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
         private vmClaimService: VMClaimService,
         private vmService: VMService,
         private vmInfoService: VMInfoService,
-        private shellService: ShellService
+        private shellService: ShellService,
+        private progressService: ProgressService,
     ) {
         this.markdownService.renderer.code = (code: string, language: string, isEscaped: boolean) => {
             // block text
@@ -264,6 +266,7 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
                 }),
             ).subscribe((v: VM) => {
                 this.vms.set(v.id, v);
+                this.sendProgressUpdate();
             });
 
         // setup keepalive
@@ -356,6 +359,7 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
         this.router.navigateByUrl("/app/session/" + this.session.id + "/steps/" + (this.stepnumber));
         this._loadStep();
         this.contentDiv.nativeElement.scrollTop = 0;
+        this.sendProgressUpdate();
     }
 
     private _loadStep() {
@@ -366,11 +370,17 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
             });
     }
 
+    private sendProgressUpdate(){
+        // Subscribe needed to actually call update
+        this.progressService.update(this.session.id, this.stepnumber + 1).subscribe();
+    }
+
     goPrevious() {
         this.stepnumber -= 1;
         this.router.navigateByUrl("/app/session/" + this.session.id + "/steps/" + (this.stepnumber));
         this._loadStep();
         this.contentDiv.nativeElement.scrollTop = 0;
+        this.sendProgressUpdate();
     }
 
     public goFinish() {
