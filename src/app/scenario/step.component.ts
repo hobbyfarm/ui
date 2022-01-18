@@ -283,7 +283,7 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
                     concatMap((e: HttpErrorResponse, i) =>
                         iif(
                             () => {
-                                if (e.status == 404) {
+                                if (e.status != 202) {
                                     this.sessionExpired = true;
                                 }
                                 return e.status > 0
