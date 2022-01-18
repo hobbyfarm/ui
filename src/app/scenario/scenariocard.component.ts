@@ -20,6 +20,8 @@ export class ScenarioCard implements OnInit, OnChanges {
     @Input()
     public courseid: string = "";
     @Input()
+    public printable: boolean = false;
+    @Input()
     public activeSession: boolean = false;
     @Input()
     public progress: Progress;

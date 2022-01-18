@@ -30,7 +30,7 @@ export class HfMarkdownComponent implements OnChanges {
   constructor(
     public markdownService: MarkdownService
   ) {
-    this.markdownService.renderer.code = (code: string, language: string) => {
+    this.markdownService.renderer.code = (code: string, language: string = "") => {
       const [tag, ...args] = language.split(':');
       if (tag in this.taggedCodeRenderers) {
         const renderer = this.taggedCodeRenderers[tag];

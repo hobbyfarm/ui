@@ -36,6 +36,7 @@ import { environment } from 'src/environments/environment';
 import { AppConfigService } from './app-config.service';
 import { AngularSplitModule } from 'angular-split';
 import { HfMarkdownComponent } from './hf-markdown/hf-markdown.component';
+import { PrintableComponent } from './printable/printable.component';
 
 export function tokenGetter() {
   return localStorage.getItem("hobbyfarm_token");
@@ -74,7 +75,8 @@ export function jwtOptionsFactory() {
     VMInfoComponent,
     VMClaimComponent,
     AtobPipe,
-    HfMarkdownComponent
+    HfMarkdownComponent,
+    PrintableComponent
   ],
   imports: [
     BrowserModule,

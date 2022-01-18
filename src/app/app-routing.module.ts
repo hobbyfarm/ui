@@ -7,6 +7,7 @@ import { TerminalComponent } from './scenario/terminal.component';
 import { LoginComponent } from './login/login.component';
 import { AuthGuard } from './auth.guard';
 import { StepComponent } from './scenario/step.component';
+import { PrintableComponent } from './printable/printable.component';
 
 const routes: Routes = [
   {path: '', redirectTo: '/app/home', pathMatch: 'full'},
@@ -32,6 +33,13 @@ const routes: Routes = [
         component: StepComponent
       },
       {path: 'terminal', component: TerminalComponent}
+    ]
+  },
+  {
+    path: 'scenario/:scenario/printable',
+    component: PrintableComponent,
+    canActivate: [
+      AuthGuard
     ]
   },
   {path: '**', redirectTo: '/app/home'}
