@@ -33,11 +33,11 @@
                 <div class="card-block" #contentdiv>
                     <h4 class="card-title">{{this.stepnumber + 1}}. {{ step.title | atob }}</h4>
                     <div class="card-text">
-                        <ngx-dynamic-hooks
-                            id="step-content"
-                            [content]="stepcontent | markdown"
+                        <app-hf-markdown
+                            [content]="stepcontent"
+                            [context]="mdContext"
                             (click)="handleStepContentClick($event)"
-                        ></ngx-dynamic-hooks>
+                        ></app-hf-markdown>
                     </div>
                 </div>
 

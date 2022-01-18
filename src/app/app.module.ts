@@ -24,7 +24,6 @@ import { DynamicHooksModule } from 'ngx-dynamic-hooks';
 import { CtrComponent } from './scenario/ctr.component';
 import { VMInfoComponent } from './scenario/vminfo.component';
 import { CtrService } from './scenario/ctr.service';
-import { VMInfoService } from './scenario/vminfo.service';
 import { ScenarioService } from './services/scenario.service';
 import { CourseService } from './services/course.service';
 import { SettingsService } from './services/settings.service';
@@ -36,6 +35,7 @@ import { ProgressService } from './services/progress.service';
 import { environment } from 'src/environments/environment';
 import { AppConfigService } from './app-config.service';
 import { AngularSplitModule } from 'angular-split';
+import { HfMarkdownComponent } from './hf-markdown/hf-markdown.component';
 
 export function tokenGetter() {
   return localStorage.getItem("hobbyfarm_token");
@@ -73,7 +73,8 @@ export function jwtOptionsFactory() {
     CtrComponent,
     VMInfoComponent,
     VMClaimComponent,
-    AtobPipe
+    AtobPipe,
+    HfMarkdownComponent
   ],
   imports: [
     BrowserModule,
@@ -107,7 +108,6 @@ export function jwtOptionsFactory() {
     AppComponent,
     AuthGuard,
     CtrService,
-    VMInfoService,
     CourseService,
     SettingsService,
     ScenarioService,
