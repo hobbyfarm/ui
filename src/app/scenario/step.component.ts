@@ -25,8 +25,10 @@ import { VMInfoConfig } from '../VMInfoConfig';
 import { environment } from 'src/environments/environment';
 import { ShellService } from '../services/shell.service';
 import { atou } from '../unicode';
-import { escape } from 'lodash';
 import { ProgressService } from "../services/progress.service";
+
+// Replacement for lodash's escape
+const escape = (s: string) => s.replace(/[&<>"']/g, c => `&#${c.charCodeAt(0)};`);
 
 @Component({
     templateUrl: 'step.component.html',
