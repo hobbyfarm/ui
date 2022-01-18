@@ -20,7 +20,7 @@ import { StepComponent } from './scenario/step.component';
 import { VMClaimComponent } from './scenario/vmclaim.component';
 import { AtobPipe } from './atob.pipe';
 import { MarkdownModule } from 'ngx-markdown';
-import { DynamicHTMLModule } from './dynamic-html';
+import { DynamicHooksModule } from 'ngx-dynamic-hooks';
 import { CtrComponent } from './scenario/ctr.component';
 import { VMInfoComponent } from './scenario/vminfo.component';
 import { CtrService } from './scenario/ctr.service';
@@ -87,10 +87,13 @@ export function jwtOptionsFactory() {
     MarkdownModule.forRoot({
       sanitize: SecurityContext.NONE
     }),
-    DynamicHTMLModule.forRoot({
-      components: [
-        { component: CtrComponent, selector: 'ctr' },
-        { component: VMInfoComponent, selector: 'vminfo' }
+    DynamicHooksModule.forRoot({
+      globalOptions: {
+        sanitize: false,
+      },
+      globalParsers: [
+        { component: CtrComponent },
+        { component: VMInfoComponent }
       ]
     }),
     JwtModule.forRoot({
