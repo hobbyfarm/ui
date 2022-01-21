@@ -19,7 +19,7 @@
             <button class="btn btn-success" (click)="continue()" [disabled]="terminated" >Continue</button>
         </ng-template>
 
-        <a *ngIf="printable" [routerLink]="['/scenario', scenarioid, 'printable']" target="_blank">
+        <a *ngIf="scenario.printable" [routerLink]="['/scenario', scenarioid, 'printable']" target="_blank">
             <button class="btn btn-sm btn-link">Print</button>
         </a>
     </div>
