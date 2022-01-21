@@ -1,4 +1,4 @@
-import { Component, Input, Output, OnInit, EventEmitter, OnChanges } from "@angular/core";
+import { Component, Input, Output, EventEmitter, OnChanges } from "@angular/core";
 import { Scenario } from '../scenario/Scenario';
 import { ProgressService } from "../services/progress.service";
 import { Progress } from "../Progress";
@@ -11,7 +11,7 @@ import { SessionService } from '../services/session.service';
     selector: 'scenario-card',
     styleUrls: ['./scenariocard.component.scss']
 })
-export class ScenarioCard implements OnInit, OnChanges {
+export class ScenarioCard implements OnChanges {
     @Input()
     public scenarioid: string = "";
     @Input()
@@ -34,19 +34,7 @@ export class ScenarioCard implements OnInit, OnChanges {
     ) {
     }
 
-    ngOnInit() {
-        this.scenarioService.get(this.scenarioid)
-            .subscribe((s: Scenario) => {
-                this.scenario = s;
-            });
-        this.update();
-    }
-
     ngOnChanges() {
-        this.update();
-    }
-
-    update(){
         this.scenarioService.get(this.scenarioid)
             .subscribe((s: Scenario) => {
                 this.scenario = s;
