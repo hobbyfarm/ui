@@ -1,18 +1,11 @@
-.status-running::-moz-progress-bar {
-  background-color: var(--clr-progress-default-color, #54cbf2);
+.status-finished {
+  --clr-progress-default-color: var(--clr-color-danger-100);
 }
 
-.status-finished::-moz-progress-bar {
-  background-color: var(--clr-color-danger-100, red);
+.status-success {
+  --clr-progress-default-color: var(--clr-color-success-100);
 }
 
-.status-success::-moz-progress-bar {
-  background-color: var(--clr-color-success-100, green);
-}
-
-.progress span {
-  margin-top: -0.5em;
-}
 .progress {
   margin-bottom: 1rem;
 }
