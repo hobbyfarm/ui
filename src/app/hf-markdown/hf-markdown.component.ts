@@ -56,16 +56,6 @@ export class HfMarkdownComponent implements OnChanges {
       >${escape(code)}</ctr>`;
     },
 
-    vminfo(code: string, name: string, info: string, mode: string) {
-      return `<vminfo
-        [vms]="context.vmInfo"
-        name="${name}"
-        info="${info}"
-        mode="${mode}"
-        template="${code}"
-      ></vminfo>`;
-    },
-
     hidden(code: string, summary: string) {
       return `
         <details>
