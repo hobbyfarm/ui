@@ -5,4 +5,5 @@ export class Course {
     scenarioCount: number;
     // These are Scenario IDs
     scenarios: string[];
+    keep_vm: boolean;
 }
