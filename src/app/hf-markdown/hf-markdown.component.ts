@@ -142,12 +142,7 @@ export class HfMarkdownComponent implements OnChanges {
     return content.replace(
         /\$\{vminfo:([^:]*):([^}]*)\}/g,
         (match, vmName, propName) =>
-        `<vminfo
-          [vms]="context.vmInfo"
-          name="${vmName}"
-          info="${propName}"
-          mode="inline"
-        ></vminfo>`,
+          this.context.vmInfo?.[vmName.toLowerCase()]?.[propName] ?? match
     );
   }
 }
