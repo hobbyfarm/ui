@@ -170,7 +170,7 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
                 for (const [k, v] of this.vmclaimvms) {
                     vmInfo[k.toLowerCase()] = this.vms.get(v.vm_id);
                 }
-                this.mdContext.vmInfo = vmInfo;
+                this.mdContext = { vmInfo };
             });
 
         // setup keepalive
