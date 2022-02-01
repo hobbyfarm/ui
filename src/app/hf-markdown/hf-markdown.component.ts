@@ -52,9 +52,8 @@ export class HfMarkdownComponent implements OnChanges {
       const count = Number(countStr);
       return `<ctr
         target="${target}"
-        code="${code}"
         ${isNaN(count) ? '' :  `[count]="${count}"`}
-      ></ctr>`;
+      >${escape(code)}</ctr>`;
     },
 
     vminfo(code: string, name: string, info: string, mode: string) {
