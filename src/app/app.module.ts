@@ -93,6 +93,7 @@ export function jwtOptionsFactory() {
     DynamicHooksModule.forRoot({
       globalOptions: {
         sanitize: false,
+        convertHTMLEntities: false,
       },
       globalParsers: [
         { component: CtrComponent },
