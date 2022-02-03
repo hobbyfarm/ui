@@ -22,7 +22,6 @@ import { AtobPipe } from './atob.pipe';
 import { MarkdownModule } from 'ngx-markdown';
 import { DynamicHooksModule } from 'ngx-dynamic-hooks';
 import { CtrComponent } from './scenario/ctr.component';
-import { VMInfoComponent } from './scenario/vminfo.component';
 import { CtrService } from './scenario/ctr.service';
 import { ScenarioService } from './services/scenario.service';
 import { CourseService } from './services/course.service';
@@ -72,7 +71,6 @@ export function jwtOptionsFactory() {
     ScenarioCard,
     StepComponent,
     CtrComponent,
-    VMInfoComponent,
     VMClaimComponent,
     AtobPipe,
     HfMarkdownComponent,
@@ -93,10 +91,10 @@ export function jwtOptionsFactory() {
     DynamicHooksModule.forRoot({
       globalOptions: {
         sanitize: false,
+        convertHTMLEntities: false,
       },
       globalParsers: [
         { component: CtrComponent },
-        { component: VMInfoComponent }
       ]
     }),
     JwtModule.forRoot({

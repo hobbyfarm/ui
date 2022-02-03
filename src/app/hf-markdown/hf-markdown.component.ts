@@ -52,19 +52,8 @@ export class HfMarkdownComponent implements OnChanges {
       const count = Number(countStr);
       return `<ctr
         target="${target}"
-        code="${code}"
         ${isNaN(count) ? '' :  `[count]="${count}"`}
-      ></ctr>`;
-    },
-
-    vminfo(code: string, name: string, info: string, mode: string) {
-      return `<vminfo
-        [vms]="context.vmInfo"
-        name="${name}"
-        info="${info}"
-        mode="${mode}"
-        template="${code}"
-      ></vminfo>`;
+      >${escape(code)}</ctr>`;
     },
 
     hidden(code: string, summary: string) {
@@ -142,12 +131,7 @@ export class HfMarkdownComponent implements OnChanges {
     return content.replace(
         /\$\{vminfo:([^:]*):([^}]*)\}/g,
         (match, vmName, propName) =>
-        `<vminfo
-          [vms]="context.vmInfo"
-          name="${vmName}"
-          info="${propName}"
-          mode="inline"
-        ></vminfo>`,
+          this.context.vmInfo?.[vmName.toLowerCase()]?.[propName] ?? match
     );
   }
 }
