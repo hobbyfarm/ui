@@ -2,7 +2,7 @@ import { Component, OnInit, ViewChildren, QueryList, ViewChild, ElementRef, Afte
 import { ActivatedRoute, Router } from '@angular/router';
 import { Step } from '../Step';
 import { HttpErrorResponse } from '@angular/common/http';
-import { switchMap, concatMap, first, repeatWhen, delay, retryWhen, tap, map } from 'rxjs/operators';
+import { switchMap, concatMap, first, repeatWhen, delay, retryWhen, tap, map, toArray } from 'rxjs/operators';
 import { TerminalComponent } from './terminal.component';
 import { ClrTabContent, ClrTab, ClrModal } from '@clr/angular';
 import { ServerResponse } from '../ServerResponse';
@@ -121,8 +121,9 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
                         map(vm => [k, vm] as const)
                     );
                 }),
-            ).subscribe(([k, v]) => {
-                this.vms.set(k, v);
+                toArray(),
+            ).subscribe((entries) => {
+                this.vms = new Map(entries);
                 this.sendProgressUpdate();
 
                 const vmInfo: HfMarkdownRenderContext['vmInfo'] = {};
