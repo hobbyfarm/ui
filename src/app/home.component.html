@@ -42,7 +42,7 @@
       <div class="clr-col-12 clr-col-sm-6 clr-col-md-4 clr-col-lg-3" *ngFor="let s of scenarios">
         <scenario-card
           [scenarioid]="s.id"
-          [activeSession]="activeSession"
+          [activeSession]="!!activeSession"
           [printable]="s.printable"
           (scenarioModal)="toggleScenarioModal($event)"
         ></scenario-card>
@@ -63,7 +63,7 @@
               <scenario-card
                 [scenarioid]="sId"
                 [courseid]="c.id"
-                [activeSession]="activeSession && c.id != activeSession.course || !c.keep_vm && activeSession"
+                [activeSession]="!!activeSession && c.id != activeSession.course || !c.keep_vm && !!activeSession"
                 (scenarioModal)="toggleScenarioModal($event)"
               ></scenario-card>
             </div>
