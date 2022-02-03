@@ -112,7 +112,7 @@ export class ScenarioCard implements OnInit, OnChanges {
             return "status-finished"
         }
 
-        if(this.progress.max_step == this.progress.total_step){
+        if(this.progress.max_step >= this.progress.total_step){
             return "status-success";
         }
         return "status-running";
