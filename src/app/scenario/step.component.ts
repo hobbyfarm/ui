@@ -135,7 +135,7 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
                 this.vms.set(v.id, v);
                 this.sendProgressUpdate();
 
-                const vmInfo = {};
+                const vmInfo: HfMarkdownRenderContext['vmInfo'] = {};
                 for (const [k, v] of this.vmclaimvms) {
                     vmInfo[k.toLowerCase()] = this.vms.get(v.vm_id);
                 }
