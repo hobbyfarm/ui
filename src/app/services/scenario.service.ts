@@ -1,54 +1,14 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { ListableResourceClient, GargantuaClientFactory } from './gargantua.service';
 import { Scenario } from '../scenario/Scenario';
-import { of } from 'rxjs';
-import { ServerResponse } from '../ServerResponse';
-import { map, tap } from 'rxjs/operators';
-import { environment } from 'src/environments/environment';
-import { atou } from '../unicode';
 
 @Injectable()
+export class ScenarioService extends ListableResourceClient<Scenario> {
+  constructor(gcf: GargantuaClientFactory) {
+    super(gcf.scopedClient('/scenario'));
+  }
 
-export class ScenarioService {
-    private cachedScenarios: Map<string, Scenario> = new Map();
-
-    constructor(
-        private http: HttpClient
-    ) {
-    }
-
-    public list() {
-        return this.http.get(environment.server + '/scenario/list')
-            .pipe(
-                map((s: ServerResponse) => {
-                    return JSON.parse(atou(s.content));
-                }),
-                tap((s: Scenario[]) => {
-                    if (!s) { return; }
-                    s.forEach((t: Scenario) => {
-                        this.cachedScenarios.set(t.id, t);
-                    })
-                })
-            )
-    }
-
-    public get(id: string) {
-        if (this.cachedScenarios.get(id) != null) {
-            return of(this.cachedScenarios.get(id));
-        } else {
-            return this.http.get(environment.server + '/scenario/' + id)
-                .pipe(
-                    map((s: ServerResponse) => {
-                        return JSON.parse(atou(s.content));
-                    }),
-                    tap((s: Scenario) => {
-                        this.cachedScenarios.set(s.id, s);
-                    })
-                )
-        }
-    }
-
-    public printable(id: string) {
-        return this.http.get(environment.server + "/scenario/" + id + "/printable", { responseType: 'text' })
-    }
+  public printable(id: string) {
+    return this.garg.get(id + '/printable', { responseType: 'text' });
+  }
 }

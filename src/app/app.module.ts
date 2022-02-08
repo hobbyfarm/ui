@@ -36,6 +36,7 @@ import { AppConfigService } from './app-config.service';
 import { AngularSplitModule } from 'angular-split';
 import { HfMarkdownComponent } from './hf-markdown/hf-markdown.component';
 import { PrintableComponent } from './printable/printable.component';
+import { GargantuaClientFactory } from './services/gargantua.service';
 
 export function tokenGetter() {
   return localStorage.getItem("hobbyfarm_token");
@@ -115,6 +116,7 @@ export function jwtOptionsFactory() {
     StepService,
     VMService,
     VMClaimService,
+    GargantuaClientFactory,
     AppConfigService,
     ProgressService,
     {

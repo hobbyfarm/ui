@@ -1,35 +1,16 @@
 import { Injectable } from '@angular/core';
+import { ResourceClient, GargantuaClientFactory } from './gargantua.service';
 import { Step } from '../Step';
-import { HttpClient } from '@angular/common/http';
-import { map, tap } from 'rxjs/operators';
-import { ServerResponse } from '../ServerResponse';
-import { of } from 'rxjs';
-import { environment } from 'src/environments/environment';
-import { atou } from '../unicode';
 
 @Injectable()
 export class StepService {
-    private cachedSteps: Map<string, Step> = new Map();
+  private garg: ResourceClient<Step>;
 
-    constructor(
-        private http: HttpClient
-    ){
+  constructor(gcf: GargantuaClientFactory) {
+    this.garg = new ResourceClient(gcf.scopedClient('/scenario'));
+  }
 
-    }
-
-    public get(scenario: string, index: number) {
-        if (this.cachedSteps.get(scenario + ":" + index) != null)  {
-            return of(this.cachedSteps.get(scenario  + ":" + index));
-        } else {
-            return this.http.get(environment.server + '/scenario/' + scenario + '/step/' + index)
-            .pipe(
-                map((s: ServerResponse) => {
-                    return JSON.parse(atou(s.content));
-                }),
-                tap((s: Step) => {
-                    this.cachedSteps.set(scenario + ":" + index, s);
-                })
-            )
-        }
-    }
+  public get(scenario: string, index: number) {
+    return this.garg.get(scenario + '/step/' + index);
+  }
 }
