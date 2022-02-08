@@ -17,7 +17,7 @@ export class UserService {
     return this._acModified.asObservable();
   }
 
-  public register(params) {
+  public register(params: Record<'email' | 'password' | 'access_code', string>) {
     const body = new HttpParams({fromObject: params });
 
     return this.garg.post('/registerwithaccesscode', body).pipe(
@@ -27,7 +27,7 @@ export class UserService {
     );
   }
 
-  public login(params) {
+  public login(params: Record<'email' | 'password', string>) {
     const body = new HttpParams({fromObject: params });
 
     return this.garg.post('/authenticate', body).pipe(
