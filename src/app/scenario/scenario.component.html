@@ -37,7 +37,7 @@
           <th>hostname</th>
         </tr>
       </thead>
-      <tbody vmclaim *ngFor="let vmc of vmclaims" [vmclaim]="vmc" (ready)="ready($event)"></tbody>
+      <tbody *ngFor="let vmc of vmclaims" [vmclaim]="vmc" (ready)="ready($event)"></tbody>
     </table>
 
   </div>

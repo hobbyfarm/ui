@@ -10,7 +10,11 @@
     <div class="clr-row"> 
       <ng-container>
         <div class="clr-col-12 clr-col-sm-6 clr-col-md-4 clr-col-lg-3">
-          <scenario-card [(scenarioid)]="activeSession.scenario" [(courseid)]="activeSession.course" [(progress)]="activeSession" (scenarioModal)="toggleScenarioModal($event)"></scenario-card>
+          <scenario-card
+            [scenarioid]="activeSession.scenario"
+            [progress]="activeSession"
+            (scenarioModal)="toggleScenarioModal(activeSession.scenario)"
+          ></scenario-card>
         </div>
       </ng-container>
     </div>
@@ -35,7 +39,12 @@
 
     <ng-container *ngIf="scenarios?.length > 0">
       <div class="clr-col-12 clr-col-sm-6 clr-col-md-4 clr-col-lg-3" *ngFor="let s of scenarios">
-        <scenario-card [(scenarioid)]="s.id" [(activeSession)]="activeSession" (scenarioModal)="toggleScenarioModal($event)" [(printable)]="s.printable"></scenario-card>
+        <scenario-card
+          [scenarioid]="s.id"
+          [activeSession]="!!activeSession"
+          [printable]="s.printable"
+          (scenarioModal)="toggleScenarioModal(s.id)"
+        ></scenario-card>
       </div>
     </ng-container>
   </div>
@@ -44,17 +53,17 @@
     <div class="clr-col-12">
       <ng-container *ngFor="let c of courses">
         <h2 class="course-header">{{ c.name | atob }}</h2>
-        <span *ngIf="c.inProgress">
-          <button class="btn btn-info-outline">Complete</button>
-        </span>
         <hr />
         <p class="course-description">{{ c.description | atob }}</p>
 
         <div class="clr-row">
           <ng-container *ngIf="c.scenarios?.length > 0; else no_scenarios">
             <div class="clr-col-12 clr-col-sm-6 clr-col-md-4 clr-col-lg-3" *ngFor="let sId of c?.scenarios">
-              <scenario-card [scenarioid]="sId" [(courseid)]="c.id" [(activeSession)]="activeSession && c.id != activeSession.course || !c.keep_vm && activeSession" (scenarioModal)="toggleScenarioModal($event)">
-              </scenario-card>
+              <scenario-card
+                [scenarioid]="sId"
+                [activeSession]="!!activeSession && c.id != activeSession.course || !c.keep_vm && !!activeSession"
+                (scenarioModal)="toggleScenarioModal(sId, c.id)"
+              ></scenario-card>
             </div>
           </ng-container>
           <ng-template #no_scenarios>
@@ -73,6 +82,10 @@
 
   </div>
 
-  <scenario-component *ngIf="scenarioid" [(scenarioid)]="scenarioid" [(courseid)]="courseid" (scenarioModal)="toggleScenarioModal($event)"
-    [(showScenarioModal)]="showScenarioModal">
-  </scenario-component>
+<scenario-component
+  *ngIf="scenarioid"
+  [scenarioid]="scenarioid"
+  [courseid]="courseid"
+  [showScenarioModal]="showScenarioModal"
+  (scenarioModal)="toggleScenarioModal()"
+></scenario-component>

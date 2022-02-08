@@ -22,7 +22,7 @@ export class ScenarioComponent implements OnInit {
     @Input()
     public courseid: string;
     @Output()
-    public scenarioModal = new EventEmitter<string>();
+    public scenarioModal = new EventEmitter();
 
     public scenario: Scenario = new Scenario();
     private _session: Session = new Session();
@@ -61,7 +61,7 @@ export class ScenarioComponent implements OnInit {
 
     close() {
       this.showScenarioModal = false;
-      this.scenarioModal.emit("");
+      this.scenarioModal.emit();
     }
 
     ngOnInit() {

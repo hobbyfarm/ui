@@ -51,39 +51,8 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
 
     public pauseOpen: boolean = false;
 
-    private pauseremaining = {
-        "d": 0,
-        "h": 0,
-        "m": 0,
-        ".": 0 // seconds
-    };
-
     public pauseLastUpdated: Date = new Date();
-
-    public get pauseRemainingString() {
-        var remaining = "";
-        if (this.pauseremaining["d"] != 0) {
-            remaining += this.pauseremaining["d"] + "Days ";
-        }
-
-        if (this.pauseremaining["h"] != 0) {
-            remaining += this.pauseremaining["h"] + ":";
-        }
-
-        if (this.pauseremaining["m"] >= 10) {
-            remaining += this.pauseremaining["m"];
-        } else {
-            remaining += "0" + this.pauseremaining["m"];
-        }
-
-        if (this.pauseremaining["."] >= 10) {
-            remaining += ":" + this.pauseremaining["."];
-        } else {
-            remaining += ":0" + this.pauseremaining["."];
-        }
-
-        return remaining;
-    }
+    public pauseRemainingString = '';
 
     @ViewChildren('term') private terms: QueryList<TerminalComponent> = new QueryList();
     @ViewChildren('tabcontent') private tabContents: QueryList<ClrTabContent> = new QueryList();
@@ -164,7 +133,7 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
                 this.vms.set(v.id, v);
                 this.sendProgressUpdate();
 
-                const vmInfo = {};
+                const vmInfo: HfMarkdownRenderContext['vmInfo'] = {};
                 for (const [k, v] of this.vmclaimvms) {
                     vmInfo[k.toLowerCase()] = this.vms.get(v.vm_id);
                 }
@@ -199,7 +168,7 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
                     if (s.type == 'paused') {
                         // need to display the paused modal
                         // construct the time remaining
-                        this._splitTime(s.message);
+                        this._updatePauseRemaining(s.message);
                         this.pauseLastUpdated = new Date();
 
                         if (!this.pauseModal._open) {
@@ -246,14 +215,9 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
         })
     }
 
-    private _splitTime(t: string) {
-        var timesegments = Object.keys(this.pauseremaining);
-        timesegments.forEach((ts: string) => {
-            if (t.split(ts).length > 1) {
-                this.pauseremaining[ts] = t.split(ts)[0];
-                t = t.split(ts)[1];
-            }
-        });
+    private _updatePauseRemaining(t: string) {
+        // truncate to minute precision if at least 1m remaining
+        this.pauseRemainingString = t.replace(/m\d+(?:\.\d+)?s.*/, 'm');
     }
 
     goNext() {
@@ -325,7 +289,7 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
             ).subscribe(
                 (s: ServerResponse) => {
                     // all should have been successful, so just update time and open modal.
-                    this._splitTime(s.message);
+                    this._updatePauseRemaining(s.message);
                     this.pauseModal.open();
                 },
                 (s: ServerResponse) => {

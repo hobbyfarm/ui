@@ -49,16 +49,10 @@ export class HomeComponent implements OnInit {
            } , this.callDelay * 1000);
     }
 
-    toggleScenarioModal(obj) {
-      if (obj.s || obj.c) {
-        this.scenarioid = obj.s;
-        this.courseid = obj.c;
-        this.showScenarioModal = true;
-      } else {
-        this.scenarioid = "";
-        this.courseid = "";
-        this.showScenarioModal = false;
-      }
+    toggleScenarioModal(scenarioId = '', courseId = '') {
+        this.scenarioid = scenarioId;
+        this.courseid = courseId;
+        this.showScenarioModal = Boolean(scenarioId);
     }
 
     private _refresh() {
