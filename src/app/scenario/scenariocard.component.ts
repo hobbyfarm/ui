@@ -17,9 +17,8 @@ export class ScenarioCard implements OnInit, OnChanges {
     @Input()
     public activeSession: boolean = false;
     @Input()
-    public progress: Progress;
+    public progress?: Progress;
 
-    public hasProgress: boolean = false;
     public terminated: boolean = false;
 
     @Output()
@@ -55,16 +54,16 @@ export class ScenarioCard implements OnInit, OnChanges {
 
         if(!this.progress){
             this.getProgressData();
-        }else{
-            this.hasProgress = true;
         }
     }
 
     continue(){
+        if (!this.progress) return;
         this.router.navigateByUrl("/app/session/" + this.progress.session + "/steps/" + Math.max(this.progress.current_step-1,0));
     }
 
     terminate(){
+        if (!this.progress) return;
         this.terminated = true;
         this.sessionService.finish(this.progress.session).subscribe();
     }
@@ -73,17 +72,12 @@ export class ScenarioCard implements OnInit, OnChanges {
         this.progressService.watch().subscribe(
             (p: Progress[]) => 
             {
-                p = p.filter(prog => prog.scenario == this.scenarioid && prog.finished == true)
-                this.progress = p.pop();
-                if(this.progress){
-                    this.hasProgress = true;
-                }
-                p.forEach(progress => {
-                    if(progress.max_step >= this.progress.max_step){
-                        this.progress = progress;
-                       
-                    }
-                })
+                this.progress = p
+                    .filter(prog => prog.scenario == this.scenarioid && prog.finished)
+                    .reduce<Progress | undefined>((maxProgress, progress) =>
+                        !maxProgress || maxProgress.max_step < progress.max_step
+                            ? progress : maxProgress
+                    , undefined);
             }
         )
     }
@@ -92,13 +86,15 @@ export class ScenarioCard implements OnInit, OnChanges {
         if(this.terminated){
             return 100;
         }
-        if(this.progress.total_step == 0){
+        if(!this.progress || this.progress.total_step == 0){
             return 0;
         }
         return Math.floor((this.progress.current_step / this.progress.total_step ) * 100);
     }
 
     public getProgressColorClass(){
+        if (!this.progress) return '';
+
         if(this.terminated){
             return "status-finished"
         }
