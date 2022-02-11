@@ -25,9 +25,9 @@ export class GargantuaClientFactory {
 
     return new Proxy(this.http, {
       get(target, key) {
-        const prop = target[key];
+        const prop = (target as any)[key];
         return typeof prop === 'function'
-          ? (path, ...args) => prop.call(target, baseUrl + path, ...args)
+          ? (path: string, ...args: any[]) => prop.call(target, baseUrl + path, ...args)
           : prop;
       },
     });
