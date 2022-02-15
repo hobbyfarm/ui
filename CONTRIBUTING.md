@@ -6,7 +6,7 @@ To modify Angular environment variables for your local environment, copy `src/en
 
 - `environment.server` - points to gargantua server
 
-The default behavior requires running a local copy of [k3d via hf-k3d](https://github.com/hobbyfarm/hobbyfarm) and a local copy of [gargantua](https://github.com/hobbyfarm/gargantua).  In this case, the default user is:
+The default behavior requires running a local copy of [k3d via hf-k3d](https://github.com/hobbyfarm/hobbyfarm) and a local copy of [gargantua](https://github.com/hobbyfarm/gargantua). In this case, the default user is:
 
 - Username: `admin`
 - Password: `admin`

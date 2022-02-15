@@ -39,7 +39,7 @@ import { PrintableComponent } from './printable/printable.component';
 import { GargantuaClientFactory } from './services/gargantua.service';
 
 export function tokenGetter() {
-  return localStorage.getItem("hobbyfarm_token");
+  return localStorage.getItem('hobbyfarm_token');
 }
 
 const appInitializerFn = (appConfig: AppConfigService) => {
@@ -51,14 +51,12 @@ const appInitializerFn = (appConfig: AppConfigService) => {
 export function jwtOptionsFactory() {
   return {
     tokenGetter: tokenGetter,
-    allowedDomains: [
-      environment.server.replace(/(^\w+:|^)\/\//, ''),
-    ],
+    allowedDomains: [environment.server.replace(/(^\w+:|^)\/\//, '')],
     disallowedRoutes: [
-      environment.server.replace(/(^\w+:|^)\/\//, '') + "/auth/authenticate"
+      environment.server.replace(/(^\w+:|^)\/\//, '') + '/auth/authenticate',
     ],
-    skipWhenExpired: true
-  }
+    skipWhenExpired: true,
+  };
 }
 
 @NgModule({
@@ -75,7 +73,7 @@ export function jwtOptionsFactory() {
     VMClaimComponent,
     AtobPipe,
     HfMarkdownComponent,
-    PrintableComponent
+    PrintableComponent,
   ],
   imports: [
     BrowserModule,
@@ -87,23 +85,21 @@ export function jwtOptionsFactory() {
     HttpClientModule,
     AngularSplitModule,
     MarkdownModule.forRoot({
-      sanitize: SecurityContext.NONE
+      sanitize: SecurityContext.NONE,
     }),
     DynamicHooksModule.forRoot({
       globalOptions: {
         sanitize: false,
         convertHTMLEntities: false,
       },
-      globalParsers: [
-        { component: CtrComponent },
-      ]
+      globalParsers: [{ component: CtrComponent }],
     }),
     JwtModule.forRoot({
       jwtOptionsProvider: {
         provide: JWT_OPTIONS,
-        useFactory: jwtOptionsFactory
-      }
-    })
+        useFactory: jwtOptionsFactory,
+      },
+    }),
   ],
   providers: [
     AppComponent,
@@ -123,11 +119,9 @@ export function jwtOptionsFactory() {
       provide: APP_INITIALIZER,
       useFactory: appInitializerFn,
       multi: true,
-      deps: [AppConfigService]
-    }
+      deps: [AppConfigService],
+    },
   ],
-  bootstrap: [RootComponent]
+  bootstrap: [RootComponent],
 })
-export class AppModule {
-
-}
+export class AppModule {}

@@ -2,13 +2,15 @@ import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class ShellService {
   private status: Map<string, string> = new Map();
-  private bh: BehaviorSubject<Map<string, string>> = new BehaviorSubject(this.status);
+  private bh: BehaviorSubject<Map<string, string>> = new BehaviorSubject(
+    this.status,
+  );
 
-  constructor() { }
+  constructor() {}
 
   public watch() {
     return this.bh.asObservable();
@@ -22,5 +24,4 @@ export class ShellService {
       this.bh.next(this.status);
     }
   }
-
 }

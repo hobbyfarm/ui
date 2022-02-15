@@ -27,7 +27,8 @@ export class GargantuaClientFactory {
       get(target, key) {
         const prop = (target as any)[key];
         return typeof prop === 'function'
-          ? (path: string, ...args: any[]) => prop.call(target, baseUrl + path, ...args)
+          ? (path: string, ...args: any[]) =>
+              prop.call(target, baseUrl + path, ...args)
           : prop;
       },
     });
@@ -47,13 +48,13 @@ export class ResourceClient<T> {
           map(extractResponseContent),
           tap((it: T) => {
             this.cache.set(id, it);
-          })
+          }),
         );
   }
 }
 
 export class ListableResourceClient<
-  T extends { id: string }
+  T extends { id: string },
 > extends ResourceClient<T> {
   list(): Observable<T[]> {
     return this.garg.get('/list').pipe(
@@ -61,7 +62,7 @@ export class ListableResourceClient<
       tap((arr: T[]) => {
         if (!arr) return;
         this.cache = new Map(arr.map((it) => [it.id, it]));
-      })
+      }),
     );
   }
 }

@@ -1,26 +1,55 @@
 <div class="card">
-    <div *ngIf="progress" class="progress">
-        <progress [class]="getProgressColorClass()" [value]="getProgress() || 0" max="100"></progress>
+  <div *ngIf="progress" class="progress">
+    <progress
+      [class]="getProgressColorClass()"
+      [value]="getProgress() || 0"
+      max="100"
+    ></progress>
+  </div>
+  <div class="card-header">
+    {{ scenario.name | atob }}
+  </div>
+  <div class="card-block">
+    <div class="card-text">
+      {{ scenario.description | atob }}
     </div>
-    <div class="card-header">
-        {{ scenario.name | atob }}
-    </div>
-    <div class="card-block">
-        <div class="card-text">
-            {{ scenario.description | atob }}
-        </div>
-    </div>
-    <div class="card-footer">
-        <ng-template [ngIf]="!progress || progress.finished" [ngIfElse]="activeProgressControls">
-            <button class="btn btn-sm btn-link" (click)="navScenario()" [disabled] = "activeSession" >Start Scenario</button>
-        </ng-template>
-        <ng-template #activeProgressControls>
-            <button class="btn btn-danger-outline" (click)="terminate()" [disabled]="terminated">Terminate Session</button>
-            <button class="btn btn-success" (click)="continue()" [disabled]="terminated" >Continue</button>
-        </ng-template>
+  </div>
+  <div class="card-footer">
+    <ng-template
+      [ngIf]="!progress || progress.finished"
+      [ngIfElse]="activeProgressControls"
+    >
+      <button
+        class="btn btn-sm btn-link"
+        (click)="navScenario()"
+        [disabled]="activeSession"
+      >
+        Start Scenario
+      </button>
+    </ng-template>
+    <ng-template #activeProgressControls>
+      <button
+        class="btn btn-danger-outline"
+        (click)="terminate()"
+        [disabled]="terminated"
+      >
+        Terminate Session
+      </button>
+      <button
+        class="btn btn-success"
+        (click)="continue()"
+        [disabled]="terminated"
+      >
+        Continue
+      </button>
+    </ng-template>
 
-        <a *ngIf="scenario.printable" [routerLink]="['/scenario', scenarioid, 'printable']" target="_blank">
-            <button class="btn btn-sm btn-link">Print</button>
-        </a>
-    </div>
+    <a
+      *ngIf="scenario.printable"
+      [routerLink]="['/scenario', scenarioid, 'printable']"
+      target="_blank"
+    >
+      <button class="btn btn-sm btn-link">Print</button>
+    </a>
+  </div>
 </div>

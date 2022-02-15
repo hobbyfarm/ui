@@ -1,4 +1,4 @@
 export class Step {
-    title: string;
-    content: string;
+  title: string;
+  content: string;
 }

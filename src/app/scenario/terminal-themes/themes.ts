@@ -7,10 +7,18 @@ import Dichromatic from './Dichromatic';
 
 // Themes taken from https://github.com/ysk2014/xterm-theme
 export const themes = [
-    {id: 'default', name: 'Default Hobbyfarm Terminal', styles: Hobbyfarm_Default},
-    {id: 'Solarized_Light', name: 'Solarized Light', styles: Solarized_Light},
-    {id: 'Solarized_Dark', name: 'Solarized Dark', styles: Solarized_Dark},
-    {id: 'Solarized_Dark_Higher_Contrast', name: 'Solarized Dark Higher Contrast', styles: Solarized_Dark_Higher_Contrast },
-    {id: 'GitHub', name: 'GitHub', styles: GitHub },
-    {id: 'Dichromatic', name: 'Dichromatic', styles: Dichromatic }
+  {
+    id: 'default',
+    name: 'Default Hobbyfarm Terminal',
+    styles: Hobbyfarm_Default,
+  },
+  { id: 'Solarized_Light', name: 'Solarized Light', styles: Solarized_Light },
+  { id: 'Solarized_Dark', name: 'Solarized Dark', styles: Solarized_Dark },
+  {
+    id: 'Solarized_Dark_Higher_Contrast',
+    name: 'Solarized Dark Higher Contrast',
+    styles: Solarized_Dark_Higher_Contrast,
+  },
+  { id: 'GitHub', name: 'GitHub', styles: GitHub },
+  { id: 'Dichromatic', name: 'Dichromatic', styles: Dichromatic },
 ] as const;

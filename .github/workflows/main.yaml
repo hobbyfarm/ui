@@ -25,37 +25,36 @@ jobs:
     name: Build
     runs-on: ubuntu-latest
     steps:
-      
-    - name: Checkout
-      uses: actions/checkout@master
+      - name: Checkout
+        uses: actions/checkout@master
 
-    - name: Set Git Version
-      run: ./cicd/git-version.sh
+      - name: Set Git Version
+        run: ./cicd/git-version.sh
 
-    - name: Build
-      run: |
-        docker build -f $dockerfile --tag $sdk_image --target sdk .
+      - name: Build
+        run: |
+          docker build -f $dockerfile --tag $sdk_image --target sdk .
 
-    - name: Build Release
-      if: fromJSON(env.should_push_image)
-      run: |
-        docker build -f $dockerfile --tag $app_image .
+      - name: Build Release
+        if: fromJSON(env.should_push_image)
+        run: |
+          docker build -f $dockerfile --tag $app_image .
 
-    - name: Docker Login
-      if: fromJSON(env.should_push_image)
-      run: |
-        echo "${{ secrets.REGISTRY_PASSWORD }}" \
-          | docker login -u "${{ secrets.REGISTRY_USER }}" --password-stdin
+      - name: Docker Login
+        if: fromJSON(env.should_push_image)
+        run: |
+          echo "${{ secrets.REGISTRY_PASSWORD }}" \
+            | docker login -u "${{ secrets.REGISTRY_USER }}" --password-stdin
 
-    - name: Docker Push
-      if: fromJSON(env.should_push_image)
-      run: |
-        safe_ref=$(echo "${{ github.ref_name }}" | sed -e 's/[^a-zA-Z0-9\-\.]/-/g')
-        publish_tag=$app_image:$safe_ref
-        
-        docker tag $app_image $publish_tag
-        docker push $publish_tag
+      - name: Docker Push
+        if: fromJSON(env.should_push_image)
+        run: |
+          safe_ref=$(echo "${{ github.ref_name }}" | sed -e 's/[^a-zA-Z0-9\-\.]/-/g')
+          publish_tag=$app_image:$safe_ref
 
-    - name: Docker Push Latest
-      if: fromJSON(env.should_tag_latest)
-      run: docker push $app_image
+          docker tag $app_image $publish_tag
+          docker push $publish_tag
+
+      - name: Docker Push Latest
+        if: fromJSON(env.should_tag_latest)
+        run: docker push $app_image

@@ -1,9 +1,13 @@
 <tr *ngFor="let vm of vmclaim.vm | keyvalue">
   <td class="left">{{ vm.key }}</td>
-  <td class="left">{{ vm.value.vm_id}}</td>
+  <td class="left">{{ vm.value.vm_id }}</td>
   <td class="left">{{ vm.value.template }}</td>
   <td>
-    <clr-icon *ngIf="vmclaim?.ready" shape="check" class="is-success"></clr-icon>
+    <clr-icon
+      *ngIf="vmclaim?.ready"
+      shape="check"
+      class="is-success"
+    ></clr-icon>
     <clr-spinner *ngIf="!vmclaim?.ready" [clrInline]="true"></clr-spinner>
     {{ getVm(vm.value.vm_id)?.status }}
   </td>

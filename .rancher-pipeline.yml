@@ -1,13 +1,13 @@
 stages:
-- name: Publish
-  steps:
-  - publishImageConfig:
-      dockerfilePath: ./cicd/docker/Dockerfile
-      buildContext: .
-      tag: hfui:${CICD_EXECUTION_SEQUENCE}
-- name: Deploy
-  steps:
-  - applyYamlConfig:
-      path: ./deploy/deploy-ui.yaml
+  - name: Publish
+    steps:
+      - publishImageConfig:
+          dockerfilePath: ./cicd/docker/Dockerfile
+          buildContext: .
+          tag: hfui:${CICD_EXECUTION_SEQUENCE}
+  - name: Deploy
+    steps:
+      - applyYamlConfig:
+          path: ./deploy/deploy-ui.yaml
 timeout: 60
 notification: {}

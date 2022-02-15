@@ -1,9 +1,19 @@
 import { Injectable } from '@angular/core';
 import { HttpErrorResponse, HttpParams } from '@angular/common/http';
 import { Subject, concat, throwError } from 'rxjs';
-import { catchError, first, map, shareReplay, switchMap, tap } from 'rxjs/operators';
+import {
+  catchError,
+  first,
+  map,
+  shareReplay,
+  switchMap,
+  tap,
+} from 'rxjs/operators';
 import { themes } from '../scenario/terminal-themes/themes';
-import { extractResponseContent, GargantuaClientFactory } from './gargantua.service';
+import {
+  extractResponseContent,
+  GargantuaClientFactory,
+} from './gargantua.service';
 
 export interface Settings {
   terminal_theme: typeof themes[number]['id'];
@@ -22,7 +32,7 @@ export class SettingsService {
       map(extractResponseContent),
       tap((s: Readonly<Settings>) => {
         this.subject.next(s);
-      })
+      }),
     );
   }
 
@@ -32,7 +42,7 @@ export class SettingsService {
       catchError((e: HttpErrorResponse) => {
         return throwError(e.error);
       }),
-      tap(() => this.subject.next(newSettings))
+      tap(() => this.subject.next(newSettings)),
     );
   }
 
@@ -41,7 +51,7 @@ export class SettingsService {
       first(),
       switchMap((currentSettings) => {
         return this.set({ ...currentSettings, ...update });
-      })
+      }),
     );
   }
 }
