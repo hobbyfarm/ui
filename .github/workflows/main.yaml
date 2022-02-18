@@ -5,16 +5,15 @@ env:
   should_push_image: |-
     ${{
       github.event_name == 'push' && (
-        startsWith(github.event.ref, 'refs/tags/')
-        || endsWith(github.event.ref, '/master')
+        github.ref_type == 'tag' ||
+        github.ref_name == 'master'
       )
     }}
 
   should_tag_latest: |-
     ${{
-      github.event_name == 'push' && (
-        startsWith(github.event.ref, 'refs/tags/')
-      )
+      github.event_name == 'push' &&
+      github.ref_type == 'tag'
     }}
 
 jobs:
