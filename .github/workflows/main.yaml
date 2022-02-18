@@ -34,14 +34,12 @@ jobs:
 
     - name: Build
       run: |
-        tag=$sdk_image:${GIT_COMMIT_SHORT_HASH:-dev}
-        docker build -f $dockerfile --tag $tag --target sdk .
+        docker build -f $dockerfile --tag $sdk_image --target sdk .
 
     - name: Build Release
       if: fromJSON(env.should_push_image)
       run: |
-        tag=$app_image:${GIT_COMMIT_SHORT_HASH:-dev}
-        docker build -f $dockerfile --tag $tag .
+        docker build -f $dockerfile --tag $app_image .
 
     - name: Compute Docker Tag
       if: fromJSON(env.should_push_image)
@@ -66,28 +64,14 @@ jobs:
         echo "${{ secrets.REGISTRY_PASSWORD }}" \
           | docker login -u "${{ secrets.REGISTRY_USER }}" --password-stdin
 
-    - name: Docker Tag
-      if: fromJSON(env.should_push_image)
-      run: |
-        docker tag \
-          hobbyfarm/ui:${GIT_COMMIT_SHORT_HASH:-dev} \
-          hobbyfarm/ui:${{ steps.compute_docker_tag.outputs.DOCKER_TAG }}
-
     - name: Docker Push
       if: fromJSON(env.should_push_image)
       run: |
-        docker push \
-          hobbyfarm/ui:${{ steps.compute_docker_tag.outputs.DOCKER_TAG }}
-
-    - name: Docker Tag Latest
-      if: fromJSON(env.should_tag_latest)
-      run: |
-        docker tag \
-          hobbyfarm/ui:${GIT_COMMIT_SHORT_HASH:-dev} \
-          hobbyfarm/ui:latest
+        publish_tag=$app_image:${{ steps.compute_docker_tag.outputs.DOCKER_TAG }}
+        
+        docker tag $app_image $publish_tag
+        docker push $publish_tag
 
     - name: Docker Push Latest
       if: fromJSON(env.should_tag_latest)
-      run: |
-        docker push \
-          hobbyfarm/ui:latest
+      run: docker push $app_image
