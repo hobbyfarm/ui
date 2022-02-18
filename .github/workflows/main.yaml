@@ -1,5 +1,22 @@
 name: Main
 on: [push, pull_request]
+
+env:
+  should_push_image: |-
+    ${{
+      github.event_name == 'push' && (
+        startsWith(github.event.ref, 'refs/tags/')
+        || endsWith(github.event.ref, '/master')
+      )
+    }}
+
+  should_tag_latest: |-
+    ${{
+      github.event_name == 'push' && (
+        startsWith(github.event.ref, 'refs/tags/')
+      )
+    }}
+
 jobs:
   build:
     name: Build
@@ -16,19 +33,11 @@ jobs:
       run: docker-compose -f ./cicd/docker/docker-compose-sdk.yaml build
 
     - name: Build Release
-      if: |
-        github.event_name == 'push' && (
-          startsWith(github.event.ref, 'refs/tags/')
-          || endsWith(github.event.ref, '/master')
-        )
+      if: fromJSON(env.should_push_image)
       run: docker-compose -f ./cicd/docker/docker-compose-release.yaml build
 
     - name: Compute Docker Tag
-      if: |
-        github.event_name == 'push' && (
-          startsWith(github.event.ref, 'refs/tags/')
-          || endsWith(github.event.ref, '/master')
-        )
+      if: fromJSON(env.should_push_image)
       id: compute_docker_tag
       run: |
         tag=${GITHUB_REF#refs/tags/}
@@ -45,51 +54,33 @@ jobs:
         fi
 
     - name: Docker Login
-      if: |
-        github.event_name == 'push' && (
-          startsWith(github.event.ref, 'refs/tags/')
-          || endsWith(github.event.ref, '/master')
-        )
+      if: fromJSON(env.should_push_image)
       run: |
         echo "${{ secrets.REGISTRY_PASSWORD }}" \
           | docker login -u "${{ secrets.REGISTRY_USER }}" --password-stdin
 
     - name: Docker Tag
-      if: |
-        github.event_name == 'push' && (
-          startsWith(github.event.ref, 'refs/tags/')
-          || endsWith(github.event.ref, '/master')
-        )
+      if: fromJSON(env.should_push_image)
       run: |
         docker tag \
           hobbyfarm/ui:${GIT_COMMIT_SHORT_HASH:-dev} \
           hobbyfarm/ui:${{ steps.compute_docker_tag.outputs.DOCKER_TAG }}
 
     - name: Docker Push
-      if: |
-        github.event_name == 'push' && (
-          startsWith(github.event.ref, 'refs/tags/')
-          || endsWith(github.event.ref, '/master')
-        )
+      if: fromJSON(env.should_push_image)
       run: |
         docker push \
           hobbyfarm/ui:${{ steps.compute_docker_tag.outputs.DOCKER_TAG }}
 
     - name: Docker Tag Latest
-      if: |
-        github.event_name == 'push' && (
-          startsWith(github.event.ref, 'refs/tags/')
-        )
+      if: fromJSON(env.should_tag_latest)
       run: |
         docker tag \
           hobbyfarm/ui:${GIT_COMMIT_SHORT_HASH:-dev} \
           hobbyfarm/ui:latest
 
     - name: Docker Push Latest
-      if: |
-        github.event_name == 'push' && (
-          startsWith(github.event.ref, 'refs/tags/')
-        )
+      if: fromJSON(env.should_tag_latest)
       run: |
         docker push \
           hobbyfarm/ui:latest
