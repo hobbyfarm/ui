@@ -41,23 +41,6 @@ jobs:
       run: |
         docker build -f $dockerfile --tag $app_image .
 
-    - name: Compute Docker Tag
-      if: fromJSON(env.should_push_image)
-      id: compute_docker_tag
-      run: |
-        tag=${GITHUB_REF#refs/tags/}
-        branch=${GITHUB_REF#refs/heads/}
-        if [ "$tag" != "$GITHUB_REF" ]; then
-          tag=$(echo "$tag" | sed -e 's/[^a-zA-Z0-9\-\.]/-/g')
-          echo ::set-output name=DOCKER_TAG::${tag}
-        elif [ "$branch" != "$GITHUB_REF" ]; then
-          branch=$(echo "$branch" | sed -e 's/[^a-zA-Z0-9\-\.]/-/g')
-          echo ::set-output name=DOCKER_TAG::${branch}
-        else
-          echo "unable to determine docker tag" >&2
-          exit 1
-        fi
-
     - name: Docker Login
       if: fromJSON(env.should_push_image)
       run: |
@@ -67,7 +50,8 @@ jobs:
     - name: Docker Push
       if: fromJSON(env.should_push_image)
       run: |
-        publish_tag=$app_image:${{ steps.compute_docker_tag.outputs.DOCKER_TAG }}
+        safe_ref=$(echo "${{ github.ref_name }}" | sed -e 's/[^a-zA-Z0-9\-\.]/-/g')
+        publish_tag=$app_image:$safe_ref
         
         docker tag $app_image $publish_tag
         docker push $publish_tag
