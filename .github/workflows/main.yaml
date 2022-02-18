@@ -2,6 +2,10 @@ name: Main
 on: [push, pull_request]
 
 env:
+  app_image: hobbyfarm/ui
+  sdk_image: hobbyfarm/ui-sdk
+  dockerfile: cicd/docker/Dockerfile
+
   should_push_image: |-
     ${{
       github.event_name == 'push' && (
@@ -29,11 +33,15 @@ jobs:
       run: ./cicd/git-version.sh
 
     - name: Build
-      run: docker-compose -f ./cicd/docker/docker-compose-sdk.yaml build
+      run: |
+        tag=$sdk_image:${GIT_COMMIT_SHORT_HASH:-dev}
+        docker build -f $dockerfile --tag $tag --target sdk .
 
     - name: Build Release
       if: fromJSON(env.should_push_image)
-      run: docker-compose -f ./cicd/docker/docker-compose-release.yaml build
+      run: |
+        tag=$app_image:${GIT_COMMIT_SHORT_HASH:-dev}
+        docker build -f $dockerfile --tag $tag .
 
     - name: Compute Docker Tag
       if: fromJSON(env.should_push_image)
