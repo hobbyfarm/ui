@@ -57,7 +57,7 @@ export class HomeComponent implements OnInit, OnDestroy {
         this.courses = c;
         this.loadedCourses = true;
       },
-      (error: any) => {
+      () => {
         this.loadedCourses = false;
       },
     );
@@ -66,14 +66,14 @@ export class HomeComponent implements OnInit, OnDestroy {
         this.scenarios = s;
         this.loadedScenarios = true;
       },
-      (error: any) => {
+      () => {
         this.loadedScenarios = false;
       },
     );
   }
 
   ngOnInit() {
-    this.userService.getModifiedObservable().subscribe((_) => {
+    this.userService.getModifiedObservable().subscribe(() => {
       // values push when adjustments made to access code list
       // thus, refresh the scenario list
       this._refresh();

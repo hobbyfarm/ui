@@ -122,7 +122,7 @@ export class TerminalComponent implements OnChanges, AfterViewInit, OnDestroy {
       }
     };
 
-    this.socket.onopen = (e) => {
+    this.socket.onopen = () => {
       this.shellService.setStatus(this.vmname, 'Connected');
       this.term.loadAddon(this.attachAddon);
       this.term.focus();
@@ -171,10 +171,7 @@ export class TerminalComponent implements OnChanges, AfterViewInit, OnDestroy {
     };
 
     // Callback function to execute when mutations are observed
-    const callback: MutationCallback = (
-      mutationsList: MutationRecord[],
-      _observer: MutationObserver,
-    ) => {
+    const callback: MutationCallback = (mutationsList: MutationRecord[]) => {
       mutationsList.forEach((mutation) => {
         // After the first start of the scenario, wait until the visible terminal element is added to the DOM.
         if (mutation.type === 'childList') {

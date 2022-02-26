@@ -207,10 +207,10 @@ export class AppComponent implements OnInit {
 
   public doSaveSettings() {
     this.settingsService.update(this.settingsForm.value).subscribe(
-      (s: ServerResponse) => {
+      () => {
         this.settingsModalOpened = false;
       },
-      (s: ServerResponse) => {
+      () => {
         setTimeout(() => (this.settingsModalOpened = false), 2000);
       },
     );

@@ -162,7 +162,7 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
         }),
         retryWhen((errors) =>
           errors.pipe(
-            concatMap((e: HttpErrorResponse, i) =>
+            concatMap((e: HttpErrorResponse) =>
               iif(
                 () => {
                   if (e.status != 202) {
@@ -267,7 +267,7 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
     if (this.shouldKeepVmOnFinish && !force) {
       this.router.navigateByUrl('/app/home');
     } else {
-      this.ssService.finish(this.session.id).subscribe((s: ServerResponse) => {
+      this.ssService.finish(this.session.id).subscribe(() => {
         this.router.navigateByUrl('/app/home');
       });
     }
@@ -289,7 +289,7 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
     this.ssService
       .pause(this.session.id)
       .pipe(
-        switchMap((s: ServerResponse) => {
+        switchMap(() => {
           // if successful, hit the keepalive endpoint to update time.
           return this.ssService.keepalive(this.session.id);
         }),
@@ -300,7 +300,7 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
           this._updatePauseRemaining(s.message);
           this.pauseModal.open();
         },
-        (s: ServerResponse) => {
+        () => {
           // failure! what now?
         },
       );
@@ -308,11 +308,11 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
 
   public resume() {
     this.ssService.resume(this.session.id).subscribe(
-      (s: ServerResponse) => {
+      () => {
         // successful means we're resumed
         this.pauseOpen = false;
       },
-      (s: ServerResponse) => {
+      () => {
         // something went wrong
       },
     );
