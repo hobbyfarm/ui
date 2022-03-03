@@ -1,8 +1,7 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { AfterViewChecked, Component, OnInit } from '@angular/core';
-import { ActivatedRoute, ParamMap } from '@angular/router';
+import { ActivatedRoute } from '@angular/router';
 import { MarkdownService } from 'ngx-markdown';
-import { first, switchMap } from 'rxjs/operators';
 import { ScenarioService } from '../services/scenario.service';
 
 @Component({
@@ -40,13 +39,11 @@ export class PrintableComponent implements OnInit, AfterViewChecked {
 
 
   ngOnInit(): void {
-    this.route.paramMap
-      .pipe(
-        first(),
-        switchMap((p: ParamMap) => {
-          return this.scenarioService.printable(p.get("scenario"))
-        })
-      ).subscribe(
+    const { paramMap } = this.route.snapshot;
+    const scenarioId = paramMap.get('scenario')!;
+
+    this.scenarioService.printable(scenarioId)
+      .subscribe(
         (content: any) => {
           this.scenario = content;
         },

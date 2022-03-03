@@ -109,9 +109,6 @@ export class TerminalComponent implements OnChanges, AfterViewInit, OnDestroy {
             this.subscription = this.ctrService.getCodeStream()
                 .subscribe(
                     (c: CodeExec) => {
-                        if (!c) {
-                            return;
-                        }
                         // if the code exec is target at us,execute it
                         if (c.target.toLowerCase() == this.vmname.toLowerCase()) {
                             // break up the code by lines
@@ -141,7 +138,6 @@ export class TerminalComponent implements OnChanges, AfterViewInit, OnDestroy {
 
     ngOnDestroy() {
         if(this.subscription) {
-            (this.ctrService.getCodeStream().source as any).next();
             this.subscription.unsubscribe();
         }
     }

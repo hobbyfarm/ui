@@ -11,7 +11,7 @@ export class UserService {
   constructor(private gcf: GargantuaClientFactory) {}
   private garg = this.gcf.scopedClient('/auth');
   
-  private _acModified : BehaviorSubject<boolean> = new BehaviorSubject(false);
+  private _acModified = new BehaviorSubject(false);
 
   public getModifiedObservable() {
     return this._acModified.asObservable();

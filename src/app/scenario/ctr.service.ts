@@ -1,13 +1,14 @@
 import {Injectable } from '@angular/core';
-import { BehaviorSubject } from 'rxjs';
+import { Subject } from 'rxjs';
 import {CodeExec} from './CodeExec';
 
 
 @Injectable()
 export class CtrService {
-    private ctrstream: BehaviorSubject<CodeExec> = new BehaviorSubject(null);
+    private ctrstream = new Subject<CodeExec>();
 
     public sendCode(ctr: CodeExec) {
+        if (!ctr) return;
         this.ctrstream.next(ctr);
     }
 

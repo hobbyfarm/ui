@@ -21,7 +21,7 @@ export class HomeComponent implements OnInit {
     public showScenarioModal: boolean = false;
     public scenarioid: string;
     public courseid: string;
-    public activeSession: Progress;
+    public activeSession?: Progress;
 
     private callDelay = 10;
     private interval;
