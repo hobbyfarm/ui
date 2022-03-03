@@ -1,5 +1,25 @@
 name: Main
 on: [push, pull_request]
+
+env:
+  app_image: hobbyfarm/ui
+  sdk_image: hobbyfarm/ui-sdk
+  dockerfile: cicd/docker/Dockerfile
+
+  should_push_image: |-
+    ${{
+      github.event_name == 'push' && (
+        github.ref_type == 'tag' ||
+        github.ref_name == 'master'
+      )
+    }}
+
+  should_tag_latest: |-
+    ${{
+      github.event_name == 'push' &&
+      github.ref_type == 'tag'
+    }}
+
 jobs:
   build:
     name: Build
@@ -13,83 +33,29 @@ jobs:
       run: ./cicd/git-version.sh
 
     - name: Build
-      run: docker-compose -f ./cicd/docker/docker-compose-sdk.yaml build
+      run: |
+        docker build -f $dockerfile --tag $sdk_image --target sdk .
 
     - name: Build Release
-      if: |
-        github.event_name == 'push' && (
-          startsWith(github.event.ref, 'refs/tags/')
-          || endsWith(github.event.ref, '/master')
-        )
-      run: docker-compose -f ./cicd/docker/docker-compose-release.yaml build
-
-    - name: Compute Docker Tag
-      if: |
-        github.event_name == 'push' && (
-          startsWith(github.event.ref, 'refs/tags/')
-          || endsWith(github.event.ref, '/master')
-        )
-      id: compute_docker_tag
+      if: fromJSON(env.should_push_image)
       run: |
-        tag=${GITHUB_REF#refs/tags/}
-        branch=${GITHUB_REF#refs/heads/}
-        if [ "$tag" != "$GITHUB_REF" ]; then
-          tag=$(echo "$tag" | sed -e 's/[^a-zA-Z0-9\-\.]/-/g')
-          echo ::set-output name=DOCKER_TAG::${tag}
-        elif [ "$branch" != "$GITHUB_REF" ]; then
-          branch=$(echo "$branch" | sed -e 's/[^a-zA-Z0-9\-\.]/-/g')
-          echo ::set-output name=DOCKER_TAG::${branch}
-        else
-          echo "unable to determine docker tag" >&2
-          exit 1
-        fi
+        docker build -f $dockerfile --tag $app_image .
 
     - name: Docker Login
-      if: |
-        github.event_name == 'push' && (
-          startsWith(github.event.ref, 'refs/tags/')
-          || endsWith(github.event.ref, '/master')
-        )
+      if: fromJSON(env.should_push_image)
       run: |
         echo "${{ secrets.REGISTRY_PASSWORD }}" \
           | docker login -u "${{ secrets.REGISTRY_USER }}" --password-stdin
 
-    - name: Docker Tag
-      if: |
-        github.event_name == 'push' && (
-          startsWith(github.event.ref, 'refs/tags/')
-          || endsWith(github.event.ref, '/master')
-        )
-      run: |
-        docker tag \
-          hobbyfarm/ui:${GIT_COMMIT_SHORT_HASH:-dev} \
-          hobbyfarm/ui:${{ steps.compute_docker_tag.outputs.DOCKER_TAG }}
-
     - name: Docker Push
-      if: |
-        github.event_name == 'push' && (
-          startsWith(github.event.ref, 'refs/tags/')
-          || endsWith(github.event.ref, '/master')
-        )
+      if: fromJSON(env.should_push_image)
       run: |
-        docker push \
-          hobbyfarm/ui:${{ steps.compute_docker_tag.outputs.DOCKER_TAG }}
-
-    - name: Docker Tag Latest
-      if: |
-        github.event_name == 'push' && (
-          startsWith(github.event.ref, 'refs/tags/')
-        )
-      run: |
-        docker tag \
-          hobbyfarm/ui:${GIT_COMMIT_SHORT_HASH:-dev} \
-          hobbyfarm/ui:latest
+        safe_ref=$(echo "${{ github.ref_name }}" | sed -e 's/[^a-zA-Z0-9\-\.]/-/g')
+        publish_tag=$app_image:$safe_ref
+        
+        docker tag $app_image $publish_tag
+        docker push $publish_tag
 
     - name: Docker Push Latest
-      if: |
-        github.event_name == 'push' && (
-          startsWith(github.event.ref, 'refs/tags/')
-        )
-      run: |
-        docker push \
-          hobbyfarm/ui:latest
+      if: fromJSON(env.should_tag_latest)
+      run: docker push $app_image
