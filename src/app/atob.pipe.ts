@@ -5,7 +5,7 @@ import { atou } from './unicode';
   name: 'atob',
 })
 export class AtobPipe implements PipeTransform {
-  transform(value: any, args?: any): any {
+  transform(value: any): any {
     if (value) {
       return atou(value);
     }

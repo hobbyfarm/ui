@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Course } from './course/course';
 import { UserService } from './services/user.service';
 import { CourseService } from './services/course.service';
@@ -8,16 +8,16 @@ import { ProgressService } from './services/progress.service';
 import { Progress } from './Progress';
 
 @Component({
-  selector: 'home-component',
+  selector: 'app-home',
   templateUrl: 'home.component.html',
   styleUrls: ['home.component.scss'],
 })
-export class HomeComponent implements OnInit {
+export class HomeComponent implements OnInit, OnDestroy {
   public courses: Course[] = [];
   public scenarios: Scenario[] = [];
   public loadedScenarios = false;
   public loadedCourses = false;
-  public showScenarioModal: boolean = false;
+  public showScenarioModal = false;
   public scenarioid: string;
   public courseid: string;
   public activeSession?: Progress;
@@ -57,7 +57,7 @@ export class HomeComponent implements OnInit {
         this.courses = c;
         this.loadedCourses = true;
       },
-      (error: any) => {
+      () => {
         this.loadedCourses = false;
       },
     );
@@ -66,14 +66,14 @@ export class HomeComponent implements OnInit {
         this.scenarios = s;
         this.loadedScenarios = true;
       },
-      (error: any) => {
+      () => {
         this.loadedScenarios = false;
       },
     );
   }
 
   ngOnInit() {
-    this.userService.getModifiedObservable().subscribe((_) => {
+    this.userService.getModifiedObservable().subscribe(() => {
       // values push when adjustments made to access code list
       // thus, refresh the scenario list
       this._refresh();

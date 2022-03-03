@@ -44,27 +44,27 @@ import { ProgressService } from '../services/progress.service';
 import { HfMarkdownRenderContext } from '../hf-markdown/hf-markdown.component';
 
 @Component({
+  selector: 'app-step',
   templateUrl: 'step.component.html',
-  selector: 'step-component',
   styleUrls: ['step.component.scss'],
 })
 export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
   public scenario: Scenario = new Scenario();
   public step: Step = new Step();
-  public stepnumber: number = 0;
-  public stepcontent: string = '';
+  public stepnumber = 0;
+  public stepcontent = '';
   private shellStatus: Map<string, string> = new Map();
 
-  public finishOpen: boolean = false;
-  public closeOpen: boolean = false;
+  public finishOpen = false;
+  public closeOpen = false;
 
   public session: Session = new Session();
-  public sessionExpired: boolean = false;
+  public sessionExpired = false;
   public vms: Map<string, VM> = new Map();
 
   mdContext: HfMarkdownRenderContext = { vmInfo: {} };
 
-  public pauseOpen: boolean = false;
+  public pauseOpen = false;
 
   public pauseLastUpdated: Date = new Date();
   public pauseRemainingString = '';
@@ -162,7 +162,7 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
         }),
         retryWhen((errors) =>
           errors.pipe(
-            concatMap((e: HttpErrorResponse, i) =>
+            concatMap((e: HttpErrorResponse) =>
               iif(
                 () => {
                   if (e.status != 202) {
@@ -263,11 +263,11 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
     this.finishOpen = true;
   }
 
-  actuallyFinish(force: boolean = false) {
+  actuallyFinish(force = false) {
     if (this.shouldKeepVmOnFinish && !force) {
       this.router.navigateByUrl('/app/home');
     } else {
-      this.ssService.finish(this.session.id).subscribe((s: ServerResponse) => {
+      this.ssService.finish(this.session.id).subscribe(() => {
         this.router.navigateByUrl('/app/home');
       });
     }
@@ -289,7 +289,7 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
     this.ssService
       .pause(this.session.id)
       .pipe(
-        switchMap((s: ServerResponse) => {
+        switchMap(() => {
           // if successful, hit the keepalive endpoint to update time.
           return this.ssService.keepalive(this.session.id);
         }),
@@ -300,7 +300,7 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
           this._updatePauseRemaining(s.message);
           this.pauseModal.open();
         },
-        (s: ServerResponse) => {
+        () => {
           // failure! what now?
         },
       );
@@ -308,11 +308,11 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
 
   public resume() {
     this.ssService.resume(this.session.id).subscribe(
-      (s: ServerResponse) => {
+      () => {
         // successful means we're resumed
         this.pauseOpen = false;
       },
-      (s: ServerResponse) => {
+      () => {
         // something went wrong
       },
     );

@@ -8,11 +8,11 @@
 
     <div class="clr-row">
       <div class="clr-col-12 clr-col-sm-6 clr-col-md-4 clr-col-lg-3">
-        <scenario-card
+        <app-scenario-card
           [scenarioid]="activeSession.scenario"
           [progress]="activeSession"
           (scenarioModal)="toggleScenarioModal(activeSession.scenario)"
-        ></scenario-card>
+        ></app-scenario-card>
       </div>
     </div>
   </div>
@@ -36,11 +36,11 @@
         class="clr-col-12 clr-col-sm-6 clr-col-md-4 clr-col-lg-3"
         *ngFor="let s of scenarios"
       >
-        <scenario-card
+        <app-scenario-card
           [scenarioid]="s.id"
           [activeSession]="!!activeSession"
           (scenarioModal)="toggleScenarioModal(s.id)"
-        ></scenario-card>
+        ></app-scenario-card>
       </div>
     </ng-container>
   </div>
@@ -58,14 +58,14 @@
               class="clr-col-12 clr-col-sm-6 clr-col-md-4 clr-col-lg-3"
               *ngFor="let sId of c?.scenarios"
             >
-              <scenario-card
+              <app-scenario-card
                 [scenarioid]="sId"
                 [activeSession]="
-                  (!!activeSession && c.id != activeSession.course) ||
+                  (!!activeSession && c.id !== activeSession.course) ||
                   (!c.keep_vm && !!activeSession)
                 "
                 (scenarioModal)="toggleScenarioModal(sId, c.id)"
-              ></scenario-card>
+              ></app-scenario-card>
             </div>
           </ng-container>
           <ng-template #no_scenarios>
@@ -79,10 +79,10 @@
   </div>
 </div>
 
-<scenario-component
+<app-scenario
   *ngIf="scenarioid"
   [scenarioid]="scenarioid"
   [courseid]="courseid"
   [showScenarioModal]="showScenarioModal"
   (scenarioModal)="toggleScenarioModal()"
-></scenario-component>
+></app-scenario>

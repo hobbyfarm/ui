@@ -10,8 +10,6 @@ export class ShellService {
     this.status,
   );
 
-  constructor() {}
-
   public watch() {
     return this.bh.asObservable();
   }

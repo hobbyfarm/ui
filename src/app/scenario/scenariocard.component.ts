@@ -13,19 +13,19 @@ import { ScenarioService } from '../services/scenario.service';
 import { SessionService } from '../services/session.service';
 
 @Component({
+  selector: 'app-scenario-card',
   templateUrl: 'scenariocard.component.html',
-  selector: 'scenario-card',
   styleUrls: ['./scenariocard.component.scss'],
 })
-export class ScenarioCard implements OnChanges {
+export class ScenarioCardComponent implements OnChanges {
   @Input()
-  public scenarioid: string = '';
+  public scenarioid = '';
   @Input()
-  public activeSession: boolean = false;
+  public activeSession = false;
   @Input()
   public progress?: Progress;
 
-  public terminated: boolean = false;
+  public terminated = false;
 
   @Output()
   scenarioModal = new EventEmitter();

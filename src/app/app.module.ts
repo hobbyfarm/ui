@@ -15,7 +15,7 @@ import { HttpClientModule } from '@angular/common/http';
 import { LoginComponent } from './login/login.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { AuthGuard } from './auth.guard';
-import { ScenarioCard } from './scenario/scenariocard.component';
+import { ScenarioCardComponent } from './scenario/scenariocard.component';
 import { StepComponent } from './scenario/step.component';
 import { VMClaimComponent } from './scenario/vmclaim.component';
 import { AtobPipe } from './atob.pipe';
@@ -67,7 +67,7 @@ export function jwtOptionsFactory() {
     ScenarioComponent,
     TerminalComponent,
     LoginComponent,
-    ScenarioCard,
+    ScenarioCardComponent,
     StepComponent,
     CtrComponent,
     VMClaimComponent,

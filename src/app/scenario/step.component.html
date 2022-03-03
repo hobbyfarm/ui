@@ -99,12 +99,12 @@
                   <td><b>Shell Status:</b> {{ getShellStatus(v.key) }}</td>
                 </tr>
               </table>
-              <terminal
+              <app-terminal
                 [vmname]="v.key"
                 [vmid]="v.value.id"
                 [endpoint]="v.value.ws_endpoint"
                 #term
-              ></terminal>
+              ></app-terminal>
             </clr-tab-content>
           </clr-tab>
         </clr-tabs>

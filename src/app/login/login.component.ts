@@ -4,23 +4,23 @@ import { AppConfigService } from '../app-config.service';
 import { UserService } from '../services/user.service';
 
 @Component({
+  selector: 'app-login',
   templateUrl: './login.component.html',
-  selector: 'login',
   styleUrls: ['./login.component.css'],
 })
 export class LoginComponent {
-  public email: string = '';
-  public password: string = '';
-  public error: string = '';
-  public accesscode: string = '';
+  public email = '';
+  public password = '';
+  public error = '';
+  public accesscode = '';
 
-  public registrationDisabled: boolean = false;
+  public registrationDisabled = false;
 
   private Config = this.config.getConfig();
   public logo;
   public background;
 
-  public loginactive: boolean = false;
+  public loginactive = false;
   constructor(
     private router: Router,
     private config: AppConfigService,

@@ -22,7 +22,7 @@ import { themes } from './terminal-themes/themes';
 import { SettingsService } from '../services/settings.service';
 
 @Component({
-  selector: 'terminal',
+  selector: 'app-terminal',
   templateUrl: './terminal.component.html',
   styleUrls: ['terminal.component.scss'],
   encapsulation: ViewEncapsulation.None,
@@ -42,10 +42,12 @@ export class TerminalComponent implements OnChanges, AfterViewInit, OnDestroy {
   private attachAddon: AttachAddon;
   private socket: WebSocket;
   private dimensions: ITerminalDimensions;
-  private firstTabChange: boolean = true;
-  private isVisible: boolean = false;
+  private firstTabChange = true;
+  private isVisible = false;
   public mutationObserver: MutationObserver;
   private subscription: Subscription;
+
+  @ViewChild('terminal', { static: true }) terminalDiv: ElementRef;
 
   constructor(
     private jwtHelper: JwtHelperService,
@@ -53,8 +55,6 @@ export class TerminalComponent implements OnChanges, AfterViewInit, OnDestroy {
     private shellService: ShellService,
     private settingsService: SettingsService,
   ) {}
-
-  @ViewChild('terminal', { static: true }) terminalDiv: ElementRef;
 
   @HostListener('window:resize')
   public resize() {
@@ -64,8 +64,8 @@ export class TerminalComponent implements OnChanges, AfterViewInit, OnDestroy {
       this.socket.readyState == WebSocket.OPEN
     ) {
       this.dimensions = this.fitAddon.proposeDimensions();
-      let height = this.dimensions.rows;
-      let width = this.dimensions.cols;
+      const height = this.dimensions.rows;
+      const width = this.dimensions.cols;
       this.socket.send(`\u001b[8;${height};${width}t`);
       this.fitAddon.fit();
     }
@@ -91,7 +91,7 @@ export class TerminalComponent implements OnChanges, AfterViewInit, OnDestroy {
     );
 
     // Check if current browser is firefox by useragent and use "duck-typing" as a fallback.
-    const regExp: RegExp = /firefox|fxios/i;
+    const regExp = /firefox|fxios/i;
     const isFirefox: boolean =
       regExp.test(navigator.userAgent.toLowerCase()) ||
       'InstallTrigger' in window;
@@ -122,7 +122,7 @@ export class TerminalComponent implements OnChanges, AfterViewInit, OnDestroy {
       }
     };
 
-    this.socket.onopen = (e) => {
+    this.socket.onopen = () => {
       this.shellService.setStatus(this.vmname, 'Connected');
       this.term.loadAddon(this.attachAddon);
       this.term.focus();
@@ -135,7 +135,7 @@ export class TerminalComponent implements OnChanges, AfterViewInit, OnDestroy {
           // if the code exec is target at us,execute it
           if (c.target.toLowerCase() == this.vmname.toLowerCase()) {
             // break up the code by lines
-            var codeArray: string[] = c.code.split('\n');
+            const codeArray: string[] = c.code.split('\n');
             // drop each line
             codeArray.forEach((s: string) => {
               // this.term.writeln(s)
@@ -171,10 +171,7 @@ export class TerminalComponent implements OnChanges, AfterViewInit, OnDestroy {
     };
 
     // Callback function to execute when mutations are observed
-    const callback: MutationCallback = (
-      mutationsList: MutationRecord[],
-      _observer: MutationObserver,
-    ) => {
+    const callback: MutationCallback = (mutationsList: MutationRecord[]) => {
       mutationsList.forEach((mutation) => {
         // After the first start of the scenario, wait until the visible terminal element is added to the DOM.
         if (mutation.type === 'childList') {

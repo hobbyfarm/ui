@@ -5,12 +5,7 @@ import { ClrModal } from '@clr/angular';
 import { Router } from '@angular/router';
 import { version } from 'src/environments/version';
 import { UserService } from './services/user.service';
-import {
-  FormGroup,
-  FormControl,
-  Validators,
-  ValidatorFn,
-} from '@angular/forms';
+import { FormGroup, FormControl, Validators } from '@angular/forms';
 import { ServerResponse } from './ServerResponse';
 import { AppConfigService } from './app-config.service';
 import { SettingsService } from './services/settings.service';
@@ -23,34 +18,34 @@ import { first } from 'rxjs/operators';
   styleUrls: ['./app.component.css'],
 })
 export class AppComponent implements OnInit {
-  public logoutModalOpened: boolean = false;
-  public aboutModalOpened: boolean = false;
-  public changePasswordModalOpened: boolean = false;
+  public logoutModalOpened = false;
+  public aboutModalOpened = false;
+  public changePasswordModalOpened = false;
   public version: string;
 
-  public changePwDangerClosed: boolean = true;
-  public changePwSuccessClosed: boolean = true;
+  public changePwDangerClosed = true;
+  public changePwSuccessClosed = true;
 
-  public changePwDangerAlert: string = '';
-  public changePwSuccessAlert: string = '';
+  public changePwDangerAlert = '';
+  public changePwSuccessAlert = '';
 
-  public accessCodeDangerClosed: boolean = true;
-  public accessCodeSuccessClosed: boolean = true;
+  public accessCodeDangerClosed = true;
+  public accessCodeSuccessClosed = true;
 
-  public accessCodeDangerAlert: string = '';
-  public accessCodeSuccessAlert: string = '';
+  public accessCodeDangerAlert = '';
+  public accessCodeSuccessAlert = '';
 
-  public newAccessCode: boolean = false;
-  public fetchingAccessCodes: boolean = false;
+  public newAccessCode = false;
+  public fetchingAccessCodes = false;
 
-  public accessCodeModalOpened: boolean = false;
+  public accessCodeModalOpened = false;
 
-  public settingsModalOpened: boolean = false;
-  public fetchingSettings: boolean = false;
+  public settingsModalOpened = false;
+  public fetchingSettings = false;
 
   public accesscodes: string[] = [];
 
-  public email: string = '';
+  public email = '';
 
   private Config = this.config.getConfig();
   public title = this.Config.title || "Rancher's Hobby Farm";
@@ -72,7 +67,7 @@ export class AppComponent implements OnInit {
     });
 
     if (this.Config.favicon) {
-      var fi = <HTMLLinkElement>document.querySelector('#favicon');
+      const fi = <HTMLLinkElement>document.querySelector('#favicon');
       fi.href = this.Config.favicon;
     }
 
@@ -82,11 +77,6 @@ export class AppComponent implements OnInit {
       this.version = version.revision;
     }
   }
-
-  public matchedPasswordValidator: ValidatorFn = (control) => {
-    const { new_password1: pw1, new_password1: pw2 } = control.value;
-    return pw1 && pw1 == pw2 ? null : { passwordMismatch: true };
-  };
 
   @ViewChild('logoutmodal', { static: true }) logoutModal: ClrModal;
   @ViewChild('aboutmodal', { static: true }) aboutModal: ClrModal;
@@ -101,7 +91,10 @@ export class AppComponent implements OnInit {
       new_password1: new FormControl(null, [Validators.required]),
       new_password2: new FormControl(null, [Validators.required]),
     },
-    { validators: this.matchedPasswordValidator },
+    {
+      validators: ({ value: { new_password1: pw1, new_password1: pw2 } }) =>
+        pw1 && pw1 == pw2 ? null : { passwordMismatch: true },
+    },
   );
 
   public newAccessCodeForm: FormGroup = new FormGroup({
@@ -116,7 +109,7 @@ export class AppComponent implements OnInit {
   });
 
   ngOnInit() {
-    var tok = this.helper.decodeToken(this.helper.tokenGetter());
+    const tok = this.helper.decodeToken(this.helper.tokenGetter());
     this.email = tok.email;
   }
 
@@ -183,7 +176,7 @@ export class AppComponent implements OnInit {
   }
 
   private _removeAccessCode(a: string) {
-    var acIndex = this.accesscodes.findIndex((v: string) => {
+    const acIndex = this.accesscodes.findIndex((v: string) => {
       return v == a;
     });
     this.accesscodes.splice(acIndex, 1);
@@ -207,10 +200,10 @@ export class AppComponent implements OnInit {
 
   public doSaveSettings() {
     this.settingsService.update(this.settingsForm.value).subscribe(
-      (s: ServerResponse) => {
+      () => {
         this.settingsModalOpened = false;
       },
-      (s: ServerResponse) => {
+      () => {
         setTimeout(() => (this.settingsModalOpened = false), 2000);
       },
     );

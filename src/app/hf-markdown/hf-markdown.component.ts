@@ -28,10 +28,7 @@ export class HfMarkdownComponent implements OnChanges {
   processedContent: string;
 
   constructor(public markdownService: MarkdownService) {
-    this.markdownService.renderer.code = (
-      code: string,
-      language: string = '',
-    ) => {
+    this.markdownService.renderer.code = (code: string, language = '') => {
       const [tag, ...args] = language.split(':');
       if (tag in this.taggedCodeRenderers) {
         const renderer = this.taggedCodeRenderers[tag];
@@ -89,7 +86,7 @@ export class HfMarkdownComponent implements OnChanges {
   }
 
   private renderNestedPlainCode(code: string) {
-    let content: string = '';
+    let content = '';
     const codeArray: string[] = code.split('~~~');
     codeArray.forEach((codePart: string, index: number) => {
       // First part inside a block outside nested blocks
