@@ -10,43 +10,39 @@ import { StepComponent } from './scenario/step.component';
 import { PrintableComponent } from './printable/printable.component';
 
 const routes: Routes = [
-  {path: '', redirectTo: '/app/home', pathMatch: 'full'},
-  {path: 'login', component: LoginComponent},
+  { path: '', redirectTo: '/app/home', pathMatch: 'full' },
+  { path: 'login', component: LoginComponent },
   {
     path: 'app',
     component: AppComponent,
-    canActivate: [
-      AuthGuard
-    ],
+    canActivate: [AuthGuard],
     children: [
-      {path: 'home', component: HomeComponent},
+      { path: 'home', component: HomeComponent },
       {
-        path: 'scenario/:scenario', 
-        component: ScenarioComponent
+        path: 'scenario/:scenario',
+        component: ScenarioComponent,
       },
       {
         path: 'course/:course/scenario/:scenario',
-        component: ScenarioComponent
+        component: ScenarioComponent,
       },
       {
         path: 'session/:session/steps/:step',
-        component: StepComponent
+        component: StepComponent,
       },
-      {path: 'terminal', component: TerminalComponent}
-    ]
+      { path: 'terminal', component: TerminalComponent },
+    ],
   },
   {
     path: 'scenario/:scenario/printable',
     component: PrintableComponent,
-    canActivate: [
-      AuthGuard
-    ]
+    canActivate: [AuthGuard],
   },
-  {path: '**', redirectTo: '/app/home'}
+  { path: '**', redirectTo: '/app/home' },
 ];
 
 @NgModule({
   imports: [RouterModule.forRoot(routes, { relativeLinkResolution: 'legacy' })],
-  exports: [RouterModule]
+  exports: [RouterModule],
 })
-export class AppRoutingModule { }
+export class AppRoutingModule {}

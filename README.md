@@ -13,13 +13,13 @@ A file placed at `/config.json` will allow for runtime configuration (e.g., cust
 
 ```json
 {
-    "title": "Old MacDonald's Farm",
-    "favicon": "/assets/default/favicon.png",
-    "login": {
-        "logo": "/assets/default/rancher-labs-stacked-color.svg",
-        "background": "/assets/default/login_container_farm.svg"
-    },
-    "logo": "/assets/default/logo.svg"
+  "title": "Old MacDonald's Farm",
+  "favicon": "/assets/default/favicon.png",
+  "login": {
+    "logo": "/assets/default/rancher-labs-stacked-color.svg",
+    "background": "/assets/default/login_container_farm.svg"
+  },
+  "logo": "/assets/default/logo.svg"
 }
 ```
 

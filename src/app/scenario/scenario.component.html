@@ -1,4 +1,8 @@
-<clr-modal [(clrModalOpen)]="showScenarioModal" [clrModalClosable]="false" [clrModalSize]="'lg'">
+<clr-modal
+  [(clrModalOpen)]="showScenarioModal"
+  [clrModalClosable]="false"
+  [clrModalSize]="'lg'"
+>
   <h3 class="modal-title">
     <clr-icon shape="list" size="32"></clr-icon> {{ scenario?.name | atob }}
   </h3>
@@ -7,21 +11,23 @@
       {{ scenario?.description | atob }}
     </h5>
     <div class="clr-row" *ngIf="vmclaims.length == 0">
-
       <div class="clr-col">
-        <br/>
+        <br />
         <span class="spinner spinner-inline">
           Requesting virtual machine resources...
         </span>
-        <span>
-          Requesting virtual machine resources...
-        </span>
+        <span> Requesting virtual machine resources... </span>
       </div>
     </div>
-    <clr-alert [clrAlertType]="'info'" [clrAlertClosable]="false" *ngIf="isDynamicallyBinding">
+    <clr-alert
+      [clrAlertType]="'info'"
+      [clrAlertClosable]="false"
+      *ngIf="isDynamicallyBinding"
+    >
       <clr-alert-item>
         <span class="alert-text">
-          Virtual machines are being provisioned on-demand, this may take a few moments...
+          Virtual machines are being provisioned on-demand, this may take a few
+          moments...
         </span>
       </clr-alert-item>
     </clr-alert>
@@ -37,15 +43,23 @@
           <th>hostname</th>
         </tr>
       </thead>
-      <tbody *ngFor="let vmc of vmclaims" [vmclaim]="vmc" (ready)="onReady(vmc)"></tbody>
+      <tbody
+        *ngFor="let vmc of vmclaims"
+        [vmclaim]="vmc"
+        (ready)="onReady(vmc)"
+      ></tbody>
     </table>
-
   </div>
   <div class="modal-footer">
-    <button class="btn btn-warning-outline" (click)="close()" type="button">Cancel</button>
-    <button class="btn btn-success"
+    <button class="btn btn-warning-outline" (click)="close()" type="button">
+      Cancel
+    </button>
+    <button
+      class="btn btn-success"
       [disabled]="!isReady"
       [routerLink]="['/app/session', session.id, 'steps', 0]"
-    >Begin Scenario</button>
+    >
+      Begin Scenario
+    </button>
   </div>
 </clr-modal>

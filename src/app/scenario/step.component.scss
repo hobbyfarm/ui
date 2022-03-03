@@ -1,105 +1,101 @@
 .btn-next {
-    float: right;
-    margin-right: 0;
+  float: right;
+  margin-right: 0;
 }
 
 .btn-pause {
   margin-right: 0;
 }
 
-.signpost-after{
-  margin-right: .6rem;
-  margin-right: var(--clr-btn-horizontal-margin,.6rem);
+.signpost-after {
+  margin-right: 0.6rem;
+  margin-right: var(--clr-btn-horizontal-margin, 0.6rem);
 }
 
 #terminal-column {
-    right: 0;
-    bottom: 0;
-    height: 100%;
-    width: 100%;
+  right: 0;
+  bottom: 0;
+  height: 100%;
+  width: 100%;
 }
 
 span.shell-status {
-    width: 100%;
-    border: 1px solid #ccc;
-    background-color: white;
+  width: 100%;
+  border: 1px solid #ccc;
+  background-color: white;
 }
 
 // clr-col-md
 @media all and (max-width: 992px) {
-    step-component #sidebar {
-      height: calc(50%) !important;
-      width: calc(100% - 10px);
-      margin: 0;
-    }
-  
+  step-component #sidebar {
+    height: calc(50%) !important;
+    width: calc(100% - 10px);
+    margin: 0;
   }
-  
-  #step-navigator {
-    display: flex;
-    align-items: center;
-    button {
-      margin: 0;
-    }
+}
+
+#step-navigator {
+  display: flex;
+  align-items: center;
+  button {
+    margin: 0;
   }
-  #step-counter {
-    flex-grow: 2;
-    text-align: center;
-  }
-  
-  
+}
+#step-counter {
+  flex-grow: 2;
+  text-align: center;
+}
 
 table {
-    margin-top: 0;
+  margin-top: 0;
 }
 
 .progress span {
-    margin-top: -0.5em;
-  }
-  .progress {
-    margin-bottom: 1rem;
-  }
-  
-  #sidebar {
-    margin: 0px 0px 24px 0;
-    height: 100%;
-    display: flex;
-    flex-flow: column;
-  }
-  #sidebar .card-header {
-    padding-top: 0;
-    flex: 0 1 auto;
-  }
-  #sidebar .card-block {
-    display: flex;
-    flex-flow: column;
-    flex: 1 1 auto;
-    overflow-y: auto;
-  }
-  #sidebar .card-footer {
-    flex: 0 1 40px;
-  }
-  
-  
-  #scenario-name {
-    text-align: center;
-    padding-bottom: 1rem;
-  }
-  .card-text {
-    padding-bottom: 2rem;
-  }
+  margin-top: -0.5em;
+}
+.progress {
+  margin-bottom: 1rem;
+}
 
-  .split-container {
-    display: flex;
-    height: 100%;
-  }
+#sidebar {
+  margin: 0px 0px 24px 0;
+  height: 100%;
+  display: flex;
+  flex-flow: column;
+}
+#sidebar .card-header {
+  padding-top: 0;
+  flex: 0 1 auto;
+}
+#sidebar .card-block {
+  display: flex;
+  flex-flow: column;
+  flex: 1 1 auto;
+  overflow-y: auto;
+}
+#sidebar .card-footer {
+  flex: 0 1 40px;
+}
 
-  .split-area-1 {
-    overflow-y: hidden !important;
-    padding-right: 0.6rem;
-  }
+#scenario-name {
+  text-align: center;
+  padding-bottom: 1rem;
+}
+.card-text {
+  padding-bottom: 2rem;
+}
 
-  .split-area-2 {
-    overflow-y: hidden !important;
-    padding-left: 0.6rem;
-  }
+.split-container {
+  display: flex;
+  height: 100%;
+}
+
+.split-area-1 {
+  overflow-y: hidden !important;
+  padding-right: 0.6rem;
+}
+
+.split-area-2 {
+  overflow-y: hidden !important;
+  padding-left: 0.6rem;
+}

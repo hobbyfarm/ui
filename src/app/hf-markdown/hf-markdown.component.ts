@@ -7,7 +7,7 @@ const escape = (s: string) =>
   s.replace(/[&<>"']/g, (c) => `&#${c.charCodeAt(0)};`);
 
 export interface HfMarkdownRenderContext {
-  vmInfo: {[vmName: string]: VM};
+  vmInfo: { [vmName: string]: VM };
 }
 
 @Component({
@@ -27,10 +27,11 @@ export class HfMarkdownComponent implements OnChanges {
 
   processedContent: string;
 
-  constructor(
-    public markdownService: MarkdownService
-  ) {
-    this.markdownService.renderer.code = (code: string, language: string = "") => {
+  constructor(public markdownService: MarkdownService) {
+    this.markdownService.renderer.code = (
+      code: string,
+      language: string = '',
+    ) => {
       const [tag, ...args] = language.split(':');
       if (tag in this.taggedCodeRenderers) {
         const renderer = this.taggedCodeRenderers[tag];
@@ -46,13 +47,17 @@ export class HfMarkdownComponent implements OnChanges {
   }
 
   private readonly taggedCodeRenderers: {
-    [tag: string]: (this: HfMarkdownComponent, code: string, ...args: string[]) => string;
+    [tag: string]: (
+      this: HfMarkdownComponent,
+      code: string,
+      ...args: string[]
+    ) => string;
   } = {
     ctr(code: string, target: string, countStr: string) {
       const count = Number(countStr);
       return `<ctr
         target="${target}"
-        ${isNaN(count) ? '' :  `[count]="${count}"`}
+        ${isNaN(count) ? '' : `[count]="${count}"`}
       >${escape(code)}</ctr>`;
     },
 
@@ -129,11 +134,11 @@ export class HfMarkdownComponent implements OnChanges {
 
   private replaceVmInfoTokens(content: string) {
     return content.replace(
-        /\$\{vminfo:([^:]*):([^}]*)\}/g,
-        (match, vmName, propName) => {
-          const vm = this.context.vmInfo?.[vmName.toLowerCase()];
-          return String(vm?.[propName as keyof VM] ?? match);
-        }
+      /\$\{vminfo:([^:]*):([^}]*)\}/g,
+      (match, vmName, propName) => {
+        const vm = this.context.vmInfo?.[vmName.toLowerCase()];
+        return String(vm?.[propName as keyof VM] ?? match);
+      },
     );
   }
 }

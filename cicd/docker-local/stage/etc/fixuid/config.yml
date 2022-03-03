@@ -1,6 +1,6 @@
 user: node
 group: node
 paths:
-- /home/node
-- /home/node/.npm
-- /app/node_modules
+  - /home/node
+  - /home/node/.npm
+  - /app/node_modules

@@ -8,6 +8,8 @@
     "start:local:docker": "npm run setup:local && ng serve --configuration=local --host=0.0.0.0",
     "build": "ng build",
     "build:prod": "ng build --configuration production --aot",
+    "prettier:check": "prettier --ignore-path .gitignore --check .",
+    "prettier:format": "prettier --ignore-path .gitignore --write .",
     "test": "ng test",
     "lint": "ng lint"
   },
@@ -51,6 +53,7 @@
     "karma-coverage-istanbul-reporter": "~3.0.2",
     "karma-jasmine": "~4.0.0",
     "karma-jasmine-html-reporter": "^1.5.0",
+    "prettier": "^2.5.1",
     "tslint": "~6.1.0",
     "typescript": "~4.3.5"
   }

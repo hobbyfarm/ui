@@ -1,5 +1,8 @@
 import { Injectable } from '@angular/core';
-import { ListableResourceClient, GargantuaClientFactory } from './gargantua.service';
+import {
+  ListableResourceClient,
+  GargantuaClientFactory,
+} from './gargantua.service';
 import { Scenario } from '../scenario/Scenario';
 
 @Injectable()

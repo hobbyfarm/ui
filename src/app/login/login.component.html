@@ -1,53 +1,88 @@
 <div class="login-wrapper" [style.background-image]="background">
-    <form class="login">
-        <section class="title">
-            <img [src]="logo" id="login-logo" />
-        </section>
-        <br />
-        <clr-tabs>
-            <clr-tab>
-                <button clrTabLink id="login">Login</button>
-                <ng-template [(clrIfActive)]="loginactive">
-                    <clr-tab-content id="login-content">
-                        <div class="login-group">
-                            <clr-input-container>
-                                <input type="text" name="email" clrInput [(ngModel)]="email"
-                                    placeholder="Email Address" />
-                            </clr-input-container>
-                            <clr-input-container>
-                                <input type="password" name="password" clrInput [(ngModel)]="password"
-                                    placeholder="Password" />
-                            </clr-input-container>
-                            <div class="error" [class.active]="error.length != 0">
-                                {{ error }}
-                            </div>
-                            <button type="submit" class="btn btn-primary" (click)="login()">LOGIN</button>
-                        </div>
-                    </clr-tab-content>
-                </ng-template>
-            </clr-tab>
-            <clr-tab>
-                <button clrTabLink id="register">Register</button>
-                <clr-tab-content id="register-content" *clrIfActive>
-                    <div class="login-group">
-                        <clr-input-container>
-                            <input type="text" name="email" clrInput [(ngModel)]="email" placeholder="Email Address" />
-                        </clr-input-container>
-                        <clr-input-container>
-                            <input type="text" name="accesscode" clrInput [(ngModel)]="accesscode"
-                                placeholder="Access Code" />
-                        </clr-input-container>
-                        <clr-input-container>
-                            <input type="password" name="password" clrInput [(ngModel)]="password"
-                                placeholder="Password" />
-                        </clr-input-container>
-                        <div class="error" [class.active]="error.length != 0">
-                            {{ error }}
-                        </div>
-                        <button [disabled]="registrationDisabled" type="submit" class="btn btn-primary" (click)="register()">REGISTER</button>
-                    </div>
-                </clr-tab-content>
-            </clr-tab>
-        </clr-tabs>
-    </form>
+  <form class="login">
+    <section class="title">
+      <img [src]="logo" id="login-logo" />
+    </section>
+    <br />
+    <clr-tabs>
+      <clr-tab>
+        <button clrTabLink id="login">Login</button>
+        <ng-template [(clrIfActive)]="loginactive">
+          <clr-tab-content id="login-content">
+            <div class="login-group">
+              <clr-input-container>
+                <input
+                  type="text"
+                  name="email"
+                  clrInput
+                  [(ngModel)]="email"
+                  placeholder="Email Address"
+                />
+              </clr-input-container>
+              <clr-input-container>
+                <input
+                  type="password"
+                  name="password"
+                  clrInput
+                  [(ngModel)]="password"
+                  placeholder="Password"
+                />
+              </clr-input-container>
+              <div class="error" [class.active]="error.length != 0">
+                {{ error }}
+              </div>
+              <button type="submit" class="btn btn-primary" (click)="login()">
+                LOGIN
+              </button>
+            </div>
+          </clr-tab-content>
+        </ng-template>
+      </clr-tab>
+      <clr-tab>
+        <button clrTabLink id="register">Register</button>
+        <clr-tab-content id="register-content" *clrIfActive>
+          <div class="login-group">
+            <clr-input-container>
+              <input
+                type="text"
+                name="email"
+                clrInput
+                [(ngModel)]="email"
+                placeholder="Email Address"
+              />
+            </clr-input-container>
+            <clr-input-container>
+              <input
+                type="text"
+                name="accesscode"
+                clrInput
+                [(ngModel)]="accesscode"
+                placeholder="Access Code"
+              />
+            </clr-input-container>
+            <clr-input-container>
+              <input
+                type="password"
+                name="password"
+                clrInput
+                [(ngModel)]="password"
+                placeholder="Password"
+              />
+            </clr-input-container>
+            <div class="error" [class.active]="error.length != 0">
+              {{ error }}
+            </div>
+            <button
+              [disabled]="registrationDisabled"
+              type="submit"
+              class="btn btn-primary"
+              (click)="register()"
+            >
+              REGISTER
+            </button>
+          </div>
+        </clr-tab-content>
+      </clr-tab>
+    </clr-tabs>
+  </form>
 </div>

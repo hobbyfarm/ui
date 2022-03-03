@@ -1,4 +1,4 @@
 export class VMClaimVM {
-    template: string;
-    vm_id: string;
+  template: string;
+  vm_id: string;
 }

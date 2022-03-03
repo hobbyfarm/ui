@@ -18,10 +18,10 @@ export class VMClaimService extends ResourceClient<any> {
       map((v: any) => {
         // Convert object to Map
         const vm = new Map(
-          Object.keys(v.vm).map((k) => [k.toLowerCase(), v.vm[k]])
+          Object.keys(v.vm).map((k) => [k.toLowerCase(), v.vm[k]]),
         );
         return { ...v, vm };
-      })
+      }),
     );
   }
 }

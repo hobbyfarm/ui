@@ -15,21 +15,23 @@ export interface Config {
 export class AppConfigService {
   private appConfig: Config;
 
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient) {}
 
   loadAppConfig() {
-    return this.http.get<Config>('/config.json')
+    return this.http
+      .get<Config>('/config.json')
       .toPromise()
-      .then(data => {
+      .then((data) => {
         this.appConfig = data;
       });
   }
 
   getLogo(logoPath: string) {
     const headers = new HttpHeaders();
-    headers.set('Accept', '*')
-    return this.http.get(logoPath, {headers, responseType: 'text'})
-    .toPromise()
+    headers.set('Accept', '*');
+    return this.http
+      .get(logoPath, { headers, responseType: 'text' })
+      .toPromise();
   }
 
   getConfig() {

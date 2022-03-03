@@ -53,7 +53,7 @@ cat >&2 <<-EOF
 manage local HobbyFarm UI development environment
 
         usage: $script <options> <command>
-        
+
 where <command> is one of:
 
     up          - create or start UI
