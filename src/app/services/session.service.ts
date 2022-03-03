@@ -10,9 +10,9 @@ export class SessionService extends ResourceClient<Session> {
         super(gcf.scopedClient('/session'));
     }
 
-    public new(sessionId: string, courseId: string) {
+    public new(scenarioId: string, courseId: string) {
         let params = new HttpParams()
-            .set("scenario", sessionId);
+            .set("scenario", scenarioId);
             if (courseId) {
                 params = params.set("course", courseId);
             }
