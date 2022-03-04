@@ -63,6 +63,10 @@ export class ListableResourceClient<
         if (!arr) return;
         this.cache = new Map(arr.map((it) => [it.id, it]));
       }),
+
+      // Ensure we are always returning an array
+      // Gargantua responds with null in certain cases
+      map((arr) => arr || []),
     );
   }
 }
