@@ -5,5 +5,9 @@
     "logo": "/assets/default/rancher-labs-stacked-color.svg",
     "background": "/assets/default/login_container_farm.svg"
   },
-  "logo": "/assets/default/logo.svg"
+  "logo": "/assets/default/logo.svg",
+  "about": {
+    "title": "About HobbyFarm",
+    "body": "HobbyFarm was lovingly crafted by @ebauman and @Oats87 from @RancherLabs"
+  }
 }
