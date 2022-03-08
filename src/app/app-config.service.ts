@@ -9,6 +9,11 @@ export interface Config {
     background: string;
   };
   logo: string;
+  about: {
+    title: string,
+    body: string,
+    buttons: [{title: string, url: string}]
+  }
 }
 
 @Injectable()
