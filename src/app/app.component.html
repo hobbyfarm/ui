@@ -63,10 +63,10 @@
   </clr-modal>
 
   <clr-modal #aboutmodal [(clrModalOpen)]="aboutModalOpened">
-    <h3 class="modal-title">About HobbyFarm</h3>
+    <h3 class="modal-title">{{ aboutTitle }}</h3>
     <div class="modal-body">
       <p>
-        HobbyFarm was lovingly crafted by @ebauman and @Oats87 from @RancherLabs
+        {{ aboutBody }}
       </p>
       <p>
         <i>UI Version: {{ version }}</i>
