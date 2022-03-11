@@ -10,10 +10,10 @@ export interface Config {
   };
   logo: string;
   about: {
-    title: string,
-    body: string,
-    buttons: {title: string, url: string}[]
-  }
+    title: string;
+    body: string;
+    buttons: { title: string; url: string }[];
+  };
 }
 
 @Injectable()

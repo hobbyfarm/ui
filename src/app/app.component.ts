@@ -50,8 +50,10 @@ export class AppComponent implements OnInit {
   private Config = this.config.getConfig();
   public title = this.Config.title || "Rancher's Hobby Farm";
   private logo = this.Config.logo || '/assets/default/logo.svg';
-  public aboutTitle = this.Config.about?.title || "About HobbyFarm";
-  public aboutBody = this.Config.about?.body || "HobbyFarm was lovingly crafted by @ebauman and @Oats87 from @RancherLabs";
+  public aboutTitle = this.Config.about?.title || 'About HobbyFarm';
+  public aboutBody =
+    this.Config.about?.body ||
+    'HobbyFarm was lovingly crafted by @ebauman and @Oats87 from @RancherLabs';
   public buttons = this.Config.about?.buttons || [];
 
   public themes = themes;
