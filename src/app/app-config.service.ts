@@ -12,7 +12,7 @@ export interface Config {
   about: {
     title: string,
     body: string,
-    buttons: [{title: string, url: string}]
+    buttons: {title: string, url: string}[]
   }
 }
 
