@@ -31,7 +31,7 @@
       <div *ngIf="!loadedScenarios && !loadedCourses">Loading scenarios...</div>
     </div>
 
-    <ng-container *ngIf="scenarios && scenarios.length > 0">
+    <ng-container *ngIf="scenarios.length > 0">
       <div
         class="clr-col-12 clr-col-sm-6 clr-col-md-4 clr-col-lg-3"
         *ngFor="let s of scenarios"
