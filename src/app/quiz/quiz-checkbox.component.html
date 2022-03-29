@@ -7,31 +7,10 @@
                 <label>{{ optionTitle }}</label>
             </clr-checkbox-wrapper>
         </clr-checkbox-container>
-        <span class="clr-subtext" *ngIf="!isSubmitted">{{ helperText }}</span>
-        <clr-alert
-            [clrAlertType]="'danger'"
-            [clrAlertClosable]="false"
-            [clrAlertSizeSmall]="true"
-            *ngIf="isSubmitted && quizForm.invalid"
-        >
-            <clr-alert-item>
-                <span class="alert-text">
-                Incorrect Answer!
-                </span>
-            </clr-alert-item>
-        </clr-alert>
-        <clr-alert
-            [clrAlertType]="'success'"
-            [clrAlertClosable]="false"
-            [clrAlertSizeSmall]="true"
-            *ngIf="isSubmitted && quizForm.valid"
-        >
-            <clr-alert-item>
-                <span class="alert-text">
-                Correct Answer!
-                </span>
-            </clr-alert-item>
-        </clr-alert>
-        <button class="btn btn-primary submit-button" type="submit" [disabled]="isSubmitted">Submit</button>
+        <quiz-body
+            [helperText]="helperText"
+            [isValid]="quizForm.valid"
+            [isSubmitted]="isSubmitted"
+        ></quiz-body>
     </form>
 </pre>
