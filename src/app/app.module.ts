@@ -38,6 +38,7 @@ import { HfMarkdownComponent } from './hf-markdown/hf-markdown.component';
 import { PrintableComponent } from './printable/printable.component';
 import { GargantuaClientFactory } from './services/gargantua.service';
 import { QuizCheckboxComponent } from './quiz/quiz-checkbox.component';
+import { QuizRadioComponent } from './quiz/quiz-radio.component';
 import { QuizBodyComponent } from './quiz/quiz-body.component';
 
 export function tokenGetter() {
@@ -73,6 +74,7 @@ export function jwtOptionsFactory() {
     StepComponent,
     CtrComponent,
     QuizCheckboxComponent,
+    QuizRadioComponent,
     QuizBodyComponent,
     VMClaimComponent,
     AtobPipe,
@@ -96,7 +98,7 @@ export function jwtOptionsFactory() {
         sanitize: false,
         convertHTMLEntities: false,
       },
-      globalParsers: [{ component: CtrComponent }, { component: QuizCheckboxComponent}],
+      globalParsers: [{ component: CtrComponent }, { component: QuizCheckboxComponent}, { component: QuizRadioComponent}],
     }),
     JwtModule.forRoot({
       jwtOptionsProvider: {

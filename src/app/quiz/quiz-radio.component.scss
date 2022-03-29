@@ -1,0 +1,12 @@
+pre {
+    display: flex;
+    flex-direction: column;
+}
+form {
+    display: inherit;
+    flex-direction: column;
+}
+clr-radio-container {
+    flex-direction: column !important;
+    margin-top: 0;
+}

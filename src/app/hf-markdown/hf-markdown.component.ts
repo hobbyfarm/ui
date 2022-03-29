@@ -78,13 +78,15 @@ export class HfMarkdownComponent implements OnChanges {
       `;
     },
 
-    quiz(code: string, title: string, helperText: string = "") {
+    quiz(code: string, quizType: string, title: string, helperText: string = "") {
+      let correctAnswers: number = (code.match(/:\(x\)/g) || []).length;
+      let qType: string = (quizType.toLowerCase() === "radio" && correctAnswers === 1) ? "radio" : "checkbox";
       return `
-      <quiz-checkbox
+      <quiz-${qType}
         options="${code.slice(2)}"
         helperText="${helperText}"
         title="${title}"
-      ></quiz-checkbox>
+      ></quiz-${qType}>
       `;
     },
   };
