@@ -98,7 +98,11 @@ export function jwtOptionsFactory() {
         sanitize: false,
         convertHTMLEntities: false,
       },
-      globalParsers: [{ component: CtrComponent }, { component: QuizCheckboxComponent}, { component: QuizRadioComponent}],
+      globalParsers: [
+        { component: CtrComponent },
+        { component: QuizCheckboxComponent },
+        { component: QuizRadioComponent },
+      ],
     }),
     JwtModule.forRoot({
       jwtOptionsProvider: {
