@@ -77,6 +77,16 @@ export class HfMarkdownComponent implements OnChanges {
         </div>
       `;
     },
+
+    quiz(code: string, title: string, helperText: string = "") {
+      return `
+      <quiz-checkbox
+        options="${code.slice(2)}"
+        helperText="${helperText}"
+        title="${title}"
+      ></quiz-checkbox>
+      `;
+    },
   };
 
   private renderHighlightedCode(code: string, language: string) {
