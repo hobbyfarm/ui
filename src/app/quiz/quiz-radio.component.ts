@@ -1,4 +1,4 @@
-import { Component, ElementRef, Input, OnInit, ViewChild } from '@angular/core';
+import { Component, Input, OnInit, ViewChild } from '@angular/core';
 import {
   FormBuilder,
   FormControl,
@@ -14,9 +14,9 @@ import { ClrForm } from '@clr/angular';
   styleUrls: ['quiz-radio.component.scss'],
 })
 export class QuizRadioComponent implements OnInit {
-  @Input() options: string = '';
-  @Input() helperText: string = '';
-  @Input() title: string = '';
+  @Input() options = '';
+  @Input() helperText = '';
+  @Input() title = '';
 
   @ViewChild(ClrForm, { static: true })
   clrForm: ClrForm;
@@ -24,12 +24,12 @@ export class QuizRadioComponent implements OnInit {
   public quizForm: FormGroup;
   public optionTitles: string[] = [];
   public requiredValues: boolean[] = [];
-  public isSubmitted: boolean = false;
+  public isSubmitted = false;
 
   constructor(private fb: FormBuilder) {}
 
   public ngOnInit() {
-    let correctIndex: number = 0;
+    let correctIndex = 0;
 
     this.options.split('\n- ').forEach((option: string, index: number) => {
       this.optionTitles.push(option.split(':(')[0]);

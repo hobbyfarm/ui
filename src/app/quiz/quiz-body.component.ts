@@ -7,7 +7,7 @@ import { Component, Input } from '@angular/core';
   styleUrls: ['quiz-body.component.scss'],
 })
 export class QuizBodyComponent {
-  @Input() helperText: string = '';
-  @Input() isValid: boolean = false;
-  @Input() isSubmitted: boolean = false;
+  @Input() helperText = '';
+  @Input() isValid = false;
+  @Input() isSubmitted = false;
 }

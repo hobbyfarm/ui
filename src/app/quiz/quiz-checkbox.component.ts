@@ -15,9 +15,9 @@ import { ClrForm } from '@clr/angular';
   styleUrls: ['quiz-checkbox.component.scss'],
 })
 export class QuizCheckboxComponent implements OnInit {
-  @Input() options: string = '';
-  @Input() helperText: string = '';
-  @Input() title: string = '';
+  @Input() options = '';
+  @Input() helperText = '';
+  @Input() title = '';
 
   @ViewChild(ClrForm, { static: true })
   clrForm: ClrForm;
@@ -25,12 +25,12 @@ export class QuizCheckboxComponent implements OnInit {
   public quizForm: FormGroup;
   public optionTitles: string[] = [];
   public requiredValues: boolean[] = [];
-  public isSubmitted: boolean = false;
+  public isSubmitted = false;
 
   constructor(private fb: FormBuilder) {}
 
   public ngOnInit() {
-    this.options.split('\n- ').forEach((option: string, index: number) => {
+    this.options.split('\n- ').forEach((option: string) => {
       this.optionTitles.push(option.split(':(')[0]);
       const requiredValue = option.split(':(')[1].toLowerCase() === 'x)';
       this.requiredValues.push(requiredValue);
