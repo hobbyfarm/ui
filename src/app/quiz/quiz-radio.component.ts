@@ -60,10 +60,12 @@ export class QuizRadioComponent implements OnInit {
   }
 
   private createQuizForm(correctIndex: number) {
-    if(this.validationEnabled) {
+    if (this.validationEnabled) {
       this.quizForm = this.fb.group(
         {
-          quiz: new FormControl(null, [Validators.pattern(String(correctIndex))]),
+          quiz: new FormControl(null, [
+            Validators.pattern(String(correctIndex)),
+          ]),
         },
         { updateOn: 'submit' },
       );
