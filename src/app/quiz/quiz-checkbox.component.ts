@@ -1,10 +1,11 @@
 import { Component, Input, OnInit, ViewChild } from '@angular/core';
 import {
+  AbstractControl,
   FormArray,
   FormBuilder,
   FormControl,
   FormGroup,
-  Validators,
+  ValidatorFn,
 } from '@angular/forms';
 import { ClrForm } from '@clr/angular';
 
@@ -32,6 +33,7 @@ export class QuizCheckboxComponent implements OnInit {
   public requiredValues: boolean[] = [];
   public isSubmitted = false;
   public validationEnabled: boolean;
+  public checkboxesValidated: boolean;
 
   constructor(private fb: FormBuilder) {}
 
@@ -43,12 +45,7 @@ export class QuizCheckboxComponent implements OnInit {
       this.requiredValues.push(requiredValue);
     });
 
-    this.quizForm = this.fb.group(
-      {
-        quiz: new FormArray([]),
-      },
-      { updateOn: 'submit' },
-    );
+    this.createQuizForm();
     this.addCheckboxes();
   }
 
@@ -67,27 +64,51 @@ export class QuizCheckboxComponent implements OnInit {
   }
 
   private addCheckboxes() {
-    if(this.validationEnabled) {
-      this.optionTitles.forEach((_option: string, index: number) =>
-        this.optionsFormArray.push(
-          new FormControl(
-            false,
-            Validators.pattern(String(this.requiredValues[index])),
-          ),
+    this.optionTitles.forEach((_option: string) =>
+      this.optionsFormArray.push(
+        new FormControl(
+          false,
         ),
-      );
-    } else {
-      this.optionTitles.forEach((_option: string) =>
-        this.optionsFormArray.push(
-          new FormControl(
-            false,
-          ),
-        ),
-      );
-    }
+      ),
+    );
   }
 
   get optionsFormArray(): FormArray {
     return this.quizForm.controls.quiz as FormArray;
+  }
+
+  private validateCheckboxes(): ValidatorFn {
+    return (control: AbstractControl) => {
+      const formArray = control as FormArray;
+      let validatedCheckboxes = true;
+      formArray.controls.forEach((control: AbstractControl, index: number) => {
+        validatedCheckboxes = validatedCheckboxes && (control.value === this.requiredValues[index])
+      });
+      this.checkboxesValidated = validatedCheckboxes;
+      if (!validatedCheckboxes) {
+        return {
+          checkboxesValidated: true,
+        };
+      }
+      return null;
+    };
+  }
+
+  private createQuizForm() {
+    if(this.validationEnabled) {
+      this.quizForm = this.fb.group(
+        {
+          quiz: new FormArray([], this.validateCheckboxes()),
+        },
+        { updateOn: 'submit' },
+      );
+    } else {
+      this.quizForm = this.fb.group(
+        {
+          quiz: new FormArray([]),
+        },
+        { updateOn: 'submit' },
+      );
+    }
   }
 }
