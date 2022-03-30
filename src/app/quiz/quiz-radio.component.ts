@@ -14,9 +14,14 @@ import { ClrForm } from '@clr/angular';
   styleUrls: ['quiz-radio.component.scss'],
 })
 export class QuizRadioComponent implements OnInit {
-  @Input() options = '';
-  @Input() helperText = '';
-  @Input() title = '';
+  @Input()
+  public options: string;
+  @Input()
+  public helperText: string;
+  @Input()
+  public title: string;
+  @Input()
+  public validation: string;
 
   @ViewChild(ClrForm, { static: true })
   clrForm: ClrForm;
@@ -25,10 +30,12 @@ export class QuizRadioComponent implements OnInit {
   public optionTitles: string[] = [];
   public requiredValues: boolean[] = [];
   public isSubmitted = false;
+  public validationEnabled: boolean;
 
   constructor(private fb: FormBuilder) {}
 
   public ngOnInit() {
+    this.validationEnabled = this.validation.toLowerCase() !== 'novalidation';
     let correctIndex = 0;
 
     this.options.split('\n- ').forEach((option: string, index: number) => {
@@ -40,12 +47,7 @@ export class QuizRadioComponent implements OnInit {
       }
     });
 
-    this.quizForm = this.fb.group(
-      {
-        quiz: new FormControl(null, [Validators.pattern(String(correctIndex))]),
-      },
-      { updateOn: 'submit' },
-    );
+    this.createQuizForm(correctIndex);
   }
 
   public submit() {
@@ -54,6 +56,24 @@ export class QuizRadioComponent implements OnInit {
       this.clrForm.markAsTouched();
     } else {
       console.log(this.optionTitles[this.quizForm.controls.quiz.value]);
+    }
+  }
+
+  private createQuizForm(correctIndex: number) {
+    if(this.validationEnabled) {
+      this.quizForm = this.fb.group(
+        {
+          quiz: new FormControl(null, [Validators.pattern(String(correctIndex))]),
+        },
+        { updateOn: 'submit' },
+      );
+    } else {
+      this.quizForm = this.fb.group(
+        {
+          quiz: new FormControl(null, Validators.required),
+        },
+        { updateOn: 'submit' },
+      );
     }
   }
 }

@@ -4,7 +4,7 @@
     [clrAlertType]="'danger'"
     [clrAlertClosable]="false"
     [clrAlertSizeSmall]="true"
-    *ngIf="isSubmitted && !isValid"
+    *ngIf="validationEnabled && isSubmitted && !isValid"
   >
     <clr-alert-item>
       <span class="alert-text"> Incorrect Answer! </span>
@@ -14,7 +14,7 @@
     [clrAlertType]="'success'"
     [clrAlertClosable]="false"
     [clrAlertSizeSmall]="true"
-    *ngIf="isSubmitted && isValid"
+    *ngIf="validationEnabled && isSubmitted && isValid"
   >
     <clr-alert-item>
       <span class="alert-text"> Correct Answer! </span>

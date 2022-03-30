@@ -15,9 +15,14 @@ import { ClrForm } from '@clr/angular';
   styleUrls: ['quiz-checkbox.component.scss'],
 })
 export class QuizCheckboxComponent implements OnInit {
-  @Input() options = '';
-  @Input() helperText = '';
-  @Input() title = '';
+  @Input()
+  public options: string;
+  @Input()
+  public helperText: string;
+  @Input()
+  public title: string;
+  @Input()
+  public validation: string;
 
   @ViewChild(ClrForm, { static: true })
   clrForm: ClrForm;
@@ -26,10 +31,12 @@ export class QuizCheckboxComponent implements OnInit {
   public optionTitles: string[] = [];
   public requiredValues: boolean[] = [];
   public isSubmitted = false;
+  public validationEnabled: boolean;
 
   constructor(private fb: FormBuilder) {}
 
   public ngOnInit() {
+    this.validationEnabled = this.validation.toLowerCase() !== 'novalidation';
     this.options.split('\n- ').forEach((option: string) => {
       this.optionTitles.push(option.split(':(')[0]);
       const requiredValue = option.split(':(')[1].toLowerCase() === 'x)';
@@ -60,14 +67,24 @@ export class QuizCheckboxComponent implements OnInit {
   }
 
   private addCheckboxes() {
-    this.optionTitles.forEach((_option: string, index: number) =>
-      this.optionsFormArray.push(
-        new FormControl(
-          false,
-          Validators.pattern(String(this.requiredValues[index])),
+    if(this.validationEnabled) {
+      this.optionTitles.forEach((_option: string, index: number) =>
+        this.optionsFormArray.push(
+          new FormControl(
+            false,
+            Validators.pattern(String(this.requiredValues[index])),
+          ),
         ),
-      ),
-    );
+      );
+    } else {
+      this.optionTitles.forEach((_option: string) =>
+        this.optionsFormArray.push(
+          new FormControl(
+            false,
+          ),
+        ),
+      );
+    }
   }
 
   get optionsFormArray(): FormArray {

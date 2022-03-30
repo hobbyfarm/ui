@@ -80,9 +80,10 @@ export class HfMarkdownComponent implements OnChanges {
 
     quiz(
       code: string,
-      quizType: string,
       title: string,
       helperText: string = '',
+      quizType: string = '',
+      validation: string = 'validation'
     ) {
       const correctAnswers: number = (code.match(/:\(x\)/g) || []).length;
       const qType: string =
@@ -94,6 +95,7 @@ export class HfMarkdownComponent implements OnChanges {
         options="${code.slice(2)}"
         helperText="${helperText}"
         title="${title}"
+        validation="${validation}"
       ></quiz-${qType}>
       `;
     },
