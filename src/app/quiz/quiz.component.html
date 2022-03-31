@@ -1,0 +1,24 @@
+<pre class="quiz-container">
+    <h5 class="quiz-title">{{ quizTitle }}</h5>
+    <ng-container *ngFor="let question of questions; index as i">
+        <quiz-checkbox #quizCheckbox *ngIf="getQuestionType(question, questionParams[i].questionType) === 'checkbox'"
+            [options]="getOptions(question)"
+            [helperText]="questionParams[i].helperText"
+            [title]="questionParams[i].questionTitle"
+            [validation]="questionParams[i].validation"
+        ></quiz-checkbox>
+        <quiz-radio #quizRadio *ngIf="getQuestionType(question, questionParams[i].questionType) === 'radio'"
+            [options]="getOptions(question)"
+            [helperText]="questionParams[i].helperText"
+            [title]="questionParams[i].questionTitle"
+            [validation]="questionParams[i].validation"
+        ></quiz-radio>
+    </ng-container>
+    <button
+        class="btn btn-primary submit-button"
+        type="submit"
+        (click)="submit()"
+    >
+    Submit
+    </button>
+</pre>

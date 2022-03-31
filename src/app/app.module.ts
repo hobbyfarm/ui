@@ -40,6 +40,7 @@ import { GargantuaClientFactory } from './services/gargantua.service';
 import { QuizCheckboxComponent } from './quiz/quiz-checkbox.component';
 import { QuizRadioComponent } from './quiz/quiz-radio.component';
 import { QuizBodyComponent } from './quiz/quiz-body.component';
+import { QuizComponent } from './quiz/quiz.component';
 
 export function tokenGetter() {
   return localStorage.getItem('hobbyfarm_token');
@@ -76,6 +77,7 @@ export function jwtOptionsFactory() {
     QuizCheckboxComponent,
     QuizRadioComponent,
     QuizBodyComponent,
+    QuizComponent,
     VMClaimComponent,
     AtobPipe,
     HfMarkdownComponent,
@@ -100,8 +102,7 @@ export function jwtOptionsFactory() {
       },
       globalParsers: [
         { component: CtrComponent },
-        { component: QuizCheckboxComponent },
-        { component: QuizRadioComponent },
+        { component: QuizComponent },
       ],
     }),
     JwtModule.forRoot({

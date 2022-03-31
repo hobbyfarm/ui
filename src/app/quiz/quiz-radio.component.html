@@ -1,17 +1,15 @@
-<pre>
-    <form clrForm [formGroup]="quizForm" (ngSubmit)="submit()">
-        <clr-radio-container>
-            <label>{{ title }}</label>
-            <clr-radio-wrapper *ngFor="let optionTitle of optionTitles; index as i">
-                <input type="radio" clrRadio name="quiz" [value]="i" formControlName="quiz" />
-                <label>{{ optionTitle }}</label>
-            </clr-radio-wrapper>
-        </clr-radio-container>
-        <quiz-body
-            [helperText]="helperText"
-            [isValid]="quizForm.valid"
-            [isSubmitted]="isSubmitted"
-            [validationEnabled]="validationEnabled"
-        ></quiz-body>
-    </form>
-</pre>
+<form clrForm [formGroup]="quizForm" (ngSubmit)="submit()">
+    <clr-radio-container>
+        <label>{{ title }}</label>
+        <clr-radio-wrapper *ngFor="let optionTitle of optionTitles; index as i">
+            <input type="radio" clrRadio name="quiz" [value]="i" formControlName="quiz" />
+            <label>{{ optionTitle }}</label>
+        </clr-radio-wrapper>
+    </clr-radio-container>
+    <quiz-body
+        [helperText]="helperText"
+        [isValid]="quizForm.valid"
+        [isSubmitted]="isSubmitted"
+        [validationEnabled]="validationEnabled"
+    ></quiz-body>
+</form>

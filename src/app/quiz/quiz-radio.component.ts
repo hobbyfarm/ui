@@ -35,7 +35,7 @@ export class QuizRadioComponent implements OnInit {
   constructor(private fb: FormBuilder) {}
 
   public ngOnInit() {
-    this.validationEnabled = this.validation.toLowerCase() !== 'novalidation';
+    this.validationEnabled = this.validation.toLowerCase() !== 'validationOff';
     let correctIndex = 0;
 
     this.options.split('\n- ').forEach((option: string, index: number) => {

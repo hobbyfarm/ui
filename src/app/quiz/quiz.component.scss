@@ -1,0 +1,13 @@
+.quiz-container {
+    display: flex;
+    flex-direction: column;
+}
+
+.quiz-title {
+    margin-bottom: 1.2rem;
+    font-weight: bold;
+}
+
+.submit-button {
+    align-self: flex-start;
+}
