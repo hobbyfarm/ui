@@ -285,6 +285,10 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
     this.router.navigateByUrl('/app/home');
   }
 
+  isGuacamoleTerminal(key: string): boolean {
+    return this.vms.get(key)?.protocol != "ssh"
+  }
+
   public pause() {
     this.ssService
       .pause(this.session.id)

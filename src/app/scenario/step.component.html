@@ -99,12 +99,26 @@
                   <td><b>Shell Status:</b> {{ getShellStatus(v.key) }}</td>
                 </tr>
               </table>
-              <app-terminal
+              <!-- <app-terminal
                 [vmname]="v.key"
                 [vmid]="v.value.id"
                 [endpoint]="v.value.ws_endpoint"
                 #term
-              ></app-terminal>
+              ></app-terminal> -->
+              <terminal
+                *ngIf="!isGuacamoleTerminal(v.value.vm_id)"
+                [vmname]="v.key"
+                [vmid]="v.value.vm_id"
+                [endpoint]="getVm(v.value.vm_id)?.ws_endpoint"
+                #term>
+              </terminal>
+              <guacTerminal
+                *ngIf="isGuacamoleTerminal(v.value.vm_id)"
+                [vmname]="v.key"
+                [vmid]="v.value.id"
+                [endpoint]="v.value.ws_endpoint"
+                #term>
+              </guacTerminal>
             </clr-tab-content>
           </clr-tab>
         </clr-tabs>

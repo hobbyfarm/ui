@@ -37,6 +37,7 @@ import { AngularSplitModule } from 'angular-split';
 import { HfMarkdownComponent } from './hf-markdown/hf-markdown.component';
 import { PrintableComponent } from './printable/printable.component';
 import { GargantuaClientFactory } from './services/gargantua.service';
+import { GuacTerminalComponent } from './scenario/guacTerminal.component';
 
 export function tokenGetter() {
   return localStorage.getItem('hobbyfarm_token');
@@ -66,6 +67,7 @@ export function jwtOptionsFactory() {
     HomeComponent,
     ScenarioComponent,
     TerminalComponent,
+    GuacTerminalComponent,
     LoginComponent,
     ScenarioCardComponent,
     StepComponent,
