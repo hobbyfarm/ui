@@ -72,8 +72,8 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
 
   @ViewChildren('term') private terms: QueryList<TerminalComponent> =
     new QueryList();
-  @ViewChildren('guacterm') private guacterms: QueryList<GuacTerminalComponent> =
-    new QueryList();
+  @ViewChildren('guacterm')
+  private guacterms: QueryList<GuacTerminalComponent> = new QueryList();
   @ViewChildren('tabcontent') private tabContents: QueryList<ClrTabContent> =
     new QueryList();
   @ViewChildren('tab') private tabs: QueryList<ClrTab> = new QueryList();
@@ -291,8 +291,8 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
     this.router.navigateByUrl('/app/home');
   }
 
-  isGuacamoleTerminal(key: string): boolean {
-    return this.vms.get(key)?.protocol != "ssh"
+  isGuacamoleTerminal(protocol: string): boolean {
+    return protocol !== 'ssh';
   }
 
   public pause() {

@@ -106,18 +106,20 @@
                 #term
               ></app-terminal> -->
               <app-terminal
-                *ngIf="!isGuacamoleTerminal(v.value.id)"
+                *ngIf="!isGuacamoleTerminal(v.value.protocol)"
                 [vmname]="v.key"
                 [vmid]="v.value.id"
                 [endpoint]="v.value.ws_endpoint"
-                #term>
+                #term
+              >
               </app-terminal>
               <guacTerminal
-                *ngIf="isGuacamoleTerminal(v.value.id)"
+                *ngIf="isGuacamoleTerminal(v.value.protocol)"
                 [vmname]="v.key"
                 [vmid]="v.value.id"
                 [endpoint]="v.value.ws_endpoint"
-                #term>
+                #guacterm
+              >
               </guacTerminal>
             </clr-tab-content>
           </clr-tab>
