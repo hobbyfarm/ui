@@ -105,15 +105,15 @@
                 [endpoint]="v.value.ws_endpoint"
                 #term
               ></app-terminal> -->
-              <terminal
-                *ngIf="!isGuacamoleTerminal(v.value.vm_id)"
+              <app-terminal
+                *ngIf="!isGuacamoleTerminal(v.value.id)"
                 [vmname]="v.key"
-                [vmid]="v.value.vm_id"
-                [endpoint]="getVm(v.value.vm_id)?.ws_endpoint"
+                [vmid]="v.value.id"
+                [endpoint]="v.value.ws_endpoint"
                 #term>
-              </terminal>
+              </app-terminal>
               <guacTerminal
-                *ngIf="isGuacamoleTerminal(v.value.vm_id)"
+                *ngIf="isGuacamoleTerminal(v.value.id)"
                 [vmname]="v.key"
                 [vmid]="v.value.id"
                 [endpoint]="v.value.ws_endpoint"
