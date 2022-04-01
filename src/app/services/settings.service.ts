@@ -30,6 +30,9 @@ export class SettingsService {
   fetch() {
     return this.garg.get('/settings').pipe(
       map(extractResponseContent),
+      map((s: Readonly<Settings | null>) =>
+        s ? s : { terminal_theme: themes[0].id },
+      ),
       tap((s: Readonly<Settings>) => {
         this.subject.next(s);
       }),
