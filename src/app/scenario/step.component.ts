@@ -42,6 +42,7 @@ import { ShellService } from '../services/shell.service';
 import { atou } from '../unicode';
 import { ProgressService } from '../services/progress.service';
 import { HfMarkdownRenderContext } from '../hf-markdown/hf-markdown.component';
+import { GuacTerminalComponent } from './guacTerminal.component';
 
 @Component({
   selector: 'app-step',
@@ -70,6 +71,8 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
   public pauseRemainingString = '';
 
   @ViewChildren('term') private terms: QueryList<TerminalComponent> =
+    new QueryList();
+  @ViewChildren('guacterm') private guacterms: QueryList<GuacTerminalComponent> =
     new QueryList();
   @ViewChildren('tabcontent') private tabContents: QueryList<ClrTabContent> =
     new QueryList();
@@ -215,6 +218,9 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
   ngOnDestroy() {
     this.terms.forEach((term) => {
       term.mutationObserver.disconnect();
+    });
+    this.guacterms.forEach((guacTerm) => {
+      guacTerm.client.disconnect();
     });
   }
 
