@@ -12,6 +12,6 @@ export class ScenarioService extends ListableResourceClient<Scenario> {
   }
 
   public printable(id: string) {
-    return this.garg.get(id + '/printable', { responseType: 'text' });
+    return this.garg.get(`/${id}/printable`, { responseType: 'text' });
   }
 }

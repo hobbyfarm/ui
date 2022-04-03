@@ -45,7 +45,7 @@
     </ng-template>
 
     <a
-      *ngIf="scenario.printable"
+      *ngIf="scenario.printable && (!progress || progress.finished)"
       [routerLink]="['/scenario', scenarioid, 'printable']"
       target="_blank"
     >
