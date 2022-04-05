@@ -2,7 +2,6 @@ import {
   Component,
   ViewChild,
   ElementRef,
-  OnInit,
   Input,
   OnChanges,
   ViewEncapsulation,
@@ -12,10 +11,10 @@ import { CodeExec } from './CodeExec';
 import { ShellService } from '../services/shell.service';
 import { JwtHelperService } from '@auth0/angular-jwt';
 import { environment } from 'src/environments/environment';
-import Guacamole from 'guacamole-common-js';
-import GuacMouse from './guacLibs/GuacMouse';
-import clipboard from './guacLibs/clipboard';
+import { Client, Keyboard, Mouse, StringReader, WebSocketTunnel } from 'guacamole-common-js';
+import clipboard from './guacLibs/GuacClipboard';
 import states from './guacLibs/states';
+import { ClipboardCache } from './guacLibs/ClipboardCache';
 //import {Modal} from '@/components/Modal'
 
 @Component({
@@ -39,9 +38,9 @@ export class GuacTerminalComponent implements OnChanges {
 
   public connected = false;
   public display: any;
-  public client: Guacamole.Client;
-  public keyboard: Guacamole.Keyboard;
-  public mouse: Guacamole.Mouse;
+  public client: Client;
+  public keyboard: Keyboard;
+  public mouse: Mouse;
   public connectionState = states.IDLE;
   public errorMessage?: string;
   public arguments: any = {};
@@ -50,9 +49,7 @@ export class GuacTerminalComponent implements OnChanges {
     public ctrService: CtrService,
     public shellService: ShellService,
     public jwtHelper: JwtHelperService,
-  ) {
-    Guacamole.Mouse = GuacMouse.mouse;
-  }
+  ) {}
 
   @ViewChild('guacTerminal', { static: true }) terminalDiv: ElementRef;
   @ViewChild('viewport', { static: true }) viewport: ElementRef;
@@ -87,14 +84,14 @@ export class GuacTerminalComponent implements OnChanges {
       }
     }
     let tunnel;
-    tunnel = new Guacamole.WebSocketTunnel(
+    tunnel = new WebSocketTunnel(
       this.endpoint + '/guacShell/' + this.vmid + '/connect',
     );
     if (this.client) {
       this.display.scale(0);
       this.uninstallKeyboard();
     }
-    this.client = new Guacamole.Client(tunnel);
+    this.client = new Client(tunnel);
     clipboard.install(this.client);
     tunnel.onerror = (status) => {
       // eslint-disable-next-line no-console
@@ -105,19 +102,19 @@ export class GuacTerminalComponent implements OnChanges {
     tunnel.onstatechange = (state) => {
       switch (state) {
         // Connection is being established
-        case Guacamole.Tunnel.State.CONNECTING:
+        case WebSocketTunnel.State.CONNECTING:
           this.connectionState = states.CONNECTING;
           break;
         // Connection is established / no longer unstable
-        case Guacamole.Tunnel.State.OPEN:
+        case WebSocketTunnel.State.OPEN:
           this.connectionState = states.CONNECTED;
           break;
         // Connection is established but misbehaving
-        case Guacamole.Tunnel.State.UNSTABLE:
+        case WebSocketTunnel.State.UNSTABLE:
           // TODO
           break;
         // Connection has closed
-        case Guacamole.Tunnel.State.CLOSED:
+        case WebSocketTunnel.State.CLOSED:
           this.connectionState = states.DISCONNECTED;
           break;
       }
@@ -172,7 +169,7 @@ export class GuacTerminalComponent implements OnChanges {
     // Test for argument mutability whenever an argument value is received
     this.client.onargv = (stream, mimetype, name) => {
       if (mimetype !== 'text/plain') return;
-      const reader = new Guacamole.StringReader(stream);
+      const reader = new StringReader(stream);
       // Assemble received data into a single string
       let value = '';
       reader.ontext = (text) => {
@@ -235,7 +232,7 @@ export class GuacTerminalComponent implements OnChanges {
     });
 
     window.onunload = () => this.client.disconnect();
-    this.mouse = new Guacamole.Mouse(displayElm);
+    this.mouse = new Mouse(displayElm);
     // Hide software cursor when mouse leaves display
     this.mouse.onmouseout = () => {
       if (!this.display) return;
@@ -251,7 +248,7 @@ export class GuacTerminalComponent implements OnChanges {
     displayElm.onblur = () => {
       displayElm.className = '';
     };
-    this.keyboard = new Guacamole.Keyboard(displayElm);
+    this.keyboard = new Keyboard(displayElm);
     this.installKeyboard();
     this.mouse.onmousedown =
       this.mouse.onmouseup =
@@ -304,10 +301,10 @@ export class GuacTerminalComponent implements OnChanges {
     let pasteKeys = [0xffe3, 0x76];
 
     let remoteClipboard = {
-      type: clipboard.remoteClipboard.type,
+      mimetype: clipboard.remoteClipboard.mimetype,
       data: clipboard.remoteClipboard.data,
     };
-    this.copy({ type: 'text/plain', data: cmd });
+    this.copy({ mimetype: 'text/plain', data: cmd });
 
     //Press Keys to paste clipboard, and release them afterwards
     //sendKeyEvent(1, X) = press, sendKeyEvent(0,X) = release
@@ -321,18 +318,18 @@ export class GuacTerminalComponent implements OnChanges {
     this.copy(remoteClipboard);
   }
 
-  copy(data: { type: string; data: any }) {
+  copy(data: ClipboardCache) {
     if (!this.client) {
       return;
     }
     clipboard.cache = {
-      type: data.type,
+      mimetype: data.mimetype,
       data: data.data,
     };
     clipboard.setRemoteClipboard(this.client);
   }
 
-  handleMouseState = (mouseState: Guacamole.Mouse.State) => {
+  handleMouseState = (mouseState: Mouse.State) => {
     let scale = this.display.getScale();
     const scaledMouseState = Object.assign({}, mouseState, {
       x: mouseState.x / scale,
