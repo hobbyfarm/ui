@@ -11,7 +11,15 @@ import { CodeExec } from './CodeExec';
 import { ShellService } from '../services/shell.service';
 import { JwtHelperService } from '@auth0/angular-jwt';
 import { environment } from 'src/environments/environment';
-import { Client, InputStream, Keyboard, Mouse, StringReader, Tunnel, WebSocketTunnel } from 'guacamole-common-js';
+import {
+  Client,
+  InputStream,
+  Keyboard,
+  Mouse,
+  StringReader,
+  Tunnel,
+  WebSocketTunnel,
+} from 'guacamole-common-js';
 import clipboard from './guacLibs/GuacClipboard';
 import states from './guacLibs/states';
 import { ClipboardCache } from './guacLibs/ClipboardCache';
@@ -191,9 +199,12 @@ export class GuacTerminalComponent implements OnChanges {
         };
       };
     };
-    this.client.onclipboard = (clipboardStream: InputStream, mimetype: Mimetype) => {
+    this.client.onclipboard = (
+      clipboardStream: InputStream,
+      mimetype: Mimetype,
+    ) => {
       clipboard.onClipboard(clipboardStream, mimetype);
-    }
+    };
     this.display = this.client.getDisplay();
     const displayElm = this.terminalDiv.nativeElement;
     displayElm.appendChild(this.display.getElement());
