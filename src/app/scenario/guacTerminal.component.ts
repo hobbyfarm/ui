@@ -42,8 +42,8 @@ export class GuacTerminalComponent implements OnChanges {
   @Input()
   endpoint: string;
 
-  public optimalWidth: number = 1024;
-  public optimalHeight: number = 744;
+  public optimalWidth = 1024;
+  public optimalHeight = 744;
 
   public connected = false;
   public display: any;
@@ -92,8 +92,7 @@ export class GuacTerminalComponent implements OnChanges {
         this.endpoint = 'ws://' + this.endpoint;
       }
     }
-    let tunnel;
-    tunnel = new WebSocketTunnel(
+    const tunnel = new WebSocketTunnel(
       this.endpoint + '/guacShell/' + this.vmid + '/connect',
     );
     if (this.client) {
@@ -173,6 +172,7 @@ export class GuacTerminalComponent implements OnChanges {
       this.errorMessage = error.message;
       this.connectionState = states.CLIENT_ERROR;
     };
+    // eslint-disable-next-line no-empty
     this.client.onsync = () => {};
 
     // Test for argument mutability whenever an argument value is received
@@ -223,7 +223,7 @@ export class GuacTerminalComponent implements OnChanges {
       },
     );
 
-    let optimalResolution = this.getOptimalResolution();
+    const optimalResolution = this.getOptimalResolution();
     this.optimalHeight = optimalResolution?.height ?? 1024;
     this.optimalWidth = optimalResolution?.width ?? 744;
     this.client.connect(this.buildQuery());
@@ -235,7 +235,7 @@ export class GuacTerminalComponent implements OnChanges {
       // if the code exec is target at us,execute it
       if (c.target.toLowerCase() == this.vmname.toLowerCase()) {
         // break up the code by lines
-        var codeArray: string[] = c.code.split('\n');
+        const codeArray: string[] = c.code.split('\n');
         let command = '';
         //Append a carriage return and newline to every command.
         codeArray.forEach((s: string) => {
@@ -286,6 +286,7 @@ export class GuacTerminalComponent implements OnChanges {
   }
 
   uninstallKeyboard() {
+    // eslint-disable-next-line no-empty
     this.keyboard.onkeydown = this.keyboard.onkeyup = () => {};
   }
 
@@ -312,9 +313,9 @@ export class GuacTerminalComponent implements OnChanges {
 
     //LEFT_CONTROL and V as of https://github.com/apache/guacamole-client/blob/master/guacamole-common-js/src/main/webapp/modules/Keyboard.js
     //As Defined in the X11 Window System Protocol: https://www.cl.cam.ac.uk/~mgk25/ucs/keysymdef.h
-    let pasteKeys = [0xffe3, 0x76];
+    const pasteKeys = [0xffe3, 0x76];
 
-    let remoteClipboard = {
+    const remoteClipboard = {
       mimetype: clipboard.remoteClipboard.mimetype,
       data: clipboard.remoteClipboard.data,
     };
@@ -344,7 +345,7 @@ export class GuacTerminalComponent implements OnChanges {
   }
 
   handleMouseState = (mouseState: Mouse.State) => {
-    let scale = this.display.getScale();
+    const scale = this.display.getScale();
     const scaledMouseState = Object.assign({}, mouseState, {
       x: mouseState.x / scale,
       y: mouseState.y / scale,
@@ -365,7 +366,7 @@ export class GuacTerminalComponent implements OnChanges {
       // resize is being called on the hidden window
       return;
     }
-    let pixelDensity = window.devicePixelRatio || 1;
+    const pixelDensity = window.devicePixelRatio || 1;
     const width = elm.clientWidth * pixelDensity;
     const height = elm.clientHeight * pixelDensity;
 
@@ -378,7 +379,7 @@ export class GuacTerminalComponent implements OnChanges {
       // resize is being called on the hidden window
       return;
     }
-    let optimalResolution = this.getOptimalResolution();
+    const optimalResolution = this.getOptimalResolution();
     this.optimalHeight = optimalResolution?.height ?? 1024;
     this.optimalWidth = optimalResolution?.width ?? 744;
 
