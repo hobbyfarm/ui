@@ -27,7 +27,7 @@ import { Mimetype } from 'guacamole-common-js/lib/GuacCommon';
 //import {Modal} from '@/components/Modal'
 
 @Component({
-  selector: 'guac-terminal',
+  selector: 'app-guac-terminal',
   templateUrl: './guacTerminal.component.html',
   styleUrls: ['guacTerminal.component.scss'],
   encapsulation: ViewEncapsulation.None,
@@ -172,8 +172,7 @@ export class GuacTerminalComponent implements OnChanges {
       this.errorMessage = error.message;
       this.connectionState = states.CLIENT_ERROR;
     };
-    // eslint-disable-next-line no-empty
-    this.client.onsync = () => {};
+    this.client.onsync = null;
 
     // Test for argument mutability whenever an argument value is received
     this.client.onargv = (stream, mimetype, name) => {
@@ -286,8 +285,7 @@ export class GuacTerminalComponent implements OnChanges {
   }
 
   uninstallKeyboard() {
-    // eslint-disable-next-line no-empty
-    this.keyboard.onkeydown = this.keyboard.onkeyup = () => {};
+    this.keyboard.onkeydown = this.keyboard.onkeyup = null;
   }
 
   async sleep(time: number) {

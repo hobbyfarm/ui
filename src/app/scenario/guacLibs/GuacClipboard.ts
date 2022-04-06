@@ -120,7 +120,7 @@ class GuacClipboard {
     } else {
       const reader = new BlobReader(clipboardStream, mimetype);
       reader.onend = () => {
-        let clipboardObj = {
+        const clipboardObj = {
           mimetype: mimetype,
           data: reader.getBlob(),
         };
