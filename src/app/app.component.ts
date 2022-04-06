@@ -52,7 +52,12 @@ export class AppComponent implements OnInit {
   public aboutBody =
     this.Config.about?.body ||
     'HobbyFarm is lovingly crafted by the HobbyFarm team';
-  public buttons = this.Config.about?.buttons || [];
+  public buttons = this.Config.about?.buttons || [
+    {
+      title: 'Hobbyfarm Project',
+      url: 'https://github.com/hobbyfarm/hobbyfarm',
+    },
+  ];
 
   public themes = themes;
 
