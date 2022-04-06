@@ -334,14 +334,16 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
     const vmArray: VM[] = [...this.vms.values()];
     // For each tab...
     this.tabContents.forEach((t: ClrTabContent, i: number) => {
-      const isGuacTerminal: boolean = this.isGuacamoleTerminal(vmArray[i].protocol);
+      const isGuacTerminal: boolean = this.isGuacamoleTerminal(
+        vmArray[i].protocol,
+      );
       const isActiveTab: boolean = t.ifActiveService.current === t.id;
       if (isGuacTerminal) {
         ++numberOfGuacTabs;
         // If the active tab is the same as the currently scoped ...
         // ... resize the terminal that corresponds to the index of the active tab.
         // Subtract the number of terminal tabs over which it has already been iterated.
-        // e.g.: 
+        // e.g.:
         // - Tab 0 could have been a (regular) terminal, so the index sits now at 1
         // - But we need the guacamole terminal at index 0 to retrieve the first one from guacterms
         // - Therefore calculate i (index) - numberOfTermTabs (iterated term tabs) ...
