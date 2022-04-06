@@ -53,7 +53,7 @@ export class AppComponent implements OnInit {
   public aboutTitle = this.Config.about?.title || 'About HobbyFarm';
   public aboutBody =
     this.Config.about?.body ||
-    'HobbyFarm was lovingly crafted by @ebauman and @Oats87 from @RancherLabs';
+    'HobbyFarm is lovingly crafted by the HobbyFarm team';
   public buttons = this.Config.about?.buttons || [];
 
   public themes = themes;
