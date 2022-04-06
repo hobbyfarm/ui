@@ -11,7 +11,7 @@ import { CodeExec } from './CodeExec';
 import { ShellService } from '../services/shell.service';
 import { JwtHelperService } from '@auth0/angular-jwt';
 import { environment } from 'src/environments/environment';
-import { Client, Keyboard, Mouse, StringReader, WebSocketTunnel } from 'guacamole-common-js';
+import { Client, Keyboard, Mouse, StringReader, Tunnel, WebSocketTunnel } from 'guacamole-common-js';
 import clipboard from './guacLibs/GuacClipboard';
 import states from './guacLibs/states';
 import { ClipboardCache } from './guacLibs/ClipboardCache';
@@ -99,28 +99,28 @@ export class GuacTerminalComponent implements OnChanges {
       this.shellService.setStatus(this.vmname, 'Tunnel Error');
       this.connectionState = states.TUNNEL_ERROR;
     };
-    tunnel.onstatechange = (state) => {
+    tunnel.onstatechange = (state: Tunnel.State) => {
       switch (state) {
         // Connection is being established
-        case WebSocketTunnel.State.CONNECTING:
+        case Tunnel.State.CONNECTING:
           this.connectionState = states.CONNECTING;
           break;
         // Connection is established / no longer unstable
-        case WebSocketTunnel.State.OPEN:
+        case Tunnel.State.OPEN:
           this.connectionState = states.CONNECTED;
           break;
         // Connection is established but misbehaving
-        case WebSocketTunnel.State.UNSTABLE:
+        case Tunnel.State.UNSTABLE:
           // TODO
           break;
         // Connection has closed
-        case WebSocketTunnel.State.CLOSED:
+        case Tunnel.State.CLOSED:
           this.connectionState = states.DISCONNECTED;
           break;
       }
     };
 
-    this.client.onstatechange = (clientState) => {
+    this.client.onstatechange = (clientState: Client.State) => {
       console.log('state: ' + clientState);
       switch (clientState) {
         case 0:
