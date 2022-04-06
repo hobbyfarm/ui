@@ -17,8 +17,6 @@ class GuacClipboard {
 
   public cache: ClipboardCache | undefined;
 
-  constructor() {}
-
   install(client: Client) {
     this.getLocalClipboard().then(
       (data: ClipboardCache | undefined) => (this.cache = data),
@@ -112,7 +110,7 @@ class GuacClipboard {
 
       // Set clipboard contents once stream is finished
       reader.onend = () => {
-        let clipboardObj: ClipboardCache = {
+        const clipboardObj: ClipboardCache = {
           mimetype: mimetype,
           data: data,
         };
