@@ -329,13 +329,28 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   public dragEnd() {
+    let numberOfGuacTabs = 0;
+    let numberOfTermTabs = 0;
+    const vmArray: VM[] = [...this.vms.values()];
     // For each tab...
     this.tabContents.forEach((t: ClrTabContent, i: number) => {
-      // ... if the active tab is the same as itself ...
-      if (t.ifActiveService.current == t.id) {
+      const isGuacTerminal: boolean = this.isGuacamoleTerminal(vmArray[i].protocol);
+      const isActiveTab: boolean = t.ifActiveService.current === t.id;
+      if (isGuacTerminal) {
+        ++numberOfGuacTabs;
+        // If the active tab is the same as the currently scoped ...
         // ... resize the terminal that corresponds to the index of the active tab.
-        // e.g. tab could have ID of 45, but would be index 2 in list of tabs, so reload terminal with index 2.
-        this.terms.toArray()[i].resize();
+        // Subtract the number of terminal tabs over which it has already been iterated.
+        // e.g.: 
+        // - Tab 0 could have been a (regular) terminal, so the index sits now at 1
+        // - But we need the guacamole terminal at index 0 to retrieve the first one from guacterms
+        // - Therefore calculate i (index) - numberOfTermTabs (iterated term tabs) ...
+        // ... to retrieve the current index of guacterms.toArray()
+        isActiveTab && this.guacterms.toArray()[i - numberOfTermTabs].resize();
+      } else {
+        ++numberOfTermTabs;
+        // see above
+        isActiveTab && this.terms.toArray()[i - numberOfGuacTabs].resize();
       }
     });
   }
