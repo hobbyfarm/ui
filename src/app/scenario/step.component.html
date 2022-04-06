@@ -113,14 +113,14 @@
                 #term
               >
               </app-terminal>
-              <guacTerminal
+              <guac-terminal
                 *ngIf="isGuacamoleTerminal(v.value.protocol)"
                 [vmname]="v.key"
                 [vmid]="v.value.id"
                 [endpoint]="v.value.ws_endpoint"
                 #guacterm
               >
-              </guacTerminal>
+              </guac-terminal>
             </clr-tab-content>
           </clr-tab>
         </clr-tabs>

@@ -27,7 +27,7 @@ import { Mimetype } from 'guacamole-common-js/lib/GuacCommon';
 //import {Modal} from '@/components/Modal'
 
 @Component({
-  selector: 'guacTerminal',
+  selector: 'guac-terminal',
   templateUrl: './guacTerminal.component.html',
   styleUrls: ['guacTerminal.component.scss'],
   encapsulation: ViewEncapsulation.None,
