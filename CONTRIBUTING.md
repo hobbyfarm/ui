@@ -1,5 +1,14 @@
 # Contributing
 
+## Code Style
+
+This project uses [Prettier] for code formatting and [ESLint] to enforce further code style guidelines. We recommend you install appropriate extensions for your preferred editor or IDE so that you can catch problems early.
+
+While code style conformance is checked during CI, you can also run these checks beforehand using the commands `npm run prettier:check` and `npm run lint`. Run `npm run prettier:format` to format all source files in this repository using Prettier.
+
+[prettier]: https://prettier.io/
+[eslint]: https://eslint.org/
+
 ## Local Development
 
 To modify Angular environment variables for your local environment, copy `src/environments/environment.local.example.ts` to `src/environments/environment.local.ts` and update variables as needed.
