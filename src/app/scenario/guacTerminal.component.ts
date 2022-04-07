@@ -129,7 +129,6 @@ export class GuacTerminalComponent implements OnChanges {
     };
 
     this.client.onstatechange = (clientState: Client.State) => {
-      console.log('state: ' + clientState);
       switch (clientState) {
         case 0:
           this.connectionState = states.IDLE;
