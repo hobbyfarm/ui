@@ -33,7 +33,6 @@ export class QuizCheckboxComponent implements OnInit {
   public requiredValues: boolean[] = [];
   public isSubmitted = false;
   public validationEnabled: boolean;
-  public checkboxesValidated: boolean;
 
   constructor(private fb: FormBuilder) {}
 
@@ -82,7 +81,6 @@ export class QuizCheckboxComponent implements OnInit {
         validatedCheckboxes =
           validatedCheckboxes && control.value === this.requiredValues[index];
       });
-      this.checkboxesValidated = validatedCheckboxes;
       if (!validatedCheckboxes) {
         return {
           checkboxesValidated: true,
