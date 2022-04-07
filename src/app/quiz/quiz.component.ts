@@ -42,13 +42,11 @@ export class QuizComponent implements OnInit {
   public submit() {
     this.quizCheckbox.forEach((checkbox: QuizCheckboxComponent) => {
       console.log(checkbox.quizForm)
-      // checkbox.quizForm.updateValueAndValidity();
-      // checkbox.submit();
+      checkbox.submit();
     })
     this.quizRadio.forEach((radio: QuizRadioComponent) => {
-        console.log(radio.quizForm)
-      // radio.quizForm.updateValueAndValidity();
-      // radio.submit();
+      console.log(radio.quizForm)
+      radio.submit();
     })
   }
 
