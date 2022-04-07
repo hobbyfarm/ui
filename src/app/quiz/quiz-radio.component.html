@@ -1,4 +1,4 @@
-<form clrForm [formGroup]="quizForm" (ngSubmit)="submit()">
+<form clrForm [formGroup]="quizForm">
     <clr-radio-container>
         <label>{{ title }}</label>
         <clr-radio-wrapper *ngFor="let optionTitle of optionTitles; index as i">

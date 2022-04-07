@@ -1,4 +1,4 @@
-<form clrForm [formGroup]="quizForm" (ngSubmit)="submit()">
+<form clrForm [formGroup]="quizForm">
     <clr-checkbox-container [class.clr-error]="!checkboxesValidated && isSubmitted">
         <label>{{ title }}</label>
         <clr-checkbox-wrapper formArrayName="quiz" *ngFor="let optionTitle of optionTitles; let i = index">
