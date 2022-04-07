@@ -99,12 +99,6 @@
                   <td><b>Shell Status:</b> {{ getShellStatus(v.key) }}</td>
                 </tr>
               </table>
-              <!-- <app-terminal
-                [vmname]="v.key"
-                [vmid]="v.value.id"
-                [endpoint]="v.value.ws_endpoint"
-                #term
-              ></app-terminal> -->
               <app-terminal
                 *ngIf="!isGuacamoleTerminal(v.value.protocol)"
                 [vmname]="v.key"
