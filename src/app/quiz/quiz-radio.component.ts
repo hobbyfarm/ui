@@ -31,6 +31,7 @@ export class QuizRadioComponent implements OnInit {
   public requiredValues: boolean[] = [];
   public isSubmitted = false;
   public validationEnabled: boolean;
+  public validSubmission = false;
 
   constructor(private fb: FormBuilder) {}
 
@@ -51,11 +52,13 @@ export class QuizRadioComponent implements OnInit {
   }
 
   public submit() {
+    (this.quizForm.controls.quiz as FormControl)
     this.isSubmitted = true;
     if (this.quizForm.invalid) {
       this.clrForm.markAsTouched();
     } else {
-      console.log(this.optionTitles[this.quizForm.controls.quiz.value]);
+      // console.log(this.optionTitles[this.quizForm.controls.quiz.value]);
+      this.validSubmission = true;
     }
     this.quizForm.disable();
   }
