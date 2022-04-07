@@ -64,7 +64,7 @@ export class QuizCheckboxComponent implements OnInit {
   }
 
   private addCheckboxes() {
-    this.optionTitles.forEach((_option: string) =>
+    this.optionTitles.forEach(() =>
       this.optionsFormArray.push(new FormControl(false)),
     );
   }
