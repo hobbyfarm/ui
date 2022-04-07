@@ -57,6 +57,7 @@ export class QuizRadioComponent implements OnInit {
     } else {
       console.log(this.optionTitles[this.quizForm.controls.quiz.value]);
     }
+    this.quizForm.disable();
   }
 
   private createQuizForm(correctIndex: number) {

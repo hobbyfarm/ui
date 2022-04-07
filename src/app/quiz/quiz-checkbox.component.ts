@@ -61,6 +61,7 @@ export class QuizCheckboxComponent implements OnInit {
         .filter((v: string) => v !== null);
       console.log(selectedOptions);
     }
+    this.quizForm.disable();
   }
 
   private addCheckboxes() {
