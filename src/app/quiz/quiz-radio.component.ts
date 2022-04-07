@@ -67,14 +67,14 @@ export class QuizRadioComponent implements OnInit {
             Validators.pattern(String(correctIndex)),
           ]),
         },
-        { updateOn: 'submit' },
+        { updateOn: 'change' },
       );
     } else {
       this.quizForm = this.fb.group(
         {
           quiz: new FormControl(null, Validators.required),
         },
-        { updateOn: 'submit' },
+        { updateOn: 'change' },
       );
     }
   }

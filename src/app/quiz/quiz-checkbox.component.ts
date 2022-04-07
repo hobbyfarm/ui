@@ -97,14 +97,14 @@ export class QuizCheckboxComponent implements OnInit {
         {
           quiz: new FormArray([], this.validateCheckboxes()),
         },
-        { updateOn: 'submit' },
+        { updateOn: 'change' },
       );
     } else {
       this.quizForm = this.fb.group(
         {
           quiz: new FormArray([]),
         },
-        { updateOn: 'submit' },
+        { updateOn: 'change' },
       );
     }
   }
