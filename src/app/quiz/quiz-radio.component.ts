@@ -1,8 +1,10 @@
 import { Component, Input, OnInit, ViewChild } from '@angular/core';
 import {
+  AbstractControl,
   FormBuilder,
   FormControl,
   FormGroup,
+  ValidatorFn,
   Validators,
 } from '@angular/forms';
 import { ClrForm } from '@clr/angular';
@@ -52,7 +54,6 @@ export class QuizRadioComponent implements OnInit {
   }
 
   public submit() {
-    (this.quizForm.controls.quiz as FormControl)
     this.isSubmitted = true;
     if (this.quizForm.invalid) {
       this.clrForm.markAsTouched();
@@ -63,23 +64,32 @@ export class QuizRadioComponent implements OnInit {
     this.quizForm.disable();
   }
 
+  private validateRadio(correctIndex: number): ValidatorFn {
+    return (control: AbstractControl) => {
+      const formGroup = control as FormGroup;
+      let validationRegex = new RegExp(`^${correctIndex}$`);
+      if (
+        !formGroup.controls.quiz.value ||
+        (this.validationEnabled &&
+          !validationRegex.test(formGroup.controls.quiz.value))
+      ) {
+        return {
+          quiz: correctIndex,
+        };
+      }
+      return null;
+    };
+  }
+
   private createQuizForm(correctIndex: number) {
-    if (this.validationEnabled) {
-      this.quizForm = this.fb.group(
-        {
-          quiz: new FormControl(null, [
-            Validators.pattern(String(correctIndex)),
-          ]),
-        },
-        { updateOn: 'change' },
-      );
-    } else {
-      this.quizForm = this.fb.group(
-        {
-          quiz: new FormControl(null, Validators.required),
-        },
-        { updateOn: 'change' },
-      );
-    }
+    this.quizForm = this.fb.group(
+      {
+        quiz: new FormControl(null),
+      },
+      {
+        validators: this.validateRadio(correctIndex),
+        updateOn: 'change',
+      },
+    );
   }
 }

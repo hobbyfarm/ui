@@ -1,5 +1,5 @@
 <form clrForm [formGroup]="quizForm">
-    <clr-radio-container>
+    <clr-radio-container [class.clr-error]="quizForm.invalid && isSubmitted">
         <label>{{ title }}</label>
         <clr-radio-wrapper *ngFor="let optionTitle of optionTitles; index as i">
             <input type="radio" clrRadio name="quiz" [value]="i" formControlName="quiz" />
