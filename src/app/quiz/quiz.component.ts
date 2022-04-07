@@ -23,8 +23,6 @@ export class QuizComponent implements OnInit {
   public questionParams: QuestionParams[] = [];
   public questions: string[];
 
-  constructor() {}
-
   public ngOnInit() {
       this.questions = this.questionsRaw.split("\n---\n");
       this.questions.forEach((question: string) => {
