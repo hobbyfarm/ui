@@ -101,7 +101,7 @@ export class TerminalComponent implements OnChanges, AfterViewInit, OnDestroy {
       'InstallTrigger' in window;
     this.term = new Terminal({
       fontFamily: 'monospace',
-      fontSize: 16,
+      fontSize: this.DEFAULT_FONT_SIZE,
       letterSpacing: 1.1,
       rendererType: isFirefox ? 'dom' : 'canvas',
     });
