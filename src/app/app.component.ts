@@ -149,7 +149,7 @@ export class AppComponent implements OnInit {
     this.fetchingSettings = true;
     this.settingsService.settings$
       .pipe(first())
-      .subscribe(({ terminal_theme = "default", terminal_fontSize = 16 }) => {
+      .subscribe(({ terminal_theme = 'default', terminal_fontSize = 16 }) => {
         this.settingsForm.setValue({ terminal_theme, terminal_fontSize });
         this.fetchingSettings = false;
       });
