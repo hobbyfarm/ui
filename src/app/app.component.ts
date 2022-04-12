@@ -106,6 +106,7 @@ export class AppComponent implements OnInit {
 
   public settingsForm: FormGroup = new FormGroup({
     terminal_theme: new FormControl(null, [Validators.required]),
+    terminal_fontSize: new FormControl(null, [Validators.required]),
   });
 
   ngOnInit() {
@@ -148,8 +149,8 @@ export class AppComponent implements OnInit {
     this.fetchingSettings = true;
     this.settingsService.settings$
       .pipe(first())
-      .subscribe(({ terminal_theme }) => {
-        this.settingsForm.setValue({ terminal_theme });
+      .subscribe(({ terminal_theme = "default", terminal_fontSize = 16 }) => {
+        this.settingsForm.setValue({ terminal_theme, terminal_fontSize });
         this.fetchingSettings = false;
       });
     this.settingsModal.open();

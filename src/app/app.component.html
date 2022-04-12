@@ -172,9 +172,28 @@
       <ng-container *ngIf="!fetchingSettings">
         <form clrForm [formGroup]="settingsForm">
           <clr-tabs>
-            <clr-tab>
-              <button clrTabLink>Terminal Theme</button>
+            <clr-tab>             
+              <button clrTabLink>Terminal</button>
               <clr-tab-content *clrIfActive="true">
+                <clr-input-container>
+                  <label class="clr-col-md-4">Font-Size</label>
+                  <input
+                    class="clr-col-md-8"
+                    clrInput
+                    type="number"
+                    required
+                    name="terminal_fontSize"
+                    formControlName="terminal_fontSize"
+                  />
+                  <clr-control-error *clrIfError="'required'"
+                    >Font Size required.</clr-control-error
+                  >
+                </clr-input-container>
+              </clr-tab-content>
+            </clr-tab>
+            <clr-tab>             
+              <button clrTabLink>Terminal Theme</button>
+              <clr-tab-content>
                 <div
                   *ngFor="let theme of themes"
                   class="radio-box-container clr-col-6"

@@ -49,6 +49,8 @@ export class TerminalComponent implements OnChanges, AfterViewInit, OnDestroy {
   public mutationObserver: MutationObserver;
   private subscription = new Subscription();
 
+  private DEFAULT_FONT_SIZE = 16;
+
   @ViewChild('terminal', { static: true }) terminalDiv: ElementRef;
 
   constructor(
@@ -105,6 +107,9 @@ export class TerminalComponent implements OnChanges, AfterViewInit, OnDestroy {
     });
     this.settingsService.settings$.subscribe(({ terminal_theme }) => {
       this.setTerminalTheme(terminal_theme);
+    });
+    this.settingsService.settings$.subscribe(({ terminal_fontSize }) => {
+      this.setFontSize(terminal_fontSize);
     });
     this.attachAddon = new AttachAddon(this.socket);
     this.term.loadAddon(this.fitAddon);
@@ -258,5 +263,11 @@ export class TerminalComponent implements OnChanges, AfterViewInit, OnDestroy {
     if (!this.term) return;
     const theme = themes.find((t) => t.id === themeId) || themes[0];
     this.term.setOption('theme', theme.styles);
+  }
+
+  private setFontSize(size: number) {
+    if (!this.term) return;
+    this.term.setOption('fontSize', size ?? this.DEFAULT_FONT_SIZE);
+    this.resize();
   }
 }

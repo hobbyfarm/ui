@@ -17,6 +17,7 @@ import {
 
 export interface Settings {
   terminal_theme: typeof themes[number]['id'];
+  terminal_fontSize: number;
 }
 
 @Injectable()
@@ -30,6 +31,9 @@ export class SettingsService {
   fetch() {
     return this.garg.get('/settings').pipe(
       map(extractResponseContent),
+      map((s: Readonly<Settings | null>) =>
+        s ? s : { terminal_theme: themes[0].id , terminal_fontSize: 16 },
+      ),
       tap((s: Readonly<Settings>) => {
         this.subject.next(s);
       }),
