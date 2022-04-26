@@ -87,13 +87,12 @@ class GuacClipboard {
   }
 
   async setLocalClipboard(clipboardData: ClipboardCache) {
-    const localClipboard: Clipboard = navigator.clipboard;
     if (
-      localClipboard &&
+      navigator.clipboard &&
       clipboardData.mimetype === 'text/plain' &&
       typeof clipboardData.data === 'string'
     ) {
-      await localClipboard.writeText(clipboardData.data);
+      await navigator.clipboard.writeText(clipboardData.data);
     }
   }
 
