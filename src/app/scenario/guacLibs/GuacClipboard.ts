@@ -76,8 +76,7 @@ class GuacClipboard {
   }
 
   private async getLocalClipboard(): Promise<ClipboardCache | undefined> {
-    const localClipboard: Clipboard = navigator.clipboard;
-    if (localClipboard) {
+    if (navigator.clipboard && navigator.clipboard.readText) {
       const text = await navigator.clipboard.readText();
       return {
         mimetype: 'text/plain',
@@ -94,7 +93,7 @@ class GuacClipboard {
       clipboardData.mimetype === 'text/plain' &&
       typeof clipboardData.data === 'string'
     ) {
-      await navigator.clipboard.writeText(clipboardData.data);
+      await localClipboard.writeText(clipboardData.data);
     }
   }
 
