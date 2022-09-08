@@ -1,4 +1,5 @@
 import { Component, ElementRef, Input, OnInit, ViewChild } from '@angular/core';
+import { SettingsService } from '../services/settings.service';
 import { CtrService } from './ctr.service';
 
 @Component({
@@ -6,10 +7,11 @@ import { CtrService } from './ctr.service';
   selector: 'ctr',
   template: `
     <pre (click)="ctr()" #code><ng-content></ng-content></pre>
-    <i
-      ><clr-icon shape="angle"></clr-icon> Click to run on <b>{{ target }}</b
-      ><span> {{ countContent }}</span></i
-    >
+    <i>
+      <clr-icon shape="angle"></clr-icon> Click to run on <b>{{ target }}</b>
+      <span> {{ countContent }}</span>
+      <span> {{ disabledText }}</span>
+    </i>
   `,
   styleUrls: ['ctr.component.scss'],
 })
@@ -19,17 +21,30 @@ export class CtrComponent implements OnInit {
   @ViewChild('code') code: ElementRef<HTMLElement>;
 
   public countContent = '';
+  public disabledText = '';
+  private enabled = true;
 
-  constructor(private ctrService: CtrService) {}
+  constructor(
+    private ctrService: CtrService,
+    private settingsService: SettingsService
+    ) {}
 
   public ngOnInit() {
     if (this.count != Number.POSITIVE_INFINITY) {
       this.updateCount();
     }
+
+    
+  }
+
+  public ngAfterViewInit(){
+    this.settingsService.settings$.subscribe(({ ctr_enabled = true }) => {
+      this.setEnabled(ctr_enabled);
+    });
   }
 
   public ctr() {
-    if (this.count > 0) {
+    if (this.count > 0 && this.enabled) {
       const code = this.code.nativeElement.innerText;
       this.ctrService.sendCode({ target: this.target, code });
       if (this.count != Number.POSITIVE_INFINITY) {
@@ -43,5 +58,16 @@ export class CtrComponent implements OnInit {
     const clicks = this.count == 1 ? 'click' : 'clicks';
     const content = `(${this.count} ${clicks} left)`;
     this.countContent = content;
+  }
+
+  private setEnabled(enabled: boolean){
+    this.enabled = enabled;
+    if(this.enabled){
+      this.code.nativeElement.classList.remove("disabled");
+      this.disabledText = ""
+    }else{
+      this.code.nativeElement.classList.add("disabled");
+      this.disabledText = "(CTR disabled in settings)"
+    }
   }
 }
