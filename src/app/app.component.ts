@@ -150,10 +150,20 @@ export class AppComponent implements OnInit {
     this.fetchingSettings = true;
     this.settingsService.settings$
       .pipe(first())
-      .subscribe(({ terminal_theme = 'default', terminal_fontSize = 16, ctr_enabled = true }) => {
-        this.settingsForm.setValue({ terminal_theme, terminal_fontSize, ctr_enabled });
-        this.fetchingSettings = false;
-      });
+      .subscribe(
+        ({
+          terminal_theme = 'default',
+          terminal_fontSize = 16,
+          ctr_enabled = true,
+        }) => {
+          this.settingsForm.setValue({
+            terminal_theme,
+            terminal_fontSize,
+            ctr_enabled,
+          });
+          this.fetchingSettings = false;
+        },
+      );
     this.settingsModal.open();
   }
 

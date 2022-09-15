@@ -26,18 +26,16 @@ export class CtrComponent implements OnInit {
 
   constructor(
     private ctrService: CtrService,
-    private settingsService: SettingsService
-    ) {}
+    private settingsService: SettingsService,
+  ) {}
 
   public ngOnInit() {
     if (this.count != Number.POSITIVE_INFINITY) {
       this.updateCount();
     }
-
-    
   }
 
-  public ngAfterViewInit(){
+  public ngAfterViewInit() {
     this.settingsService.settings$.subscribe(({ ctr_enabled = true }) => {
       this.setEnabled(ctr_enabled);
     });
@@ -60,14 +58,14 @@ export class CtrComponent implements OnInit {
     this.countContent = content;
   }
 
-  private setEnabled(enabled: boolean){
+  private setEnabled(enabled: boolean) {
     this.enabled = enabled;
-    if(this.enabled){
-      this.code.nativeElement.classList.remove("disabled");
-      this.disabledText = ""
-    }else{
-      this.code.nativeElement.classList.add("disabled");
-      this.disabledText = "(CTR disabled in settings)"
+    if (this.enabled) {
+      this.code.nativeElement.classList.remove('disabled');
+      this.disabledText = '';
+    } else {
+      this.code.nativeElement.classList.add('disabled');
+      this.disabledText = '(CTR disabled in settings)';
     }
   }
 }

@@ -7,7 +7,7 @@ pre {
   color: #c5c8c6;
   cursor: pointer;
   overflow-x: auto;
-  &.disabled{
+  &.disabled {
     cursor: not-allowed;
   }
 }
