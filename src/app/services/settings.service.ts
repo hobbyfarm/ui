@@ -18,6 +18,7 @@ import {
 export interface Settings {
   terminal_theme: typeof themes[number]['id'];
   terminal_fontSize: number;
+  ctr_enabled: boolean;
 }
 
 @Injectable()
@@ -32,9 +33,16 @@ export class SettingsService {
     return this.garg.get('/settings').pipe(
       map(extractResponseContent),
       map((s: Readonly<Settings | null>) =>
-        s ? s : { terminal_theme: themes[0].id, terminal_fontSize: 16 },
+        s
+          ? s
+          : {
+              terminal_theme: themes[0].id,
+              terminal_fontSize: 16,
+              ctr_enabled: true,
+            },
       ),
-      tap((s: Readonly<Settings>) => {
+      tap((s: Settings) => {
+        s.ctr_enabled = JSON.parse(String(s.ctr_enabled));
         this.subject.next(s);
       }),
     );

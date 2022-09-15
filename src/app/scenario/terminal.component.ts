@@ -50,6 +50,7 @@ export class TerminalComponent implements OnChanges, AfterViewInit, OnDestroy {
   private subscription = new Subscription();
 
   private DEFAULT_FONT_SIZE = 16;
+  private DEFAULT_TERMINAL_THEME = 'default';
 
   @ViewChild('terminal', { static: true }) terminalDiv: ElementRef;
 
@@ -105,12 +106,16 @@ export class TerminalComponent implements OnChanges, AfterViewInit, OnDestroy {
       letterSpacing: 1.1,
       rendererType: isFirefox ? 'dom' : 'canvas',
     });
-    this.settingsService.settings$.subscribe(({ terminal_theme }) => {
-      this.setTerminalTheme(terminal_theme);
-    });
-    this.settingsService.settings$.subscribe(({ terminal_fontSize }) => {
-      this.setFontSize(terminal_fontSize);
-    });
+    this.settingsService.settings$.subscribe(
+      ({ terminal_theme = this.DEFAULT_TERMINAL_THEME }) => {
+        this.setTerminalTheme(terminal_theme);
+      },
+    );
+    this.settingsService.settings$.subscribe(
+      ({ terminal_fontSize = this.DEFAULT_FONT_SIZE }) => {
+        this.setFontSize(terminal_fontSize);
+      },
+    );
     this.attachAddon = new AttachAddon(this.socket);
     this.term.loadAddon(this.fitAddon);
     this.term.open(this.terminalDiv.nativeElement);
