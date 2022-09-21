@@ -5,5 +5,15 @@
     "logo": "/assets/default/rancher-labs-stacked-color.svg",
     "background": "/assets/default/login_container_farm.svg"
   },
-  "logo": "/assets/default/logo.svg"
+  "logo": "/assets/default/logo.svg",
+  "about": {
+    "title": "About HobbyFarm",
+    "body": "HobbyFarm is lovingly crafted by the HobbyFarm team",
+    "buttons": [
+      {
+        "title": "Hobbyfarm Project",
+        "url": "https://github.com/hobbyfarm/hobbyfarm"
+      }
+    ]
+  }
 }

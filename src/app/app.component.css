@@ -100,3 +100,7 @@
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+
+.about-body {
+  margin-bottom: 1em;
+}

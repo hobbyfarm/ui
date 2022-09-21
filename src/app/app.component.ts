@@ -3,7 +3,6 @@ import { ClarityIcons } from '@clr/icons';
 import { JwtHelperService } from '@auth0/angular-jwt';
 import { ClrModal } from '@clr/angular';
 import { Router } from '@angular/router';
-import { version } from 'src/environments/version';
 import { UserService } from './services/user.service';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
 import { ServerResponse } from './ServerResponse';
@@ -21,7 +20,6 @@ export class AppComponent implements OnInit {
   public logoutModalOpened = false;
   public aboutModalOpened = false;
   public changePasswordModalOpened = false;
-  public version: string;
 
   public changePwDangerClosed = true;
   public changePwSuccessClosed = true;
@@ -50,6 +48,16 @@ export class AppComponent implements OnInit {
   private Config = this.config.getConfig();
   public title = this.Config.title || "Rancher's Hobby Farm";
   private logo = this.Config.logo || '/assets/default/logo.svg';
+  public aboutTitle = this.Config.about?.title || 'About HobbyFarm';
+  public aboutBody =
+    this.Config.about?.body ||
+    'HobbyFarm is lovingly crafted by the HobbyFarm team';
+  public buttons = this.Config.about?.buttons || [
+    {
+      title: 'Hobbyfarm Project',
+      url: 'https://github.com/hobbyfarm/hobbyfarm',
+    },
+  ];
 
   public themes = themes;
 
@@ -69,12 +77,6 @@ export class AppComponent implements OnInit {
     if (this.Config.favicon) {
       const fi = <HTMLLinkElement>document.querySelector('#favicon');
       fi.href = this.Config.favicon;
-    }
-
-    if (version.tag) {
-      this.version = version.tag;
-    } else {
-      this.version = version.revision;
     }
   }
 
