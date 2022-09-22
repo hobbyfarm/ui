@@ -42,7 +42,7 @@ export class SettingsService {
             },
       ),
       tap((s: Settings) => {
-        s.ctr_enabled = JSON.parse(String(s.ctr_enabled));
+        s.ctr_enabled = JSON.parse(String(s.ctr_enabled ?? true));
         this.subject.next(s);
       }),
     );
