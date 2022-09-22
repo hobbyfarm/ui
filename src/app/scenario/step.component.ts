@@ -292,7 +292,7 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   isGuacamoleTerminal(protocol: string): boolean {
-    return protocol !== 'ssh';
+    return !!protocol && protocol !== 'ssh';
   }
 
   public pause() {
