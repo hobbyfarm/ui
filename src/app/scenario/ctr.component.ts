@@ -6,9 +6,9 @@ import { CtrService } from './ctr.service';
   // eslint-disable-next-line @angular-eslint/component-selector
   selector: 'ctr',
   template: `
-    <pre (click)="ctr()" #code><ng-content></ng-content></pre>
+    <pre [attr.executed]="executed" (click)="ctr()" #code><ng-content></ng-content></pre>
     <i>
-      <clr-icon shape="angle"></clr-icon> Click to run on <b>{{ target }}</b>
+      <clr-icon [attr.shape]="shape"></clr-icon> {{statusText}} <b>{{ target }}</b>
       <span> {{ countContent }}</span>
       <span> {{ disabledText }}</span>
     </i>
@@ -22,6 +22,9 @@ export class CtrComponent implements OnInit {
 
   public countContent = '';
   public disabledText = '';
+  public shape = "angle";
+  public statusText = "Click to run on"
+  public executed = false;
   private enabled = true;
 
   constructor(
@@ -45,6 +48,9 @@ export class CtrComponent implements OnInit {
     if (this.count > 0 && this.enabled) {
       const code = this.code.nativeElement.innerText;
       this.ctrService.sendCode({ target: this.target, code });
+      this.executed = true;
+      this.shape = "success-standard"
+      this.statusText = "Executed on"
       if (this.count != Number.POSITIVE_INFINITY) {
         this.count -= 1;
         this.updateCount();
