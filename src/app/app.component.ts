@@ -115,6 +115,10 @@ export class AppComponent implements OnInit {
   ngOnInit() {
     const tok = this.helper.decodeToken(this.helper.tokenGetter());
     this.email = tok.email;
+
+    // Automatically logout the user after token expiration
+    const timeout = tok.exp - Date.now();
+    setTimeout(() => this.doLogout(), timeout);
   }
 
   public logout() {
