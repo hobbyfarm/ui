@@ -142,6 +142,11 @@ export class AppComponent implements OnInit {
           if (ctxAccessCode == '') {
             ctxAccessCode = se.keys().next().value;
           }
+
+          if(!se.has(ctxAccessCode)){
+            ctxAccessCode = se.keys().next().value;
+          }
+
           this.ctxEventAccessCode = ctxAccessCode;
           this.ctxEventName =
             se.get(this.ctxEventAccessCode) ?? 'No Events found';

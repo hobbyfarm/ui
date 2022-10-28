@@ -30,12 +30,13 @@
           !courses?.length &&
           !scenarios?.length &&
           loadedScenarios &&
-          loadedCourses
+          loadedCourses ||
+          ctxNoEvent
         "
       >
         No scenarios or courses found.
       </div>
-      <div *ngIf="!loadedScenarios && !loadedCourses">Loading scenarios...</div>
+      <div *ngIf="!loadedScenarios && !loadedCourses && !ctxNoEvent">Loading scenarios...</div>
     </div>
 
     <ng-container *ngIf="scenarios.length > 0">

@@ -27,8 +27,8 @@ export class HomeComponent implements OnInit, OnDestroy {
   private interval;
 
   public accessCode = '';
-  private eventName = '';
-  private ctxNoEvent = true;
+  public eventName = '';
+  public ctxNoEvent = true;
 
   constructor(
     private userService: UserService,
@@ -70,6 +70,10 @@ export class HomeComponent implements OnInit, OnDestroy {
 
         this.settingsService.settings$.subscribe(({ ctxAccessCode = '' }) => {
           if (ctxAccessCode == '') {
+            ctxAccessCode = se.keys().next().value;
+          }
+
+          if(!se.has(ctxAccessCode)){
             ctxAccessCode = se.keys().next().value;
           }
           this.accessCode = ctxAccessCode;
