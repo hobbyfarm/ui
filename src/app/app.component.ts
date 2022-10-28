@@ -43,9 +43,9 @@ export class AppComponent implements OnInit {
 
   public accesscodes: string[] = [];
   public scheduledEvents: Map<string, string> = new Map();
-  public ctxEventAccessCode: string = ""
-  public ctxEventName: string = "No Events found"
-  public ctxNoEvent : boolean = true;
+  public ctxEventAccessCode = ""
+  public ctxEventName = "No Events found"
+  public ctxNoEvent = true;
 
   public email = '';
 
