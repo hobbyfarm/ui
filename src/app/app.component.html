@@ -7,13 +7,16 @@
       </a>
     </div>
 
-    <div class="header-nav">
-      <a
-        href="javascript://"
-        class="nav-link nav-text"
-        [routerLink]="['/app/home']"
-        >Home</a
-      >
+    <div class="settings">
+      <clr-dropdown *ngIf="!ctxNoEvent">
+        <button class="nav-text" clrDropdownToggle>
+          {{ ctxEventName }}
+          <clr-icon shape="caret down"></clr-icon>
+        </button>
+        <clr-dropdown-menu *clrIfOpen clrPosition="bottom">
+          <a clrDropdownItem *ngFor="let a of scheduledEvents | keyvalue" (click)="setAccessCode(a.key)">{{ a.value }}</a>
+        </clr-dropdown-menu>
+      </clr-dropdown>
     </div>
 
     <div class="header-actions">

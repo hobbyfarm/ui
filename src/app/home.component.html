@@ -27,8 +27,8 @@
     <div class="clr-col-12">
       <div
         *ngIf="
-          !courses.length &&
-          !scenarios.length &&
+          !courses?.length &&
+          !scenarios?.length &&
           loadedScenarios &&
           loadedCourses
         "
@@ -52,7 +52,7 @@
     </ng-container>
   </div>
 
-  <div class="clr-row">
+  <div class="clr-row" *ngIf="courses.length > 0">
     <div class="clr-col-12">
       <ng-container *ngFor="let c of courses">
         <h2 class="course-header">{{ c.name | atob }}</h2>
@@ -90,6 +90,7 @@
   *ngIf="scenarioid"
   [scenarioid]="scenarioid"
   [courseid]="courseid"
+  [accessCode]="accessCode"
   [showScenarioModal]="showScenarioModal"
   (scenarioModal)="toggleScenarioModal()"
 ></app-scenario>

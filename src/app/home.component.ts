@@ -6,6 +6,7 @@ import { ScenarioService } from './services/scenario.service';
 import { Scenario } from './scenario/Scenario';
 import { ProgressService } from './services/progress.service';
 import { Progress } from './Progress';
+import { SettingsService } from './services/settings.service';
 
 @Component({
   selector: 'app-home',
@@ -25,11 +26,16 @@ export class HomeComponent implements OnInit, OnDestroy {
   private callDelay = 10;
   private interval;
 
+  public accessCode = "";
+  private eventName = "";
+  private ctxNoEvent = true;
+
   constructor(
     private userService: UserService,
     private scenarioService: ScenarioService,
     private courseService: CourseService,
     private progressService: ProgressService,
+    private settingsService: SettingsService
   ) {
     this.progressService.watch().subscribe((p: Progress[]) => {
       this.activeSession = undefined;
@@ -52,24 +58,42 @@ export class HomeComponent implements OnInit, OnDestroy {
   }
 
   private _refresh() {
-    this.courseService.list().subscribe(
-      (c: Course[]) => {
-        this.courses = c;
-        this.loadedCourses = true;
-      },
-      () => {
-        this.loadedCourses = false;
-      },
-    );
-    this.scenarioService.list().subscribe(
-      (s: Scenario[]) => {
-        this.scenarios = s;
-        this.loadedScenarios = true;
-      },
-      () => {
-        this.loadedScenarios = false;
-      },
-    );
+      this.userService.getScheduledEvents(true).subscribe((se:Map<string,string>) => {
+        se = new Map(Object.entries(se));
+   
+        if(se.size == 0){
+          this.ctxNoEvent = true;
+          return;
+        }
+  
+        this.settingsService.settings$.subscribe(({ ctxAccessCode = "" }) => {
+          if(ctxAccessCode == "") {
+            ctxAccessCode = se.keys().next().value;
+          }
+          this.accessCode = ctxAccessCode;
+          this.eventName = se.get(this.accessCode) ?? "Add AccessCode to access ScheduledEvents.";
+          this.ctxNoEvent = false;
+
+          this.courseService.fetch(this.accessCode).subscribe(
+            (c: Course[]) => {
+              this.courses = c ?? [];
+              this.loadedCourses = true;
+            },
+            () => {
+              this.loadedCourses = false;
+            },
+          );
+          this.scenarioService.fetch(this.accessCode).subscribe(
+            (s: Scenario[]) => {
+              this.scenarios = s ?? [];
+              this.loadedScenarios = true;
+            },
+            () => {
+              this.loadedScenarios = false;
+            },
+          );
+        });
+      })
   }
 
   ngOnInit() {
