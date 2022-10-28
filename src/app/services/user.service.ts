@@ -17,7 +17,7 @@ export class UserService {
   private _acModified = new BehaviorSubject(false);
 
   private fetchedSEs = false;
-  private cachedScheduledEventsList: Map<string,string> = new Map();
+  private cachedScheduledEventsList: Map<string, string> = new Map();
   private bh: BehaviorSubject<Map<string, string>> = new BehaviorSubject(
     this.cachedScheduledEventsList,
   );
@@ -71,13 +71,13 @@ export class UserService {
     } else {
       return this.garg.get('/scheduledevents').pipe(
         map<any, Map<string, string>>(extractResponseContent),
-        tap((p: Map<string,string>) => {
+        tap((p: Map<string, string>) => {
           this.setScheduledEventsCache(p);
         }),
       );
     }
   }
-  public setScheduledEventsCache(list: Map<string,string>) {
+  public setScheduledEventsCache(list: Map<string, string>) {
     this.cachedScheduledEventsList = list;
     this.fetchedSEs = true;
     this.bh.next(list);

@@ -40,7 +40,7 @@ export class SettingsService {
               terminal_theme: themes[0].id,
               terminal_fontSize: 16,
               ctr_enabled: true,
-              ctxAccessCode: ""
+              ctxAccessCode: '',
             },
       ),
       tap((s: Settings) => {

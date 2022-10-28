@@ -43,8 +43,8 @@ export class AppComponent implements OnInit {
 
   public accesscodes: string[] = [];
   public scheduledEvents: Map<string, string> = new Map();
-  public ctxEventAccessCode = ""
-  public ctxEventName = "No Events found"
+  public ctxEventAccessCode = '';
+  public ctxEventName = 'No Events found';
   public ctxNoEvent = true;
 
   public email = '';
@@ -114,7 +114,7 @@ export class AppComponent implements OnInit {
     terminal_theme: new FormControl(null, [Validators.required]),
     terminal_fontSize: new FormControl(null, [Validators.required]),
     ctr_enabled: new FormControl(false),
-    ctxAccessCode: new FormControl(false)
+    ctxAccessCode: new FormControl(false),
   });
 
   ngOnInit() {
@@ -126,25 +126,28 @@ export class AppComponent implements OnInit {
     setTimeout(() => this.doLogout(), timeout);
 
     //react to changes on users accesscodess
-      this.userService.watchScheduledEvents().subscribe((se:Map<string,string>) => {
+    this.userService
+      .watchScheduledEvents()
+      .subscribe((se: Map<string, string>) => {
         se = new Map(Object.entries(se));
-  
+
         this.scheduledEvents = se;
-  
-        if(this.scheduledEvents.size == 0){
+
+        if (this.scheduledEvents.size == 0) {
           this.ctxNoEvent = true;
           return;
         }
-  
-        this.settingsService.settings$.subscribe(({ ctxAccessCode = "" }) => {
-          if(ctxAccessCode == "") {
+
+        this.settingsService.settings$.subscribe(({ ctxAccessCode = '' }) => {
+          if (ctxAccessCode == '') {
             ctxAccessCode = se.keys().next().value;
           }
           this.ctxEventAccessCode = ctxAccessCode;
-          this.ctxEventName = se.get(this.ctxEventAccessCode) ?? "No Events found";
+          this.ctxEventName =
+            se.get(this.ctxEventAccessCode) ?? 'No Events found';
           this.ctxNoEvent = false;
         });
-      })
+      });
 
     this.refreshScheduledEvents();
   }
@@ -162,17 +165,16 @@ export class AppComponent implements OnInit {
     this.changePasswordModal.open();
   }
 
-  public setAccessCode(ac: string)
-  {
-    if(this.ctxEventAccessCode != "") {
-      this.settingsService.update({ctxAccessCode : ac}).subscribe(() => {
+  public setAccessCode(ac: string) {
+    if (this.ctxEventAccessCode != '') {
+      this.settingsService.update({ ctxAccessCode: ac }).subscribe(() => {
         this.ctxEventAccessCode = ac;
-        this.ctxEventName = this.scheduledEvents.get(ac) ?? "Select Event";
-      })
+        this.ctxEventName = this.scheduledEvents.get(ac) ?? 'Select Event';
+      });
     }
-  }  
+  }
 
-  public refreshScheduledEvents(){
+  public refreshScheduledEvents() {
     this.userService.getScheduledEvents(true).subscribe();
   }
 
@@ -203,7 +205,7 @@ export class AppComponent implements OnInit {
           terminal_theme = 'default',
           terminal_fontSize = 16,
           ctr_enabled = true,
-          ctxAccessCode = ""
+          ctxAccessCode = '',
         }) => {
           this.settingsForm.setValue({
             terminal_theme,

@@ -14,7 +14,12 @@
           <clr-icon shape="caret down"></clr-icon>
         </button>
         <clr-dropdown-menu *clrIfOpen clrPosition="bottom">
-          <a clrDropdownItem *ngFor="let a of scheduledEvents | keyvalue" (click)="setAccessCode(a.key)">{{ a.value }}</a>
+          <a
+            clrDropdownItem
+            *ngFor="let a of scheduledEvents | keyvalue"
+            (click)="setAccessCode(a.key)"
+            >{{ a.value }}</a
+          >
         </clr-dropdown-menu>
       </clr-dropdown>
     </div>

@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import {
   ListableResourceClient,
   GargantuaClientFactory,
-  extractResponseContent
+  extractResponseContent,
 } from './gargantua.service';
 import { Scenario } from '../scenario/Scenario';
 import { map } from 'rxjs/operators';
@@ -14,9 +14,9 @@ export class ScenarioService extends ListableResourceClient<Scenario> {
   }
 
   public fetch(ac: string) {
-    return this.garg.get(`/list/${ac}`).pipe(
-      map<any, Scenario[]>(extractResponseContent)
-    );
+    return this.garg
+      .get(`/list/${ac}`)
+      .pipe(map<any, Scenario[]>(extractResponseContent));
   }
 
   public printable(id: string) {

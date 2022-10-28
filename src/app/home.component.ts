@@ -26,8 +26,8 @@ export class HomeComponent implements OnInit, OnDestroy {
   private callDelay = 10;
   private interval;
 
-  public accessCode = "";
-  private eventName = "";
+  public accessCode = '';
+  private eventName = '';
   private ctxNoEvent = true;
 
   constructor(
@@ -35,7 +35,7 @@ export class HomeComponent implements OnInit, OnDestroy {
     private scenarioService: ScenarioService,
     private courseService: CourseService,
     private progressService: ProgressService,
-    private settingsService: SettingsService
+    private settingsService: SettingsService,
   ) {
     this.progressService.watch().subscribe((p: Progress[]) => {
       this.activeSession = undefined;
@@ -58,20 +58,24 @@ export class HomeComponent implements OnInit, OnDestroy {
   }
 
   private _refresh() {
-      this.userService.getScheduledEvents(true).subscribe((se:Map<string,string>) => {
+    this.userService
+      .getScheduledEvents(true)
+      .subscribe((se: Map<string, string>) => {
         se = new Map(Object.entries(se));
-   
-        if(se.size == 0){
+
+        if (se.size == 0) {
           this.ctxNoEvent = true;
           return;
         }
-  
-        this.settingsService.settings$.subscribe(({ ctxAccessCode = "" }) => {
-          if(ctxAccessCode == "") {
+
+        this.settingsService.settings$.subscribe(({ ctxAccessCode = '' }) => {
+          if (ctxAccessCode == '') {
             ctxAccessCode = se.keys().next().value;
           }
           this.accessCode = ctxAccessCode;
-          this.eventName = se.get(this.accessCode) ?? "Add AccessCode to access ScheduledEvents.";
+          this.eventName =
+            se.get(this.accessCode) ??
+            'Add AccessCode to access ScheduledEvents.';
           this.ctxNoEvent = false;
 
           this.courseService.fetch(this.accessCode).subscribe(
@@ -93,7 +97,7 @@ export class HomeComponent implements OnInit, OnDestroy {
             },
           );
         });
-      })
+      });
   }
 
   ngOnInit() {
