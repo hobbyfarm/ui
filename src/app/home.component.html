@@ -39,7 +39,7 @@
       <div *ngIf="!loadedScenarios && !loadedCourses && !ctxNoEvent">Loading scenarios...</div>
     </div>
 
-    <ng-container *ngIf="scenarios.length > 0">
+    <ng-container *ngIf="scenarios.length > 0 && !ctxNoEvent">
       <div
         class="clr-col-12 clr-col-sm-6 clr-col-md-4 clr-col-lg-3"
         *ngFor="let s of scenarios"
@@ -53,7 +53,7 @@
     </ng-container>
   </div>
 
-  <div class="clr-row" *ngIf="courses.length > 0">
+  <div class="clr-row" *ngIf="courses.length > 0 && !ctxNoEvent">
     <div class="clr-col-12">
       <ng-container *ngFor="let c of courses">
         <h2 class="course-header">{{ c.name | atob }}</h2>

@@ -10,6 +10,7 @@ import { AppConfigService } from './app-config.service';
 import { SettingsService } from './services/settings.service';
 import { themes } from './scenario/terminal-themes/themes';
 import { first } from 'rxjs/operators';
+import { Context, ContextService } from './services/context.service';
 
 @Component({
   selector: 'app-root',
@@ -71,6 +72,7 @@ export class AppComponent implements OnInit {
     private router: Router,
     private config: AppConfigService,
     private settingsService: SettingsService,
+    private contextService: ContextService
   ) {
     this.config.getLogo(this.logo).then((obj: string) => {
       ClarityIcons.add({
@@ -126,35 +128,20 @@ export class AppComponent implements OnInit {
     setTimeout(() => this.doLogout(), timeout);
 
     //react to changes on users accesscodess
-    this.userService
-      .watchScheduledEvents()
-      .subscribe((se: Map<string, string>) => {
-        se = new Map(Object.entries(se));
+    this.contextService.watch().subscribe((c: Context) => {
+      if(!c.valid){
+        this.ctxNoEvent = true;
+        return;
+      }
 
+      this.ctxNoEvent = false;
+      this.ctxEventAccessCode = c.accessCode;
+      this.ctxEventName = c.scheduledEventName
+      this.userService.getScheduledEvents().subscribe((se: Map<string,string>) => {
         this.scheduledEvents = se;
-
-        if (this.scheduledEvents.size == 0) {
-          this.ctxNoEvent = true;
-          return;
-        }
-
-        this.settingsService.settings$.subscribe(({ ctxAccessCode = '' }) => {
-          if (ctxAccessCode == '') {
-            ctxAccessCode = se.keys().next().value;
-          }
-
-          if(!se.has(ctxAccessCode)){
-            ctxAccessCode = se.keys().next().value;
-          }
-
-          this.ctxEventAccessCode = ctxAccessCode;
-          this.ctxEventName =
-            se.get(this.ctxEventAccessCode) ?? 'No Events found';
-          this.ctxNoEvent = false;
-        });
       });
-
-    this.refreshScheduledEvents();
+    })
+    this.contextService.init();
   }
 
   public logout() {
@@ -177,10 +164,6 @@ export class AppComponent implements OnInit {
         this.ctxEventName = this.scheduledEvents.get(ac) ?? 'Select Event';
       });
     }
-  }
-
-  public refreshScheduledEvents() {
-    this.userService.getScheduledEvents(true).subscribe();
   }
 
   public openAccessCodes() {

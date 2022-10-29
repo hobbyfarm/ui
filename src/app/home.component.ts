@@ -7,6 +7,7 @@ import { Scenario } from './scenario/Scenario';
 import { ProgressService } from './services/progress.service';
 import { Progress } from './Progress';
 import { SettingsService } from './services/settings.service';
+import { Context, ContextService } from './services/context.service';
 
 @Component({
   selector: 'app-home',
@@ -35,7 +36,7 @@ export class HomeComponent implements OnInit, OnDestroy {
     private scenarioService: ScenarioService,
     private courseService: CourseService,
     private progressService: ProgressService,
-    private settingsService: SettingsService,
+    private contextService: ContextService
   ) {
     this.progressService.watch().subscribe((p: Progress[]) => {
       this.activeSession = undefined;
@@ -45,6 +46,35 @@ export class HomeComponent implements OnInit, OnDestroy {
         }
       });
     });
+    this.contextService.watch().subscribe((c: Context) => {
+      if(!c.valid){
+        this.ctxNoEvent = true;
+        return
+      }
+
+      this.accessCode = c.accessCode;
+      this.eventName = c.scheduledEventName;
+      this.ctxNoEvent = false;
+
+      this.courseService.fetch(this.accessCode).subscribe(
+        (c: Course[]) => {
+          this.courses = c ?? [];
+          this.loadedCourses = true;
+        },
+        () => {
+          this.loadedCourses = false;
+        },
+      );
+      this.scenarioService.fetch(this.accessCode).subscribe(
+        (s: Scenario[]) => {
+          this.scenarios = s ?? [];
+          this.loadedScenarios = true;
+        },
+        () => {
+          this.loadedScenarios = false;
+        },
+      );
+    })
     this.progressService.list(true).subscribe(); //fill cache
     this.interval = setInterval(() => {
       this.progressService.list(true).subscribe();
@@ -57,58 +87,11 @@ export class HomeComponent implements OnInit, OnDestroy {
     this.showScenarioModal = Boolean(scenarioId);
   }
 
-  private _refresh() {
-    this.userService
-      .getScheduledEvents(true)
-      .subscribe((se: Map<string, string>) => {
-        se = new Map(Object.entries(se));
-
-        if (se.size == 0) {
-          this.ctxNoEvent = true;
-          return;
-        }
-
-        this.settingsService.settings$.subscribe(({ ctxAccessCode = '' }) => {
-          if (ctxAccessCode == '') {
-            ctxAccessCode = se.keys().next().value;
-          }
-
-          if(!se.has(ctxAccessCode)){
-            ctxAccessCode = se.keys().next().value;
-          }
-          this.accessCode = ctxAccessCode;
-          this.eventName =
-            se.get(this.accessCode) ??
-            'Add AccessCode to access ScheduledEvents.';
-          this.ctxNoEvent = false;
-
-          this.courseService.fetch(this.accessCode).subscribe(
-            (c: Course[]) => {
-              this.courses = c ?? [];
-              this.loadedCourses = true;
-            },
-            () => {
-              this.loadedCourses = false;
-            },
-          );
-          this.scenarioService.fetch(this.accessCode).subscribe(
-            (s: Scenario[]) => {
-              this.scenarios = s ?? [];
-              this.loadedScenarios = true;
-            },
-            () => {
-              this.loadedScenarios = false;
-            },
-          );
-        });
-      });
-  }
-
   ngOnInit() {
     this.userService.getModifiedObservable().subscribe(() => {
       // values push when adjustments made to access code list
       // thus, refresh the scenario list
-      this._refresh();
+      this.contextService.refresh();
     });
   }
 
