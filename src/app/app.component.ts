@@ -15,7 +15,7 @@ import { Context, ContextService } from './services/context.service';
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
-  styleUrls: ['./app.component.css'],
+  styleUrls: ['./app.component.scss'],
 })
 export class AppComponent implements OnInit {
   public logoutModalOpened = false;
@@ -161,10 +161,7 @@ export class AppComponent implements OnInit {
 
   public setAccessCode(ac: string) {
     if (this.ctxEventAccessCode != '') {
-      this.settingsService.update({ ctxAccessCode: ac }).subscribe(() => {
-        this.ctxEventAccessCode = ac;
-        this.ctxEventName = this.scheduledEvents.get(ac) ?? 'Select Event';
-      });
+      this.settingsService.update({ ctxAccessCode: ac }).subscribe();
     }
   }
 
