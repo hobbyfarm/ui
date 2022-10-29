@@ -6,14 +6,14 @@ import { UserService } from './user.service';
 export interface Context {
   accessCode: string;
   scheduledEventName: string;
-  valid: boolean
+  valid: boolean;
 }
 
 @Injectable()
 export class ContextService {
   constructor(
     private userService: UserService,
-    private settingsService: SettingsService
+    private settingsService: SettingsService,
   ) {}
 
   private initialized = false;
@@ -31,23 +31,23 @@ export class ContextService {
     this.updateContext(this.currentContext);
   }
 
-  updateContext(context: Context){
+  updateContext(context: Context) {
     this.currentContext = context;
     this.bh.next(this.currentContext);
   }
 
-  init(){
-    if(this.initialized){
-        return;
+  init() {
+    if (this.initialized) {
+      return;
     }
     this.initialized = true;
     this.refresh(true);
-    this.userService.getModifiedObservable().subscribe(()=>{
-        this.refresh(true);
+    this.userService.getModifiedObservable().subscribe(() => {
+      this.refresh(true);
     });
   }
 
-  refresh(force=false){
+  refresh(force = false) {
     this.userService
       .getScheduledEvents(force)
       .subscribe((se: Map<string, string>) => {
@@ -60,22 +60,20 @@ export class ContextService {
         }
 
         this.settingsService.settings$.subscribe(({ ctxAccessCode = '' }) => {
-          if (ctxAccessCode == '') {
+          // AccessCode stored in settings is not accessible by user
+          if (!se.has(ctxAccessCode)) {
             ctxAccessCode = se.keys().next().value;
           }
-
-          if(!se.has(ctxAccessCode)){
+          // No AccessCode stored
+          else if (ctxAccessCode == '') {
             ctxAccessCode = se.keys().next().value;
           }
           this.currentContext.accessCode = ctxAccessCode;
           this.currentContext.scheduledEventName =
-            se.get(this.currentContext.accessCode) ??
-            'None';
+            se.get(this.currentContext.accessCode) ?? 'None';
           this.currentContext.valid = true;
           this.updateContext(this.currentContext);
         });
-    });
-}
-
-
+      });
+  }
 }

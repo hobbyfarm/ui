@@ -36,7 +36,7 @@ export class HomeComponent implements OnInit, OnDestroy {
     private scenarioService: ScenarioService,
     private courseService: CourseService,
     private progressService: ProgressService,
-    private contextService: ContextService
+    private contextService: ContextService,
   ) {
     this.progressService.watch().subscribe((p: Progress[]) => {
       this.activeSession = undefined;
@@ -47,9 +47,9 @@ export class HomeComponent implements OnInit, OnDestroy {
       });
     });
     this.contextService.watch().subscribe((c: Context) => {
-      if(!c.valid){
+      if (!c.valid) {
         this.ctxNoEvent = true;
-        return
+        return;
       }
 
       this.accessCode = c.accessCode;
@@ -74,7 +74,7 @@ export class HomeComponent implements OnInit, OnDestroy {
           this.loadedScenarios = false;
         },
       );
-    })
+    });
     this.progressService.list(true).subscribe(); //fill cache
     this.interval = setInterval(() => {
       this.progressService.list(true).subscribe();

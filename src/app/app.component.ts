@@ -72,7 +72,7 @@ export class AppComponent implements OnInit {
     private router: Router,
     private config: AppConfigService,
     private settingsService: SettingsService,
-    private contextService: ContextService
+    private contextService: ContextService,
   ) {
     this.config.getLogo(this.logo).then((obj: string) => {
       ClarityIcons.add({
@@ -129,18 +129,20 @@ export class AppComponent implements OnInit {
 
     //react to changes on users accesscodess
     this.contextService.watch().subscribe((c: Context) => {
-      if(!c.valid){
+      if (!c.valid) {
         this.ctxNoEvent = true;
         return;
       }
 
       this.ctxNoEvent = false;
       this.ctxEventAccessCode = c.accessCode;
-      this.ctxEventName = c.scheduledEventName
-      this.userService.getScheduledEvents().subscribe((se: Map<string,string>) => {
-        this.scheduledEvents = se;
-      });
-    })
+      this.ctxEventName = c.scheduledEventName;
+      this.userService
+        .getScheduledEvents()
+        .subscribe((se: Map<string, string>) => {
+          this.scheduledEvents = se;
+        });
+    });
     this.contextService.init();
   }
 

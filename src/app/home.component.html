@@ -27,16 +27,18 @@
     <div class="clr-col-12">
       <div
         *ngIf="
-          !courses?.length &&
-          !scenarios?.length &&
-          loadedScenarios &&
-          loadedCourses ||
+          (!courses?.length &&
+            !scenarios?.length &&
+            loadedScenarios &&
+            loadedCourses) ||
           ctxNoEvent
         "
       >
         No scenarios or courses found.
       </div>
-      <div *ngIf="!loadedScenarios && !loadedCourses && !ctxNoEvent">Loading scenarios...</div>
+      <div *ngIf="!loadedScenarios && !loadedCourses && !ctxNoEvent">
+        Loading scenarios...
+      </div>
     </div>
 
     <ng-container *ngIf="scenarios.length > 0 && !ctxNoEvent">
