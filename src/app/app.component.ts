@@ -211,7 +211,7 @@ export class AppComponent implements OnInit {
     return this.scheduledEvents?.has(ac);
   }
 
-  public saveAccessCode() {
+  public saveAccessCode(activate = false) {
     const { access_code: a } = this.newAccessCodeForm.value;
     this.userService.addAccessCode(a).subscribe(
       (s: ServerResponse) => {
@@ -220,6 +220,10 @@ export class AppComponent implements OnInit {
         this.accessCodeSuccessClosed = false;
         this.accesscodes.push(a);
         this.newAccessCode = false;
+        this.newAccessCodeForm.reset();
+        if (activate) {
+          this.setAccessCode(a);
+        }
         setTimeout(() => (this.accessCodeSuccessClosed = true), 2000);
       },
       (s: ServerResponse) => {

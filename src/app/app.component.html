@@ -143,6 +143,13 @@
             <button
               class="btn btn-success btn-sm"
               [disabled]="!newAccessCodeForm.valid"
+              (click)="saveAccessCode(true)"
+            >
+              Save & Activate
+            </button>
+            <button
+              class="btn btn-outline btn-sm"
+              [disabled]="!newAccessCodeForm.valid"
               (click)="saveAccessCode()"
             >
               Save
