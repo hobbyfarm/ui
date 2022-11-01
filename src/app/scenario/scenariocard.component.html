@@ -24,7 +24,7 @@
         (click)="navScenario()"
         [disabled]="activeSession"
       >
-        Start Scenario
+        <clr-icon shape="play"></clr-icon> Start Scenario
       </button>
     </ng-template>
     <ng-template #activeProgressControls>
@@ -33,14 +33,14 @@
         (click)="terminate()"
         [disabled]="terminated"
       >
-        Terminate Session
+        <clr-icon shape="times"></clr-icon> Terminate Session
       </button>
       <button
         class="btn btn-success"
         (click)="continue()"
         [disabled]="terminated"
       >
-        Continue
+        <clr-icon shape="play"></clr-icon> Continue
       </button>
     </ng-template>
 
@@ -49,7 +49,9 @@
       [routerLink]="['/scenario', scenarioid, 'printable']"
       target="_blank"
     >
-      <button class="btn btn-sm btn-link">Print</button>
+      <button class="btn btn-sm btn-link">
+        <clr-icon shape="printer"></clr-icon> Print
+      </button>
     </a>
   </div>
 </div>

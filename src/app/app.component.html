@@ -1,7 +1,12 @@
 <div class="main-container">
   <header class="header header-4">
     <div class="branding">
-      <a class="logo-and-title">
+      <a
+        class="logo-and-title"
+        href="javascript://"
+        class="nav-link nav-text"
+        [routerLink]="['/app/home']"
+      >
         <clr-icon shape="logo"></clr-icon>
         <span class="title">{{ title }}</span>
       </a>
@@ -10,6 +15,7 @@
     <div class="settings">
       <clr-dropdown *ngIf="ctx.valid">
         <button class="nav-text" clrDropdownToggle>
+          <clr-icon shape="layers" class="is-solid"></clr-icon>
           {{ ctx.scheduledEventName }}
           <clr-icon shape="caret down"></clr-icon>
         </button>
@@ -27,15 +33,25 @@
     <div class="header-actions">
       <clr-dropdown>
         <button class="nav-text" clrDropdownToggle>
-          {{ email }}
+          <clr-icon shape="user" class="is-solid"></clr-icon> {{ email }}
           <clr-icon shape="caret down"></clr-icon>
         </button>
         <clr-dropdown-menu *clrIfOpen clrPosition="bottom-right">
-          <a (click)="openAccessCodes()" clrDropdownItem>Manage Access Codes</a>
-          <a (click)="openSettings()" clrDropdownItem>Settings</a>
-          <a (click)="changePassword()" clrDropdownItem>Change Password</a>
-          <a (click)="about()" clrDropdownItem>About</a>
-          <a (click)="logout()" clrDropdownItem>Logout</a>
+          <a (click)="openAccessCodes()" clrDropdownItem
+            ><clr-icon shape="tags"></clr-icon> Manage Access Codes</a
+          >
+          <a (click)="openSettings()" clrDropdownItem
+            ><clr-icon shape="cog"></clr-icon> Settings</a
+          >
+          <a (click)="changePassword()" clrDropdownItem
+            ><clr-icon shape="key"></clr-icon> Change Password</a
+          >
+          <a (click)="about()" clrDropdownItem
+            ><clr-icon shape="help-info"></clr-icon> About</a
+          >
+          <a (click)="logout()" clrDropdownItem
+            ><clr-icon shape="logout"></clr-icon> Logout</a
+          >
         </clr-dropdown-menu>
       </clr-dropdown>
     </div>

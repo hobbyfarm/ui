@@ -123,3 +123,13 @@
 .valid-access-code {
   color: var(--clr-color-success-500, green);
 }
+
+.header-actions {
+  clr-dropdown-menu {
+    a {
+      clr-icon {
+        color: black;
+      }
+    }
+  }
+}
