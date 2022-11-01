@@ -44,9 +44,7 @@ export class AppComponent implements OnInit {
 
   public accesscodes: string[] = [];
   public scheduledEvents: Map<string, string> = new Map();
-  public ctxEventAccessCode = '';
-  public ctxEventName = 'No Events found';
-  public ctxNoEvent = true;
+  public ctx: Context = {} as Context;
 
   public email = '';
 
@@ -116,7 +114,6 @@ export class AppComponent implements OnInit {
     terminal_theme: new FormControl(null, [Validators.required]),
     terminal_fontSize: new FormControl(null, [Validators.required]),
     ctr_enabled: new FormControl(false),
-    ctxAccessCode: new FormControl(false),
   });
 
   ngOnInit() {
@@ -129,14 +126,7 @@ export class AppComponent implements OnInit {
 
     //react to changes on users accesscodess
     this.contextService.watch().subscribe((c: Context) => {
-      if (!c.valid) {
-        this.ctxNoEvent = true;
-        return;
-      }
-
-      this.ctxNoEvent = false;
-      this.ctxEventAccessCode = c.accessCode;
-      this.ctxEventName = c.scheduledEventName;
+      this.ctx = c;
       this.userService
         .getScheduledEvents()
         .subscribe((se: Map<string, string>) => {
@@ -161,7 +151,7 @@ export class AppComponent implements OnInit {
   }
 
   public setAccessCode(ac: string) {
-    if (this.ctxEventAccessCode != '') {
+    if (ac != '') {
       this.settingsService.update({ ctxAccessCode: ac }).subscribe();
     }
   }
@@ -193,13 +183,11 @@ export class AppComponent implements OnInit {
           terminal_theme = 'default',
           terminal_fontSize = 16,
           ctr_enabled = true,
-          ctxAccessCode = '',
         }) => {
           this.settingsForm.setValue({
             terminal_theme,
             terminal_fontSize,
             ctr_enabled,
-            ctxAccessCode,
           });
           this.fetchingSettings = false;
         },

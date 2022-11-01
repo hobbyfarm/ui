@@ -17,15 +17,15 @@
     </div>
   </div>
 
-  <div class="clr-row" *ngIf="!ctxNoEvent">
+  <div class="clr-row" *ngIf="ctx.valid">
     <div class="clr-col">
-      <h1>{{ ctxEventName }}</h1>
+      <h1>{{ ctx.scheduledEventName }}</h1>
       <h3>Select a scenario</h3>
     </div>
   </div>
 
   <div class="clr-row">
-    <div class="clr-col-12" *ngIf="ctxNoEvent">
+    <div class="clr-col-12" *ngIf="!ctx.valid">
       <h1>Add AccessCode</h1>
       Add AccessCodes to your account by clicking on your username on the top
       right.
@@ -38,17 +38,17 @@
           !scenarios?.length &&
           loadedScenarios &&
           loadedCourses &&
-          !ctxNoEvent
+          ctx.valid
         "
       >
         No scenarios or courses found.
       </div>
-      <div *ngIf="!loadedScenarios && !loadedCourses && !ctxNoEvent">
+      <div *ngIf="!loadedScenarios && !loadedCourses && ctx.valid">
         Loading scenarios...
       </div>
     </div>
 
-    <ng-container *ngIf="scenarios.length > 0 && !ctxNoEvent">
+    <ng-container *ngIf="scenarios.length > 0 && ctx.valid">
       <div
         class="clr-col-12 clr-col-sm-6 clr-col-md-4 clr-col-lg-3"
         *ngFor="let s of scenarios"
@@ -62,7 +62,7 @@
     </ng-container>
   </div>
 
-  <div class="clr-row" *ngIf="courses.length > 0 && !ctxNoEvent">
+  <div class="clr-row" *ngIf="courses.length > 0 && ctx.valid">
     <div class="clr-col-12">
       <ng-container *ngFor="let c of courses">
         <h3 class="course-header">{{ c.name | atob }}</h3>
@@ -100,7 +100,7 @@
   *ngIf="scenarioid"
   [scenarioid]="scenarioid"
   [courseid]="courseid"
-  [accessCode]="accessCode"
+  [accessCode]="ctx.accessCode"
   [showScenarioModal]="showScenarioModal"
   (scenarioModal)="toggleScenarioModal()"
 ></app-scenario>

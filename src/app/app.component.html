@@ -8,9 +8,9 @@
     </div>
 
     <div class="settings">
-      <clr-dropdown *ngIf="!ctxNoEvent">
+      <clr-dropdown *ngIf="ctx.valid">
         <button class="nav-text" clrDropdownToggle>
-          {{ ctxEventName }}
+          {{ ctx.scheduledEventName }}
           <clr-icon shape="caret down"></clr-icon>
         </button>
         <clr-dropdown-menu *clrIfOpen clrPosition="bottom">

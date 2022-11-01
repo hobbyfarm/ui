@@ -28,10 +28,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   private callDelay = 10;
   private interval;
 
-  public accessCode = '';
-  public ctxEventName = '';
-  public ctxNoEvent = true;
-  public ctxLoaded = false;
+  public ctx: Context = {} as Context;
 
   constructor(
     private userService: UserService,
@@ -49,18 +46,9 @@ export class HomeComponent implements OnInit, OnDestroy {
       });
     });
     this.contextService.watch().subscribe((c: Context) => {
-      this.ctxLoaded == true;
+      this.ctx = c;
 
-      if (!c.valid) {
-        this.ctxNoEvent = true;
-        return;
-      }
-
-      this.accessCode = c.accessCode;
-      this.ctxEventName = c.scheduledEventName;
-      this.ctxNoEvent = false;
-
-      this.courseService.fetch(this.accessCode).subscribe(
+      this.courseService.fetch(this.ctx.accessCode).subscribe(
         (c: Course[]) => {
           this.courses = c ?? [];
           this.loadedCourses = true;
@@ -69,7 +57,7 @@ export class HomeComponent implements OnInit, OnDestroy {
           this.loadedCourses = false;
         },
       );
-      this.scenarioService.fetch(this.accessCode).subscribe(
+      this.scenarioService.fetch(this.ctx.accessCode).subscribe(
         (s: Scenario[]) => {
           this.scenarios = s ?? [];
           this.loadedScenarios = true;
