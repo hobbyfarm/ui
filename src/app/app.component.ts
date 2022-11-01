@@ -199,6 +199,10 @@ export class AppComponent implements OnInit {
     return this.scheduledEvents?.has(ac);
   }
 
+  public getScheduledEventNameForAccessCode(ac: string) {
+    return this.scheduledEvents?.get(ac);
+  }
+
   public saveAccessCode(activate = false) {
     const { access_code: a } = this.newAccessCodeForm.value;
     this.userService.addAccessCode(a).subscribe(
