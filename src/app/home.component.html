@@ -17,21 +17,28 @@
     </div>
   </div>
 
-  <div class="clr-row">
+  <div class="clr-row" *ngIf="!ctxNoEvent">
     <div class="clr-col">
-      <h1>Select a scenario</h1>
+      <h1>{{ ctxEventName }}</h1>
+      <h3>Select a scenario</h3>
     </div>
   </div>
 
   <div class="clr-row">
+    <div class="clr-col-12" *ngIf="ctxNoEvent">
+      <h1>Add AccessCode</h1>
+      Add AccessCodes to your account by clicking on your username on the top
+      right.
+    </div>
+
     <div class="clr-col-12">
       <div
         *ngIf="
-          (!courses?.length &&
-            !scenarios?.length &&
-            loadedScenarios &&
-            loadedCourses) ||
-          ctxNoEvent
+          !courses?.length &&
+          !scenarios?.length &&
+          loadedScenarios &&
+          loadedCourses &&
+          !ctxNoEvent
         "
       >
         No scenarios or courses found.
@@ -58,7 +65,7 @@
   <div class="clr-row" *ngIf="courses.length > 0 && !ctxNoEvent">
     <div class="clr-col-12">
       <ng-container *ngFor="let c of courses">
-        <h2 class="course-header">{{ c.name | atob }}</h2>
+        <h3 class="course-header">{{ c.name | atob }}</h3>
         <hr />
         <p class="course-description">{{ c.description | atob }}</p>
 

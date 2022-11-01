@@ -116,3 +116,10 @@
     height: 1rem;
   }
 }
+.invalid-access-code {
+  color: var(--clr-color-danger-500, red);
+}
+
+.valid-access-code {
+  color: var(--clr-color-success-500, green);
+}

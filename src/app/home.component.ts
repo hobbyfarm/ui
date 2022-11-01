@@ -8,6 +8,7 @@ import { ProgressService } from './services/progress.service';
 import { Progress } from './Progress';
 import { SettingsService } from './services/settings.service';
 import { Context, ContextService } from './services/context.service';
+import { fadeSlide } from '@clr/angular';
 
 @Component({
   selector: 'app-home',
@@ -28,8 +29,9 @@ export class HomeComponent implements OnInit, OnDestroy {
   private interval;
 
   public accessCode = '';
-  public eventName = '';
+  public ctxEventName = '';
   public ctxNoEvent = true;
+  public ctxLoaded = false;
 
   constructor(
     private userService: UserService,
@@ -47,13 +49,15 @@ export class HomeComponent implements OnInit, OnDestroy {
       });
     });
     this.contextService.watch().subscribe((c: Context) => {
+      this.ctxLoaded == true;
+
       if (!c.valid) {
         this.ctxNoEvent = true;
         return;
       }
 
       this.accessCode = c.accessCode;
-      this.eventName = c.scheduledEventName;
+      this.ctxEventName = c.scheduledEventName;
       this.ctxNoEvent = false;
 
       this.courseService.fetch(this.accessCode).subscribe(

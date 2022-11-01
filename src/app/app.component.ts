@@ -140,6 +140,7 @@ export class AppComponent implements OnInit {
       this.userService
         .getScheduledEvents()
         .subscribe((se: Map<string, string>) => {
+          se = new Map(Object.entries(se));
           this.scheduledEvents = se;
         });
     });
@@ -204,6 +205,10 @@ export class AppComponent implements OnInit {
         },
       );
     this.settingsModal.open();
+  }
+
+  public isValidAccessCode(ac: string) {
+    return this.scheduledEvents?.has(ac);
   }
 
   public saveAccessCode() {
