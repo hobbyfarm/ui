@@ -61,10 +61,6 @@ export class UserService {
     );
   }
 
-  public watchScheduledEvents() {
-    return this.bh.asObservable();
-  }
-
   public getScheduledEvents(force = false) {
     if (!force && this.fetchedSEs) {
       return of(this.cachedScheduledEventsList);
