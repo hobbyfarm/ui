@@ -43,6 +43,12 @@ import { atou } from '../unicode';
 import { ProgressService } from '../services/progress.service';
 import { HfMarkdownRenderContext } from '../hf-markdown/hf-markdown.component';
 import { GuacTerminalComponent } from './guacTerminal.component';
+import { JwtHelperService } from '@auth0/angular-jwt';
+
+
+interface stepVM extends VM {
+  hasIde?: boolean
+}
 
 @Component({
   selector: 'app-step',
@@ -61,7 +67,7 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
 
   public session: Session = new Session();
   public sessionExpired = false;
-  public vms: Map<string, VM> = new Map();
+  public vms: Map<string, stepVM> = new Map();
 
   mdContext: HfMarkdownRenderContext = { vmInfo: {} };
 
@@ -91,6 +97,7 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
     private vmService: VMService,
     private shellService: ShellService,
     private progressService: ProgressService,
+    private jwtHelper: JwtHelperService,
   ) {}
 
   handleStepContentClick(e: MouseEvent) {
@@ -146,8 +153,17 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
         toArray(),
       )
       .subscribe((entries) => {
-        this.vms = new Map(entries);
+        this.vms = new Map(entries);        
         this.sendProgressUpdate();
+        this.vms.forEach(vm => {
+          this.vmService.hasIDE(vm.id).subscribe(res => {
+            res.status == 200 ? vm.hasIde = true : vm.hasIde = false
+          },
+          (e: HttpErrorResponse) => {
+            e.status != 200 ? vm.hasIde = false : vm.hasIde = false
+          }
+          )
+        });
 
         const vmInfo: HfMarkdownRenderContext['vmInfo'] = {};
         for (const [k, v] of this.vms) {
@@ -355,5 +371,10 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
         isActiveTab && this.terms.toArray()[i - numberOfGuacTabs].resize();
       }
     });
+  }
+ 
+  openIdeNewTab(vm: stepVM) {
+    var url: string = "https://"+vm.ws_endpoint+"/code/"+vm.id+"/connect/8080/"+this.jwtHelper.tokenGetter()+"/"
+    window.open(url, '_blank');
   }
 }
