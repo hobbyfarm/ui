@@ -1,3 +1,10 @@
 <div class="terminal-div" #ide>
-    <iframe #ideIframe style="height: 94%;width: 100%;"></iframe>
+    <div *ngIf="isLoading" [ngClass]="'info'">Loading</div>
+    <div *ngIf="connError" [ngClass]="'info'">
+        <p>An Error has occurred </p>
+        <button type="button" class="btn btn-icon btn-primary" (click)="callEndpoint()">
+            <clr-icon shape="refresh"></clr-icon>
+        </button>
+    </div>
+    <iframe #ideIframe [ngClass]="isLoading || !isOK ? 'ideHidden' : 'ide'"></iframe>
 </div>
