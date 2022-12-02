@@ -67,7 +67,6 @@ jobs:
 
       - name: Docker Push Latest
         if: fromJSON(env.should_tag_latest)
-        run: | 
+        run: |
           docker tag $app_image:${GIT_COMMIT_SHORT_HASH:-dev} $app_image:latest
           docker push $app_image:latest
-
