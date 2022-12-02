@@ -19,6 +19,8 @@ export class ScenarioComponent implements OnInit {
   public scenarioid: string;
   @Input()
   public courseid: string;
+  @Input()
+  public accessCode: string;
   @Output()
   public scenarioModal = new EventEmitter();
 
@@ -56,7 +58,7 @@ export class ScenarioComponent implements OnInit {
     });
 
     this.ssService
-      .new(this.scenarioid, this.courseid)
+      .new(this.scenarioid, this.courseid, this.accessCode)
       .pipe(
         concatMap((s: Session) => {
           this.session = s;

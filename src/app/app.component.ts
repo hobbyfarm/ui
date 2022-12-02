@@ -10,11 +10,12 @@ import { AppConfigService } from './app-config.service';
 import { SettingsService } from './services/settings.service';
 import { themes } from './scenario/terminal-themes/themes';
 import { first } from 'rxjs/operators';
+import { Context, ContextService } from './services/context.service';
 
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
-  styleUrls: ['./app.component.css'],
+  styleUrls: ['./app.component.scss'],
 })
 export class AppComponent implements OnInit {
   public logoutModalOpened = false;
@@ -42,6 +43,8 @@ export class AppComponent implements OnInit {
   public fetchingSettings = false;
 
   public accesscodes: string[] = [];
+  public scheduledEvents: Map<string, string> = new Map();
+  public ctx: Context = {} as Context;
 
   public email = '';
 
@@ -67,6 +70,7 @@ export class AppComponent implements OnInit {
     private router: Router,
     private config: AppConfigService,
     private settingsService: SettingsService,
+    private contextService: ContextService,
   ) {
     this.config.getLogo(this.logo).then((obj: string) => {
       ClarityIcons.add({
@@ -119,6 +123,18 @@ export class AppComponent implements OnInit {
     // Automatically logout the user after token expiration
     const timeout = tok.exp * 1000 - Date.now();
     setTimeout(() => this.doLogout(), timeout);
+
+    //react to changes on users accesscodess
+    this.contextService.watch().subscribe((c: Context) => {
+      this.ctx = c;
+      this.userService
+        .getScheduledEvents()
+        .subscribe((se: Map<string, string>) => {
+          se = new Map(Object.entries(se));
+          this.scheduledEvents = se;
+        });
+    });
+    this.contextService.init();
   }
 
   public logout() {
@@ -132,6 +148,12 @@ export class AppComponent implements OnInit {
   public changePassword() {
     this.passwordChangeForm.reset();
     this.changePasswordModal.open();
+  }
+
+  public setAccessCode(ac: string) {
+    if (ac != '') {
+      this.settingsService.update({ ctxAccessCode: ac }).subscribe();
+    }
   }
 
   public openAccessCodes() {
@@ -173,7 +195,15 @@ export class AppComponent implements OnInit {
     this.settingsModal.open();
   }
 
-  public saveAccessCode() {
+  public isValidAccessCode(ac: string) {
+    return this.scheduledEvents?.has(ac);
+  }
+
+  public getScheduledEventNameForAccessCode(ac: string) {
+    return this.scheduledEvents?.get(ac);
+  }
+
+  public saveAccessCode(activate = false) {
     const { access_code: a } = this.newAccessCodeForm.value;
     this.userService.addAccessCode(a).subscribe(
       (s: ServerResponse) => {
@@ -182,6 +212,10 @@ export class AppComponent implements OnInit {
         this.accessCodeSuccessClosed = false;
         this.accesscodes.push(a);
         this.newAccessCode = false;
+        this.newAccessCodeForm.reset();
+        if (activate) {
+          this.setAccessCode(a);
+        }
         setTimeout(() => (this.accessCodeSuccessClosed = true), 2000);
       },
       (s: ServerResponse) => {
