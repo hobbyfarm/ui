@@ -133,6 +133,7 @@ export class HfMarkdownComponent implements OnChanges {
   }
 
   private replaceVmInfoTokens(content: string) {
+    console.log(this.context.vmInfo);
     return content.replace(
       /\$\{vminfo:([^:]*):([^}]*)\}/g,
       (match, vmName, propName) => {
