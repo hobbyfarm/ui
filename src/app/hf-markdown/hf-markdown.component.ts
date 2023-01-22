@@ -6,6 +6,8 @@ import { VM } from '../VM';
 const escape = (s: string) =>
   s.replace(/[&<>"']/g, (c) => `&#${c.charCodeAt(0)};`);
 
+const noteIcons: Map<string,string> =new Map([["info", "info-circle"], ["caution", "exclamation-circle"] ,["task", "user"]]);
+
 export interface HfMarkdownRenderContext {
   vmInfo: { [vmName: string]: VM };
 }
@@ -77,6 +79,20 @@ export class HfMarkdownComponent implements OnChanges {
         </div>
       `;
     },
+
+    note(code: string, type: string, message: string, ) {
+      return `
+        <div class="note ${type}">
+          <ng-container class='note-title'>
+          <clr-icon shape="${noteIcons.get(type)}"></clr-icon>
+          ${message ?? type.toUpperCase()}:
+          </ng-container>
+          <div class='note-content'>
+            ${this.markdownService.compile(code)}
+          </div>
+        </div>
+      `;
+    },
   };
 
   private renderHighlightedCode(code: string, language: string) {
@@ -123,6 +139,20 @@ export class HfMarkdownComponent implements OnChanges {
     } else {
       return '<pre>' + escape(code) + '</pre>';
     }
+  }
+
+  private renderNoteBox(type: string, code: string, message: string){
+    return `
+    <div class="note ${type}">
+      <span class='note-title'>
+      <clr-icon shape="user"></clr-icon>
+      ${message ?? 'Task'}:
+      </span>
+      <span class='note-content'>
+        ${this.markdownService.compile(code)}
+      </span>
+    </div>
+  `;
   }
 
   ngOnChanges() {
