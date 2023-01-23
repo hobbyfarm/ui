@@ -177,7 +177,6 @@ export class HfMarkdownComponent implements OnChanges {
     );
   }
 
-
   private replaceSessionToken(content: string) {
     return content.replace(/\$\{session\}/g, this.context.session);
   }
