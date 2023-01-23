@@ -11,6 +11,14 @@ pre {
   &.disabled {
     cursor: not-allowed;
   }
+  &.file-true {
+    padding: 0;
+    background: transparent;
+    border: none;
+    pre[class*='language-'] {
+      margin-bottom: 0px;
+    }
+  }
 }
 
 i {
@@ -25,5 +33,11 @@ pre[executed='true'] {
   background: #5a5a5a;
   &:hover {
     background: #292b2e;
+    &.file-true {
+      background: transparent;
+    }
+  }
+  &.file-true {
+    background: transparent;
   }
 }

@@ -1,5 +1,6 @@
 import { Component, Input, OnChanges } from '@angular/core';
 import { MarkdownService } from 'ngx-markdown';
+import { CtrService } from '../scenario/ctr.service';
 import { VM } from '../VM';
 
 // Replacement for lodash's escape
@@ -27,7 +28,10 @@ export class HfMarkdownComponent implements OnChanges {
 
   processedContent: string;
 
-  constructor(public markdownService: MarkdownService) {
+  constructor(
+    public markdownService: MarkdownService,
+    private ctrService: CtrService,
+  ) {
     this.markdownService.renderer.code = (code: string, language = '') => {
       const [tag, ...args] = language.split(':');
       if (tag in this.taggedCodeRenderers) {
@@ -90,6 +94,16 @@ export class HfMarkdownComponent implements OnChanges {
         </div>
       `;
     },
+
+    file(code: string, language: string, filepath: string, target: string) {
+      let parts = filepath.split('/');
+      let filename = parts[parts.length - 1];
+      return `<ctr
+        target="${target}"
+        filecontent="${code}"
+        filename="${filepath}"
+      >${this.renderHighlightedCode(code, language, filename)}</ctr>`;
+    },
   };
 
   private renderHighlightedCode(
@@ -98,7 +112,7 @@ export class HfMarkdownComponent implements OnChanges {
     fileName?: string,
   ) {
     const fileNameTag = fileName
-      ? `<p class="filename">${fileName}</p>`
+      ? `<p class="filename" (click)=createFile(code,node)>${fileName}</p>`
       : `<p class="language">${language}</p>`;
     const classAttr = `class="language-${language}"`;
     const codeNode = `<code ${classAttr}>${escape(code)}</code>`;
@@ -145,20 +159,6 @@ export class HfMarkdownComponent implements OnChanges {
     }
   }
 
-  private renderNoteBox(type: string, code: string, message: string) {
-    return `
-    <div class="note ${type}">
-      <span class='note-title'>
-      <clr-icon shape="user"></clr-icon>
-      ${message ?? 'Task'}:
-      </span>
-      <span class='note-content'>
-        ${this.markdownService.compile(code)}
-      </span>
-    </div>
-  `;
-  }
-
   ngOnChanges() {
     this.processedContent = this.replaceVmInfoTokens(this.content);
   }
@@ -171,5 +171,9 @@ export class HfMarkdownComponent implements OnChanges {
         return String(vm?.[propName as keyof VM] ?? match);
       },
     );
+  }
+
+  private createFile(code: string, node: string) {
+    this.ctrService.sendCode({ target: node, code });
   }
 }
