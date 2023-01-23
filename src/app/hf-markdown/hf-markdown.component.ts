@@ -1,5 +1,6 @@
 import { Component, Input, OnChanges } from '@angular/core';
 import { MarkdownService } from 'ngx-markdown';
+import { CtrService } from '../scenario/ctr.service';
 import { VM } from '../VM';
 
 // Replacement for lodash's escape
@@ -28,14 +29,17 @@ export class HfMarkdownComponent implements OnChanges {
 
   processedContent: string;
 
-  constructor(public markdownService: MarkdownService) {
+  constructor(
+    public markdownService: MarkdownService,
+    private ctrService: CtrService,
+  ) {
     this.markdownService.renderer.code = (code: string, language = '') => {
       const [tag, ...args] = language.split(':');
       if (tag in this.taggedCodeRenderers) {
         const renderer = this.taggedCodeRenderers[tag];
         return renderer.call(this, code, ...args);
       } else if (language.length > 0) {
-        return this.renderHighlightedCode(code, language);
+        return this.renderHighlightedCode(code, language, ...args);
       } else if (/~~~([\s\S]*?)~~~/.test(code)) {
         return this.renderNestedPlainCode(code);
       } else {
@@ -78,12 +82,42 @@ export class HfMarkdownComponent implements OnChanges {
         </div>
       `;
     },
+
+    note(code: string, type: string, message: string) {
+      return `
+        <div class="note ${type}">
+          <ng-container class='note-title'>
+          ${message ?? type.toUpperCase()}:
+          </ng-container>
+          <div class='note-content'>
+            ${this.markdownService.compile(code)}
+          </div>
+        </div>
+      `;
+    },
+
+    file(code: string, language: string, filepath: string, target: string) {
+      const parts = filepath.split('/');
+      const filename = parts[parts.length - 1];
+      return `<ctr
+        target="${target}"
+        filecontent="${code}"
+        filename="${filepath}"
+      >${this.renderHighlightedCode(code, language, filename)}</ctr>`;
+    },
   };
 
-  private renderHighlightedCode(code: string, language: string) {
+  private renderHighlightedCode(
+    code: string,
+    language: string,
+    fileName?: string,
+  ) {
+    const fileNameTag = fileName
+      ? `<p class="filename" (click)=createFile(code,node)>${fileName}</p>`
+      : `<p class="language">${language}</p>`;
     const classAttr = `class="language-${language}"`;
     const codeNode = `<code ${classAttr}>${escape(code)}</code>`;
-    return `<pre ${classAttr}>${codeNode}</pre>`;
+    return `<pre ${classAttr}>${fileNameTag}${codeNode}</pre>`;
   }
 
   private renderNestedPlainCode(code: string) {
