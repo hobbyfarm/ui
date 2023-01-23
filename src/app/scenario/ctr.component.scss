@@ -23,4 +23,7 @@ b {
 
 pre[executed='true'] {
   background: #5a5a5a;
+  &:hover {
+    background: #292b2e;
+  }
 }

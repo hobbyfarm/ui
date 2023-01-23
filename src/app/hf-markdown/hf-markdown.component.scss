@@ -16,6 +16,23 @@
   pre {
     padding: 5px 10px;
     overflow-x: auto;
+    .filename,
+    .language {
+      float: right;
+      color: #a8a8a8;
+      transition: color 0.5s;
+    }
+
+    .filename:hover {
+      color: green;
+    }
+
+    &:hover {
+      .filename,
+      .language {
+        color: rgb(51, 51, 51);
+      }
+    }
   }
 
   details {
@@ -32,8 +49,8 @@
     margin-bottom: 10px;
     padding: 5px;
     border: 1px solid;
-    border-top: 3px solid;
-    border-left-color: var(--clr-color-neutral-400, #cccccc);
+    border-left: 3px solid;
+    border-top-color: var(--clr-color-neutral-400, #cccccc);
     border-right-color: var(--clr-color-neutral-400, #cccccc);
     border-bottom-color: var(--clr-color-neutral-400, #cccccc);
     border-radius: 5px;
@@ -53,15 +70,76 @@
     }
 
     &.info {
-      border-top-color: #54cbf2;
+      border-left-color: #54cbf2;
     }
 
     &.caution {
-      border-top-color: var(--clr-color-danger-100, red);
+      border-left-color: #f0ad4e;
+    }
+
+    &.warning {
+      border-left-color: var(--clr-color-danger-500, red);
     }
 
     &.task {
-      border-top-color: var(--clr-color-success-500, green);
+      border-left-color: var(--clr-color-success-500, green);
     }
+  }
+
+  :not(pre) > code[class*='language-'],
+  pre[class*='language-'] {
+    background: #f8f8f8 !important;
+  }
+
+  .glossary {
+    position: relative;
+    display: inline-block;
+    border-bottom: 1px dotted black; /* If you want dots under the hoverable text */
+  }
+
+  .glossary .glossary-content {
+    visibility: hidden;
+    width: 200px;
+    background-color: black;
+    text-align: center;
+    padding: 10px;
+    border-radius: 6px;
+    width: 120px;
+    top: 100%;
+    left: 60px;
+    margin-left: -60px; /* Use half of the width (120/2 = 60), to center the tooltip */
+
+    position: absolute;
+    z-index: 1;
+
+    p {
+      color: #fff;
+      margin-top: 0;
+    }
+  }
+
+  .glossary:hover .glossary-content {
+    visibility: visible;
+  }
+
+  details {
+    border: 1px solid var(--clr-color-neutral-400, #cccccc);
+    border-left: 3px solid #54cbf2;
+    border-radius: 4px;
+    padding: 0.5em 0.5em 0;
+    &[open] {
+      padding: 0.5em;
+      summary {
+        margin-bottom: 0.5em;
+      }
+    }
+  }
+
+  summary {
+    font-weight: bold;
+    margin: -0.5em -0.5em 0;
+    padding: 0.5em;
+    display: list-item;
+    cursor: pointer;
   }
 }

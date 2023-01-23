@@ -6,12 +6,6 @@ import { VM } from '../VM';
 const escape = (s: string) =>
   s.replace(/[&<>"']/g, (c) => `&#${c.charCodeAt(0)};`);
 
-const noteIcons: Map<string, string> = new Map([
-  ['info', 'info-circle'],
-  ['caution', 'exclamation-circle'],
-  ['task', 'user'],
-]);
-
 export interface HfMarkdownRenderContext {
   vmInfo: { [vmName: string]: VM };
 }
@@ -40,7 +34,7 @@ export class HfMarkdownComponent implements OnChanges {
         const renderer = this.taggedCodeRenderers[tag];
         return renderer.call(this, code, ...args);
       } else if (language.length > 0) {
-        return this.renderHighlightedCode(code, language);
+        return this.renderHighlightedCode(code, language, ...args);
       } else if (/~~~([\s\S]*?)~~~/.test(code)) {
         return this.renderNestedPlainCode(code);
       } else {
@@ -88,7 +82,6 @@ export class HfMarkdownComponent implements OnChanges {
       return `
         <div class="note ${type}">
           <ng-container class='note-title'>
-          <clr-icon shape="${noteIcons.get(type)}"></clr-icon>
           ${message ?? type.toUpperCase()}:
           </ng-container>
           <div class='note-content'>
@@ -99,10 +92,17 @@ export class HfMarkdownComponent implements OnChanges {
     },
   };
 
-  private renderHighlightedCode(code: string, language: string) {
+  private renderHighlightedCode(
+    code: string,
+    language: string,
+    fileName?: string,
+  ) {
+    const fileNameTag = fileName
+      ? `<p class="filename">${fileName}</p>`
+      : `<p class="language">${language}</p>`;
     const classAttr = `class="language-${language}"`;
     const codeNode = `<code ${classAttr}>${escape(code)}</code>`;
-    return `<pre ${classAttr}>${codeNode}</pre>`;
+    return `<pre ${classAttr}>${fileNameTag}${codeNode}</pre>`;
   }
 
   private renderNestedPlainCode(code: string) {
