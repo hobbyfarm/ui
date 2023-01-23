@@ -96,8 +96,8 @@ export class HfMarkdownComponent implements OnChanges {
     },
 
     file(code: string, language: string, filepath: string, target: string) {
-      let parts = filepath.split('/');
-      let filename = parts[parts.length - 1];
+      const parts = filepath.split('/');
+      const filename = parts[parts.length - 1];
       return `<ctr
         target="${target}"
         filecontent="${code}"
