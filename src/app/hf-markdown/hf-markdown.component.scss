@@ -38,8 +38,8 @@
     border-bottom-color: var(--clr-color-neutral-400, #cccccc);
     border-radius: 5px;
 
-    .note-title{
-      clr-icon{
+    .note-title {
+      clr-icon {
         font-size: 20px;
         width: 20px;
         height: 20px;
@@ -48,7 +48,7 @@
       font-weight: bold;
     }
 
-    .note-content{
+    .note-content {
       padding-left: 10px;
     }
 
@@ -56,11 +56,11 @@
       border-top-color: #54cbf2;
     }
 
-    &.caution{
+    &.caution {
       border-top-color: var(--clr-color-danger-100, red);
     }
 
-    &.task{
+    &.task {
       border-top-color: var(--clr-color-success-500, green);
     }
   }

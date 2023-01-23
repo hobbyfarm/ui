@@ -6,7 +6,11 @@ import { VM } from '../VM';
 const escape = (s: string) =>
   s.replace(/[&<>"']/g, (c) => `&#${c.charCodeAt(0)};`);
 
-const noteIcons: Map<string,string> =new Map([["info", "info-circle"], ["caution", "exclamation-circle"] ,["task", "user"]]);
+const noteIcons: Map<string, string> = new Map([
+  ['info', 'info-circle'],
+  ['caution', 'exclamation-circle'],
+  ['task', 'user'],
+]);
 
 export interface HfMarkdownRenderContext {
   vmInfo: { [vmName: string]: VM };
@@ -80,7 +84,7 @@ export class HfMarkdownComponent implements OnChanges {
       `;
     },
 
-    note(code: string, type: string, message: string, ) {
+    note(code: string, type: string, message: string) {
       return `
         <div class="note ${type}">
           <ng-container class='note-title'>
@@ -141,7 +145,7 @@ export class HfMarkdownComponent implements OnChanges {
     }
   }
 
-  private renderNoteBox(type: string, code: string, message: string){
+  private renderNoteBox(type: string, code: string, message: string) {
     return `
     <div class="note ${type}">
       <span class='note-title'>
