@@ -41,7 +41,10 @@ import { VMService } from '../services/vm.service';
 import { ShellService } from '../services/shell.service';
 import { atou } from '../unicode';
 import { ProgressService } from '../services/progress.service';
-import { HfMarkdownRenderContext } from '../hf-markdown/hf-markdown.component';
+import {
+  HfMarkdownComponent,
+  HfMarkdownRenderContext,
+} from '../hf-markdown/hf-markdown.component';
 import { GuacTerminalComponent } from './guacTerminal.component';
 
 @Component({
@@ -63,7 +66,7 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
   public sessionExpired = false;
   public vms: Map<string, VM> = new Map();
 
-  mdContext: HfMarkdownRenderContext = { vmInfo: {} };
+  mdContext: HfMarkdownRenderContext = { vmInfo: {}, session: '' };
 
   public pauseOpen = false;
 
@@ -153,7 +156,7 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
         for (const [k, v] of this.vms) {
           vmInfo[k.toLowerCase()] = v;
         }
-        this.mdContext = { vmInfo };
+        this.mdContext = { vmInfo: vmInfo, session: this.session.id };
       });
 
     // setup keepalive
