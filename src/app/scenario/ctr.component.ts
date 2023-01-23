@@ -59,7 +59,7 @@ export class CtrComponent implements OnInit {
 
   public ctr() {
     if (this.count > 0 && this.enabled) {
-      var code = this.code.nativeElement.innerText;
+      let code = this.code.nativeElement.innerText;
       if (this.filename) {
         code = this.createFileString();
       }
