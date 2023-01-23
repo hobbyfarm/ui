@@ -9,6 +9,7 @@ const escape = (s: string) =>
 
 export interface HfMarkdownRenderContext {
   vmInfo: { [vmName: string]: VM };
+  session: string;
 }
 
 @Component({
@@ -24,7 +25,7 @@ export interface HfMarkdownRenderContext {
 })
 export class HfMarkdownComponent implements OnChanges {
   @Input() content: string;
-  @Input() context: HfMarkdownRenderContext = { vmInfo: {} };
+  @Input() context: HfMarkdownRenderContext = { vmInfo: {}, session: '' };
 
   processedContent: string;
 
@@ -160,10 +161,13 @@ export class HfMarkdownComponent implements OnChanges {
   }
 
   ngOnChanges() {
-    this.processedContent = this.replaceVmInfoTokens(this.content);
+    this.processedContent = this.replaceSessionToken(
+      this.replaceVmInfoTokens(this.content),
+    );
   }
 
   private replaceVmInfoTokens(content: string) {
+    console.log(this.context.vmInfo);
     return content.replace(
       /\$\{vminfo:([^:]*):([^}]*)\}/g,
       (match, vmName, propName) => {
@@ -173,7 +177,8 @@ export class HfMarkdownComponent implements OnChanges {
     );
   }
 
-  private createFile(code: string, node: string) {
-    this.ctrService.sendCode({ target: node, code });
+
+  private replaceSessionToken(content: string) {
+    return content.replace(/\$\{session\}/g, this.context.session);
   }
 }
