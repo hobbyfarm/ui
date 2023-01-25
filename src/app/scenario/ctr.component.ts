@@ -59,7 +59,7 @@ export class CtrComponent implements OnInit {
 
   public ctr() {
     if (this.count > 0 && this.enabled) {
-      this.ctrService.sendCodeById(this.ctrId, this.target)
+      this.ctrService.sendCodeById(this.ctrId, this.target);
       this.executed = true;
       this.shape = 'success-standard';
       this.statusText = 'Executed on';
