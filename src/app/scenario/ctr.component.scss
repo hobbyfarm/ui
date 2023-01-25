@@ -13,7 +13,7 @@ pre {
   }
   &.file-true {
     padding: 0;
-    background: transparent;
+    background: transparent !important;
     border: none;
     pre[class*='language-'] {
       margin-bottom: 0px;
@@ -34,10 +34,10 @@ pre[executed='true'] {
   &:hover {
     background: #292b2e;
     &.file-true {
-      background: transparent;
+      background: transparent !important;
     }
   }
   &.file-true {
-    background: transparent;
+    background: transparent !important;
   }
 }

@@ -24,7 +24,7 @@ import { CtrService } from './ctr.service';
 export class CtrComponent implements OnInit {
   @Input() target = '';
   @Input() filename: string;
-  @Input() filecontent: string;
+  @Input() ctrId: string;
   @Input() count: number = Number.POSITIVE_INFINITY;
   @ViewChild('code') code: ElementRef<HTMLElement>;
 
@@ -59,11 +59,7 @@ export class CtrComponent implements OnInit {
 
   public ctr() {
     if (this.count > 0 && this.enabled) {
-      let code = this.code.nativeElement.innerText;
-      if (this.filename) {
-        code = this.createFileString();
-      }
-      this.ctrService.sendCode({ target: this.target, code });
+      this.ctrService.sendCodeById(this.ctrId, this.target);
       this.executed = true;
       this.shape = 'success-standard';
       this.statusText = 'Executed on';
@@ -75,13 +71,6 @@ export class CtrComponent implements OnInit {
         this.updateCount();
       }
     }
-  }
-
-  private createFileString(): string {
-    const fileContent = `cat << EOF > ${this.filename}
-${this.filecontent}
-EOF`;
-    return fileContent;
   }
 
   private updateCount() {
