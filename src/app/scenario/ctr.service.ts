@@ -9,18 +9,18 @@ export class CtrService {
 
   // Save code inside map and return unique ID (at least very unlikely that two IDs collide)
   public registerCode(code: string) {
-    let n = 5;
-    let id = (Math.random().toString(36) + '0000').slice(2, n + 2); // Generate random ID with 5 Characters
+    const n = 5;
+    const id = (Math.random().toString(36) + '0000').slice(2, n + 2); // Generate random ID with 5 Characters
     this.ctrCodes.set(id, code);
     return id;
   }
 
   // Send the code stored inside the map
   public sendCodeById(id: string, target: string) {
-    let code = this.ctrCodes.get(id);
+    const code = this.ctrCodes.get(id);
     if (!code) return;
 
-    let exec: CodeExec = { target, code };
+    const exec: CodeExec = { target, code };
     this.ctrstream.next(exec);
   }
 
