@@ -57,8 +57,10 @@ export class HfMarkdownComponent implements OnChanges {
   } = {
     ctr(code: string, target: string, countStr: string) {
       const count = Number(countStr);
+      const id = this.ctrService.registerCode(code);
       return `<ctr
         target="${target}"
+        ctrId="${id}"
         ${isNaN(count) ? '' : `[count]="${count}"`}
       >${escape(code)}</ctr>`;
     },
@@ -99,9 +101,13 @@ export class HfMarkdownComponent implements OnChanges {
     file(code: string, language: string, filepath: string, target: string) {
       const parts = filepath.split('/');
       const filename = parts[parts.length - 1];
+      const fileContent = `cat << EOF > ${filename}
+${code}
+EOF`;
+      const id = this.ctrService.registerCode(fileContent);
       return `<ctr
         target="${target}"
-        filecontent="${code}"
+        ctrId="${id}"
         filename="${filepath}"
       >${this.renderHighlightedCode(code, language, filename)}</ctr>`;
     },
