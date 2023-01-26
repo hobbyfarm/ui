@@ -103,7 +103,8 @@ export class HfMarkdownComponent implements OnChanges {
       const filename = parts[parts.length - 1];
       const n = 5; //Length of randomized token
       // Using only EOF as a token can cause trouble when the token is inside the file content. Let's use EOL together with a random string
-      const token = "EOF_" + (Math.random().toString(36) + '0000').slice(2, n + 2);
+      const token =
+        'EOF_' + (Math.random().toString(36) + '0000').slice(2, n + 2);
       const fileContent = `cat << ${token} > ${filepath}
 ${code}
 ${token}`;
