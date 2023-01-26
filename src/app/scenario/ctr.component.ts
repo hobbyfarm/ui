@@ -9,7 +9,7 @@ import { CtrService } from './ctr.service';
     <pre
       [attr.executed]="executed"
       class="file-{{ file }}"
-      title={{title}}
+      title="{{ title }}"
       (click)="ctr()"
       #code
     ><ng-content></ng-content></pre>
