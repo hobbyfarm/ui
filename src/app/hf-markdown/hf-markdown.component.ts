@@ -101,14 +101,18 @@ export class HfMarkdownComponent implements OnChanges {
     file(code: string, language: string, filepath: string, target: string) {
       const parts = filepath.split('/');
       const filename = parts[parts.length - 1];
-      const fileContent = `cat << EOF > ${filepath}
+      const n = 5; //Length of randomized token
+      // Using only EOF as a token can cause trouble when the token is inside the file content. Let's use EOL together with a random string
+      const token = "EOF_" + (Math.random().toString(36) + '0000').slice(2, n + 2);
+      const fileContent = `cat << ${token} > ${filepath}
 ${code}
-EOF`;
+${token}`;
       const id = this.ctrService.registerCode(fileContent);
       return `<ctr
         target="${target}"
         ctrId="${id}"
         filename="${filepath}"
+        title="Click to create ${filepath} on ${target}"
       >${this.renderHighlightedCode(code, language, filename)}</ctr>`;
     },
   };

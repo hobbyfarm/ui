@@ -9,6 +9,7 @@ import { CtrService } from './ctr.service';
     <pre
       [attr.executed]="executed"
       class="file-{{ file }}"
+      title={{title}}
       (click)="ctr()"
       #code
     ><ng-content></ng-content></pre>
@@ -23,6 +24,7 @@ import { CtrService } from './ctr.service';
 })
 export class CtrComponent implements OnInit {
   @Input() target = '';
+  @Input() title: string = '';
   @Input() filename: string;
   @Input() ctrId: string;
   @Input() count: number = Number.POSITIVE_INFINITY;
