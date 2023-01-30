@@ -24,7 +24,7 @@ import { CtrService } from './ctr.service';
 })
 export class CtrComponent implements OnInit {
   @Input() target = '';
-  @Input() title: string = '';
+  @Input() title = '';
   @Input() filename: string;
   @Input() ctrId: string;
   @Input() count: number = Number.POSITIVE_INFINITY;
