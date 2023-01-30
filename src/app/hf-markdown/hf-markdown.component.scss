@@ -2,7 +2,9 @@
 .hf-md-content ::ng-deep {
   p {
     margin: 0;
+  }
 
+  p, ol li, ul li{
     code {
       font-family: Consolas, Monaco, Andale Mono, Ubuntu Mono, monospace;
       padding: 1px 10px 2px 10px;
