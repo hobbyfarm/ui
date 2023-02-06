@@ -74,8 +74,13 @@ export class ScenarioComponent implements OnInit {
           return this.vmClaimService.get(claimid);
         }),
       )
-      .subscribe((s: VMClaim) => {
-        this.vmclaims.push(s);
-      });
+      .subscribe(
+        (s: VMClaim) => {
+          this.vmclaims.push(s);
+        },
+        () => {
+          this.error = true;
+        },
+      );
   }
 }
