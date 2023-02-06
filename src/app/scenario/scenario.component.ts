@@ -27,6 +27,7 @@ export class ScenarioComponent implements OnInit {
   public scenario: Scenario = new Scenario();
   public session: Session = new Session();
   public vmclaims: VMClaim[] = [];
+  public error = false;
 
   constructor(
     private scenarioService: ScenarioService,
@@ -62,7 +63,9 @@ export class ScenarioComponent implements OnInit {
       .pipe(
         concatMap((s: Session) => {
           this.session = s;
-          this.ssService.keepalive(s.id).subscribe();
+          this.ssService.keepalive(s.id).subscribe(undefined, () => {
+            this.error = true;
+          });
 
           return from(s.vm_claim);
         }),
@@ -71,8 +74,13 @@ export class ScenarioComponent implements OnInit {
           return this.vmClaimService.get(claimid);
         }),
       )
-      .subscribe((s: VMClaim) => {
-        this.vmclaims.push(s);
-      });
+      .subscribe(
+        (s: VMClaim) => {
+          this.vmclaims.push(s);
+        },
+        () => {
+          this.error = true;
+        },
+      );
   }
 }
