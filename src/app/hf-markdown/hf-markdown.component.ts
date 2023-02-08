@@ -118,17 +118,17 @@ ${token}`;
     },
   };
 
-  private renderHighlightedCode(code: string, ...args: string[]) {
-    if (args.length == 0) {
-      // Language not set
-      return '';
-    }
-    const fileNameTag = args[1]
-      ? `<p class="filename">${args[1]}</p>`
-      : `<p class="language">${args[0]}</p>`;
-    const classAttr = `class="language-${args[0]}"`;
+  private renderHighlightedCode(
+    code: string,
+    language: string,
+    fileName?: string,
+  ) {
+    const fileNameTag = fileName
+      ? `<p class="filename" (click)=createFile(code,node)>${fileName}</p>`
+      : `<p class="language">${language}</p>`;
+    const classAttr = `class="language-${language}"`;
     const codeNode = `<code ${classAttr}>${escape(code)}</code>`;
-    return `<pre>${fileNameTag}${codeNode}</pre>`;
+    return `<pre ${classAttr}>${fileNameTag}${codeNode}</pre>`;
   }
 
   private renderNestedPlainCode(code: string) {
