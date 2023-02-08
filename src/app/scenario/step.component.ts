@@ -162,7 +162,7 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
         this.vms = new Map(entries);        
         this.sendProgressUpdate();
         this.vms.forEach(vm => {
-          this.vmService.hasWebInterface(vm.id).subscribe(res => {
+          this.vmService.getWebinterfaces(vm.id).subscribe(res => {
             let stringContent: string = atou(res.content)
             let services = JSON.parse(JSON.parse(stringContent)) //TODO: See if we can skip one stringify somwhere, so we dont have to parse twice
             services.forEach((service: Service) => {

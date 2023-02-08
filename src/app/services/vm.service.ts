@@ -18,8 +18,8 @@ export class VMService extends ResourceClient<VM> {
     return super.get(id);
   }
   
-  hasWebInterface(id: string) {
-    return this.garg.get("/haswebinterface/"+id).pipe(
+  getWebinterfaces(id: string) {
+    return this.garg.get("/getwebinterfaces/"+id).pipe(
       catchError((e: HttpErrorResponse) => {
       return throwError(e.error);
     }),
