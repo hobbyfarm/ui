@@ -39,7 +39,7 @@ export class HfMarkdownComponent implements OnChanges {
         const renderer = this.taggedCodeRenderers[tag];
         return renderer.call(this, code, ...args);
       } else if (language.length > 0) {
-        return this.renderHighlightedCode(code, language, ...args);
+        return this.renderHighlightedCode(code, tag, ...args);
       } else if (/~~~([\s\S]*?)~~~/.test(code)) {
         return this.renderNestedPlainCode(code);
       } else {
@@ -118,17 +118,17 @@ ${token}`;
     },
   };
 
-  private renderHighlightedCode(
-    code: string,
-    language: string,
-    fileName?: string,
-  ) {
-    const fileNameTag = fileName
-      ? `<p class="filename" (click)=createFile(code,node)>${fileName}</p>`
-      : `<p class="language">${language}</p>`;
-    const classAttr = `class="language-${language}"`;
+  private renderHighlightedCode(code: string, ...args: string[]) {
+    if (args.length == 0) {
+      // Language not set
+      return '';
+    }
+    const fileNameTag = args[1]
+      ? `<p class="filename">${args[1]}</p>`
+      : `<p class="language">${args[0]}</p>`;
+    const classAttr = `class="language-${args[0]}"`;
     const codeNode = `<code ${classAttr}>${escape(code)}</code>`;
-    return `<pre ${classAttr}>${fileNameTag}${codeNode}</pre>`;
+    return `<pre>${fileNameTag}${codeNode}</pre>`;
   }
 
   private renderNestedPlainCode(code: string) {
