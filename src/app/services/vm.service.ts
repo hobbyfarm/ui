@@ -17,9 +17,9 @@ export class VMService extends ResourceClient<VM> {
 
     return super.get(id);
   }
-  // Add "/haside/" Endpoint to Service
-  hasIDE(id: string) {
-    return this.garg.get("/haside/"+id).pipe(
+  
+  hasWebInterface(id: string) {
+    return this.garg.get("/haswebinterface/"+id).pipe(
       catchError((e: HttpErrorResponse) => {
       return throwError(e.error);
     }),

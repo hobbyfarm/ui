@@ -118,8 +118,9 @@
             </clr-tab-content>
           </clr-tab>
           <ng-container *ngFor="let v of vms | keyvalue">
-          <clr-tab *ngIf="v.value.hasIde" #tab>
-            <button clrTabLink [clrTabLinkInOverflow]="true">IDE - {{ v.key }}</button>
+
+          <clr-tab *ngFor="let webinterface of v.value.webinterfaces" #tab>
+            <button clrTabLink [clrTabLinkInOverflow]="!webinterface.hasOwnTab">{{webinterface.name}} - {{ v.key }}</button>
             <clr-tab-content>
               <table class="table compact" >
                 <tr>
@@ -127,17 +128,20 @@
                   <td><b>Public IP:</b> {{ v.value.public_ip }}</td>
                   <td><b>Private IP:</b> {{ v.value.private_ip }}</td>
                   <td><b>Hostname:</b> {{ v.value.hostname }}</td>
-                  <td style="padding: 0;"><button class="btn btn-icon btn-primary btn-sm" title="Open in a new Tab" (click)="openIdeNewTab(v.value)"><clr-icon shape="pop-out"></clr-icon></button></td>
+                  <td style="padding: 0;"><button class="btn btn-icon btn-primary btn-sm" title="Open in a new Tab" (click)="openWebinterfaceInNewTab(v.value, webinterface.port)"><clr-icon shape="pop-out"></clr-icon></button></td>
                 </tr>
               </table>
               <app-ide-window 
-                *ngIf="v.value.hasIde && !isGuacamoleTerminal(v.value.protocol)"
+                *ngIf="!isGuacamoleTerminal(v.value.protocol)"
                 [vmid]="v.value.id" 
                 [endpoint]="v.value.ws_endpoint"
+                [port]="webinterface.port"
               >
               </app-ide-window>
             </clr-tab-content>
           </clr-tab> 
+
+
           </ng-container>
         </clr-tabs>
       </div>

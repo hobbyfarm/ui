@@ -45,9 +45,15 @@ import { HfMarkdownRenderContext } from '../hf-markdown/hf-markdown.component';
 import { GuacTerminalComponent } from './guacTerminal.component';
 import { JwtHelperService } from '@auth0/angular-jwt';
 
+type Service = {
+  name: string;
+  port: number;
+  hasOwnTab: boolean;
+  hasWebinterface: boolean
 
+}
 interface stepVM extends VM {
-  hasIde?: boolean
+  webinterfaces?: Service[];
 }
 
 @Component({
@@ -156,11 +162,19 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
         this.vms = new Map(entries);        
         this.sendProgressUpdate();
         this.vms.forEach(vm => {
-          this.vmService.hasIDE(vm.id).subscribe(res => {
-            res.status == 200 ? vm.hasIde = true : vm.hasIde = false
+          this.vmService.hasWebInterface(vm.id).subscribe(res => {
+            let stringContent: string = atou(res.content)
+            let services = JSON.parse(JSON.parse(stringContent)) //TODO: See if we can skip one stringify somwhere, so we dont have to parse twice
+            services.forEach((service: Service) => {
+              if (service.hasWebinterface) {
+                let webinterface = {name: service.name, port: service.port, hasOwnTab: !!service.hasOwnTab, hasWebinterface: true}
+                vm.webinterfaces ? vm.webinterfaces.push(webinterface) : vm.webinterfaces = [webinterface]
+              }
+            })          
+            
           },
           (e: HttpErrorResponse) => {
-            e.status != 200 ? vm.hasIde = false : vm.hasIde = false
+            vm.webinterfaces = []
           }
           )
         });
@@ -373,8 +387,8 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
     });
   }
  
-  openIdeNewTab(vm: stepVM) {
-    var url: string = "https://"+vm.ws_endpoint+"/code/"+vm.id+"/connect/8080/"+this.jwtHelper.tokenGetter()+"/"
+  openWebinterfaceInNewTab(vm: stepVM, port: number) {
+    var url: string = "https://"+vm.ws_endpoint+"/code/"+vm.id+"/connect/"+port+"/"+this.jwtHelper.tokenGetter()+"/"
     window.open(url, '_blank');
   }
 }
