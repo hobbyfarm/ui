@@ -89,7 +89,7 @@
           <clr-tab *ngFor="let v of vms | keyvalue" #tab>
             <button clrTabLink [id]="v.key">
               <clr-icon size="24" shape="host"></clr-icon> {{ v.key }}
-            </button>
+            </button> 
             <clr-tab-content #tabcontent>
               <table class="table compact">
                 <tr>
@@ -120,7 +120,7 @@
           <ng-container *ngFor="let v of vms | keyvalue">
 
           <clr-tab *ngFor="let webinterface of v.value.webinterfaces" #tab>
-            <button clrTabLink [clrTabLinkInOverflow]="!webinterface.hasOwnTab">{{webinterface.name}} - {{ v.key }}</button>
+            <button clrTabLink [clrTabLinkInOverflow]="!webinterface.hasOwnTab">{{ v.key }} - {{webinterface.name}}</button>
             <clr-tab-content>
               <table class="table compact" >
                 <tr>

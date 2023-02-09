@@ -43,7 +43,6 @@ export class IdeWindowComponent implements OnInit {
   }
 
   callEndpoint() {
-    console.log("Call Endpoint")
     this.isOK = false;
     this.isLoading = true;
     this.isConnError = false;
@@ -54,7 +53,6 @@ export class IdeWindowComponent implements OnInit {
 
     req.subscribe(
       res => {
-      console.log("Subscribe")
       if (res.status == 200) {
         this.isOK = true
         this.isLoading = false
@@ -65,13 +63,11 @@ export class IdeWindowComponent implements OnInit {
         this.isOK = false
         this.isConnError = true
       }
-      console.log("Success: ", res)
-    }, err => { 
-      //TODO: Better Error handling, still getting 403 => Probably from the calls from inside the iFrame, not here (before showing iFrame)
+    }, () => {
+      // This only Errors if the Proxy in gargantua-shell throws an Error, not if the Service on the VM fails
         this.isLoading = false
         this.isOK = false
         this.isConnError = true
-        console.log(err)
     })
   }
 }
