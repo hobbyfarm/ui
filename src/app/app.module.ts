@@ -38,6 +38,7 @@ import { HfMarkdownComponent } from './hf-markdown/hf-markdown.component';
 import { PrintableComponent } from './printable/printable.component';
 import { GargantuaClientFactory } from './services/gargantua.service';
 import { GuacTerminalComponent } from './scenario/guacTerminal.component';
+import { IdeWindowComponent } from './scenario/ideWindow.component';
 import { ContextService } from './services/context.service';
 
 export function tokenGetter() {
@@ -77,6 +78,7 @@ export function jwtOptionsFactory() {
     AtobPipe,
     HfMarkdownComponent,
     PrintableComponent,
+    IdeWindowComponent,
   ],
   imports: [
     BrowserModule,

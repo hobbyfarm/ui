@@ -117,6 +117,52 @@
               </app-guac-terminal>
             </clr-tab-content>
           </clr-tab>
+          <ng-container *ngFor="let v of vms | keyvalue">
+            <clr-tab *ngFor="let webinterface of v.value.webinterfaces" #tab>
+              <button
+                clrTabLink
+                [clrTabLinkInOverflow]="!webinterface.hasOwnTab"
+              >
+                {{ v.key }} - {{ webinterface.name }}
+              </button>
+              <clr-tab-content>
+                <table class="table compact">
+                  <tr>
+                    <td><b>Node:</b> {{ v.key }}</td>
+                    <td><b>Public IP:</b> {{ v.value.public_ip }}</td>
+                    <td><b>Webinterface:</b> {{ webinterface.name }}</td>
+                    <td><b>Port:</b> {{ webinterface.port }}</td>
+                    <td style="padding: 0">
+                      <button
+                        class="btn btn-icon btn-primary btn-sm"
+                        title="Reload Tab"
+                        (click)="reloadWebinterface(v.value.id, webinterface)"
+                      >
+                        <clr-icon shape="refresh"></clr-icon>
+                      </button>
+                      <button
+                        class="btn btn-icon btn-primary btn-sm"
+                        title="Open in a new Tab"
+                        (click)="
+                          openWebinterfaceInNewTab(v.value, webinterface.port)
+                        "
+                      >
+                        <clr-icon shape="pop-out"></clr-icon>
+                      </button>
+                    </td>
+                  </tr>
+                </table>
+                <app-ide-window
+                  *ngIf="!isGuacamoleTerminal(v.value.protocol)"
+                  [vmid]="v.value.id"
+                  [endpoint]="v.value.ws_endpoint"
+                  [port]="webinterface.port"
+                  [reloadEvent]="reloadTabObservable"
+                >
+                </app-ide-window>
+              </clr-tab-content>
+            </clr-tab>
+          </ng-container>
         </clr-tabs>
       </div>
     </as-split-area>

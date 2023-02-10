@@ -6,9 +6,7 @@ import { ScenarioService } from './services/scenario.service';
 import { Scenario } from './scenario/Scenario';
 import { ProgressService } from './services/progress.service';
 import { Progress } from './Progress';
-import { SettingsService } from './services/settings.service';
 import { Context, ContextService } from './services/context.service';
-import { fadeSlide } from '@clr/angular';
 
 @Component({
   selector: 'app-home',
