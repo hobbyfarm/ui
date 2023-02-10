@@ -52,17 +52,16 @@ type Service = {
   name: string;
   port: number;
   hasOwnTab: boolean;
-  hasWebinterface: boolean
-
-}
+  hasWebinterface: boolean;
+};
 interface stepVM extends VM {
   webinterfaces?: Service[];
 }
 
 export type webinterfaceTabIdentifier = {
   vmId: string;
-  port: number
-}
+  port: number;
+};
 
 @Component({
   selector: 'app-step',
@@ -90,8 +89,10 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
   public pauseLastUpdated: Date = new Date();
   public pauseRemainingString = '';
 
-  private reloadTabSubject: Subject<webinterfaceTabIdentifier> = new Subject<webinterfaceTabIdentifier>()
-  public reloadTabObservable: Observable<webinterfaceTabIdentifier> = this.reloadTabSubject.asObservable()
+  private reloadTabSubject: Subject<webinterfaceTabIdentifier> =
+    new Subject<webinterfaceTabIdentifier>();
+  public reloadTabObservable: Observable<webinterfaceTabIdentifier> =
+    this.reloadTabSubject.asObservable();
 
   @ViewChildren('term') private terms: QueryList<TerminalComponent> =
     new QueryList();
@@ -172,22 +173,29 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
       .subscribe((entries) => {
         this.vms = new Map(entries);
         this.sendProgressUpdate();
-        this.vms.forEach(vm => {
-          this.vmService.getWebinterfaces(vm.id).subscribe(res => {
-            let stringContent: string = atou(res.content)
-            let services = JSON.parse(JSON.parse(stringContent)) //TODO: See if we can skip one stringify somwhere, so we dont have to parse twice
-            services.forEach((service: Service) => {
-              if (service.hasWebinterface) {
-                let webinterface = {name: service.name, port: service.port, hasOwnTab: !!service.hasOwnTab, hasWebinterface: true}
-                vm.webinterfaces ? vm.webinterfaces.push(webinterface) : vm.webinterfaces = [webinterface]
-              }
-            })          
-            
-          },
-          (e: HttpErrorResponse) => {
-            vm.webinterfaces = []
-          }
-          )
+        this.vms.forEach((vm) => {
+          this.vmService.getWebinterfaces(vm.id).subscribe(
+            (res) => {
+              const stringContent: string = atou(res.content);
+              const services = JSON.parse(JSON.parse(stringContent)); //TODO: See if we can skip one stringify somwhere, so we dont have to parse twice
+              services.forEach((service: Service) => {
+                if (service.hasWebinterface) {
+                  const webinterface = {
+                    name: service.name,
+                    port: service.port,
+                    hasOwnTab: !!service.hasOwnTab,
+                    hasWebinterface: true,
+                  };
+                  vm.webinterfaces
+                    ? vm.webinterfaces.push(webinterface)
+                    : (vm.webinterfaces = [webinterface]);
+                }
+              });
+            },
+            () => {
+              vm.webinterfaces = [];
+            },
+          );
         });
 
         const vmInfo: HfMarkdownRenderContext['vmInfo'] = {};
@@ -397,13 +405,25 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
       }
     });
   }
- 
+
   openWebinterfaceInNewTab(vm: stepVM, port: number) {
-    var url: string = "https://"+vm.ws_endpoint+"/auth/"+this.jwtHelper.tokenGetter()+"/p/"+vm.id+"/"+port+"/"
+    const url: string =
+      'https://' +
+      vm.ws_endpoint +
+      '/auth/' +
+      this.jwtHelper.tokenGetter() +
+      '/p/' +
+      vm.id +
+      '/' +
+      port +
+      '/';
     window.open(url, '_blank');
   }
 
   reloadWebinterface(vmId: string, webinterface: Service) {
-    this.reloadTabSubject.next({vmId: vmId, port: webinterface.port} as webinterfaceTabIdentifier)
+    this.reloadTabSubject.next({
+      vmId: vmId,
+      port: webinterface.port,
+    } as webinterfaceTabIdentifier);
   }
 }

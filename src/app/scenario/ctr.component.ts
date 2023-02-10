@@ -1,4 +1,11 @@
-import { Component, ElementRef, Input, OnInit, ViewChild } from '@angular/core';
+import {
+  AfterViewInit,
+  Component,
+  ElementRef,
+  Input,
+  OnInit,
+  ViewChild,
+} from '@angular/core';
 import { SettingsService } from '../services/settings.service';
 import { CtrService } from './ctr.service';
 
@@ -22,7 +29,7 @@ import { CtrService } from './ctr.service';
   `,
   styleUrls: ['ctr.component.scss'],
 })
-export class CtrComponent implements OnInit {
+export class CtrComponent implements OnInit, AfterViewInit {
   @Input() target = '';
   @Input() title = '';
   @Input() filename: string;
