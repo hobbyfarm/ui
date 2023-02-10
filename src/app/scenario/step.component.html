@@ -126,9 +126,12 @@
                 <tr>
                   <td><b>Node:</b> {{ v.key }}</td>
                   <td><b>Public IP:</b> {{ v.value.public_ip }}</td>
-                  <td><b>Private IP:</b> {{ v.value.private_ip }}</td>
-                  <td><b>Hostname:</b> {{ v.value.hostname }}</td>
-                  <td style="padding: 0;"><button class="btn btn-icon btn-primary btn-sm" title="Open in a new Tab" (click)="openWebinterfaceInNewTab(v.value, webinterface.port)"><clr-icon shape="pop-out"></clr-icon></button></td>
+                  <td><b>Webinterface:</b> {{ webinterface.name }}</td>
+                  <td><b>Port:</b> {{ webinterface.port }}</td>
+                  <td style="padding: 0;">
+                    <button class="btn btn-icon btn-primary btn-sm" title="Reload Tab" (click)="reloadWebinterface(v.value.id, webinterface)"><clr-icon shape="refresh"></clr-icon></button>
+                    <button class="btn btn-icon btn-primary btn-sm" title="Open in a new Tab" (click)="openWebinterfaceInNewTab(v.value, webinterface.port)"><clr-icon shape="pop-out"></clr-icon></button>
+                  </td>
                 </tr>
               </table>
               <app-ide-window 
@@ -136,6 +139,7 @@
                 [vmid]="v.value.id" 
                 [endpoint]="v.value.ws_endpoint"
                 [port]="webinterface.port"
+                [reloadEvent]="reloadTabObservable"
               >
               </app-ide-window>
             </clr-tab-content>

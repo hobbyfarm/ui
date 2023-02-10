@@ -3,6 +3,7 @@ import { Component, ElementRef, Input, OnInit, ViewChild } from '@angular/core';
 import { JwtHelperService } from '@auth0/angular-jwt';
 import { Observable, throwError, timer } from 'rxjs';
 import { mergeMap, retryWhen } from 'rxjs/operators';
+import { webinterfaceTabIdentifier } from './step.component';
 
 @Component({
   selector: 'app-ide-window',
@@ -27,6 +28,9 @@ export class IdeWindowComponent implements OnInit {
   @Input()
   port: number
 
+  @Input()
+  reloadEvent: Observable<webinterfaceTabIdentifier>
+
   @ViewChild('ideIframe', { static: true }) ideIframe: ElementRef;
 
 
@@ -37,7 +41,12 @@ export class IdeWindowComponent implements OnInit {
 
   ngOnInit() {
     this.token = this.jwtHelper.tokenGetter()
-    this.url = "https://" + this.endpoint + "/code/" + this.vmid + "/connect/"+this.port+"/" + this.token + "/"
+    this.reloadEvent.subscribe((data: webinterfaceTabIdentifier) => {
+      if (this.vmid == data.vmId && this.port == data.port) {
+        this.callEndpoint()
+      }
+    })
+    this.url = "https://" + this.endpoint + "/pa/"+ this.token + "/" + this.vmid + "/"+ this.port+"/"
     this.callEndpoint()    
     this.ideIframe.nativeElement.innerText = "Loading"    
   }

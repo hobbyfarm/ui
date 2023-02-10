@@ -27,7 +27,7 @@ import { ClrTabContent, ClrTab, ClrModal } from '@clr/angular';
 import { ServerResponse } from '../ServerResponse';
 import { Scenario } from './Scenario';
 import { Session } from '../Session';
-import { from, of, throwError, iif } from 'rxjs';
+import { from, of, throwError, iif, Subject, Observable } from 'rxjs';
 import { VMClaim } from '../VMClaim';
 import { VMClaimVM } from '../VMClaimVM';
 import { VM } from '../VM';
@@ -56,6 +56,11 @@ interface stepVM extends VM {
   webinterfaces?: Service[];
 }
 
+export type webinterfaceTabIdentifier = {
+  vmId: string;
+  port: number
+}
+
 @Component({
   selector: 'app-step',
   templateUrl: 'step.component.html',
@@ -81,6 +86,9 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
 
   public pauseLastUpdated: Date = new Date();
   public pauseRemainingString = '';
+
+  private reloadTabSubject: Subject<webinterfaceTabIdentifier> = new Subject<webinterfaceTabIdentifier>()
+  public reloadTabObservable: Observable<webinterfaceTabIdentifier> = this.reloadTabSubject.asObservable()
 
   @ViewChildren('term') private terms: QueryList<TerminalComponent> =
     new QueryList();
@@ -159,7 +167,7 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
         toArray(),
       )
       .subscribe((entries) => {
-        this.vms = new Map(entries);        
+        this.vms = new Map(entries);
         this.sendProgressUpdate();
         this.vms.forEach(vm => {
           this.vmService.getWebinterfaces(vm.id).subscribe(res => {
@@ -388,7 +396,11 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
   }
  
   openWebinterfaceInNewTab(vm: stepVM, port: number) {
-    var url: string = "https://"+vm.ws_endpoint+"/code/"+vm.id+"/connect/"+port+"/"+this.jwtHelper.tokenGetter()+"/"
+    var url: string = "https://"+vm.ws_endpoint+"/auth/"+this.jwtHelper.tokenGetter()+"/p/"+vm.id+"/"+port+"/"
     window.open(url, '_blank');
+  }
+
+  reloadWebinterface(vmId: string, webinterface: Service) {
+    this.reloadTabSubject.next({vmId: vmId, port: webinterface.port} as webinterfaceTabIdentifier)
   }
 }
