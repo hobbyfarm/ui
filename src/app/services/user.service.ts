@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpParams, HttpErrorResponse } from '@angular/common/http';
 import { catchError, map, tap } from 'rxjs/operators';
-import { throwError, BehaviorSubject } from 'rxjs';
+import { throwError, BehaviorSubject, of } from 'rxjs';
 import {
   extractResponseContent,
   GargantuaClientFactory,
@@ -15,6 +15,12 @@ export class UserService {
   private garg = this.gcf.scopedClient('/auth');
 
   private _acModified = new BehaviorSubject(false);
+
+  private fetchedSEs = false;
+  private cachedScheduledEventsList: Map<string, string> = new Map();
+  private bh: BehaviorSubject<Map<string, string>> = new BehaviorSubject(
+    this.cachedScheduledEventsList,
+  );
 
   public getModifiedObservable() {
     return this._acModified.asObservable();
@@ -53,6 +59,24 @@ export class UserService {
         return throwError(e.error);
       }),
     );
+  }
+
+  public getScheduledEvents(force = false) {
+    if (!force && this.fetchedSEs) {
+      return of(this.cachedScheduledEventsList);
+    } else {
+      return this.garg.get('/scheduledevents').pipe(
+        map<any, Map<string, string>>(extractResponseContent),
+        tap((p: Map<string, string>) => {
+          this.setScheduledEventsCache(p);
+        }),
+      );
+    }
+  }
+  public setScheduledEventsCache(list: Map<string, string>) {
+    this.cachedScheduledEventsList = list;
+    this.fetchedSEs = true;
+    this.bh.next(list);
   }
 
   public getAccessCodes() {

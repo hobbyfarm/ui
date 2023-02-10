@@ -1,5 +1,6 @@
 import { Component, Input, OnChanges } from '@angular/core';
 import { MarkdownService } from 'ngx-markdown';
+import { CtrService } from '../scenario/ctr.service';
 import { VM } from '../VM';
 
 // Replacement for lodash's escape
@@ -8,6 +9,7 @@ const escape = (s: string) =>
 
 export interface HfMarkdownRenderContext {
   vmInfo: { [vmName: string]: VM };
+  session: string;
 }
 
 @Component({
@@ -23,18 +25,21 @@ export interface HfMarkdownRenderContext {
 })
 export class HfMarkdownComponent implements OnChanges {
   @Input() content: string;
-  @Input() context: HfMarkdownRenderContext = { vmInfo: {} };
+  @Input() context: HfMarkdownRenderContext = { vmInfo: {}, session: '' };
 
   processedContent: string;
 
-  constructor(public markdownService: MarkdownService) {
+  constructor(
+    public markdownService: MarkdownService,
+    private ctrService: CtrService,
+  ) {
     this.markdownService.renderer.code = (code: string, language = '') => {
       const [tag, ...args] = language.split(':');
       if (tag in this.taggedCodeRenderers) {
         const renderer = this.taggedCodeRenderers[tag];
         return renderer.call(this, code, ...args);
       } else if (language.length > 0) {
-        return this.renderHighlightedCode(code, language);
+        return this.renderHighlightedCode(code, language, ...args);
       } else if (/~~~([\s\S]*?)~~~/.test(code)) {
         return this.renderNestedPlainCode(code);
       } else {
@@ -52,8 +57,10 @@ export class HfMarkdownComponent implements OnChanges {
   } = {
     ctr(code: string, target: string, countStr: string) {
       const count = Number(countStr);
+      const id = this.ctrService.registerCode(code);
       return `<ctr
         target="${target}"
+        ctrId="${id}"
         ${isNaN(count) ? '' : `[count]="${count}"`}
       >${escape(code)}</ctr>`;
     },
@@ -77,12 +84,51 @@ export class HfMarkdownComponent implements OnChanges {
         </div>
       `;
     },
+
+    note(code: string, type: string, message: string) {
+      return `
+        <div class="note ${type}">
+          <ng-container class='note-title'>
+          ${message ?? type.toUpperCase()}:
+          </ng-container>
+          <div class='note-content'>
+            ${this.markdownService.compile(code)}
+          </div>
+        </div>
+      `;
+    },
+
+    file(code: string, language: string, filepath: string, target: string) {
+      const parts = filepath.split('/');
+      const filename = parts[parts.length - 1];
+      const n = 5; //Length of randomized token
+      // Using only EOF as a token can cause trouble when the token is inside the file content. Let's use EOL together with a random string
+      const token =
+        'EOF_' + (Math.random().toString(36) + '0000').slice(2, n + 2);
+      const fileContent = `cat << ${token} > ${filepath}
+${code}
+${token}`;
+      const id = this.ctrService.registerCode(fileContent);
+      return `<ctr
+        target="${target}"
+        ctrId="${id}"
+        filename="${filepath}"
+        title="Click to create ${filepath} on ${target}"
+      >${this.renderHighlightedCode(code, language, filename)}</ctr>`;
+    },
   };
 
-  private renderHighlightedCode(code: string, language: string) {
+  private renderHighlightedCode(
+    code: string,
+    language: string,
+    fileName?: string,
+  ) {
+    const fileNameTag = fileName
+      ? `<p class="filename" (click)=createFile(code,node)>${fileName}</p>`
+      : `<p class="language">${language}</p>`;
     const classAttr = `class="language-${language}"`;
     const codeNode = `<code ${classAttr}>${escape(code)}</code>`;
-    return `<pre ${classAttr}>${codeNode}</pre>`;
+    return `<pre ${classAttr}>${fileNameTag}${codeNode}</pre>`;
   }
 
   private renderNestedPlainCode(code: string) {
@@ -126,10 +172,13 @@ export class HfMarkdownComponent implements OnChanges {
   }
 
   ngOnChanges() {
-    this.processedContent = this.replaceVmInfoTokens(this.content);
+    this.processedContent = this.replaceSessionToken(
+      this.replaceVmInfoTokens(this.content),
+    );
   }
 
   private replaceVmInfoTokens(content: string) {
+    console.log(this.context.vmInfo);
     return content.replace(
       /\$\{vminfo:([^:]*):([^}]*)\}/g,
       (match, vmName, propName) => {
@@ -137,5 +186,9 @@ export class HfMarkdownComponent implements OnChanges {
         return String(vm?.[propName as keyof VM] ?? match);
       },
     );
+  }
+
+  private replaceSessionToken(content: string) {
+    return content.replace(/\$\{session\}/g, this.context.session);
   }
 }

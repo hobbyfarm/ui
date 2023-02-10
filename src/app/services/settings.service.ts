@@ -19,6 +19,7 @@ export interface Settings {
   terminal_theme: typeof themes[number]['id'];
   terminal_fontSize: number;
   ctr_enabled: boolean;
+  ctxAccessCode: string;
 }
 
 @Injectable()
@@ -39,6 +40,7 @@ export class SettingsService {
               terminal_theme: themes[0].id,
               terminal_fontSize: 16,
               ctr_enabled: true,
+              ctxAccessCode: '',
             },
       ),
       tap((s: Settings) => {

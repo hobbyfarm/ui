@@ -1,14 +1,23 @@
 pre {
   margin-bottom: 0;
+  margin-top: 0;
   padding: 5px 10px;
   word-wrap: break;
   white-space: break-spaces;
-  background: #292b2e;
+  background: #292b2e !important;
   color: #c5c8c6;
   cursor: pointer;
   overflow-x: auto;
   &.disabled {
     cursor: not-allowed;
+  }
+  &.file-true {
+    padding: 0;
+    background: transparent !important;
+    border: none;
+    pre[class*='language-'] {
+      margin-bottom: 0px;
+    }
   }
 }
 
@@ -18,4 +27,17 @@ i {
 
 b {
   color: #282828;
+}
+
+pre[executed='true'] {
+  background: #5a5a5a;
+  &:hover {
+    background: #292b2e;
+    &.file-true {
+      background: transparent !important;
+    }
+  }
+  &.file-true {
+    background: transparent !important;
+  }
 }

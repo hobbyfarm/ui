@@ -3,8 +3,6 @@ on: [push, pull_request]
 
 env:
   app_image: hobbyfarm/ui
-  sdk_image: hobbyfarm/ui-sdk
-  dockerfile: cicd/docker/Dockerfile
 
   should_push_image: |-
     ${{
@@ -28,25 +26,29 @@ jobs:
       - name: Checkout
         uses: actions/checkout@master
 
-      - name: Set Git Version
-        run: ./cicd/git-version.sh
+      - name: Setup npm cache
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16
+          cache: 'npm'
 
-      - name: Build
-        run: |
-          docker build -f $dockerfile --tag $sdk_image --target sdk .
+      - name: Install deps
+        run: npm install
 
       - name: Lint
         run: |
-          docker run $sdk_image npm run lint
+          npm run lint
 
       - name: Check Code Style
         run: |
-          docker run $sdk_image npm run prettier:check
+          npm run prettier:check
 
-      - name: Build Release
-        if: fromJSON(env.should_push_image)
+      - name: Build
+        run: npm run build:prod
+
+      - name: Build
         run: |
-          docker build -f $dockerfile --tag $app_image .
+          docker build -f cicd/Dockerfile -t $app_image:${GIT_COMMIT_SHORT_HASH:-dev} .
 
       - name: Docker Login
         if: fromJSON(env.should_push_image)
@@ -60,9 +62,11 @@ jobs:
           safe_ref=$(echo "${{ github.ref_name }}" | sed -e 's/[^a-zA-Z0-9\-\.]/-/g')
           publish_tag=$app_image:$safe_ref
 
-          docker tag $app_image $publish_tag
+          docker tag $app_image:${GIT_COMMIT_SHORT_HASH:-dev} $publish_tag
           docker push $publish_tag
 
       - name: Docker Push Latest
         if: fromJSON(env.should_tag_latest)
-        run: docker push $app_image
+        run: |
+          docker tag $app_image:${GIT_COMMIT_SHORT_HASH:-dev} $app_image:latest
+          docker push $app_image:latest

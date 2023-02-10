@@ -39,6 +39,12 @@ export class ScenarioCardComponent implements OnChanges {
     private scenarioService: ScenarioService,
   ) {}
 
+  ngOnInit() {
+    this.scenarioService.get(this.scenarioid).subscribe((s: Scenario) => {
+      this.scenario = s;
+    });
+  }
+
   ngOnChanges() {
     this.scenarioService.get(this.scenarioid).subscribe((s: Scenario) => {
       this.scenario = s;

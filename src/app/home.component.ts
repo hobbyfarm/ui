@@ -6,6 +6,9 @@ import { ScenarioService } from './services/scenario.service';
 import { Scenario } from './scenario/Scenario';
 import { ProgressService } from './services/progress.service';
 import { Progress } from './Progress';
+import { SettingsService } from './services/settings.service';
+import { Context, ContextService } from './services/context.service';
+import { fadeSlide } from '@clr/angular';
 
 @Component({
   selector: 'app-home',
@@ -25,11 +28,14 @@ export class HomeComponent implements OnInit, OnDestroy {
   private callDelay = 10;
   private interval;
 
+  public ctx: Context = {} as Context;
+
   constructor(
     private userService: UserService,
     private scenarioService: ScenarioService,
     private courseService: CourseService,
     private progressService: ProgressService,
+    private contextService: ContextService,
   ) {
     this.progressService.watch().subscribe((p: Progress[]) => {
       this.activeSession = undefined;
@@ -38,6 +44,28 @@ export class HomeComponent implements OnInit, OnDestroy {
           this.activeSession = progress;
         }
       });
+    });
+    this.contextService.watch().subscribe((c: Context) => {
+      this.ctx = c;
+
+      this.courseService.fetch(this.ctx.accessCode).subscribe(
+        (c: Course[]) => {
+          this.courses = c ?? [];
+          this.loadedCourses = true;
+        },
+        () => {
+          this.loadedCourses = false;
+        },
+      );
+      this.scenarioService.fetch(this.ctx.accessCode).subscribe(
+        (s: Scenario[]) => {
+          this.scenarios = s ?? [];
+          this.loadedScenarios = true;
+        },
+        () => {
+          this.loadedScenarios = false;
+        },
+      );
     });
     this.progressService.list(true).subscribe(); //fill cache
     this.interval = setInterval(() => {
@@ -51,32 +79,11 @@ export class HomeComponent implements OnInit, OnDestroy {
     this.showScenarioModal = Boolean(scenarioId);
   }
 
-  private _refresh() {
-    this.courseService.list().subscribe(
-      (c: Course[]) => {
-        this.courses = c;
-        this.loadedCourses = true;
-      },
-      () => {
-        this.loadedCourses = false;
-      },
-    );
-    this.scenarioService.list().subscribe(
-      (s: Scenario[]) => {
-        this.scenarios = s;
-        this.loadedScenarios = true;
-      },
-      () => {
-        this.loadedScenarios = false;
-      },
-    );
-  }
-
   ngOnInit() {
     this.userService.getModifiedObservable().subscribe(() => {
       // values push when adjustments made to access code list
       // thus, refresh the scenario list
-      this._refresh();
+      this.contextService.refresh();
     });
   }
 
