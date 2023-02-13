@@ -51,6 +51,7 @@ import { JwtHelperService } from '@auth0/angular-jwt';
 type Service = {
   name: string;
   port: number;
+  path: string;
   hasOwnTab: boolean;
   hasWebinterface: boolean;
 };
@@ -180,9 +181,11 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
               const services = JSON.parse(JSON.parse(stringContent)); //TODO: See if we can skip one stringify somwhere, so we dont have to parse twice
               services.forEach((service: Service) => {
                 if (service.hasWebinterface) {
+                  console.log(service);
                   const webinterface = {
-                    name: service.name,
-                    port: service.port,
+                    name: service.name ?? 'Service',
+                    port: service.port ?? 80,
+                    path: service.path ?? '/',
                     hasOwnTab: !!service.hasOwnTab,
                     hasWebinterface: true,
                   };
@@ -406,7 +409,7 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
     });
   }
 
-  openWebinterfaceInNewTab(vm: stepVM, port: number) {
+  openWebinterfaceInNewTab(vm: stepVM, wi: Service) {
     const url: string =
       'https://' +
       vm.ws_endpoint +
@@ -415,8 +418,8 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
       '/p/' +
       vm.id +
       '/' +
-      port +
-      '/';
+      wi.port +
+      wi.path;
     window.open(url, '_blank');
   }
 
