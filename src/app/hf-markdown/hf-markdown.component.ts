@@ -39,7 +39,7 @@ export class HfMarkdownComponent implements OnChanges {
         const renderer = this.taggedCodeRenderers[tag];
         return renderer.call(this, code, ...args);
       } else if (language.length > 0) {
-        return this.renderHighlightedCode(code, language, ...args);
+        return this.renderHighlightedCode(code, tag, ...args);
       } else if (/~~~([\s\S]*?)~~~/.test(code)) {
         return this.renderNestedPlainCode(code);
       } else {
