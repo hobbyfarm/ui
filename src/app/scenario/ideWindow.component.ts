@@ -24,10 +24,10 @@ export class IdeWindowComponent implements OnInit {
   endpoint: string;
 
   @Input()
-  port: number = 80;
+  port = 80;
 
   @Input()
-  path: string = "/";
+  path = "/";
 
   @Input()
   reloadEvent: Observable<webinterfaceTabIdentifier>;
