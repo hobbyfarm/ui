@@ -22,7 +22,9 @@ import { AtobPipe } from './atob.pipe';
 import { MarkdownModule } from 'ngx-markdown';
 import { DynamicHooksModule } from 'ngx-dynamic-hooks';
 import { CtrComponent } from './scenario/ctr.component';
+import { IdeExecComponent } from './scenario/ideExec.component';
 import { CtrService } from './scenario/ctr.service';
+import { IDEApiExecService } from './scenario/ide.service';
 import { ScenarioService } from './services/scenario.service';
 import { CourseService } from './services/course.service';
 import { SettingsService } from './services/settings.service';
@@ -74,6 +76,7 @@ export function jwtOptionsFactory() {
     ScenarioCardComponent,
     StepComponent,
     CtrComponent,
+    IdeExecComponent,
     VMClaimComponent,
     AtobPipe,
     HfMarkdownComponent,
@@ -97,7 +100,7 @@ export function jwtOptionsFactory() {
         sanitize: false,
         convertHTMLEntities: false,
       },
-      globalParsers: [{ component: CtrComponent }],
+      globalParsers: [{ component: CtrComponent }, { component: IdeExecComponent }],
     }),
     JwtModule.forRoot({
       jwtOptionsProvider: {
@@ -110,6 +113,7 @@ export function jwtOptionsFactory() {
     AppComponent,
     AuthGuard,
     CtrService,
+    IDEApiExecService,
     CourseService,
     SettingsService,
     ScenarioService,

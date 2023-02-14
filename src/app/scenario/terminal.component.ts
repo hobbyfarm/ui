@@ -20,6 +20,9 @@ import { HostListener } from '@angular/core';
 import { interval, Subscription, timer } from 'rxjs';
 import { themes } from './terminal-themes/themes';
 import { SettingsService } from '../services/settings.service';
+import { IDEApiExecService } from './ide.service';
+import { IDEApiExec } from './IDEApiExec';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 
 const WS_CODE_NORMAL_CLOSURE = 1000;
 
@@ -49,6 +52,9 @@ export class TerminalComponent implements OnChanges, AfterViewInit, OnDestroy {
   public mutationObserver: MutationObserver;
   private subscription = new Subscription();
 
+  private token: string;
+  private legacyEndpoint: string;
+
   private DEFAULT_FONT_SIZE = 16;
   private DEFAULT_TERMINAL_THEME = 'default';
 
@@ -57,8 +63,10 @@ export class TerminalComponent implements OnChanges, AfterViewInit, OnDestroy {
   constructor(
     private jwtHelper: JwtHelperService,
     private ctrService: CtrService,
+    private ideApiExecService: IDEApiExecService,
     private shellService: ShellService,
     private settingsService: SettingsService,
+    private http: HttpClient,
   ) {}
 
   @HostListener('window:resize')
@@ -77,6 +85,7 @@ export class TerminalComponent implements OnChanges, AfterViewInit, OnDestroy {
   }
 
   private buildSocket() {
+    this.legacyEndpoint = this.endpoint;
     if (
       !this.endpoint.startsWith('wss://') &&
       !this.endpoint.startsWith('ws://')
@@ -88,11 +97,7 @@ export class TerminalComponent implements OnChanges, AfterViewInit, OnDestroy {
       }
     }
     this.socket = new WebSocket(
-      this.endpoint +
-        '/shell/' +
-        this.vmid +
-        '/connect?auth=' +
-        this.jwtHelper.tokenGetter(),
+      this.endpoint + '/shell/' + this.vmid + '/connect?auth=' + this.token,
     );
 
     // Check if current browser is firefox by useragent and use "duck-typing" as a fallback.
@@ -157,6 +162,31 @@ export class TerminalComponent implements OnChanges, AfterViewInit, OnDestroy {
         });
 
       this.subscription.add(
+        this.ideApiExecService.getExecStream().subscribe((exec: IDEApiExec) => {
+          // if the ide exec is target at us, execute it with the correct endpoint and VM id
+          if (exec.target.toLowerCase() == this.vmname.toLowerCase()) {
+            // break up the code by lines
+            // Handle execution
+            const url =
+              'https://' +
+              this.legacyEndpoint +
+              '/pa/' +
+              this.token +
+              '/' +
+              this.vmid +
+              '/7331' +
+              exec.apiEndpoint;
+
+            let headers = new HttpHeaders().set('Content-Type', 'application/json');
+            this.http
+              .post(url, exec.postBody, { headers: headers, observe: 'response', responseType: 'json' })
+              .subscribe((response) => {
+                console.log(response);
+              });
+          }
+        }),
+      );
+      this.subscription.add(
         interval(5000).subscribe(() => {
           this.socket.send(''); // websocket keepalive
         }),
@@ -171,6 +201,7 @@ export class TerminalComponent implements OnChanges, AfterViewInit, OnDestroy {
 
   ngOnChanges() {
     if (this.vmid != null && this.endpoint != null) {
+      this.token = this.jwtHelper.tokenGetter();
       this.closeSocket();
       this.buildSocket();
     }
