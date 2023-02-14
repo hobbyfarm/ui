@@ -24,7 +24,10 @@ export class IdeWindowComponent implements OnInit {
   endpoint: string;
 
   @Input()
-  port: number;
+  port = 80;
+
+  @Input()
+  path = '/';
 
   @Input()
   reloadEvent: Observable<webinterfaceTabIdentifier>;
@@ -49,7 +52,7 @@ export class IdeWindowComponent implements OnInit {
       this.vmid +
       '/' +
       this.port +
-      '/';
+      this.path;
     this.callEndpoint();
     this.ideIframe.nativeElement.innerText = 'Loading';
   }

@@ -128,10 +128,10 @@
               <clr-tab-content>
                 <table class="table compact">
                   <tr>
-                    <td><b>Node:</b> {{ v.key }}</td>
-                    <td><b>Public IP:</b> {{ v.value.public_ip }}</td>
                     <td><b>Webinterface:</b> {{ webinterface.name }}</td>
+                    <td><b>Node:</b> {{ v.key }}</td>
                     <td><b>Port:</b> {{ webinterface.port }}</td>
+                    <td><b>Path:</b> {{ webinterface.path }}</td>
                     <td style="padding: 0">
                       <button
                         class="btn btn-icon btn-primary btn-sm"
@@ -144,7 +144,7 @@
                         class="btn btn-icon btn-primary btn-sm"
                         title="Open in a new Tab"
                         (click)="
-                          openWebinterfaceInNewTab(v.value, webinterface.port)
+                          openWebinterfaceInNewTab(v.value, webinterface)
                         "
                       >
                         <clr-icon shape="pop-out"></clr-icon>
@@ -157,6 +157,7 @@
                   [vmid]="v.value.id"
                   [endpoint]="v.value.ws_endpoint"
                   [port]="webinterface.port"
+                  [path]="webinterface.path"
                   [reloadEvent]="reloadTabObservable"
                 >
                 </app-ide-window>
