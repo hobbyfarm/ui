@@ -177,7 +177,7 @@ export class TerminalComponent implements OnChanges, AfterViewInit, OnDestroy {
               '/7331' +
               exec.apiEndpoint;
 
-            let headers = new HttpHeaders().set('Content-Type', 'application/json');
+            const headers = new HttpHeaders().set('Content-Type', 'application/json');
             this.http
               .post(url, exec.postBody, { headers: headers, observe: 'response', responseType: 'json' })
               .subscribe((response) => {

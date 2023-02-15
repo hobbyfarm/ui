@@ -1,6 +1,5 @@
 export class IDEApiExec {
-    target: string;
-    apiEndpoint: string;
-    postBody: string;
-  }
-  
+  target: string;
+  apiEndpoint: string;
+  postBody: string;
+}
