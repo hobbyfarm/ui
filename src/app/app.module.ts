@@ -100,7 +100,10 @@ export function jwtOptionsFactory() {
         sanitize: false,
         convertHTMLEntities: false,
       },
-      globalParsers: [{ component: CtrComponent }, { component: IdeExecComponent }],
+      globalParsers: [
+        { component: CtrComponent },
+        { component: IdeExecComponent },
+      ],
     }),
     JwtModule.forRoot({
       jwtOptionsProvider: {

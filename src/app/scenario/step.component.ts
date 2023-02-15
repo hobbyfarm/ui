@@ -41,9 +41,7 @@ import { VMService } from '../services/vm.service';
 import { ShellService } from '../services/shell.service';
 import { atou } from '../unicode';
 import { ProgressService } from '../services/progress.service';
-import {
-  HfMarkdownRenderContext,
-} from '../hf-markdown/hf-markdown.component';
+import { HfMarkdownRenderContext } from '../hf-markdown/hf-markdown.component';
 import { GuacTerminalComponent } from './guacTerminal.component';
 import { JwtHelperService } from '@auth0/angular-jwt';
 import { IDEApiExecService } from './ide.service';
@@ -262,7 +260,10 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
       this.tabs.forEach((i: ClrTab) => {
         // TODO 14.02.2023 Fix tab selection for IDE tabs. A little bit tricky with only the name flag.
         console.log(i.tabLink.tabLinkId.toLowerCase());
-        if (exec.target.toLowerCase() + "-ide" == i.tabLink.tabLinkId.toLowerCase()) {
+        if (
+          exec.target.toLowerCase() + '-ide' ==
+          i.tabLink.tabLinkId.toLowerCase()
+        ) {
           i.ifActiveService.current = i.id;
         }
       });
