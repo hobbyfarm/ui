@@ -68,7 +68,7 @@ export class HfMarkdownComponent implements OnChanges {
       >${escape(code)}</ctr>`;
     },
 
-    ide(code: string, target: string, endpoint: string) {
+    ide(code: string, target: string, endpoint: string, title: string) {
       const exec: IDEApiExec = {
         target: target,
         apiEndpoint: endpoint,
@@ -77,6 +77,7 @@ export class HfMarkdownComponent implements OnChanges {
       const id = this.ideService.registerExec(exec);
       return `<ide-exec
         target="${target}"
+        title="${title}"
         execId="${id}"
       ></ide-exec>`;
     },

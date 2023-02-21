@@ -187,9 +187,7 @@ export class TerminalComponent implements OnChanges, AfterViewInit, OnDestroy {
                 observe: 'response',
                 responseType: 'json',
               })
-              .subscribe((response) => {
-                console.log(response);
-              });
+              .subscribe();
           }
         }),
       );

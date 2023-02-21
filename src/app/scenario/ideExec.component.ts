@@ -6,7 +6,8 @@ import { IDEApiExecService } from './ide.service';
   selector: 'ide-exec',
   template: `
     <div [attr.executed]="executed" class="api-exec" (click)="ctr()">
-      IDE API Exec
+      <clr-icon shape="display"></clr-icon>
+      {{ title }}
     </div>
     <i>
       <clr-icon [attr.shape]="shape"></clr-icon> {{ statusText }}
@@ -17,10 +18,11 @@ import { IDEApiExecService } from './ide.service';
 })
 export class IdeExecComponent {
   @Input() target = '';
+  @Input() title: string;
   @Input() execId: string;
 
   public shape = 'angle';
-  public statusText = 'IDE API on';
+  public statusText = 'Editor on';
   public executed = false;
 
   constructor(private ideExecService: IDEApiExecService) {}

@@ -258,8 +258,7 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
     this.ideExec.getExecStream().subscribe((exec: IDEApiExec) => {
       // watch for tab changes when exectuing IDE Api calls
       this.tabs.forEach((i: ClrTab) => {
-        // TODO 14.02.2023 Fix tab selection for IDE tabs. A little bit tricky with only the name flag.
-        console.log(i.tabLink.tabLinkId.toLowerCase());
+        // TODO 14.02.2023 Better tab selection for IDE tabs. A little bit tricky with only the name flag.
         if (
           exec.target.toLowerCase() + '-ide' ==
           i.tabLink.tabLinkId.toLowerCase()
