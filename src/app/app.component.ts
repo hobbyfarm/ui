@@ -34,6 +34,9 @@ export class AppComponent implements OnInit {
   public accessCodeDangerAlert = '';
   public accessCodeSuccessAlert = '';
 
+  public accessCodeLinkSuccessAlert = '';
+  public accessCodeLinkSuccessClosed = true;
+
   public newAccessCode = false;
   public fetchingAccessCodes = false;
 
@@ -124,7 +127,9 @@ export class AppComponent implements OnInit {
     
     this.accesscode = this.route.snapshot.params['accesscode'];
     if( this.accesscode ){
-      this.newAccessCodeForm.setValue({access_code: this.accesscode})
+      this.accessCodeLinkSuccessAlert = `${this.accesscode} added`;
+      this.accessCodeLinkSuccessClosed = false;
+      this.newAccessCodeForm.setValue({access_code: this.accesscode});
       this.setAccessCode(this.accesscode);
       this.saveAccessCode();
       setTimeout(() => {
