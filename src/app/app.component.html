@@ -11,6 +11,18 @@
         <span class="title">{{ title }}</span>
       </a>
     </div>
+    
+    <clr-alert
+    [clrAlertType]="'success'"
+    [(clrAlertClosed)]="accessCodeSuccessClosed"
+    [clrAlertClosable]="false"
+  >
+    <clr-alert-item>
+      <span class="alert-text">
+        {{ accessCodeSuccessAlert }}
+      </span>
+    </clr-alert-item>
+  </clr-alert>
 
     <div class="settings">
       <clr-dropdown *ngIf="ctx.valid">

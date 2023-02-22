@@ -13,6 +13,7 @@ import { GuacTerminalComponent } from './scenario/guacTerminal.component';
 const routes: Routes = [
   { path: '', redirectTo: '/app/home', pathMatch: 'full' },
   { path: 'login', component: LoginComponent },
+  { path: 'add/:accesscode', component: AppComponent},
   {
     path: 'app',
     component: AppComponent,

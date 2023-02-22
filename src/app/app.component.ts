@@ -2,7 +2,7 @@ import { Component, OnInit, ViewChild } from '@angular/core';
 import { ClarityIcons } from '@clr/icons';
 import { JwtHelperService } from '@auth0/angular-jwt';
 import { ClrModal } from '@clr/angular';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { UserService } from './services/user.service';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
 import { ServerResponse } from './ServerResponse';
@@ -43,6 +43,7 @@ export class AppComponent implements OnInit {
   public fetchingSettings = false;
 
   public accesscodes: string[] = [];
+  public accesscode: string;
   public scheduledEvents: Map<string, string> = new Map();
   public ctx: Context = {} as Context;
 
@@ -68,6 +69,7 @@ export class AppComponent implements OnInit {
     private helper: JwtHelperService,
     private userService: UserService,
     private router: Router,
+    private route: ActivatedRoute,
     private config: AppConfigService,
     private settingsService: SettingsService,
     private contextService: ContextService,
@@ -119,6 +121,16 @@ export class AppComponent implements OnInit {
   ngOnInit() {
     const tok = this.helper.decodeToken(this.helper.tokenGetter());
     this.email = tok.email;
+    
+    this.accesscode = this.route.snapshot.params['accesscode'];
+    if( this.accesscode ){
+      this.newAccessCodeForm.setValue({access_code: this.accesscode})
+      this.setAccessCode(this.accesscode);
+      this.saveAccessCode();
+      setTimeout(() => {
+        this.doHome();
+      }, 2000);
+    }
 
     // Automatically logout the user after token expiration
     const timeout = tok.exp * 1000 - Date.now();
@@ -280,5 +292,9 @@ export class AppComponent implements OnInit {
   public doLogout() {
     localStorage.removeItem('hobbyfarm_token');
     this.router.navigateByUrl('/login');
+  }
+
+  public doHome(){
+    this.router.navigateByUrl('/home');
   }
 }

@@ -7,6 +7,7 @@ import { Scenario } from './scenario/Scenario';
 import { ProgressService } from './services/progress.service';
 import { Progress } from './Progress';
 import { Context, ContextService } from './services/context.service';
+import { ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: 'app-home',
@@ -22,6 +23,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   public scenarioid: string;
   public courseid: string;
   public activeSession?: Progress;
+  public accesscode: string;
 
   private callDelay = 10;
   private interval;
@@ -34,6 +36,7 @@ export class HomeComponent implements OnInit, OnDestroy {
     private courseService: CourseService,
     private progressService: ProgressService,
     private contextService: ContextService,
+    private route: ActivatedRoute
   ) {
     this.progressService.watch().subscribe((p: Progress[]) => {
       this.activeSession = undefined;
@@ -83,6 +86,10 @@ export class HomeComponent implements OnInit, OnDestroy {
       // thus, refresh the scenario list
       this.contextService.refresh();
     });
+        this.accesscode = this.route.snapshot.params['accesscode'];
+    if( this.accesscode ){
+      console.log(this.accesscode);
+    }
   }
 
   ngOnDestroy() {
