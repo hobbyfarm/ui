@@ -8,6 +8,7 @@ import { ProgressService } from './services/progress.service';
 import { Progress } from './Progress';
 import { Context, ContextService } from './services/context.service';
 import { ActivatedRoute } from '@angular/router';
+import { Location } from '@angular/common';
 
 @Component({
   selector: 'app-home',
@@ -24,6 +25,8 @@ export class HomeComponent implements OnInit, OnDestroy {
   public courseid: string;
   public activeSession?: Progress;
   public accesscode: string;
+  public accessCodeLinkSuccessClosed = true;
+  public accessCodeLinkSuccessAlert = '';
 
   private callDelay = 10;
   private interval;
@@ -36,7 +39,8 @@ export class HomeComponent implements OnInit, OnDestroy {
     private courseService: CourseService,
     private progressService: ProgressService,
     private contextService: ContextService,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private location: Location
   ) {
     this.progressService.watch().subscribe((p: Progress[]) => {
       this.activeSession = undefined;
@@ -86,9 +90,15 @@ export class HomeComponent implements OnInit, OnDestroy {
       // thus, refresh the scenario list
       this.contextService.refresh();
     });
-        this.accesscode = this.route.snapshot.params['accesscode'];
+
+    this.accesscode = this.route.snapshot.queryParams['ac'];
     if( this.accesscode ){
-      console.log(this.accesscode);
+      this.accessCodeLinkSuccessAlert = `${this.accesscode} added`;
+      this.accessCodeLinkSuccessClosed = false;
+      this.location.go("/app/home");
+      setTimeout(() => {
+        window.location.reload();
+      }, 2000);
     }
   }
 

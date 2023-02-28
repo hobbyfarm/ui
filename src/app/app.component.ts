@@ -124,23 +124,21 @@ export class AppComponent implements OnInit {
   ngOnInit() {
     const tok = this.helper.decodeToken(this.helper.tokenGetter());
     this.email = tok.email;
-    
-    this.accesscode = this.route.snapshot.params['accesscode'];
-    if( this.accesscode ){
-      this.accessCodeLinkSuccessAlert = `${this.accesscode} added`;
-      this.accessCodeLinkSuccessClosed = false;
-      this.newAccessCodeForm.setValue({access_code: this.accesscode});
-      this.setAccessCode(this.accesscode);
-      this.saveAccessCode();
-      setTimeout(() => {
-        this.doHome();
-      }, 1000);
-    }
+  
 
     // Automatically logout the user after token expiration
     const timeout = tok.exp * 1000 - Date.now();
     setTimeout(() => this.doLogout(), timeout);
 
+    this.accesscode = this.route.snapshot.params['accesscode'];
+    if( this.accesscode ){
+      this.newAccessCodeForm.setValue({access_code: this.accesscode});
+      this.setAccessCode(this.accesscode);
+      this.saveAccessCode();
+      this.doHome();
+      this.accessCodeLinkSuccessAlert = `${this.accesscode} added`;
+      this.accessCodeLinkSuccessClosed = false;
+    }
     //react to changes on users accesscodess
     this.contextService.watch().subscribe((c: Context) => {
       this.ctx = c;
@@ -300,6 +298,6 @@ export class AppComponent implements OnInit {
   }
 
   public doHome(){
-    this.router.navigateByUrl('/home');
+    this.router.navigateByUrl(`/app/home?ac=${this.accesscode}`);
   }
 }
