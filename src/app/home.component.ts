@@ -98,7 +98,7 @@ export class HomeComponent implements OnInit, OnDestroy {
        this.location.go("/app/home");
        setTimeout(() => {
        this.accessCodeLinkSuccessClosed = true;
-       }, 2000);
+       }, 5000);
     }
   }
 
