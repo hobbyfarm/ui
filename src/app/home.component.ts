@@ -95,10 +95,10 @@ export class HomeComponent implements OnInit, OnDestroy {
     if( this.accesscode ){
       this.accessCodeLinkSuccessAlert = `${this.accesscode} added`;
       this.accessCodeLinkSuccessClosed = false;
-      this.location.go("/app/home");
-      setTimeout(() => {
-        window.location.reload();
-      }, 2000);
+       this.location.go("/app/home");
+       setTimeout(() => {
+       this.accessCodeLinkSuccessClosed = true;
+       }, 2000);
     }
   }
 

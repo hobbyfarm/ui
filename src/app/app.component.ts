@@ -132,12 +132,7 @@ export class AppComponent implements OnInit {
 
     this.accesscode = this.route.snapshot.params['accesscode'];
     if( this.accesscode ){
-      this.newAccessCodeForm.setValue({access_code: this.accesscode});
-      this.setAccessCode(this.accesscode);
-      this.saveAccessCode();
       this.doHome();
-      this.accessCodeLinkSuccessAlert = `${this.accesscode} added`;
-      this.accessCodeLinkSuccessClosed = false;
     }
     //react to changes on users accesscodess
     this.contextService.watch().subscribe((c: Context) => {
