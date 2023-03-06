@@ -8,9 +8,11 @@
 
     <div class="clr-row">
       <div class="clr-col-12 clr-col-sm-6 clr-col-md-4 clr-col-lg-3">
-        <app-scenario-card [scenarioid]="activeSession.scenario" [progress]="activeSession"
-          (scenarioModal)="toggleScenarioModal(activeSession.scenario)"></app-scenario-card>
-
+        <app-scenario-card
+          [scenarioid]="activeSession.scenario"
+          [progress]="activeSession"
+          (scenarioModal)="toggleScenarioModal(activeSession.scenario)"
+        ></app-scenario-card>
       </div>
     </div>
   </div>
@@ -23,9 +25,12 @@
   </div>
 
   <div class="clr-row">
-
-    <clr-alert [clrAlertType]="'success'" [(clrAlertClosed)]="accessCodeLinkSuccessClosed" [clrAlertClosable]="false"
-      class="alert-home">
+    <clr-alert
+      [clrAlertType]="'success'"
+      [(clrAlertClosed)]="accessCodeLinkSuccessClosed"
+      [clrAlertClosable]="false"
+      class="alert-home"
+    >
       <clr-alert-item>
         <span>
           {{ accessCodeLinkSuccessAlert }}
@@ -40,13 +45,15 @@
     </div>
 
     <div class="clr-col-12">
-      <div *ngIf="
+      <div
+        *ngIf="
           !courses?.length &&
           !scenarios?.length &&
           loadedScenarios &&
           loadedCourses &&
           ctx.valid
-        ">
+        "
+      >
         No scenarios or courses found.
       </div>
       <div *ngIf="!loadedScenarios && !loadedCourses && ctx.valid">
@@ -55,9 +62,15 @@
     </div>
 
     <ng-container *ngIf="scenarios.length > 0 && ctx.valid">
-      <div class="clr-col-12 clr-col-sm-6 clr-col-md-4 clr-col-lg-3" *ngFor="let s of scenarios">
-        <app-scenario-card [scenarioid]="s.id" [activeSession]="!!activeSession"
-          (scenarioModal)="toggleScenarioModal(s.id)"></app-scenario-card>
+      <div
+        class="clr-col-12 clr-col-sm-6 clr-col-md-4 clr-col-lg-3"
+        *ngFor="let s of scenarios"
+      >
+        <app-scenario-card
+          [scenarioid]="s.id"
+          [activeSession]="!!activeSession"
+          (scenarioModal)="toggleScenarioModal(s.id)"
+        ></app-scenario-card>
       </div>
     </ng-container>
   </div>
@@ -71,11 +84,18 @@
 
         <div class="clr-row">
           <ng-container *ngIf="c.scenarios.length > 0; else no_scenarios">
-            <div class="clr-col-12 clr-col-sm-6 clr-col-md-4 clr-col-lg-3" *ngFor="let sId of c?.scenarios">
-              <app-scenario-card [scenarioid]="sId" [activeSession]="
+            <div
+              class="clr-col-12 clr-col-sm-6 clr-col-md-4 clr-col-lg-3"
+              *ngFor="let sId of c?.scenarios"
+            >
+              <app-scenario-card
+                [scenarioid]="sId"
+                [activeSession]="
                   (!!activeSession && c.id !== activeSession.course) ||
                   (!c.keep_vm && !!activeSession)
-                " (scenarioModal)="toggleScenarioModal(sId, c.id)"></app-scenario-card>
+                "
+                (scenarioModal)="toggleScenarioModal(sId, c.id)"
+              ></app-scenario-card>
             </div>
           </ng-container>
           <ng-template #no_scenarios>
@@ -89,5 +109,11 @@
   </div>
 </div>
 
-<app-scenario *ngIf="scenarioid" [scenarioid]="scenarioid" [courseid]="courseid" [accessCode]="ctx.accessCode"
-  [showScenarioModal]="showScenarioModal" (scenarioModal)="toggleScenarioModal()"></app-scenario>
+<app-scenario
+  *ngIf="scenarioid"
+  [scenarioid]="scenarioid"
+  [courseid]="courseid"
+  [accessCode]="ctx.accessCode"
+  [showScenarioModal]="showScenarioModal"
+  (scenarioModal)="toggleScenarioModal()"
+></app-scenario>
