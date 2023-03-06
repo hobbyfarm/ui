@@ -40,7 +40,7 @@ export class HomeComponent implements OnInit, OnDestroy {
     private progressService: ProgressService,
     private contextService: ContextService,
     private route: ActivatedRoute,
-    private location: Location
+    private location: Location,
   ) {
     this.progressService.watch().subscribe((p: Progress[]) => {
       this.activeSession = undefined;
@@ -95,7 +95,7 @@ export class HomeComponent implements OnInit, OnDestroy {
     if (this.accesscode) {
       this.accessCodeLinkSuccessAlert = `${this.accesscode} added`;
       this.accessCodeLinkSuccessClosed = false;
-      this.location.go("/app/home");
+      this.location.go('/app/home');
       setTimeout(() => {
         this.accessCodeLinkSuccessClosed = true;
       }, 5000);

@@ -11,22 +11,10 @@
           <clr-tab-content id="login-content">
             <div class="login-group">
               <clr-input-container>
-                <input
-                  type="text"
-                  name="email"
-                  clrInput
-                  [(ngModel)]="email"
-                  placeholder="Email Address"
-                />
+                <input type="text" name="email" clrInput [(ngModel)]="email" placeholder="Email Address" />
               </clr-input-container>
               <clr-input-container>
-                <input
-                  type="password"
-                  name="password"
-                  clrInput
-                  [(ngModel)]="password"
-                  placeholder="Password"
-                />
+                <input type="password" name="password" clrInput [(ngModel)]="password" placeholder="Password" />
               </clr-input-container>
               <div class="error" [class.active]="error.length > 0">
                 {{ error }}
@@ -43,41 +31,18 @@
         <clr-tab-content id="register-content" *clrIfActive>
           <div class="login-group">
             <clr-input-container>
-              <input
-                type="text"
-                name="email"
-                clrInput
-                [(ngModel)]="email"
-                placeholder="Email Address"
-              />
+              <input type="text" name="email" clrInput [(ngModel)]="email" placeholder="Email Address" />
             </clr-input-container>
             <clr-input-container>
-              <input
-                type="text"
-                name="accesscode"
-                clrInput
-                [(ngModel)]="accesscode"
-                placeholder="Access Code"
-              />
+              <input type="text" name="accesscode" clrInput [(ngModel)]="accesscode" placeholder="Access Code" />
             </clr-input-container>
             <clr-input-container>
-              <input
-                type="password"
-                name="password"
-                clrInput
-                [(ngModel)]="password"
-                placeholder="Password"
-              />
+              <input type="password" name="password" clrInput [(ngModel)]="password" placeholder="Password" />
             </clr-input-container>
             <div class="error" [class.active]="error.length > 0">
               {{ error }}
             </div>
-            <button
-              [disabled]="registrationDisabled"
-              type="submit"
-              class="btn btn-primary"
-              (click)="register()"
-            >
+            <button [disabled]="registrationDisabled" type="submit" class="btn btn-primary" (click)="register()">
               REGISTER
             </button>
           </div>
