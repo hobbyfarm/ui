@@ -125,7 +125,6 @@ export class AppComponent implements OnInit {
     const tok = this.helper.decodeToken(this.helper.tokenGetter());
     this.email = tok.email;
 
-
     // Automatically logout the user after token expiration
     const timeout = tok.exp * 1000 - Date.now();
     setTimeout(() => this.doLogout(), timeout);
