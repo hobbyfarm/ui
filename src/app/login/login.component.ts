@@ -72,7 +72,7 @@ export class LoginComponent {
 
           // redirect to the scenarios page
           const returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/';
-          if(returnUrl){
+          if (returnUrl) {
             this.router.navigateByUrl(returnUrl)
           }
           else this.router.navigateByUrl('/app/home');

@@ -1,28 +1,19 @@
 <div class="main-container">
   <header class="header header-4">
     <div class="branding">
-      <a
-        class="logo-and-title"
-        href="javascript://"
-        class="nav-link nav-text"
-        [routerLink]="['/app/home']"
-      >
+      <a class="logo-and-title" href="javascript://" class="nav-link nav-text" [routerLink]="['/app/home']">
         <clr-icon shape="logo"></clr-icon>
         <span class="title">{{ title }}</span>
       </a>
     </div>
-    
-    <clr-alert
-    [clrAlertType]="'success'"
-    [(clrAlertClosed)]="accessCodeLinkSuccessClosed"
-    [clrAlertClosable]="false"
-  >
-    <clr-alert-item>
-      <span class="alert-text">
-        {{ accessCodeLinkSuccessAlert }}
-      </span>
-    </clr-alert-item>
-  </clr-alert>
+
+    <clr-alert [clrAlertType]="'success'" [(clrAlertClosed)]="accessCodeLinkSuccessClosed" [clrAlertClosable]="false">
+      <clr-alert-item>
+        <span class="alert-text">
+          {{ accessCodeLinkSuccessAlert }}
+        </span>
+      </clr-alert-item>
+    </clr-alert>
 
     <div class="settings">
       <clr-dropdown *ngIf="ctx.valid">
@@ -32,12 +23,8 @@
           <clr-icon shape="caret down"></clr-icon>
         </button>
         <clr-dropdown-menu *clrIfOpen clrPosition="bottom">
-          <a
-            clrDropdownItem
-            *ngFor="let a of scheduledEvents | keyvalue"
-            (click)="setAccessCode(a.key)"
-            >{{ a.value }}</a
-          >
+          <a clrDropdownItem *ngFor="let a of scheduledEvents | keyvalue" (click)="setAccessCode(a.key)">{{ a.value
+            }}</a>
         </clr-dropdown-menu>
       </clr-dropdown>
     </div>
@@ -49,21 +36,11 @@
           <clr-icon shape="caret down"></clr-icon>
         </button>
         <clr-dropdown-menu *clrIfOpen clrPosition="bottom-right">
-          <a (click)="openAccessCodes()" clrDropdownItem
-            ><clr-icon shape="tags"></clr-icon> Manage Access Codes</a
-          >
-          <a (click)="openSettings()" clrDropdownItem
-            ><clr-icon shape="cog"></clr-icon> Settings</a
-          >
-          <a (click)="changePassword()" clrDropdownItem
-            ><clr-icon shape="key"></clr-icon> Change Password</a
-          >
-          <a (click)="about()" clrDropdownItem
-            ><clr-icon shape="help-info"></clr-icon> About</a
-          >
-          <a (click)="logout()" clrDropdownItem
-            ><clr-icon shape="logout"></clr-icon> Logout</a
-          >
+          <a (click)="openAccessCodes()" clrDropdownItem><clr-icon shape="tags"></clr-icon> Manage Access Codes</a>
+          <a (click)="openSettings()" clrDropdownItem><clr-icon shape="cog"></clr-icon> Settings</a>
+          <a (click)="changePassword()" clrDropdownItem><clr-icon shape="key"></clr-icon> Change Password</a>
+          <a (click)="about()" clrDropdownItem><clr-icon shape="help-info"></clr-icon> About</a>
+          <a (click)="logout()" clrDropdownItem><clr-icon shape="logout"></clr-icon> Logout</a>
         </clr-dropdown-menu>
       </clr-dropdown>
     </div>
@@ -85,11 +62,7 @@
       </p>
     </div>
     <div class="modal-footer">
-      <button
-        type="button"
-        class="btn btn-outline"
-        (click)="logoutModalOpened = false"
-      >
+      <button type="button" class="btn btn-outline" (click)="logoutModalOpened = false">
         Cancel
       </button>
       <button type="button" class="btn btn-danger-outline" (click)="doLogout()">
@@ -118,22 +91,14 @@
   <clr-modal #accesscodemodal [(clrModalOpen)]="accessCodeModalOpened">
     <h3 class="modal-title">Manage Access Codes</h3>
     <div class="modal-body">
-      <clr-alert
-        [clrAlertType]="'danger'"
-        [(clrAlertClosed)]="accessCodeDangerClosed"
-        [clrAlertClosable]="false"
-      >
+      <clr-alert [clrAlertType]="'danger'" [(clrAlertClosed)]="accessCodeDangerClosed" [clrAlertClosable]="false">
         <clr-alert-item>
           <span class="alert-text">
             {{ accessCodeDangerAlert }}
           </span>
         </clr-alert-item>
       </clr-alert>
-      <clr-alert
-        [clrAlertType]="'success'"
-        [(clrAlertClosed)]="accessCodeSuccessClosed"
-        [clrAlertClosable]="false"
-      >
+      <clr-alert [clrAlertType]="'success'" [(clrAlertClosed)]="accessCodeSuccessClosed" [clrAlertClosable]="false">
         <clr-alert-item>
           <span class="alert-text">
             {{ accessCodeSuccessAlert }}
@@ -141,10 +106,7 @@
         </clr-alert-item>
       </clr-alert>
 
-      <button
-        class="btn btn-success-outline btn-sm"
-        (click)="newAccessCode = true"
-      >
+      <button class="btn btn-success-outline btn-sm" (click)="newAccessCode = true">
         <clr-icon shape="plus"></clr-icon> Add Access Code
       </button>
 
@@ -152,34 +114,17 @@
         <form clrForm [formGroup]="newAccessCodeForm">
           <clr-input-container>
             <label class="clr-col-md-4">Access Code</label>
-            <input
-              class="clr-col-md-6"
-              clrInput
-              type="text"
-              name="access_code"
-              formControlName="access_code"
-              required
-            />
-            <clr-control-error *clrIfError="'required'"
-              >Access code required.</clr-control-error
-            >
-            <clr-control-error *clrIfError="'minLength'"
-              >Access code must be longer than 4 characters
+            <input class="clr-col-md-6" clrInput type="text" name="access_code" formControlName="access_code"
+              required />
+            <clr-control-error *clrIfError="'required'">Access code required.</clr-control-error>
+            <clr-control-error *clrIfError="'minLength'">Access code must be longer than 4 characters
             </clr-control-error>
           </clr-input-container>
           <div class="col-md-2">
-            <button
-              class="btn btn-success btn-sm"
-              [disabled]="!newAccessCodeForm.valid"
-              (click)="saveAccessCode(true)"
-            >
+            <button class="btn btn-success btn-sm" [disabled]="!newAccessCodeForm.valid" (click)="saveAccessCode(true)">
               Save & Activate
             </button>
-            <button
-              class="btn btn-outline btn-sm"
-              [disabled]="!newAccessCodeForm.valid"
-              (click)="saveAccessCode()"
-            >
+            <button class="btn btn-outline btn-sm" [disabled]="!newAccessCodeForm.valid" (click)="saveAccessCode()">
               Save
             </button>
           </div>
@@ -203,17 +148,11 @@
             <clr-dg-cell>{{ a }}</clr-dg-cell>
             <clr-dg-cell>
               <ng-container *ngIf="!isValidAccessCode(a)">
-                <clr-icon
-                  class="invalid-access-code"
-                  shape="warning-standard"
-                ></clr-icon>
+                <clr-icon class="invalid-access-code" shape="warning-standard"></clr-icon>
                 <span> No associated event</span>
               </ng-container>
               <ng-container *ngIf="isValidAccessCode(a)">
-                <clr-icon
-                  class="valid-access-code"
-                  shape="success-standard"
-                ></clr-icon>
+                <clr-icon class="valid-access-code" shape="success-standard"></clr-icon>
               </ng-container>
               <span> {{ getScheduledEventNameForAccessCode(a) }}</span>
             </clr-dg-cell>
@@ -241,28 +180,15 @@
               <clr-tab-content *clrIfActive="true">
                 <clr-input-container>
                   <label class="clr-col-md-4">Font-Size</label>
-                  <input
-                    class="clr-col-md-8"
-                    clrInput
-                    type="number"
-                    required
-                    name="terminal_fontSize"
-                    formControlName="terminal_fontSize"
-                  />
-                  <clr-control-error *clrIfError="'required'"
-                    >Font Size required.</clr-control-error
-                  >
+                  <input class="clr-col-md-8" clrInput type="number" required name="terminal_fontSize"
+                    formControlName="terminal_fontSize" />
+                  <clr-control-error *clrIfError="'required'">Font Size required.</clr-control-error>
                 </clr-input-container>
                 <clr-checkbox-container>
                   <label class="clr-col-md-4">CTR Enabled</label>
                   <clr-checkbox-wrapper>
-                    <input
-                      class="clr-col-md-8"
-                      type="checkbox"
-                      clrCheckbox
-                      name="ctr_enabled"
-                      formControlName="ctr_enabled"
-                    />
+                    <input class="clr-col-md-8" type="checkbox" clrCheckbox name="ctr_enabled"
+                      formControlName="ctr_enabled" />
                   </clr-checkbox-wrapper>
                 </clr-checkbox-container>
               </clr-tab-content>
@@ -270,214 +196,114 @@
             <clr-tab>
               <button clrTabLink>Terminal Theme</button>
               <clr-tab-content>
-                <div
-                  *ngFor="let theme of themes"
-                  class="radio-box-container clr-col-6"
-                >
+                <div *ngFor="let theme of themes" class="radio-box-container clr-col-6">
                   <label class="theme-preview-radio-box clr-col-md-12">
-                    <input
-                      class="theme-preview-radio-button"
-                      type="radio"
-                      [value]="theme.id"
-                      name="terminal_theme"
-                      formControlName="terminal_theme"
-                    />
+                    <input class="theme-preview-radio-button" type="radio" [value]="theme.id" name="terminal_theme"
+                      formControlName="terminal_theme" />
                     <div class="theme-preview-container">
-                      <div
-                        class="theme-preview-terminal"
-                        [ngStyle]="{
+                      <div class="theme-preview-terminal" [ngStyle]="{
                           'background-color': theme.styles.background
-                        }"
-                      >
+                        }">
                         <div class="theme-preview-terminal-text">
-                          <div
-                            class="theme-preview-terminal-text-bar"
-                            [ngStyle]="{
+                          <div class="theme-preview-terminal-text-bar" [ngStyle]="{
                               'background-color': theme.styles.foreground
-                            }"
-                          ></div>
+                            }"></div>
                         </div>
                         <br />
-                        <div
-                          class="theme-preview-terminal-text"
-                          style="width: 10%"
-                        >
-                          <div
-                            class="theme-preview-terminal-text-bar"
-                            [ngStyle]="{
+                        <div class="theme-preview-terminal-text" style="width: 10%">
+                          <div class="theme-preview-terminal-text-bar" [ngStyle]="{
                               'background-color': theme.styles.foreground
-                            }"
-                          ></div>
+                            }"></div>
                         </div>
                         <div class="theme-preview-terminal-space"></div>
-                        <div
-                          class="theme-preview-terminal-text"
-                          style="width: 10%"
-                        >
-                          <div
-                            class="theme-preview-terminal-text-bar"
-                            [ngStyle]="{
+                        <div class="theme-preview-terminal-text" style="width: 10%">
+                          <div class="theme-preview-terminal-text-bar" [ngStyle]="{
                               'background-color': theme.styles.foreground
-                            }"
-                          ></div>
+                            }"></div>
                         </div>
-                        <div
-                          class="theme-preview-terminal-text"
-                          style="
+                        <div class="theme-preview-terminal-text" style="
                             background-color: rgba(255, 255, 255, 0.3);
                             width: 50%;
-                          "
-                        >
-                          <div
-                            class="theme-preview-terminal-text-bar"
-                            [ngStyle]="{
+                          ">
+                          <div class="theme-preview-terminal-text-bar" [ngStyle]="{
                               'background-color': theme.styles.foreground
-                            }"
-                          ></div>
+                            }"></div>
                         </div>
-                        <div
-                          class="theme-preview-terminal-text"
-                          style="
+                        <div class="theme-preview-terminal-text" style="
                             background-color: rgba(255, 255, 255, 0.3);
                             width: 27%;
-                          "
-                        ></div>
+                          "></div>
                         <br />
-                        <div
-                          class="theme-preview-terminal-text"
-                          style="
+                        <div class="theme-preview-terminal-text" style="
                             background-color: rgba(255, 255, 255, 0.3);
                             width: 4%;
-                          "
-                        >
-                          <div
-                            class="theme-preview-terminal-text-bar"
-                            [ngStyle]="{
+                          ">
+                          <div class="theme-preview-terminal-text-bar" [ngStyle]="{
                               'background-color': theme.styles.foreground
-                            }"
-                          ></div>
+                            }"></div>
                         </div>
-                        <div
-                          class="theme-preview-terminal-text"
-                          style="
+                        <div class="theme-preview-terminal-text" style="
                             background-color: rgba(255, 255, 255, 0.3);
                             width: 5%;
-                          "
-                        ></div>
-                        <div
-                          class="theme-preview-terminal-text"
-                          style="
+                          "></div>
+                        <div class="theme-preview-terminal-text" style="
                             background-color: rgba(255, 255, 255, 0.3);
                             width: 6%;
-                          "
-                        >
-                          <div
-                            class="theme-preview-terminal-text-bar"
-                            [ngStyle]="{
+                          ">
+                          <div class="theme-preview-terminal-text-bar" [ngStyle]="{
                               'background-color': theme.styles.foreground
-                            }"
-                          ></div>
+                            }"></div>
                         </div>
-                        <div
-                          class="theme-preview-terminal-text"
-                          style="width: 10%"
-                        >
-                          <div
-                            class="theme-preview-terminal-text-bar"
-                            [ngStyle]="{
+                        <div class="theme-preview-terminal-text" style="width: 10%">
+                          <div class="theme-preview-terminal-text-bar" [ngStyle]="{
                               'background-color': theme.styles.foreground
-                            }"
-                          ></div>
+                            }"></div>
                         </div>
                         <br />
-                        <div
-                          class="theme-preview-terminal-text"
-                          style="width: 10%"
-                        >
-                          <div
-                            class="theme-preview-terminal-text-bar"
-                            [ngStyle]="{
+                        <div class="theme-preview-terminal-text" style="width: 10%">
+                          <div class="theme-preview-terminal-text-bar" [ngStyle]="{
                               'background-color': theme.styles.blue
-                            }"
-                          ></div>
+                            }"></div>
                         </div>
                         <div class="theme-preview-terminal-space"></div>
-                        <div
-                          class="theme-preview-terminal-text"
-                          style="width: 10%"
-                        >
-                          <div
-                            class="theme-preview-terminal-text-bar"
-                            [ngStyle]="{
+                        <div class="theme-preview-terminal-text" style="width: 10%">
+                          <div class="theme-preview-terminal-text-bar" [ngStyle]="{
                               'background-color': theme.styles.green
-                            }"
-                          ></div>
+                            }"></div>
                         </div>
                         <div class="theme-preview-terminal-space"></div>
-                        <div
-                          class="theme-preview-terminal-text"
-                          style="width: 10%"
-                        >
-                          <div
-                            class="theme-preview-terminal-text-bar"
-                            [ngStyle]="{ 'background-color': theme.styles.red }"
-                          ></div>
+                        <div class="theme-preview-terminal-text" style="width: 10%">
+                          <div class="theme-preview-terminal-text-bar"
+                            [ngStyle]="{ 'background-color': theme.styles.red }"></div>
                         </div>
                         <div class="theme-preview-terminal-space"></div>
-                        <div
-                          class="theme-preview-terminal-text"
-                          style="width: 10%"
-                        >
-                          <div
-                            class="theme-preview-terminal-text-bar"
-                            [ngStyle]="{
+                        <div class="theme-preview-terminal-text" style="width: 10%">
+                          <div class="theme-preview-terminal-text-bar" [ngStyle]="{
                               'background-color': theme.styles.cyan
-                            }"
-                          ></div>
+                            }"></div>
                         </div>
                         <div class="theme-preview-terminal-space"></div>
-                        <div
-                          class="theme-preview-terminal-text"
-                          style="width: 10%"
-                        >
-                          <div
-                            class="theme-preview-terminal-text-bar"
-                            [ngStyle]="{
+                        <div class="theme-preview-terminal-text" style="width: 10%">
+                          <div class="theme-preview-terminal-text-bar" [ngStyle]="{
                               'background-color': theme.styles.yellow
-                            }"
-                          ></div>
+                            }"></div>
                         </div>
                         <div class="theme-preview-terminal-space"></div>
-                        <div
-                          class="theme-preview-terminal-text"
-                          style="width: 10%"
-                        >
-                          <div
-                            class="theme-preview-terminal-text-bar"
-                            [ngStyle]="{
+                        <div class="theme-preview-terminal-text" style="width: 10%">
+                          <div class="theme-preview-terminal-text-bar" [ngStyle]="{
                               'background-color': theme.styles.magenta
-                            }"
-                          ></div>
+                            }"></div>
                         </div>
 
                         <br />
-                        <div
-                          class="theme-preview-terminal-text"
-                          style="width: 4%"
-                        >
-                          <div
-                            class="theme-preview-terminal-text-bar"
-                            [ngStyle]="{
+                        <div class="theme-preview-terminal-text" style="width: 4%">
+                          <div class="theme-preview-terminal-text-bar" [ngStyle]="{
                               'background-color': theme.styles.foreground
-                            }"
-                          ></div>
+                            }"></div>
                         </div>
-                        <div
-                          class="theme-preview-terminal-cursor"
-                          [ngStyle]="{
+                        <div class="theme-preview-terminal-cursor" [ngStyle]="{
                             'background-color': theme.styles.cursor
-                          }"
-                        ></div>
+                          }"></div>
                       </div>
                       <div class="theme-preview-name">
                         {{ theme.name }}
@@ -500,22 +326,14 @@
   <clr-modal #changepasswordmodal [(clrModalOpen)]="changePasswordModalOpened">
     <h3 class="modal-title">Change Password</h3>
     <div class="modal-body">
-      <clr-alert
-        [clrAlertType]="'danger'"
-        [(clrAlertClosed)]="changePwDangerClosed"
-        [clrAlertClosable]="false"
-      >
+      <clr-alert [clrAlertType]="'danger'" [(clrAlertClosed)]="changePwDangerClosed" [clrAlertClosable]="false">
         <clr-alert-item>
           <span class="alert-text">
             {{ changePwDangerAlert }}
           </span>
         </clr-alert-item>
       </clr-alert>
-      <clr-alert
-        [clrAlertType]="'success'"
-        [(clrAlertClosed)]="changePwSuccessClosed"
-        [clrAlertClosable]="false"
-      >
+      <clr-alert [clrAlertType]="'success'" [(clrAlertClosed)]="changePwSuccessClosed" [clrAlertClosable]="false">
         <clr-alert-item>
           <span class="alert-text">
             {{ changePwSuccessAlert }}
@@ -525,69 +343,35 @@
       <form clrForm [formGroup]="passwordChangeForm">
         <clr-input-container>
           <label class="clr-col-md-4">Old Password</label>
-          <input
-            class="clr-col-md-8"
-            clrInput
-            type="password"
-            name="old_password"
-            formControlName="old_password"
-            required
-          />
-          <clr-control-error *clrIfError="'required'"
-            >Old password required.</clr-control-error
-          >
+          <input class="clr-col-md-8" clrInput type="password" name="old_password" formControlName="old_password"
+            required />
+          <clr-control-error *clrIfError="'required'">Old password required.</clr-control-error>
         </clr-input-container>
         <clr-input-container>
           <label class="clr-col-md-4">New Password</label>
-          <input
-            class="clr-col-md-8"
-            clrInput
-            type="password"
-            name="new_password1"
-            formControlName="new_password1"
-            required
-          />
-          <clr-control-error *clrIfError="'required'"
-            >New password required.</clr-control-error
-          >
+          <input class="clr-col-md-8" clrInput type="password" name="new_password1" formControlName="new_password1"
+            required />
+          <clr-control-error *clrIfError="'required'">New password required.</clr-control-error>
         </clr-input-container>
         <clr-input-container>
           <label class="clr-col-md-4">New Password Again</label>
-          <input
-            class="clr-col-md-8"
-            clrInput
-            type="password"
-            name="new_password2"
-            formControlName="new_password2"
-            required
-          />
-          <clr-control-error *clrIfError="'required'"
-            >Password confirmation required.</clr-control-error
-          >
+          <input class="clr-col-md-8" clrInput type="password" name="new_password2" formControlName="new_password2"
+            required />
+          <clr-control-error *clrIfError="'required'">Password confirmation required.</clr-control-error>
         </clr-input-container>
-        <div
-          class="clr-subtext"
-          *ngIf="
+        <div class="clr-subtext" *ngIf="
             passwordChangeForm.errors?.passwordMismatch &&
             (passwordChangeForm.touched || passwordChangeForm.dirty)
-          "
-        >
+          ">
           Passwords do not match
         </div>
       </form>
     </div>
     <div class="modal-footer">
-      <button
-        class="btn btn-danger-outline"
-        (click)="changePasswordModalOpened = false"
-      >
+      <button class="btn btn-danger-outline" (click)="changePasswordModalOpened = false">
         Cancel
       </button>
-      <button
-        class="btn btn-success"
-        [disabled]="!passwordChangeForm.valid"
-        (click)="doChangePassword()"
-      >
+      <button class="btn btn-success" [disabled]="!passwordChangeForm.valid" (click)="doChangePassword()">
         Change Password
       </button>
     </div>

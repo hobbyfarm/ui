@@ -13,7 +13,7 @@ import { GuacTerminalComponent } from './scenario/guacTerminal.component';
 const routes: Routes = [
   { path: '', redirectTo: '/app/home', pathMatch: 'full' },
   { path: 'login', component: LoginComponent },
-  { path: 'add/:accesscode', component: AppComponent, canActivate: [AuthGuard]},
+  { path: 'add/:accesscode', component: AppComponent, canActivate: [AuthGuard] },
   {
     path: 'app',
     component: AppComponent,
@@ -48,4 +48,4 @@ const routes: Routes = [
   imports: [RouterModule.forRoot(routes, { relativeLinkResolution: 'legacy' })],
   exports: [RouterModule],
 })
-export class AppRoutingModule {}
+export class AppRoutingModule { }

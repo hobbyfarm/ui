@@ -92,13 +92,13 @@ export class HomeComponent implements OnInit, OnDestroy {
     });
 
     this.accesscode = this.route.snapshot.queryParams['ac'];
-    if( this.accesscode ){
+    if (this.accesscode) {
       this.accessCodeLinkSuccessAlert = `${this.accesscode} added`;
       this.accessCodeLinkSuccessClosed = false;
-       this.location.go("/app/home");
-       setTimeout(() => {
-       this.accessCodeLinkSuccessClosed = true;
-       }, 5000);
+      this.location.go("/app/home");
+      setTimeout(() => {
+        this.accessCodeLinkSuccessClosed = true;
+      }, 5000);
     }
   }
 
