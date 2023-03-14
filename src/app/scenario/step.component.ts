@@ -54,6 +54,7 @@ type Service = {
   path: string;
   hasOwnTab: boolean;
   hasWebinterface: boolean;
+  disallowIFrame: boolean;
 };
 interface stepVM extends VM {
   webinterfaces?: Service[];
@@ -188,6 +189,7 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
                     path: service.path ?? '/',
                     hasOwnTab: !!service.hasOwnTab,
                     hasWebinterface: true,
+                    disallowIFrame: !!service.disallowIFrame,
                   };
                   vm.webinterfaces
                     ? vm.webinterfaces.push(webinterface)
