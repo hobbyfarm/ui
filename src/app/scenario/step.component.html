@@ -158,6 +158,10 @@
                   [endpoint]="v.value.ws_endpoint"
                   [port]="webinterface.port"
                   [path]="webinterface.path"
+                  [disallowIFrame]="webinterface.disallowIFrame"
+                  (openWebinterfaceFn)="
+                    openWebinterfaceInNewTab(v.value, webinterface)
+                  "
                   [reloadEvent]="reloadTabObservable"
                 >
                 </app-ide-window>
