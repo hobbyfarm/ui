@@ -92,7 +92,7 @@ export class HomeComponent implements OnInit, OnDestroy {
       this.contextService.refresh();
     });
 
-    let addAccessCode = this.route.snapshot.queryParams['ac'];
+    const addAccessCode = this.route.snapshot.queryParams['ac'];
     if (addAccessCode) {
       this.accessCodeLinkSuccessAlert = `AccessCode "${addAccessCode}" added`;
       this.accessCodeLinkSuccessClosed = false;
@@ -102,7 +102,7 @@ export class HomeComponent implements OnInit, OnDestroy {
       }, 5000);
     }
 
-    let addAccessCodeError = this.route.snapshot.queryParams['acError'];
+    const addAccessCodeError = this.route.snapshot.queryParams['acError'];
     if (addAccessCodeError) {
       this.accessCodeLinkErrorAlert = `Error adding AccessCode "${addAccessCodeError}"`;
       this.accessCodeLinkErrorClosed = false;

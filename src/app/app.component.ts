@@ -128,7 +128,7 @@ export class AppComponent implements OnInit {
     const timeout = tok.exp * 1000 - Date.now();
     setTimeout(() => this.doLogout(), timeout);
 
-    let addAccessCode = this.route.snapshot.params['accesscode'];
+    const addAccessCode = this.route.snapshot.params['accesscode'];
     if (addAccessCode) {
       this.userService.addAccessCode(addAccessCode).subscribe(
         (s: ServerResponse) => {
