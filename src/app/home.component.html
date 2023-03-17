@@ -1,4 +1,30 @@
 <div class="content-area">
+  <clr-alert
+    [clrAlertType]="'success'"
+    [(clrAlertClosed)]="accessCodeLinkSuccessClosed"
+    [clrAlertClosable]="false"
+    class="alert-home"
+  >
+    <clr-alert-item>
+      <span>
+        {{ accessCodeLinkSuccessAlert }}
+      </span>
+    </clr-alert-item>
+  </clr-alert>
+
+  <clr-alert
+    [clrAlertType]="'danger'"
+    [(clrAlertClosed)]="accessCodeLinkErrorClosed"
+    [clrAlertClosable]="false"
+    class="alert-home"
+  >
+    <clr-alert-item>
+      <span>
+        {{ accessCodeLinkErrorAlert }}
+      </span>
+    </clr-alert-item>
+  </clr-alert>
+
   <div *ngIf="activeSession !== undefined">
     <div class="clr-row">
       <div class="clr-col">
