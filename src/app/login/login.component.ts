@@ -70,11 +70,10 @@ export class LoginComponent {
           // persist the token we received
           localStorage.setItem('hobbyfarm_token', s);
 
-          // redirect to the scenarios page
-          const returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/';
-          if (returnUrl) {
-            this.router.navigateByUrl(returnUrl);
-          } else this.router.navigateByUrl('/app/home');
+          // redirect to the page accessed before logging in. default to /app/home
+          this.router.navigateByUrl(
+            this.route.snapshot.queryParams['returnUrl'] || '/app/home',
+          );
         },
         (error) => {
           this.error = error;

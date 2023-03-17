@@ -46,7 +46,6 @@ export class AppComponent implements OnInit {
   public fetchingSettings = false;
 
   public accesscodes: string[] = [];
-  public accesscode: string;
   public scheduledEvents: Map<string, string> = new Map();
   public ctx: Context = {} as Context;
 
@@ -129,9 +128,19 @@ export class AppComponent implements OnInit {
     const timeout = tok.exp * 1000 - Date.now();
     setTimeout(() => this.doLogout(), timeout);
 
-    this.accesscode = this.route.snapshot.params['accesscode'];
-    if (this.accesscode) {
-      this.doHome();
+    let addAccessCode = this.route.snapshot.params['accesscode'];
+    if (addAccessCode) {
+      this.userService.addAccessCode(addAccessCode).subscribe(
+        (s: ServerResponse) => {
+          this.accesscodes.push(addAccessCode);
+          this.setAccessCode(addAccessCode);
+          this.doHomeAccessCode(addAccessCode);
+        },
+        (s: ServerResponse) => {
+          // failure
+          this.doHomeAccessCodeError(addAccessCode);
+        },
+      );
     }
     //react to changes on users accesscodess
     this.contextService.watch().subscribe((c: Context) => {
@@ -291,7 +300,11 @@ export class AppComponent implements OnInit {
     this.router.navigateByUrl('/login');
   }
 
-  public doHome() {
-    this.router.navigateByUrl(`/app/home?ac=${this.accesscode}`);
+  public doHomeAccessCode(accesscode: string) {
+    this.router.navigateByUrl(`/app/home?ac=${accesscode}`);
+  }
+
+  public doHomeAccessCodeError(error: string) {
+    this.router.navigateByUrl(`/app/home?acError=${error}`);
   }
 }

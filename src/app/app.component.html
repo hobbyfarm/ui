@@ -12,18 +12,6 @@
       </a>
     </div>
 
-    <clr-alert
-      [clrAlertType]="'success'"
-      [(clrAlertClosed)]="accessCodeLinkSuccessClosed"
-      [clrAlertClosable]="false"
-    >
-      <clr-alert-item>
-        <span class="alert-text">
-          {{ accessCodeLinkSuccessAlert }}
-        </span>
-      </clr-alert-item>
-    </clr-alert>
-
     <div class="settings">
       <clr-dropdown *ngIf="ctx.valid">
         <button class="nav-text" clrDropdownToggle>

@@ -24,9 +24,10 @@ export class HomeComponent implements OnInit, OnDestroy {
   public scenarioid: string;
   public courseid: string;
   public activeSession?: Progress;
-  public accesscode: string;
   public accessCodeLinkSuccessClosed = true;
   public accessCodeLinkSuccessAlert = '';
+  public accessCodeLinkErrorClosed = true;
+  public accessCodeLinkErrorAlert = '';
 
   private callDelay = 10;
   private interval;
@@ -91,10 +92,20 @@ export class HomeComponent implements OnInit, OnDestroy {
       this.contextService.refresh();
     });
 
-    this.accesscode = this.route.snapshot.queryParams['ac'];
-    if (this.accesscode) {
-      this.accessCodeLinkSuccessAlert = `${this.accesscode} added`;
+    let addAccessCode = this.route.snapshot.queryParams['ac'];
+    if (addAccessCode) {
+      this.accessCodeLinkSuccessAlert = `AccessCode "${addAccessCode}" added`;
       this.accessCodeLinkSuccessClosed = false;
+      this.location.go('/app/home');
+      setTimeout(() => {
+        this.accessCodeLinkSuccessClosed = true;
+      }, 5000);
+    }
+
+    let addAccessCodeError = this.route.snapshot.queryParams['acError'];
+    if (addAccessCodeError) {
+      this.accessCodeLinkErrorAlert = `Error adding AccessCode "${addAccessCodeError}"`;
+      this.accessCodeLinkErrorClosed = false;
       this.location.go('/app/home');
       setTimeout(() => {
         this.accessCodeLinkSuccessClosed = true;
