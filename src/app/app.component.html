@@ -136,6 +136,14 @@
         <clr-icon shape="plus"></clr-icon> Add Access Code
       </button>
 
+      <button
+        class="btn btn-danger-outline btn-sm"
+        (click)="alertDeleteAccessCodeModal = true"
+        *ngIf="selectedAccesscodesForDeletion.length > 0"
+      >
+        <clr-icon shape="trash"></clr-icon> Delete Access Code
+      </button>
+
       <ng-container *ngIf="newAccessCode">
         <form clrForm [formGroup]="newAccessCodeForm">
           <clr-input-container>
@@ -179,15 +187,20 @@
         <span> Loading... </span>
       </ng-container>
       <ng-container *ngIf="!fetchingAccessCodes">
-        <clr-datagrid class="datagrid-compact">
+        <!-- <button>test</button> -->
+        <clr-datagrid
+          class="datagrid-compact"
+          [clrDgSelected]="selectedAccesscodesForDeletion"
+          (clrDgSelectedChange)="accessCodeSelectedForDeletion($event)"
+        >
           <clr-dg-column>Access Code</clr-dg-column>
           <clr-dg-column>Valid</clr-dg-column>
           <clr-dg-row *clrDgItems="let a of accesscodes" [clrDgItem]="a">
-            <clr-dg-action-overflow>
+            <!-- <clr-dg-action-overflow>
               <button class="action-item" (click)="deleteAccessCode(a)">
                 Delete
               </button>
-            </clr-dg-action-overflow>
+            </clr-dg-action-overflow> -->
             <clr-dg-cell>{{ a }}</clr-dg-cell>
             <clr-dg-cell>
               <ng-container *ngIf="!isValidAccessCode(a)">
@@ -577,6 +590,36 @@
         (click)="doChangePassword()"
       >
         Change Password
+      </button>
+    </div>
+  </clr-modal>
+  <clr-modal [(clrModalOpen)]="alertDeleteAccessCodeModal">
+    <h3 class="modal-title">Are you sure you want to delete?</h3>
+    <div class="modal-body">
+      <div class="alert alert-danger">
+        <div class="alert-items">
+          <div class="alert-item static" role="alert">
+            <div class="alert-icon-wrapper">
+              <cds-icon
+                class="alert-icon"
+                shape="exclamation-triangle"
+              ></cds-icon>
+            </div>
+            <span class="alert-text">
+              The access code will be deleted permantely!
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-outline">Cancel</button>
+      <button
+        type="button"
+        class="btn btn-danger-outline"
+        (click)="deleteAccessCodes()"
+      >
+        Ok
       </button>
     </div>
   </clr-modal>

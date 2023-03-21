@@ -37,12 +37,15 @@ export class AppComponent implements OnInit {
   public newAccessCode = false;
   public fetchingAccessCodes = false;
 
+  public alertDeleteAccessCodeModal = false;
+
   public accessCodeModalOpened = false;
 
   public settingsModalOpened = false;
   public fetchingSettings = false;
 
   public accesscodes: string[] = [];
+  public selectedAccesscodesForDeletion: string[] = [];
   public scheduledEvents: Map<string, string> = new Map();
   public ctx: Context = {} as Context;
 
@@ -280,5 +283,20 @@ export class AppComponent implements OnInit {
   public doLogout() {
     localStorage.removeItem('hobbyfarm_token');
     this.router.navigateByUrl('/login');
+  }
+
+  public accessCodeSelectedForDeletion(a: string[]) {
+    this.selectedAccesscodesForDeletion.forEach((element) => {
+      if (!this.selectedAccesscodesForDeletion.includes(element)) {
+        a.push(element);
+      }
+    });
+    this.selectedAccesscodesForDeletion = a;
+  }
+  public deleteAccessCodes() {
+    this.selectedAccesscodesForDeletion.forEach((element) =>
+      this.deleteAccessCode(element),
+    );
+    this.alertDeleteAccessCodeModal = false;
   }
 }
