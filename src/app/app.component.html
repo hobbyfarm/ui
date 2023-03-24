@@ -187,7 +187,6 @@
         <span> Loading... </span>
       </ng-container>
       <ng-container *ngIf="!fetchingAccessCodes">
-        <!-- <button>test</button> -->
         <clr-datagrid
           class="datagrid-compact"
           [clrDgSelected]="selectedAccesscodesForDeletion"
@@ -196,11 +195,6 @@
           <clr-dg-column>Access Code</clr-dg-column>
           <clr-dg-column>Valid</clr-dg-column>
           <clr-dg-row *clrDgItems="let a of accesscodes" [clrDgItem]="a">
-            <!-- <clr-dg-action-overflow>
-              <button class="action-item" (click)="deleteAccessCode(a)">
-                Delete
-              </button>
-            </clr-dg-action-overflow> -->
             <clr-dg-cell>{{ a }}</clr-dg-cell>
             <clr-dg-cell>
               <ng-container *ngIf="!isValidAccessCode(a)">
