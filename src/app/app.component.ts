@@ -2,7 +2,7 @@ import { Component, OnInit, ViewChild } from '@angular/core';
 import { ClarityIcons } from '@clr/icons';
 import { JwtHelperService } from '@auth0/angular-jwt';
 import { ClrModal } from '@clr/angular';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { UserService } from './services/user.service';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
 import { ServerResponse } from './ServerResponse';
@@ -33,6 +33,9 @@ export class AppComponent implements OnInit {
 
   public accessCodeDangerAlert = '';
   public accessCodeSuccessAlert = '';
+
+  public accessCodeLinkSuccessAlert = '';
+  public accessCodeLinkSuccessClosed = true;
 
   public newAccessCode = false;
   public fetchingAccessCodes = false;
@@ -71,6 +74,7 @@ export class AppComponent implements OnInit {
     private helper: JwtHelperService,
     private userService: UserService,
     private router: Router,
+    private route: ActivatedRoute,
     private config: AppConfigService,
     private settingsService: SettingsService,
     private contextService: ContextService,
@@ -127,6 +131,20 @@ export class AppComponent implements OnInit {
     const timeout = tok.exp * 1000 - Date.now();
     setTimeout(() => this.doLogout(), timeout);
 
+    const addAccessCode = this.route.snapshot.params['accesscode'];
+    if (addAccessCode) {
+      this.userService.addAccessCode(addAccessCode).subscribe(
+        (s: ServerResponse) => {
+          this.accesscodes.push(addAccessCode);
+          this.setAccessCode(addAccessCode);
+          this.doHomeAccessCode(addAccessCode);
+        },
+        (s: ServerResponse) => {
+          // failure
+          this.doHomeAccessCodeError(addAccessCode);
+        },
+      );
+    }
     //react to changes on users accesscodess
     this.contextService.watch().subscribe((c: Context) => {
       this.ctx = c;
@@ -283,6 +301,14 @@ export class AppComponent implements OnInit {
   public doLogout() {
     localStorage.removeItem('hobbyfarm_token');
     this.router.navigateByUrl('/login');
+  }
+
+  public doHomeAccessCode(accesscode: string) {
+    this.router.navigateByUrl(`/app/home?ac=${accesscode}`);
+  }
+
+  public doHomeAccessCodeError(error: string) {
+    this.router.navigateByUrl(`/app/home?acError=${error}`);
   }
 
   public accessCodeSelectedForDeletion(a: string[]) {

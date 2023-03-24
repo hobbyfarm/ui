@@ -7,6 +7,8 @@ import { Scenario } from './scenario/Scenario';
 import { ProgressService } from './services/progress.service';
 import { Progress } from './Progress';
 import { Context, ContextService } from './services/context.service';
+import { ActivatedRoute } from '@angular/router';
+import { Location } from '@angular/common';
 
 @Component({
   selector: 'app-home',
@@ -22,6 +24,10 @@ export class HomeComponent implements OnInit, OnDestroy {
   public scenarioid: string;
   public courseid: string;
   public activeSession?: Progress;
+  public accessCodeLinkSuccessClosed = true;
+  public accessCodeLinkSuccessAlert = '';
+  public accessCodeLinkErrorClosed = true;
+  public accessCodeLinkErrorAlert = '';
 
   private callDelay = 10;
   private interval;
@@ -34,6 +40,8 @@ export class HomeComponent implements OnInit, OnDestroy {
     private courseService: CourseService,
     private progressService: ProgressService,
     private contextService: ContextService,
+    private route: ActivatedRoute,
+    private location: Location,
   ) {
     this.progressService.watch().subscribe((p: Progress[]) => {
       this.activeSession = undefined;
@@ -83,6 +91,26 @@ export class HomeComponent implements OnInit, OnDestroy {
       // thus, refresh the scenario list
       this.contextService.refresh();
     });
+
+    const addAccessCode = this.route.snapshot.queryParams['ac'];
+    if (addAccessCode) {
+      this.accessCodeLinkSuccessAlert = `AccessCode "${addAccessCode}" added`;
+      this.accessCodeLinkSuccessClosed = false;
+      this.location.go('/app/home');
+      setTimeout(() => {
+        this.accessCodeLinkSuccessClosed = true;
+      }, 5000);
+    }
+
+    const addAccessCodeError = this.route.snapshot.queryParams['acError'];
+    if (addAccessCodeError) {
+      this.accessCodeLinkErrorAlert = `Error adding AccessCode "${addAccessCodeError}"`;
+      this.accessCodeLinkErrorClosed = false;
+      this.location.go('/app/home');
+      setTimeout(() => {
+        this.accessCodeLinkSuccessClosed = true;
+      }, 5000);
+    }
   }
 
   ngOnDestroy() {

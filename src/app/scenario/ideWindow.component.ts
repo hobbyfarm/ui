@@ -1,5 +1,13 @@
 import { HttpClient } from '@angular/common/http';
-import { Component, ElementRef, Input, OnInit, ViewChild } from '@angular/core';
+import {
+  Component,
+  ElementRef,
+  EventEmitter,
+  Input,
+  OnInit,
+  Output,
+  ViewChild,
+} from '@angular/core';
 import { JwtHelperService } from '@auth0/angular-jwt';
 import { Observable, throwError, timer } from 'rxjs';
 import { mergeMap, retryWhen } from 'rxjs/operators';
@@ -30,6 +38,12 @@ export class IdeWindowComponent implements OnInit {
   path = '/';
 
   @Input()
+  disallowIFrame = false;
+
+  @Output()
+  openWebinterfaceFn: EventEmitter<string> = new EventEmitter(false);
+
+  @Input()
   reloadEvent: Observable<webinterfaceTabIdentifier>;
 
   @ViewChild('ideIframe', { static: true }) ideIframe: ElementRef;
@@ -37,6 +51,9 @@ export class IdeWindowComponent implements OnInit {
   constructor(private jwtHelper: JwtHelperService, private http: HttpClient) {}
 
   ngOnInit() {
+    if (this.disallowIFrame) {
+      return;
+    }
     this.token = this.jwtHelper.tokenGetter();
     this.reloadEvent.subscribe((data: webinterfaceTabIdentifier) => {
       if (this.vmid == data.vmId && this.port == data.port) {
@@ -54,7 +71,6 @@ export class IdeWindowComponent implements OnInit {
       this.port +
       this.path;
     this.callEndpoint();
-    this.ideIframe.nativeElement.innerText = 'Loading';
   }
 
   callEndpoint() {

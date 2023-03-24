@@ -14,6 +14,11 @@ const routes: Routes = [
   { path: '', redirectTo: '/app/home', pathMatch: 'full' },
   { path: 'login', component: LoginComponent },
   {
+    path: 'add/:accesscode',
+    component: AppComponent,
+    canActivate: [AuthGuard],
+  },
+  {
     path: 'app',
     component: AppComponent,
     canActivate: [AuthGuard],

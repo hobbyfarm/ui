@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { AppConfigService } from '../app-config.service';
 import { UserService } from '../services/user.service';
 
@@ -22,6 +22,7 @@ export class LoginComponent {
 
   public loginactive = false;
   constructor(
+    private route: ActivatedRoute,
     private router: Router,
     private config: AppConfigService,
     private userService: UserService,
@@ -69,8 +70,10 @@ export class LoginComponent {
           // persist the token we received
           localStorage.setItem('hobbyfarm_token', s);
 
-          // redirect to the scenarios page
-          this.router.navigateByUrl('/app/home');
+          // redirect to the page accessed before logging in. default to /app/home
+          this.router.navigateByUrl(
+            this.route.snapshot.queryParams['returnUrl'] || '/app/home',
+          );
         },
         (error) => {
           this.error = error;
