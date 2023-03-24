@@ -588,7 +588,15 @@
     </div>
   </clr-modal>
   <clr-modal [(clrModalOpen)]="alertDeleteAccessCodeModal">
-    <h3 class="modal-title">Are you sure you want to delete?</h3>
+    <h3 class="modal-title">
+      Are you sure you want to delete
+      {{
+        selectedAccesscodesForDeletion.length === 1
+          ? 'this'
+          : selectedAccesscodesForDeletion.length
+      }}
+      access code{{ selectedAccesscodesForDeletion.length > 1 ? 's' : null }}?
+    </h3>
     <div class="modal-body">
       <div class="alert alert-danger">
         <div class="alert-items">
@@ -600,14 +608,23 @@
               ></cds-icon>
             </div>
             <span class="alert-text">
-              The access code will be deleted permantely!
+              The access code{{
+                selectedAccesscodesForDeletion.length > 1 ? 's' : null
+              }}
+              will be deleted permantely!
             </span>
           </div>
         </div>
       </div>
     </div>
     <div class="modal-footer">
-      <button type="button" class="btn btn-outline">Cancel</button>
+      <button
+        type="button"
+        class="btn btn-outline"
+        (click)="this.alertDeleteAccessCodeModal = false"
+      >
+        Cancel
+      </button>
       <button
         type="button"
         class="btn btn-danger-outline"
