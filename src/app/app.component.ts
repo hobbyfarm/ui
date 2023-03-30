@@ -312,11 +312,6 @@ export class AppComponent implements OnInit {
   }
 
   public accessCodeSelectedForDeletion(a: string[]) {
-    this.selectedAccesscodesForDeletion.forEach((element) => {
-      if (!this.selectedAccesscodesForDeletion.includes(element)) {
-        a.push(element);
-      }
-    });
     this.selectedAccesscodesForDeletion = a;
   }
   public deleteAccessCodes() {
