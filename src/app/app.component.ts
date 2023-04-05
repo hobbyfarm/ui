@@ -40,12 +40,15 @@ export class AppComponent implements OnInit {
   public newAccessCode = false;
   public fetchingAccessCodes = false;
 
+  public alertDeleteAccessCodeModal = false;
+
   public accessCodeModalOpened = false;
 
   public settingsModalOpened = false;
   public fetchingSettings = false;
 
   public accesscodes: string[] = [];
+  public selectedAccesscodesForDeletion: string[] = [];
   public scheduledEvents: Map<string, string> = new Map();
   public ctx: Context = {} as Context;
 
@@ -306,5 +309,15 @@ export class AppComponent implements OnInit {
 
   public doHomeAccessCodeError(error: string) {
     this.router.navigateByUrl(`/app/home?acError=${error}`);
+  }
+
+  public accessCodeSelectedForDeletion(a: string[]) {
+    this.selectedAccesscodesForDeletion = a;
+  }
+  public deleteAccessCodes() {
+    this.selectedAccesscodesForDeletion.forEach((element) =>
+      this.deleteAccessCode(element),
+    );
+    this.alertDeleteAccessCodeModal = false;
   }
 }
