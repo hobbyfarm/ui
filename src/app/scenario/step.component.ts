@@ -42,7 +42,6 @@ import { ShellService } from '../services/shell.service';
 import { atou } from '../unicode';
 import { ProgressService } from '../services/progress.service';
 import {
-  HfMarkdownComponent,
   HfMarkdownRenderContext,
 } from '../hf-markdown/hf-markdown.component';
 import { GuacTerminalComponent } from './guacTerminal.component';
@@ -132,7 +131,6 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
     if ((e.target as HTMLElement).tagName === 'IMG') {
       this.imgXlargeModal = true;
       this.srcImgXlarge = (e.target as HTMLImageElement).src;
-      console.log(this.srcImgXlarge);
     }
   }
 
