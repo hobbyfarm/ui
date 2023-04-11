@@ -41,9 +41,7 @@ import { VMService } from '../services/vm.service';
 import { ShellService } from '../services/shell.service';
 import { atou } from '../unicode';
 import { ProgressService } from '../services/progress.service';
-import {
-  HfMarkdownRenderContext,
-} from '../hf-markdown/hf-markdown.component';
+import { HfMarkdownRenderContext } from '../hf-markdown/hf-markdown.component';
 import { GuacTerminalComponent } from './guacTerminal.component';
 import { JwtHelperService } from '@auth0/angular-jwt';
 
