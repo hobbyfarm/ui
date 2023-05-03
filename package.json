@@ -4,7 +4,7 @@
     "ng": "ng",
     "setup:local": "node setup-local.js",
     "start": "ng serve",
-    "start:local": "npm run setup:local && ng serve --configuration=local --port 4201",
+    "start:local": "npm run setup:local && ng serve --configuration=local",
     "start:local:docker": "npm run setup:local && ng serve --configuration=local --host=0.0.0.0",
     "build": "ng build",
     "build:prod": "ng build --configuration production --aot",
