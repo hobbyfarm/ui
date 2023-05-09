@@ -29,7 +29,7 @@
               "node_modules/@clr/icons/clr-icons.min.css",
               "node_modules/xterm/css/xterm.css",
               "src/styles.scss",
-              "node_modules/@clr/ui/clr-ui-dark.min.css",
+              "src/dark-theme.css",
               "node_modules/prismjs/themes/prism.css"
             ],
             "scripts": [
