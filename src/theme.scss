@@ -92,14 +92,3 @@ $clr-global-borderradius: 0rem;
 $clr-font: Montserrat, 'Avenir Next', Arial, sans-serif;
 
 $clr-altFont: Barlow, Arial, sans-serif;
-
-
-@media (prefers-color-scheme: dark){
-  header {
-    // background-image: linear-gradient(45deg,#64c89f,#97a39e)!important;
-    background-color: #808080 !important;
-  }
-  .main-container{
-    background-color: #000;
-  }
-  }
