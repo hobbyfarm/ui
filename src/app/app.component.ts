@@ -50,7 +50,6 @@ export class AppComponent implements OnInit {
   public isDark = false;
   public darkMode = localStorage.getItem('darkMode');
 
-
   public accesscodes: string[] = [];
   public selectedAccesscodesForDeletion: string[] = [];
   public scheduledEvents: Map<string, string> = new Map();
@@ -161,7 +160,7 @@ export class AppComponent implements OnInit {
     });
     this.contextService.init();
 
-    if(this.darkMode === "enabled"){
+    if (this.darkMode === 'enabled') {
       this.enableDarkMode();
       this.isDark = true;
     }
@@ -329,21 +328,21 @@ export class AppComponent implements OnInit {
     );
     this.alertDeleteAccessCodeModal = false;
   }
-  public enableDarkMode(){
-    document.body.classList.add("darkmode");
-    localStorage.setItem("darkMode", "enabled");
+  public enableDarkMode() {
+    document.body.classList.add('darkmode');
+    localStorage.setItem('darkMode', 'enabled');
   }
 
-  public disableDarkMode(){
+  public disableDarkMode() {
     document.body.classList.remove('darkmode');
-    localStorage.setItem('darkMode', "null");
+    localStorage.setItem('darkMode', 'null');
   }
 
-  public changeTheme(){
+  public changeTheme() {
     this.darkMode = localStorage.getItem('darkMode');
-    if(this.darkMode !== "enabled"){
+    if (this.darkMode !== 'enabled') {
       this.enableDarkMode();
-      this.isDark = true
+      this.isDark = true;
     } else {
       this.disableDarkMode();
       this.isDark = false;
