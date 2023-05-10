@@ -312,6 +312,7 @@
   --clr-icon-color-info: hsl(198, 65%, 57%);
   --clr-icon-color-inverse: hsl(0, 0%, 100%);
   --clr-icon-color-highlight: hsl(198, 65%, 57%);
+  --clr-icon-dropdown: white;
 
   /*****************
     * Label
@@ -539,8 +540,6 @@
   --clr-accordion-header-background-color: hsl(201, 30%, 15%);
   --clr-accordion-border-left-color: hsl(202, 30%, 24%);
   --clr-accordion-border-color: hsl(208, 16%, 34%);
-
-  --clr-icon-dropdown: white;
 }
 
 clr-icon.is-green,
