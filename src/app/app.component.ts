@@ -47,6 +47,10 @@ export class AppComponent implements OnInit {
   public settingsModalOpened = false;
   public fetchingSettings = false;
 
+  public isDark = false;
+  public darkMode = localStorage.getItem('darkMode');
+
+
   public accesscodes: string[] = [];
   public selectedAccesscodesForDeletion: string[] = [];
   public scheduledEvents: Map<string, string> = new Map();
@@ -156,6 +160,11 @@ export class AppComponent implements OnInit {
         });
     });
     this.contextService.init();
+
+    if(this.darkMode === "enabled"){
+      this.enableDarkMode();
+      this.isDark = true;
+    }
   }
 
   public logout() {
@@ -319,5 +328,25 @@ export class AppComponent implements OnInit {
       this.deleteAccessCode(element),
     );
     this.alertDeleteAccessCodeModal = false;
+  }
+  public enableDarkMode(){
+    document.body.classList.add("darkmode");
+    localStorage.setItem("darkMode", "enabled");
+  }
+
+  public disableDarkMode(){
+    document.body.classList.remove('darkmode');
+    localStorage.setItem('darkMode', "null");
+  }
+
+  public changeTheme(){
+    this.darkMode = localStorage.getItem('darkMode');
+    if(this.darkMode !== "enabled"){
+      this.enableDarkMode();
+      this.isDark = true
+    } else {
+      this.disableDarkMode();
+      this.isDark = false;
+    }
   }
 }

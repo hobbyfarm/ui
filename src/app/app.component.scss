@@ -1,3 +1,7 @@
+:root{
+  --clr-icon-costum: black
+}
+
 .clr-subtext {
   color: #c72100;
 }
@@ -128,7 +132,7 @@
   clr-dropdown-menu {
     a {
       clr-icon {
-        color: black;
+        color: var(--clr-icon-dropdown)
       }
     }
   }

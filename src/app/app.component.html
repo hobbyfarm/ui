@@ -482,6 +482,35 @@
                 </div>
               </clr-tab-content>
             </clr-tab>
+            <clr-tab>
+              <button clrTabLink>Theme</button>
+              <clr-tab-content>
+                <clr-checkbox-container>
+                  <label class="clr-col-md-4"
+                    ><span *ngIf="isDark === false">Theme</span
+                    ><span *ngIf="isDark">Dark Theme</span></label
+                  >
+                  <clr-checkbox-wrapper>
+                    <input
+                      class="clr-col-md-8"
+                      type="checkbox"
+                      clrToggle
+                      (click)="changeTheme()"
+                      [checked]="false"
+                      *ngIf="isDark === false"
+                    />
+                    <input
+                      class="clr-col-md-8"
+                      type="checkbox"
+                      clrToggle
+                      (click)="changeTheme()"
+                      checked
+                      *ngIf="isDark"
+                    />
+                  </clr-checkbox-wrapper>
+                </clr-checkbox-container>
+              </clr-tab-content>
+            </clr-tab>
           </clr-tabs>
         </form>
       </ng-container>
