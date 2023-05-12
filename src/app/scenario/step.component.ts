@@ -41,7 +41,7 @@ import { VMService } from '../services/vm.service';
 import { ShellService } from '../services/shell.service';
 import { atou } from '../unicode';
 import { ProgressService } from '../services/progress.service';
-import {
+import {  
   HfMarkdownComponent,
   HfMarkdownRenderContext,
 } from '../hf-markdown/hf-markdown.component';
@@ -55,6 +55,7 @@ type Service = {
   hasOwnTab: boolean;
   hasWebinterface: boolean;
   disallowIFrame: boolean;
+  active: boolean;
 };
 interface stepVM extends VM {
   webinterfaces?: Service[];
@@ -116,9 +117,20 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
     private vmClaimService: VMClaimService,
     private vmService: VMService,
     private shellService: ShellService,
-    private progressService: ProgressService,
+    private progressService: ProgressService,    
     private jwtHelper: JwtHelperService,
   ) {}
+
+  setTabActive(webinterface: Service) {
+    this.vms.forEach(vm=> {
+      vm.webinterfaces?.forEach(wi => {
+        wi.active = false
+        if (wi.name == webinterface.name) {
+          wi.active = true
+        }
+      })
+    })
+  }
 
   handleStepContentClick(e: MouseEvent) {
     // Open all links in a new window
@@ -182,7 +194,6 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
               const services = JSON.parse(JSON.parse(stringContent)); //TODO: See if we can skip one stringify somwhere, so we dont have to parse twice
               services.forEach((service: Service) => {
                 if (service.hasWebinterface) {
-                  console.log(service);
                   const webinterface = {
                     name: service.name ?? 'Service',
                     port: service.port ?? 80,
@@ -190,6 +201,7 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
                     hasOwnTab: !!service.hasOwnTab,
                     hasWebinterface: true,
                     disallowIFrame: !!service.disallowIFrame,
+                    active: false,
                   };
                   vm.webinterfaces
                     ? vm.webinterfaces.push(webinterface)
