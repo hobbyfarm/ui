@@ -485,31 +485,23 @@
             <clr-tab>
               <button clrTabLink>Theme</button>
               <clr-tab-content>
-                <clr-checkbox-container>
-                  <label class="clr-col-md-4"
-                    ><span *ngIf="isDark === false">Theme</span
-                    ><span *ngIf="isDark">Dark Theme</span></label
+                <clr-combobox-container>
+                  <label>Theme</label>
+                  <clr-combobox
+                    name="Theme"
+                    required
+                    placeholder="{{ theme }}"
+                    formControlName="theme"
                   >
-                  <clr-checkbox-wrapper>
-                    <input
-                      class="clr-col-md-8"
-                      type="checkbox"
-                      clrToggle
-                      (click)="changeTheme()"
-                      [checked]="false"
-                      *ngIf="isDark === false"
-                    />
-                    <input
-                      class="clr-col-md-8"
-                      type="checkbox"
-                      clrToggle
-                      (click)="changeTheme()"
-                      checked
-                      *ngIf="isDark"
-                    />
-                  </clr-checkbox-wrapper>
-                </clr-checkbox-container>
+                    <clr-options>
+                      <clr-option clrValue="light">light</clr-option>
+                      <clr-option clrValue="dark">dark</clr-option>
+                      <clr-option clrValue="system"> system</clr-option>
+                    </clr-options>
+                  </clr-combobox>
+                </clr-combobox-container>
               </clr-tab-content>
+              <clr-tab-content> </clr-tab-content>
             </clr-tab>
           </clr-tabs>
         </form>

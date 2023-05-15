@@ -15,12 +15,15 @@ import {
   GargantuaClientFactory,
 } from './gargantua.service';
 
+
 export interface Settings {
   terminal_theme: typeof themes[number]['id'];
   terminal_fontSize: number;
   ctr_enabled: boolean;
   ctxAccessCode: string;
+  theme: "light" | "dark" | "system"
 }
+
 
 @Injectable()
 export class SettingsService {
@@ -41,7 +44,8 @@ export class SettingsService {
               terminal_fontSize: 16,
               ctr_enabled: true,
               ctxAccessCode: '',
-            },
+              theme: "light"
+          } as Settings,
       ),
       tap((s: Settings) => {
         s.ctr_enabled = JSON.parse(String(s.ctr_enabled ?? true));

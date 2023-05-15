@@ -540,6 +540,10 @@
   --clr-accordion-header-background-color: hsl(201, 30%, 15%);
   --clr-accordion-border-left-color: hsl(202, 30%, 24%);
   --clr-accordion-border-color: hsl(208, 16%, 34%);
+
+  .clr-combobox-input {
+    background: hsl(201, 30%, 15%);
+  }
 }
 
 clr-icon.is-green,
@@ -577,4 +581,8 @@ clr-icon {
 
 .header-actions clr-dropdown-menu a clr-icon {
   color: white;
+}
+
+.clr-combobox-input {
+  background: --clr-global-app-background;
 }
