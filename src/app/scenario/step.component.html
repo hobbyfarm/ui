@@ -62,7 +62,7 @@
     </as-split-area>
     <as-split-area [size]="60" class="split-area-2">
       <div id="terminal-column">
-        <clr-tabs>
+        <clr-tabs class="tab-container">
           <clr-tab *ngFor="let v of vms | keyvalue" #tab>
             <button clrTabLink [id]="v.key">
               <clr-icon size="24" shape="host"></clr-icon> {{ v.key }}
@@ -86,13 +86,12 @@
           </clr-tab>
           <ng-container *ngFor="let v of vms | keyvalue">
             <ng-container *ngFor="let webinterface of v.value.webinterfaces, let i = index">
-
-              <clr-tab *ngIf="webinterface.hasOwnTab || webinterface.active" #tab>
+              <clr-tab *ngIf="webinterface.hasOwnTab && i < maxInterfaceTabs || webinterface.active">
                 <button clrTabLink [clrTabLinkInOverflow]="false" (click)="setTabActive(webinterface)">
                   {{ v.key }} - {{ webinterface.name }}
                 </button>
                 <ng-template [(clrIfActive)]="webinterface.active">
-                <clr-tab-content #tabcontent>
+                <clr-tab-content>
                   <table class="table compact">
                     <tr>
                       <td><b>Webinterface:</b> {{ webinterface.name }}</td>
@@ -122,7 +121,7 @@
               </ng-template>
               </clr-tab>
 
-              <clr-tab *ngIf="!webinterface.hasOwnTab && !webinterface.active" #tab>
+              <clr-tab *ngIf="(!webinterface.hasOwnTab || ( webinterface.hasOwnTab && i >= maxInterfaceTabs)) && !webinterface.active" #tab>
                 <button clrTabLink [clrTabLinkInOverflow]="true" (click)="setTabActive(webinterface)">
                   {{ v.key }} - {{ webinterface.name }}
                 </button>

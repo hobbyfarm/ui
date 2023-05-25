@@ -87,6 +87,8 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
 
   mdContext: HfMarkdownRenderContext = { vmInfo: {}, session: '' };
 
+  maxInterfaceTabs:number = 2;
+
   public pauseOpen = false;
 
   public pauseLastUpdated: Date = new Date();
@@ -279,6 +281,7 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
     this.tabs.changes.pipe(first()).subscribe((tabs: QueryList<ClrTab>) => {
       tabs.first.tabLink.activate();
     });
+    setTimeout(()=>this.calculateMaxInterfaceTabs(), 2000) 
   }
 
   ngOnDestroy() {
@@ -421,6 +424,7 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
         isActiveTab && this.terms.toArray()[i - numberOfGuacTabs].resize();
       }
     });
+    this.calculateMaxInterfaceTabs()
   }
 
   openWebinterfaceInNewTab(vm: stepVM, wi: Service) {
@@ -442,5 +446,30 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
       vmId: vmId,
       port: webinterface.port,
     } as webinterfaceTabIdentifier);
+  }
+
+  calculateMaxInterfaceTabs(reduce: boolean = false) {
+    let tabs = document.getElementsByTagName('li')
+    let tabsBarWidth: number | undefined = 0
+    let allTabsWidth: number = 0
+    const tabsArray = Array.from(tabs)
+    tabsArray.forEach((tab, i) => {
+      if (i == 0) {
+        tabsBarWidth = tab.parentElement?.offsetWidth        
+      }
+      allTabsWidth += tab.offsetWidth
+    })    
+    if (tabsBarWidth) {
+      let averageTabWidth = allTabsWidth/tabsArray.length
+      tabsBarWidth = (0.9 * tabsBarWidth - 1.5 * averageTabWidth)
+      if (allTabsWidth > tabsBarWidth) {
+        --this.maxInterfaceTabs
+        setTimeout(() => {this.calculateMaxInterfaceTabs(true)}, 10)
+      } else if (!reduce && (allTabsWidth + 1.5*(allTabsWidth/tabsArray.length) < tabsBarWidth)) {
+        ++this.maxInterfaceTabs
+        setTimeout(() => {this.calculateMaxInterfaceTabs()}, 10)
+      }
+    }
+    
   }
 }
