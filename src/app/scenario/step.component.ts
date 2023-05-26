@@ -41,10 +41,7 @@ import { VMService } from '../services/vm.service';
 import { ShellService } from '../services/shell.service';
 import { atou } from '../unicode';
 import { ProgressService } from '../services/progress.service';
-import {
-  HfMarkdownComponent,
-  HfMarkdownRenderContext,
-} from '../hf-markdown/hf-markdown.component';
+import { HfMarkdownRenderContext } from '../hf-markdown/hf-markdown.component';
 import { GuacTerminalComponent } from './guacTerminal.component';
 import { JwtHelperService } from '@auth0/angular-jwt';
 
@@ -79,6 +76,9 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
 
   public finishOpen = false;
   public closeOpen = false;
+
+  public imgXlargeModal = false;
+  public srcImgXlarge = '';
 
   public session: Session = new Session();
   public sessionExpired = false;
@@ -125,6 +125,10 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
     if (e.target instanceof HTMLAnchorElement && e.target.href) {
       e.preventDefault();
       window.open(e.target.href, '_blank');
+    }
+    if ((e.target as HTMLElement).tagName === 'IMG') {
+      this.imgXlargeModal = true;
+      this.srcImgXlarge = (e.target as HTMLImageElement).src;
     }
   }
 
