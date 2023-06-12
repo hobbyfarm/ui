@@ -482,6 +482,27 @@
                 </div>
               </clr-tab-content>
             </clr-tab>
+            <clr-tab>
+              <button clrTabLink>Theme</button>
+              <clr-tab-content>
+                <clr-combobox-container>
+                  <label>Theme</label>
+                  <clr-combobox
+                    name="Theme"
+                    required
+                    placeholder="{{ theme }}"
+                    formControlName="theme"
+                  >
+                    <clr-options>
+                      <clr-option clrValue="light">light</clr-option>
+                      <clr-option clrValue="dark">dark</clr-option>
+                      <clr-option clrValue="system"> system</clr-option>
+                    </clr-options>
+                  </clr-combobox>
+                </clr-combobox-container>
+              </clr-tab-content>
+              <clr-tab-content> </clr-tab-content>
+            </clr-tab>
           </clr-tabs>
         </form>
       </ng-container>
