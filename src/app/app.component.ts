@@ -182,9 +182,9 @@ export class AppComponent implements OnInit {
     });
 
     this.typedSettingsService
-      .get('public', 'motd')
+      .get('public', 'motd-ui')
       .subscribe((typedInput: TypedInput) => {
-        this.motd = typedInput.value ?? '';
+        this.motd = typedInput?.value ?? '';
       });
   }
 
