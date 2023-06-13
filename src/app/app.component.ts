@@ -11,6 +11,10 @@ import { SettingsService } from './services/settings.service';
 import { themes } from './scenario/terminal-themes/themes';
 import { first } from 'rxjs/operators';
 import { Context, ContextService } from './services/context.service';
+import {
+  TypedInput,
+  TypedSettingsService,
+} from './services/typedSettings.service';
 
 @Component({
   selector: 'app-root',
@@ -71,6 +75,7 @@ export class AppComponent implements OnInit {
   ];
 
   public themes = themes;
+  public motd = '';
 
   constructor(
     private helper: JwtHelperService,
@@ -80,6 +85,7 @@ export class AppComponent implements OnInit {
     private config: AppConfigService,
     private settingsService: SettingsService,
     private contextService: ContextService,
+    private typedSettingsService: TypedSettingsService,
   ) {
     this.config.getLogo(this.logo).then((obj: string) => {
       ClarityIcons.add({
@@ -174,6 +180,12 @@ export class AppComponent implements OnInit {
         } else this.disableDarkMode();
       }
     });
+
+    this.typedSettingsService
+      .get('public', 'motd')
+      .subscribe((typedInput: TypedInput) => {
+        this.motd = typedInput.value ?? '';
+      });
   }
 
   public logout() {
@@ -360,5 +372,9 @@ export class AppComponent implements OnInit {
 
   public disableDarkMode() {
     document.body.classList.remove('darkmode');
+  }
+
+  public closeMotd() {
+    this.motd = '';
   }
 }
