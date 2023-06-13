@@ -89,7 +89,7 @@ export class TypedSettingsService {
 
   public get(scope: string, setting: string) {
     if (this.cachedTypedInputList && this.cachedTypedInputList.has(scope)) {
-      let scopedSettings = this.cachedTypedInputList.get(scope)!;
+      const scopedSettings = this.cachedTypedInputList.get(scope)!;
       if (scopedSettings.has(setting)) {
         return of(scopedSettings.get(setting) ?? ({} as TypedInput));
       } else {
@@ -98,7 +98,7 @@ export class TypedSettingsService {
     } else {
       return this.list(scope).pipe(
         tap((typedInputs: TypedInput[]) => {
-          let m: Map<string, TypedInput> = new Map();
+          const m: Map<string, TypedInput> = new Map();
           typedInputs.forEach((typedSetting) => {
             m.set(typedSetting.id, typedSetting);
           });
@@ -137,7 +137,7 @@ export class TypedSettingsService {
   }
 
   private buildTypedInputList(pList: PreparedSettings[]) {
-    let settings: TypedInput[] = [];
+    const settings: TypedInput[] = [];
 
     pList.forEach((preparedSetting: PreparedSettings) => {
       const typedInputRepresentationIndex =
@@ -158,15 +158,6 @@ export class TypedSettingsService {
         this.typedInputDataTypeList[
           typedInputTypeIndex == -1 ? 0 : typedInputTypeIndex
         ];
-
-      // TODO 08.06.2023
-      // Converting scalar strings will result in escaped characters, we have to parse the value once again
-      if (
-        inputType == TypedInputType.STRING &&
-        representation == TypedInputRepresentation.SCALAR
-      ) {
-        //preparedSetting.value = JSON.parse(preparedSetting.value);
-      }
 
       const setting = {
         id: preparedSetting.name,
