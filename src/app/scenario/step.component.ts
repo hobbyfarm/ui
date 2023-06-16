@@ -52,6 +52,7 @@ type Service = {
   hasOwnTab: boolean;
   hasWebinterface: boolean;
   disallowIFrame: boolean;
+  active: boolean;
 };
 interface stepVM extends VM {
   webinterfaces?: Service[];
@@ -86,6 +87,8 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
 
   mdContext: HfMarkdownRenderContext = { vmInfo: {}, session: '' };
 
+  maxInterfaceTabs = 2;
+
   public pauseOpen = false;
 
   public pauseLastUpdated: Date = new Date();
@@ -119,6 +122,17 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
     private progressService: ProgressService,
     private jwtHelper: JwtHelperService,
   ) {}
+
+  setTabActive(webinterface: Service) {
+    this.vms.forEach((vm) => {
+      vm.webinterfaces?.forEach((wi) => {
+        wi.active = false;
+        if (wi.name == webinterface.name) {
+          wi.active = true;
+        }
+      });
+    });
+  }
 
   handleStepContentClick(e: MouseEvent) {
     // Open all links in a new window
@@ -186,7 +200,6 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
               const services = JSON.parse(JSON.parse(stringContent)); //TODO: See if we can skip one stringify somwhere, so we dont have to parse twice
               services.forEach((service: Service) => {
                 if (service.hasWebinterface) {
-                  console.log(service);
                   const webinterface = {
                     name: service.name ?? 'Service',
                     port: service.port ?? 80,
@@ -194,6 +207,7 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
                     hasOwnTab: !!service.hasOwnTab,
                     hasWebinterface: true,
                     disallowIFrame: !!service.disallowIFrame,
+                    active: false,
                   };
                   vm.webinterfaces
                     ? vm.webinterfaces.push(webinterface)
@@ -271,6 +285,7 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
     this.tabs.changes.pipe(first()).subscribe((tabs: QueryList<ClrTab>) => {
       tabs.first.tabLink.activate();
     });
+    setTimeout(() => this.calculateMaxInterfaceTabs(), 2000);
   }
 
   ngOnDestroy() {
@@ -413,6 +428,7 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
         isActiveTab && this.terms.toArray()[i - numberOfGuacTabs].resize();
       }
     });
+    this.calculateMaxInterfaceTabs();
   }
 
   openWebinterfaceInNewTab(vm: stepVM, wi: Service) {
@@ -434,5 +450,36 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
       vmId: vmId,
       port: webinterface.port,
     } as webinterfaceTabIdentifier);
+  }
+
+  calculateMaxInterfaceTabs(reduce: boolean = false) {
+    const tabs = document.getElementsByTagName('li');
+    let tabsBarWidth: number | undefined = 0;
+    let allTabsWidth = 0;
+    const tabsArray = Array.from(tabs);
+    tabsArray.forEach((tab, i) => {
+      if (i == 0) {
+        tabsBarWidth = tab.parentElement?.offsetWidth;
+      }
+      allTabsWidth += tab.offsetWidth;
+    });
+    if (tabsBarWidth) {
+      const averageTabWidth = allTabsWidth / tabsArray.length;
+      tabsBarWidth = 0.9 * tabsBarWidth - 1.5 * averageTabWidth;
+      if (allTabsWidth > tabsBarWidth) {
+        --this.maxInterfaceTabs;
+        setTimeout(() => {
+          this.calculateMaxInterfaceTabs(true);
+        }, 10);
+      } else if (
+        !reduce &&
+        allTabsWidth + 1.5 * (allTabsWidth / tabsArray.length) < tabsBarWidth
+      ) {
+        ++this.maxInterfaceTabs;
+        setTimeout(() => {
+          this.calculateMaxInterfaceTabs();
+        }, 10);
+      }
+    }
   }
 }

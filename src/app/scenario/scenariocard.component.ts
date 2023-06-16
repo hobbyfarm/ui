@@ -4,6 +4,7 @@ import {
   Output,
   EventEmitter,
   OnChanges,
+  OnInit,
 } from '@angular/core';
 import { Scenario } from '../scenario/Scenario';
 import { ProgressService } from '../services/progress.service';
@@ -17,7 +18,7 @@ import { SessionService } from '../services/session.service';
   templateUrl: 'scenariocard.component.html',
   styleUrls: ['./scenariocard.component.scss'],
 })
-export class ScenarioCardComponent implements OnChanges {
+export class ScenarioCardComponent implements OnInit, OnChanges {
   @Input()
   public scenarioid = '';
   @Input()
