@@ -44,6 +44,8 @@ import { ProgressService } from '../services/progress.service';
 import { HfMarkdownRenderContext } from '../hf-markdown/hf-markdown.component';
 import { GuacTerminalComponent } from './guacTerminal.component';
 import { JwtHelperService } from '@auth0/angular-jwt';
+import { VerificationService } from '../services/verification.service';
+import { addJwtAllowedDomain } from '../app.module';
 
 type Service = {
   name: string;
@@ -121,7 +123,7 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
     private shellService: ShellService,
     private progressService: ProgressService,
     private jwtHelper: JwtHelperService,
-  ) {}
+  ) {}  
 
   setTabActive(webinterface: Service) {
     this.vms.forEach((vm) => {
@@ -185,6 +187,7 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
         concatMap(([k, v]: [string, VMClaimVM]) =>
           this.vmService.get(v.vm_id, true).pipe(
             first(),
+            tap(vm => addJwtAllowedDomain(vm.ws_endpoint)), //Allow JwtModule to intercept and add the JWT on shell-server requests
             map((vm) => [k, vm] as const),
           ),
         ),
