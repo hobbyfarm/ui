@@ -5,8 +5,12 @@
         <div class="card-header">
           <h3 id="scenario-name">{{ scenario.name | atob }}</h3>
 
-          <button class="btn btn-next" [class.btn-success-outline]="!isLastStepActive"
-            [class.btn-success]="isLastStepActive" (click)="goFinish()">
+          <button
+            class="btn btn-next"
+            [class.btn-success-outline]="!isLastStepActive"
+            [class.btn-success]="isLastStepActive"
+            (click)="goFinish()"
+          >
             <clr-icon shape="check"></clr-icon>
             Finish
           </button>
@@ -23,7 +27,11 @@
             </clr-signpost>
           </ng-container>
 
-          <button class="btn" [class.btn-outline]="!isLastStepActive" (click)="goClose()">
+          <button
+            class="btn"
+            [class.btn-outline]="!isLastStepActive"
+            (click)="goClose()"
+          >
             <clr-icon shape="window-close"></clr-icon>Close
           </button>
         </div>
@@ -33,8 +41,11 @@
             {{ this.stepnumber + 1 }}. {{ step.title | atob }}
           </h4>
           <div class="card-text">
-            <app-hf-markdown [content]="stepcontent" [context]="mdContext"
-              (click)="handleStepContentClick($event)"></app-hf-markdown>
+            <app-hf-markdown
+              [content]="stepcontent"
+              [context]="mdContext"
+              (click)="handleStepContentClick($event)"
+            ></app-hf-markdown>
           </div>
         </div>
 
@@ -44,16 +55,28 @@
             <progress [value]="getProgress() || 0" max="100"></progress>
           </div>
           <div id="step-navigator">
-            <button class="btn btn-outline btn-previous" (click)="goPrevious()" [disabled]="this.stepnumber < 1">
+            <button
+              class="btn btn-outline btn-previous"
+              (click)="goPrevious()"
+              [disabled]="this.stepnumber < 1"
+            >
               <clr-icon shape="arrow" dir="left"></clr-icon> Prev
             </button>
             <span id="step-counter">
               {{ this.stepnumber + 1 }}/{{ this.scenario.stepcount }}
             </span>
-            <button class="btn btn-next" *ngIf="!isLastStepActive" (click)="goNext()">
+            <button
+              class="btn btn-next"
+              *ngIf="!isLastStepActive"
+              (click)="goNext()"
+            >
               Next <clr-icon shape="arrow" dir="right"></clr-icon>
             </button>
-            <button class="btn btn-success btn-next" (click)="goFinish()" *ngIf="isLastStepActive">
+            <button
+              class="btn btn-success btn-next"
+              (click)="goFinish()"
+              *ngIf="isLastStepActive"
+            >
               <clr-icon shape="check"></clr-icon> Finish
             </button>
           </div>
@@ -66,7 +89,7 @@
           <clr-tab *ngFor="let v of vms | keyvalue" #tab>
             <button clrTabLink [id]="v.key">
               <clr-icon size="24" shape="host"></clr-icon> {{ v.key }}
-            </button>            
+            </button>
             <clr-tab-content #tabcontent>
               <table class="table compact">
                 <tr>
@@ -76,53 +99,101 @@
                   <td><b>Shell Status:</b> {{ getShellStatus(v.key) }}</td>
                 </tr>
               </table>
-              <app-terminal *ngIf="!isGuacamoleTerminal(v.value.protocol)" [vmname]="v.key" [vmid]="v.value.id"
-                [endpoint]="v.value.ws_endpoint" #term>
+              <app-terminal
+                *ngIf="!isGuacamoleTerminal(v.value.protocol)"
+                [vmname]="v.key"
+                [vmid]="v.value.id"
+                [endpoint]="v.value.ws_endpoint"
+                #term
+              >
               </app-terminal>
-              <app-guac-terminal *ngIf="isGuacamoleTerminal(v.value.protocol)" [vmname]="v.key" [vmid]="v.value.id"
-                [endpoint]="v.value.ws_endpoint" #guacterm>
+              <app-guac-terminal
+                *ngIf="isGuacamoleTerminal(v.value.protocol)"
+                [vmname]="v.key"
+                [vmid]="v.value.id"
+                [endpoint]="v.value.ws_endpoint"
+                #guacterm
+              >
               </app-guac-terminal>
             </clr-tab-content>
           </clr-tab>
           <ng-container *ngFor="let v of vms | keyvalue">
-            <ng-container *ngFor="let webinterface of v.value.webinterfaces, let i = index">
-              <clr-tab *ngIf="webinterface.hasOwnTab && i < maxInterfaceTabs || webinterface.active">
-                <button clrTabLink [clrTabLinkInOverflow]="false" (click)="setTabActive(webinterface)">
+            <ng-container
+              *ngFor="let webinterface of v.value.webinterfaces; let i = index"
+            >
+              <clr-tab
+                *ngIf="
+                  (webinterface.hasOwnTab && i < maxInterfaceTabs) ||
+                  webinterface.active
+                "
+              >
+                <button
+                  clrTabLink
+                  [clrTabLinkInOverflow]="false"
+                  (click)="setTabActive(webinterface)"
+                >
                   {{ v.key }} - {{ webinterface.name }}
                 </button>
                 <ng-template [(clrIfActive)]="webinterface.active">
-                <clr-tab-content>
-                  <table class="table compact">
-                    <tr>
-                      <td><b>Webinterface:</b> {{ webinterface.name }}</td>
-                      <td><b>Node:</b> {{ v.key }}</td>
-                      <td><b>Port:</b> {{ webinterface.port }}</td>
-                      <td><b>Path:</b> {{ webinterface.path }}</td>
-                      <td style="padding: 0">
-                        <button class="btn btn-icon btn-primary btn-sm" title="Reload Tab"
-                          (click)="reloadWebinterface(v.value.id, webinterface)">
-                          <clr-icon shape="refresh"></clr-icon>
-                        </button>
-                        <button class="btn btn-icon btn-primary btn-sm" title="Open in a new Tab" (click)="
-                          openWebinterfaceInNewTab(v.value, webinterface)
-                        ">
-                          <clr-icon shape="pop-out"></clr-icon>
-                        </button>
-                      </td>
-                    </tr>
-                  </table>
-                  <app-ide-window *ngIf="!isGuacamoleTerminal(v.value.protocol)" [vmid]="v.value.id"
-                    [endpoint]="v.value.ws_endpoint" [port]="webinterface.port" [path]="webinterface.path"
-                    [disallowIFrame]="webinterface.disallowIFrame" (openWebinterfaceFn)="
-                    openWebinterfaceInNewTab(v.value, webinterface)
-                  " [reloadEvent]="reloadTabObservable">
-                  </app-ide-window>
-                </clr-tab-content>
-              </ng-template>
+                  <clr-tab-content>
+                    <table class="table compact">
+                      <tr>
+                        <td><b>Webinterface:</b> {{ webinterface.name }}</td>
+                        <td><b>Node:</b> {{ v.key }}</td>
+                        <td><b>Port:</b> {{ webinterface.port }}</td>
+                        <td><b>Path:</b> {{ webinterface.path }}</td>
+                        <td style="padding: 0">
+                          <button
+                            class="btn btn-icon btn-primary btn-sm"
+                            title="Reload Tab"
+                            (click)="
+                              reloadWebinterface(v.value.id, webinterface)
+                            "
+                          >
+                            <clr-icon shape="refresh"></clr-icon>
+                          </button>
+                          <button
+                            class="btn btn-icon btn-primary btn-sm"
+                            title="Open in a new Tab"
+                            (click)="
+                              openWebinterfaceInNewTab(v.value, webinterface)
+                            "
+                          >
+                            <clr-icon shape="pop-out"></clr-icon>
+                          </button>
+                        </td>
+                      </tr>
+                    </table>
+                    <app-ide-window
+                      *ngIf="!isGuacamoleTerminal(v.value.protocol)"
+                      [vmid]="v.value.id"
+                      [endpoint]="v.value.ws_endpoint"
+                      [port]="webinterface.port"
+                      [path]="webinterface.path"
+                      [disallowIFrame]="webinterface.disallowIFrame"
+                      (openWebinterfaceFn)="
+                        openWebinterfaceInNewTab(v.value, webinterface)
+                      "
+                      [reloadEvent]="reloadTabObservable"
+                    >
+                    </app-ide-window>
+                  </clr-tab-content>
+                </ng-template>
               </clr-tab>
 
-              <clr-tab *ngIf="(!webinterface.hasOwnTab || ( webinterface.hasOwnTab && i >= maxInterfaceTabs)) && !webinterface.active" #tab>
-                <button clrTabLink [clrTabLinkInOverflow]="true" (click)="setTabActive(webinterface)">
+              <clr-tab
+                *ngIf="
+                  (!webinterface.hasOwnTab ||
+                    (webinterface.hasOwnTab && i >= maxInterfaceTabs)) &&
+                  !webinterface.active
+                "
+                #tab
+              >
+                <button
+                  clrTabLink
+                  [clrTabLinkInOverflow]="true"
+                  (click)="setTabActive(webinterface)"
+                >
                   {{ v.key }} - {{ webinterface.name }}
                 </button>
               </clr-tab>
@@ -187,7 +258,9 @@
       {{ pauseRemainingString }}
     </p>
     <p>
-      <span class="clr-subtext">Last updated at {{ pauseLastUpdated | date: 'medium' }}</span>
+      <span class="clr-subtext"
+        >Last updated at {{ pauseLastUpdated | date: 'medium' }}</span
+      >
     </p>
     <br />
   </div>
@@ -198,7 +271,11 @@
   </div>
 </clr-modal>
 
-<clr-modal #sessionExpiredModal [(clrModalOpen)]="sessionExpired" [clrModalClosable]="false">
+<clr-modal
+  #sessionExpiredModal
+  [(clrModalOpen)]="sessionExpired"
+  [clrModalClosable]="false"
+>
   <h3 class="modal-title">Your session has expired!</h3>
   <div class="modal-body">
     <p>Please return back to the home page.</p>

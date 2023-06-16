@@ -119,19 +119,19 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
     private vmClaimService: VMClaimService,
     private vmService: VMService,
     private shellService: ShellService,
-    private progressService: ProgressService,    
+    private progressService: ProgressService,
     private jwtHelper: JwtHelperService,
   ) {}
 
   setTabActive(webinterface: Service) {
-    this.vms.forEach(vm=> {
-      vm.webinterfaces?.forEach(wi => {
-        wi.active = false
+    this.vms.forEach((vm) => {
+      vm.webinterfaces?.forEach((wi) => {
+        wi.active = false;
         if (wi.name == webinterface.name) {
-          wi.active = true
+          wi.active = true;
         }
-      })
-    })
+      });
+    });
   }
 
   handleStepContentClick(e: MouseEvent) {
@@ -285,7 +285,7 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
     this.tabs.changes.pipe(first()).subscribe((tabs: QueryList<ClrTab>) => {
       tabs.first.tabLink.activate();
     });
-    setTimeout(()=>this.calculateMaxInterfaceTabs(), 2000) 
+    setTimeout(() => this.calculateMaxInterfaceTabs(), 2000);
   }
 
   ngOnDestroy() {
@@ -428,7 +428,7 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
         isActiveTab && this.terms.toArray()[i - numberOfGuacTabs].resize();
       }
     });
-    this.calculateMaxInterfaceTabs()
+    this.calculateMaxInterfaceTabs();
   }
 
   openWebinterfaceInNewTab(vm: stepVM, wi: Service) {
@@ -453,27 +453,33 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   calculateMaxInterfaceTabs(reduce: boolean = false) {
-    const tabs = document.getElementsByTagName('li')
-    let tabsBarWidth: number | undefined = 0
-    let allTabsWidth = 0
-    const tabsArray = Array.from(tabs)
+    const tabs = document.getElementsByTagName('li');
+    let tabsBarWidth: number | undefined = 0;
+    let allTabsWidth = 0;
+    const tabsArray = Array.from(tabs);
     tabsArray.forEach((tab, i) => {
       if (i == 0) {
-        tabsBarWidth = tab.parentElement?.offsetWidth        
+        tabsBarWidth = tab.parentElement?.offsetWidth;
       }
-      allTabsWidth += tab.offsetWidth
-    })    
+      allTabsWidth += tab.offsetWidth;
+    });
     if (tabsBarWidth) {
-      const averageTabWidth = allTabsWidth/tabsArray.length
-      tabsBarWidth = (0.9 * tabsBarWidth - 1.5 * averageTabWidth)
+      const averageTabWidth = allTabsWidth / tabsArray.length;
+      tabsBarWidth = 0.9 * tabsBarWidth - 1.5 * averageTabWidth;
       if (allTabsWidth > tabsBarWidth) {
-        --this.maxInterfaceTabs
-        setTimeout(() => {this.calculateMaxInterfaceTabs(true)}, 10)
-      } else if (!reduce && (allTabsWidth + 1.5*(allTabsWidth/tabsArray.length) < tabsBarWidth)) {
-        ++this.maxInterfaceTabs
-        setTimeout(() => {this.calculateMaxInterfaceTabs()}, 10)
+        --this.maxInterfaceTabs;
+        setTimeout(() => {
+          this.calculateMaxInterfaceTabs(true);
+        }, 10);
+      } else if (
+        !reduce &&
+        allTabsWidth + 1.5 * (allTabsWidth / tabsArray.length) < tabsBarWidth
+      ) {
+        ++this.maxInterfaceTabs;
+        setTimeout(() => {
+          this.calculateMaxInterfaceTabs();
+        }, 10);
       }
     }
-    
   }
 }
