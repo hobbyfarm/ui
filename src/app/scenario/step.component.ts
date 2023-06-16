@@ -44,6 +44,8 @@ import { ProgressService } from '../services/progress.service';
 import { HfMarkdownRenderContext } from '../hf-markdown/hf-markdown.component';
 import { GuacTerminalComponent } from './guacTerminal.component';
 import { JwtHelperService } from '@auth0/angular-jwt';
+import { IDEApiExecService } from './ide.service';
+import { IDEApiExec } from './IDEApiExec';
 
 type Service = {
   name: string;
@@ -110,6 +112,7 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
     private route: ActivatedRoute,
     private router: Router,
     private ctr: CtrService,
+    private ideExec: IDEApiExecService,
     private ssService: SessionService,
     private scenarioService: ScenarioService,
     private stepService: StepService,
@@ -186,7 +189,6 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
               const services = JSON.parse(JSON.parse(stringContent)); //TODO: See if we can skip one stringify somwhere, so we dont have to parse twice
               services.forEach((service: Service) => {
                 if (service.hasWebinterface) {
-                  console.log(service);
                   const webinterface = {
                     name: service.name ?? 'Service',
                     port: service.port ?? 80,
@@ -254,9 +256,22 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
       });
 
     this.ctr.getCodeStream().subscribe((c: CodeExec) => {
-      // watch for tab changes
+      // watch for tab changes when clicking CTRs
       this.tabs.forEach((i: ClrTab) => {
         if (c.target.toLowerCase() == i.tabLink.tabLinkId.toLowerCase()) {
+          i.ifActiveService.current = i.id;
+        }
+      });
+    });
+
+    this.ideExec.getExecStream().subscribe((exec: IDEApiExec) => {
+      // watch for tab changes when exectuing IDE Api calls
+      this.tabs.forEach((i: ClrTab) => {
+        // TODO 14.02.2023 Better tab selection for IDE tabs. A little bit tricky with only the name flag.
+        if (
+          exec.target.toLowerCase() + '-ide' ==
+          i.tabLink.tabLinkId.toLowerCase()
+        ) {
           i.ifActiveService.current = i.id;
         }
       });

@@ -1,6 +1,8 @@
 import { Component, Input, OnChanges } from '@angular/core';
 import { MarkdownService } from 'ngx-markdown';
 import { CtrService } from '../scenario/ctr.service';
+import { IDEApiExecService } from '../scenario/ide.service';
+import { IDEApiExec } from '../scenario/IDEApiExec';
 import { VM } from '../VM';
 
 // Replacement for lodash's escape
@@ -31,6 +33,7 @@ export class HfMarkdownComponent implements OnChanges {
 
   constructor(
     public markdownService: MarkdownService,
+    public ideService: IDEApiExecService,
     private ctrService: CtrService,
   ) {
     this.markdownService.renderer.code = (code: string, language = '') => {
@@ -63,6 +66,20 @@ export class HfMarkdownComponent implements OnChanges {
         ctrId="${id}"
         ${isNaN(count) ? '' : `[count]="${count}"`}
       >${escape(code)}</ctr>`;
+    },
+
+    ide(code: string, target: string, endpoint: string, title: string) {
+      const exec: IDEApiExec = {
+        target: target,
+        apiEndpoint: endpoint,
+        postBody: code,
+      };
+      const id = this.ideService.registerExec(exec);
+      return `<ide-exec
+        target="${target}"
+        title="${title}"
+        execId="${id}"
+      ></ide-exec>`;
     },
 
     hidden(code: string, summary: string) {
@@ -178,7 +195,6 @@ ${token}`;
   }
 
   private replaceVmInfoTokens(content: string) {
-    console.log(this.context.vmInfo);
     return content.replace(
       /\$\{vminfo:([^:]*):([^}]*)\}/g,
       (match, vmName, propName) => {

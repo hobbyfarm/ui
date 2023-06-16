@@ -1,0 +1,24 @@
+.api-exec {
+  margin-bottom: 0;
+  margin-top: 0;
+  padding: 5px 10px;
+  word-wrap: break;
+  white-space: break-spaces;
+  background: white !important;
+  color: black;
+  cursor: pointer;
+  overflow-x: auto;
+  border: 1px solid var(--clr-color-neutral-400, #cccccc);
+  border-top: 5px solid #54cbf2;
+  &[executed='true'] {
+    border-top: 5px solid var(--clr-color-success-500, green);
+  }
+}
+
+i {
+  font-size: 0.7em;
+}
+
+b {
+  color: #282828;
+}
