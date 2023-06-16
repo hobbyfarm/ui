@@ -20,6 +20,7 @@ export interface Settings {
   terminal_fontSize: number;
   ctr_enabled: boolean;
   ctxAccessCode: string;
+  theme: 'light' | 'dark' | 'system';
 }
 
 @Injectable()
@@ -36,12 +37,13 @@ export class SettingsService {
       map((s: Readonly<Settings | null>) =>
         s
           ? s
-          : {
+          : ({
               terminal_theme: themes[0].id,
               terminal_fontSize: 16,
               ctr_enabled: true,
               ctxAccessCode: '',
-            },
+              theme: 'light',
+            } as Settings),
       ),
       tap((s: Settings) => {
         s.ctr_enabled = JSON.parse(String(s.ctr_enabled ?? true));

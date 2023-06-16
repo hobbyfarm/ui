@@ -207,3 +207,13 @@
     <button class="btn btn-outline" (click)="actuallyClose()">Ok</button>
   </div>
 </clr-modal>
+<clr-modal
+  [(clrModalOpen)]="imgXlargeModal"
+  [clrModalClosable]="false"
+  (click)="imgXlargeModal = false"
+  clrModalSize="xl"
+>
+  <div class="modal-body">
+    <img src="{{ srcImgXlarge }}" alt="ImageMadeLarger" class="modal-image" />
+  </div>
+</clr-modal>

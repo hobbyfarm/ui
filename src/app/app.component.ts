@@ -47,6 +47,8 @@ export class AppComponent implements OnInit {
   public settingsModalOpened = false;
   public fetchingSettings = false;
 
+  public theme: 'dark' | 'light' | 'system' = 'system';
+
   public accesscodes: string[] = [];
   public selectedAccesscodesForDeletion: string[] = [];
   public scheduledEvents: Map<string, string> = new Map();
@@ -121,6 +123,7 @@ export class AppComponent implements OnInit {
     terminal_theme: new FormControl(null, [Validators.required]),
     terminal_fontSize: new FormControl(null, [Validators.required]),
     ctr_enabled: new FormControl(false),
+    theme: new FormControl(null, [Validators.required]),
   });
 
   ngOnInit() {
@@ -156,6 +159,21 @@ export class AppComponent implements OnInit {
         });
     });
     this.contextService.init();
+
+    this.settingsService.fetch().subscribe((response) => {
+      if (response.theme == 'light') {
+        this.disableDarkMode();
+      } else if (response.theme == 'dark') {
+        this.enableDarkMode();
+      } else {
+        if (
+          window.matchMedia &&
+          window.matchMedia('(prefers-color-scheme: dark)').matches
+        ) {
+          this.enableDarkMode();
+        } else this.disableDarkMode();
+      }
+    });
   }
 
   public logout() {
@@ -204,11 +222,13 @@ export class AppComponent implements OnInit {
           terminal_theme = 'default',
           terminal_fontSize = 16,
           ctr_enabled = true,
+          theme = 'light',
         }) => {
           this.settingsForm.setValue({
             terminal_theme,
             terminal_fontSize,
             ctr_enabled,
+            theme,
           });
           this.fetchingSettings = false;
         },
@@ -275,6 +295,20 @@ export class AppComponent implements OnInit {
     this.settingsService.update(this.settingsForm.value).subscribe(
       () => {
         this.settingsModalOpened = false;
+        const theme: 'light' | 'dark' | 'system' =
+          this.settingsForm.controls['theme'].value;
+        if (theme == 'dark') {
+          this.enableDarkMode();
+        } else if (theme == 'light') {
+          this.disableDarkMode();
+        } else {
+          if (
+            window.matchMedia &&
+            window.matchMedia('(prefers-color-scheme: dark)').matches
+          ) {
+            this.enableDarkMode();
+          } else this.disableDarkMode();
+        }
       },
       () => {
         setTimeout(() => (this.settingsModalOpened = false), 2000);
@@ -319,5 +353,12 @@ export class AppComponent implements OnInit {
       this.deleteAccessCode(element),
     );
     this.alertDeleteAccessCodeModal = false;
+  }
+  public enableDarkMode() {
+    document.body.classList.add('darkmode');
+  }
+
+  public disableDarkMode() {
+    document.body.classList.remove('darkmode');
   }
 }
