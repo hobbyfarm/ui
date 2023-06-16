@@ -87,7 +87,7 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
 
   mdContext: HfMarkdownRenderContext = { vmInfo: {}, session: '' };
 
-  maxInterfaceTabs:number = 2;
+  maxInterfaceTabs = 2;
 
   public pauseOpen = false;
 
