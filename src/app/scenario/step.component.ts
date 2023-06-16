@@ -449,9 +449,9 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   calculateMaxInterfaceTabs(reduce: boolean = false) {
-    let tabs = document.getElementsByTagName('li')
+    const tabs = document.getElementsByTagName('li')
     let tabsBarWidth: number | undefined = 0
-    let allTabsWidth: number = 0
+    let allTabsWidth = 0
     const tabsArray = Array.from(tabs)
     tabsArray.forEach((tab, i) => {
       if (i == 0) {
@@ -460,7 +460,7 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
       allTabsWidth += tab.offsetWidth
     })    
     if (tabsBarWidth) {
-      let averageTabWidth = allTabsWidth/tabsArray.length
+      const averageTabWidth = allTabsWidth/tabsArray.length
       tabsBarWidth = (0.9 * tabsBarWidth - 1.5 * averageTabWidth)
       if (allTabsWidth > tabsBarWidth) {
         --this.maxInterfaceTabs
