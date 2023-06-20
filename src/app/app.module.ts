@@ -40,6 +40,7 @@ import { GargantuaClientFactory } from './services/gargantua.service';
 import { GuacTerminalComponent } from './scenario/guacTerminal.component';
 import { IdeWindowComponent } from './scenario/ideWindow.component';
 import { ContextService } from './services/context.service';
+import { TypedSettingsService } from './services/typedSettings.service';
 
 export function tokenGetter() {
   return localStorage.getItem('hobbyfarm_token');
@@ -121,6 +122,7 @@ export function jwtOptionsFactory() {
     AppConfigService,
     ProgressService,
     ContextService,
+    TypedSettingsService,
     {
       provide: APP_INITIALIZER,
       useFactory: appInitializerFn,

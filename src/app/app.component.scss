@@ -137,3 +137,22 @@
     }
   }
 }
+
+.motd {
+  align-self: center;
+  margin-top: 0px;
+  text-align: center;
+  color: white;
+}
+
+.motd-container {
+  background-color: red;
+  margin-top: 0px;
+  width: 100%;
+  cursor: pointer;
+}
+
+.motd-close {
+  float: right;
+  position: relative;
+}

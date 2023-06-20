@@ -57,6 +57,15 @@
     </div>
   </header>
 
+  <div
+    class="motd-container"
+    *ngIf="motd"
+    title="Click to close"
+    (click)="closeMotd()"
+  >
+    <p class="motd">{{ motd }}</p>
+  </div>
+
   <div class="content-container">
     <div class="content-area">
       <router-outlet></router-outlet>

@@ -2,6 +2,10 @@ import { Component } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AppConfigService } from '../app-config.service';
 import { UserService } from '../services/user.service';
+import {
+  TypedInput,
+  TypedSettingsService,
+} from '../services/typedSettings.service';
 
 @Component({
   selector: 'app-login',
@@ -16,6 +20,8 @@ export class LoginComponent {
 
   public registrationDisabled = false;
 
+  public globalRegistrationDisabled = true;
+
   private Config = this.config.getConfig();
   public logo;
   public background;
@@ -26,6 +32,7 @@ export class LoginComponent {
     private router: Router,
     private config: AppConfigService,
     private userService: UserService,
+    private typedSettingsService: TypedSettingsService,
   ) {
     if (this.Config.login && this.Config.login.logo) {
       this.logo = this.Config.login.logo;
@@ -33,6 +40,13 @@ export class LoginComponent {
     if (this.Config.login && this.Config.login.background) {
       this.background = 'url(' + this.Config.login.background + ')';
     }
+
+    this.typedSettingsService
+      .get('public', 'registration-disabled')
+      .subscribe((typedInput: TypedInput) => {
+        console.log(typedInput);
+        this.globalRegistrationDisabled = typedInput.value ?? true;
+      });
   }
 
   public register() {
