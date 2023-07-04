@@ -121,7 +121,8 @@ export class AppComponent implements OnInit {
   public newAccessCodeForm: FormGroup = new FormGroup({
     access_code: new FormControl(null, [
       Validators.required,
-      Validators.minLength(4),
+      Validators.minLength(5),
+      Validators.pattern(/^[a-z0-9][a-z0-9\.\-]{3,}[a-z0-9]$/),
     ]),
   });
 

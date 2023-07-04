@@ -1,5 +1,5 @@
 <div class="login-wrapper" [style.background-image]="background">
-  <form class="login">
+  <form class="login" [formGroup]="loginForm">
     <section class="title">
       <img [src]="logo" id="login-logo" />
     </section>
@@ -15,18 +15,20 @@
                   type="text"
                   name="email"
                   clrInput
-                  [(ngModel)]="email"
+                  formControlName="email"
                   placeholder="Email Address"
                 />
+                <clr-control-error *clrIfError="'required'">Email Address is required</clr-control-error>
               </clr-input-container>
               <clr-input-container>
                 <input
                   type="password"
                   name="password"
                   clrInput
-                  [(ngModel)]="password"
+                  formControlName="password"
                   placeholder="Password"
                 />
+                <clr-control-error *clrIfError="'required'">Password is required</clr-control-error>
               </clr-input-container>
               <div class="error" [class.active]="error.length > 0">
                 {{ error }}
@@ -47,27 +49,37 @@
                 type="text"
                 name="email"
                 clrInput
-                [(ngModel)]="email"
+                formControlName="email"
                 placeholder="Email Address"
               />
+              <clr-control-error *clrIfError="'required'">Email Address is required</clr-control-error>
             </clr-input-container>
             <clr-input-container>
               <input
                 type="text"
                 name="accesscode"
                 clrInput
-                [(ngModel)]="accesscode"
+                formControlName="accesscode"
                 placeholder="Access Code"
               />
+              <clr-control-error *clrIfError="'required'">Access code is required</clr-control-error>
+              <clr-control-error *clrIfError="'minlength'">Access code must be longer than 5 characters</clr-control-error>
+              <clr-control-error *clrIfError="'pattern'">Access code must
+                <ul>
+                  <li>contain only lowercase alphanumeric characters, '-', or '.'</li>
+                  <li>start and end with an alphanumeric character</li>
+                </ul>
+              </clr-control-error>
             </clr-input-container>
             <clr-input-container>
               <input
                 type="password"
                 name="password"
                 clrInput
-                [(ngModel)]="password"
+                formControlName="password"
                 placeholder="Password"
               />
+              <clr-control-error *clrIfError="'required'">Password is required</clr-control-error>
             </clr-input-container>
             <div class="error" [class.active]="error.length > 0">
               {{ error }}
