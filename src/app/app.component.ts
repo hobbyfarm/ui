@@ -122,7 +122,7 @@ export class AppComponent implements OnInit {
     access_code: new FormControl(null, [
       Validators.required,
       Validators.minLength(5),
-      Validators.pattern(/^[a-z0-9][a-z0-9\.\-]{3,}[a-z0-9]$/),
+      Validators.pattern(/^[a-z0-9][a-z0-9.-]{3,}[a-z0-9]$/),
     ]),
   });
 
