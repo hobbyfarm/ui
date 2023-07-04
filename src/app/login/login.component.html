@@ -18,7 +18,9 @@
                   formControlName="email"
                   placeholder="Email Address"
                 />
-                <clr-control-error *clrIfError="'required'">Email Address is required</clr-control-error>
+                <clr-control-error *clrIfError="'required'"
+                  >Email Address is required</clr-control-error
+                >
               </clr-input-container>
               <clr-input-container>
                 <input
@@ -28,7 +30,9 @@
                   formControlName="password"
                   placeholder="Password"
                 />
-                <clr-control-error *clrIfError="'required'">Password is required</clr-control-error>
+                <clr-control-error *clrIfError="'required'"
+                  >Password is required</clr-control-error
+                >
               </clr-input-container>
               <div class="error" [class.active]="error.length > 0">
                 {{ error }}
@@ -52,7 +56,9 @@
                 formControlName="email"
                 placeholder="Email Address"
               />
-              <clr-control-error *clrIfError="'required'">Email Address is required</clr-control-error>
+              <clr-control-error *clrIfError="'required'"
+                >Email Address is required</clr-control-error
+              >
             </clr-input-container>
             <clr-input-container>
               <input
@@ -62,11 +68,18 @@
                 formControlName="accesscode"
                 placeholder="Access Code"
               />
-              <clr-control-error *clrIfError="'required'">Access code is required</clr-control-error>
-              <clr-control-error *clrIfError="'minlength'">Access code must be longer than 5 characters</clr-control-error>
-              <clr-control-error *clrIfError="'pattern'">Access code must
+              <clr-control-error *clrIfError="'required'"
+                >Access code is required</clr-control-error
+              >
+              <clr-control-error *clrIfError="'minlength'"
+                >Access code must be longer than 5 characters</clr-control-error
+              >
+              <clr-control-error *clrIfError="'pattern'"
+                >Access code must
                 <ul>
-                  <li>contain only lowercase alphanumeric characters, '-', or '.'</li>
+                  <li>
+                    contain only lowercase alphanumeric characters, '-', or '.'
+                  </li>
                   <li>start and end with an alphanumeric character</li>
                 </ul>
               </clr-control-error>
@@ -79,7 +92,9 @@
                 formControlName="password"
                 placeholder="Password"
               />
-              <clr-control-error *clrIfError="'required'">Password is required</clr-control-error>
+              <clr-control-error *clrIfError="'required'"
+                >Password is required</clr-control-error
+              >
             </clr-input-container>
             <div class="error" [class.active]="error.length > 0">
               {{ error }}
