@@ -6,6 +6,7 @@ import {
   TypedInput,
   TypedSettingsService,
 } from '../services/typedSettings.service';
+import { FormControl, FormGroup, Validators } from '@angular/forms';
 
 @Component({
   selector: 'app-login',
@@ -13,10 +14,7 @@ import {
   styleUrls: ['./login.component.css'],
 })
 export class LoginComponent {
-  public email = '';
-  public password = '';
   public error = '';
-  public accesscode = '';
 
   public registrationDisabled = false;
 
@@ -27,6 +25,17 @@ export class LoginComponent {
   public background;
 
   public loginactive = false;
+
+  public loginForm: FormGroup = new FormGroup({
+    email: new FormControl(null, [Validators.required]),
+    password: new FormControl(null, [Validators.required]),
+    accesscode: new FormControl(null, [
+      Validators.required,
+      Validators.minLength(5),
+      Validators.pattern(/^[a-z0-9][a-z0-9.-]{3,}[a-z0-9]$/),
+    ]),
+  });
+
   constructor(
     private route: ActivatedRoute,
     private router: Router,
@@ -55,14 +64,13 @@ export class LoginComponent {
 
     this.userService
       .register({
-        email: this.email,
-        password: this.password,
-        access_code: this.accesscode,
+        email: this.loginForm.controls['email'].value,
+        password: this.loginForm.controls['password'].value,
+        access_code: this.loginForm.controls['accesscode'].value,
       })
       .subscribe(
         () => {
-          this.loginactive = true;
-          this.registrationDisabled = false;
+          this.login();
         },
         (error) => {
           this.error = error;
@@ -76,8 +84,8 @@ export class LoginComponent {
 
     this.userService
       .login({
-        email: this.email,
-        password: this.password,
+        email: this.loginForm.controls['email'].value,
+        password: this.loginForm.controls['password'].value,
       })
       .subscribe(
         (s) => {
