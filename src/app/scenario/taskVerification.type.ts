@@ -11,7 +11,7 @@ export type TaskCommand = {
     command: string,
     expected_output_value: string,
     expected_return_code: number
-    actualOutputValue?: string,
-    actualReturnCode?: number,
+    actual_output_value?: string,
+    actual_return_code?: number,
     success?: boolean
 }

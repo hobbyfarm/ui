@@ -123,6 +123,7 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
     private shellService: ShellService,
     private progressService: ProgressService,
     private jwtHelper: JwtHelperService,
+    private verificationService: VerificationService
   ) {}  
 
   setTabActive(webinterface: Service) {
@@ -193,7 +194,12 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
         ),
         toArray(),
         tap((entries: (readonly [string, VM])[]) => {
+          const verificationTasks = this.scenario.vm_tasks        
           this.vms = new Map(entries);
+          verificationTasks.forEach(task => {
+            task.vm_id = this.vms.get(task.vm_name)?.id ?? ''
+          })
+          this.verificationService.verifications = verificationTasks
           this.sendProgressUpdate();
           const vmInfo: HfMarkdownRenderContext['vmInfo'] = {};
           for (const [k, v] of this.vms) {

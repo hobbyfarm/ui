@@ -41,6 +41,7 @@ import { ContextService } from './services/context.service';
 import { TypedSettingsService } from './services/typedSettings.service';
 import { VerificationService } from './services/verification.service';
 import { TaskProgressComponent } from './scenario/task-progress/task-progress.component';
+import { TaskModalComponent } from './scenario/task-modal/task-modal.component';
 import '@cds/core/icon/register.js';
 import {
   ClarityIcons,
@@ -143,6 +144,7 @@ export function jwtOptionsFactory() {
     PrintableComponent,
     IdeWindowComponent,
     TaskProgressComponent,
+    TaskModalComponent,
   ],
   imports: [
     BrowserModule,
