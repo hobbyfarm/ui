@@ -65,7 +65,6 @@ export class VerificationService {
                 existingVerification.task_command?.forEach((taskCommand, index, array) => {
                     const newData = newTaskVerification.task_command_output?.find(command => command.name == taskCommand.name)
                     if (newData) {
-                        console.log(newData)
                         array[index] = newData //Keep the Order of Tasks provided by setting the Verifications, since the Response does not retain the Order
                     }
                 })

@@ -11,7 +11,7 @@ import { ServerResponse } from 'src/app/ServerResponse';
   templateUrl: './task-progress.component.html',
   styleUrls: ['./task-progress.component.scss']
 })
-export class TaskProgressComponent implements OnInit, AfterViewInit, OnDestroy {
+export class TaskProgressComponent implements AfterViewInit, OnDestroy {
 
   private _vms: Map<string, VM> = new Map()
 
@@ -38,7 +38,7 @@ export class TaskProgressComponent implements OnInit, AfterViewInit, OnDestroy {
     private verificationService: VerificationService,
   ) { }
 
-  ngOnInit(): void {    
+  ngAfterViewInit() {
     this.verificationService.currentVerifications.subscribe((currentVeriications: Map<string, TaskVerification>) => {
       let taskList: TaskCommand[] = this.buildTaskList(currentVeriications)      
       this.tasks = taskList.length
@@ -50,7 +50,16 @@ export class TaskProgressComponent implements OnInit, AfterViewInit, OnDestroy {
     if (!!this.percentages) {
       this.setProgress(this.percentages[this.index])
     }
-    })    
+    }) 
+    const radius = this.circle.nativeElement.r.baseVal.value;
+    this.circumference = radius * 2 * Math.PI;
+    this.circle.nativeElement.style.strokeDasharray = `${this.circumference} ${this.circumference}`;
+    this.circle.nativeElement.style.strokeDashoffset = this.circumference;
+
+    timer(1000, 10000).pipe(
+      takeUntil(this.unsubscribe),
+      switchMap(() => this.verifyAll())
+    ).subscribe()
   }
 
   onClickVerify() {
@@ -73,18 +82,6 @@ export class TaskProgressComponent implements OnInit, AfterViewInit, OnDestroy {
     })
     return tasks
   }
-
-  ngAfterViewInit() {
-    const radius = this.circle.nativeElement.r.baseVal.value;
-    this.circumference = radius * 2 * Math.PI;
-    this.circle.nativeElement.style.strokeDasharray = `${this.circumference} ${this.circumference}`;
-    this.circle.nativeElement.style.strokeDashoffset = this.circumference;
-
-    timer(1000, 10000).pipe(
-      takeUntil(this.unsubscribe),
-      switchMap(() => this.verifyAll())
-    ).subscribe()
-  } 
 
   setProgress(percent: number) {
     percent = percent > 100 ? 100 : percent

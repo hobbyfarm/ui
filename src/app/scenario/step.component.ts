@@ -123,7 +123,7 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
     private shellService: ShellService,
     private progressService: ProgressService,
     private jwtHelper: JwtHelperService,
-    private verificationService: VerificationService
+    public verificationService: VerificationService
   ) {}  
 
   setTabActive(webinterface: Service) {
