@@ -1,18 +1,24 @@
-import { AfterViewInit, Component, ElementRef, Input, OnInit, Renderer2, ViewChild } from '@angular/core';
-import { ServerResponse } from 'src/app/ServerResponse';
+import { AfterViewInit, Component, ElementRef, Input, OnDestroy, OnInit, Renderer2, ViewChild } from '@angular/core';
 import { VM } from 'src/app/VM';
-import { VerificationService, commands } from 'src/app/services/verification.service';
-import { TaskVerification } from '../taskVerification.type';
+import { VerificationService } from 'src/app/services/verification.service';
+import { TaskCommand, TaskVerification } from '../taskVerification.type';
+import { Observable, Subject, forkJoin, timer } from 'rxjs';
+import { switchMap, take, takeUntil } from 'rxjs/operators';
+import { ServerResponse } from 'src/app/ServerResponse';
 
 @Component({
   selector: 'app-task-progress',
   templateUrl: './task-progress.component.html',
   styleUrls: ['./task-progress.component.scss']
 })
-export class TaskProgressComponent implements OnInit, AfterViewInit {
+export class TaskProgressComponent implements OnInit, AfterViewInit, OnDestroy {
 
-  @Input()
-  vms: Map<string, VM>;
+  private _vms: Map<string, VM> = new Map()
+
+  @Input() set vms(value: Map<string, VM>) {
+    this._vms = value
+    this.verifyAll().subscribe()
+  };
 
   @ViewChild('circle') circle: ElementRef;
 
@@ -24,17 +30,48 @@ export class TaskProgressComponent implements OnInit, AfterViewInit {
 
   index: number = 0
 
+  modalOpen = false
+
+  unsubscribe = new Subject<void>()
+
   constructor(
     private verificationService: VerificationService,
   ) { }
 
-  ngOnInit(): void {
-      const vmCommands = commands
-      this.tasks = vmCommands.length
-    this.percentages = [0]
-    while (this.percentages[this.percentages.length -1] < 100) {
-      this.percentages.push(this.percentages[this.percentages.length -1] + 100 / this.tasks)
+  ngOnInit(): void {    
+    this.verificationService.currentVerifications.subscribe((currentVeriications: Map<string, TaskVerification>) => {
+      let taskList: TaskCommand[] = this.buildTaskList(currentVeriications)      
+      this.tasks = taskList.length
+      this.index = taskList.filter(taskCommand => !!taskCommand.success).length ?? 0
+      
+    if (!this.percentages && this.tasks > 0) {
+      this.buildPercentagesArray();
     }
+    if (!!this.percentages) {
+      this.setProgress(this.percentages[this.index])
+    }
+    })    
+  }
+
+  onClickVerify() {
+    this.verifyAll().subscribe()
+  }
+
+  private buildPercentagesArray() {
+    this.percentages = [0];
+    while (this.percentages[this.percentages.length - 1] < 100) {
+      this.percentages.push(this.percentages[this.percentages.length - 1] + 100 / this.tasks);
+    }
+  }
+
+  buildTaskList(currentVerifications: Map<string, TaskVerification>): TaskCommand[] {
+    let tasks: TaskCommand[] = []
+    currentVerifications.forEach(taskCommand => {
+      taskCommand.task_command?.forEach(task => {
+        tasks.push(task)
+      })
+    })
+    return tasks
   }
 
   ngAfterViewInit() {
@@ -42,13 +79,12 @@ export class TaskProgressComponent implements OnInit, AfterViewInit {
     this.circumference = radius * 2 * Math.PI;
     this.circle.nativeElement.style.strokeDasharray = `${this.circumference} ${this.circumference}`;
     this.circle.nativeElement.style.strokeDashoffset = this.circumference;
-  }
 
-  setNextProgress() {
-    this.index = this.index + 1 >= this.percentages.length - 1 ? 0 : this.index + 1
-    this.setProgress(this.percentages[this.index])
-    
-  }
+    timer(1000, 10000).pipe(
+      takeUntil(this.unsubscribe),
+      switchMap(() => this.verifyAll())
+    ).subscribe()
+  } 
 
   setProgress(percent: number) {
     percent = percent > 100 ? 100 : percent
@@ -56,14 +92,22 @@ export class TaskProgressComponent implements OnInit, AfterViewInit {
     this.circle.nativeElement.style.strokeDashoffset = offset;
   }
 
-  verifyTest() {
-    this.vms.forEach((vm, name) => {
-      this.verificationService.verify(vm, name).subscribe((res: ServerResponse) => {
-        let result = res as unknown as TaskVerification[]
-        this.index = result[0].task_command_output?.filter(taskCommand => !!taskCommand.success).length ?? 0
-        this.setProgress(this.percentages[this.index])
-      })
+  verifyAll() {
+    const verifyCalls: Observable<ServerResponse>[] = []
+    this._vms.forEach((vm, name) => {
+      verifyCalls.push(this.verificationService.verify(vm, name).pipe(take(1)))
     })
+    return forkJoin(verifyCalls)
+  }
+
+  openTaskModal() {
+    this.modalOpen = true
+    this.verifyAll()
+  }
+
+  ngOnDestroy(): void {
+    this.unsubscribe.next();
+    this.unsubscribe.complete();
   }
 
 }
