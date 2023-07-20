@@ -20,12 +20,14 @@ export class VerificationService {
     private _verifications = new BehaviorSubject<Map<string, TaskVerification>>(this.verificationTaskRequests)    
 
     set verifications(tasks: TaskVerification[]) {
+        this.verificationTaskRequests = new Map<string, TaskVerification>()
         tasks.forEach(task => {
             this.verificationTaskRequests.set(task.vm_name, task)
         })
+        this._verifications.next(this.verificationTaskRequests)
     }
 
-    public currentVerifications = this._verifications.asObservable()
+    public currentVerifications = this._verifications.asObservable() 
 
     
     constructor(

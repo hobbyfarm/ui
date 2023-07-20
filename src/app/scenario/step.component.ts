@@ -194,7 +194,7 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
         ),
         toArray(),
         tap((entries: (readonly [string, VM])[]) => {
-          const verificationTasks = this.scenario.vm_tasks        
+          const verificationTasks = this.scenario.vm_tasks ?? []
           this.vms = new Map(entries);
           verificationTasks.forEach(task => {
             task.vm_id = this.vms.get(task.vm_name)?.id ?? ''
