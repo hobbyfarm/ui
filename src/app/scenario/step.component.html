@@ -21,7 +21,7 @@
             </button>
             <clr-signpost class="signpost-after" style="z-index: 100000">
               <clr-signpost-content [clrPosition]="'bottom-right'" *clrIfOpen>
-                Pausing your scenario prevents removal of your VMs in case of
+                Pausing your scenario prevents removal of your resources in case of
                 network disconnection, timeout, etc.
               </clr-signpost-content>
             </clr-signpost>
@@ -209,8 +209,8 @@
   <h3 class="modal-title">Are you sure you want to close this scenario?</h3>
   <div class="modal-body">
     <p>
-      Closing a scenario will retain your existing VMs. You may choose another
-      scenario or return to this one.
+      Closing a scenario will retain your existing resources. You may
+      choose another scenario or return to this scenario.
     </p>
   </div>
   <div class="modal-footer">
@@ -225,13 +225,13 @@
   <h3 class="modal-title">Are you sure you want to finish?</h3>
   <div class="modal-body">
     <p *ngIf="shouldKeepVmOnFinish; else no_course">
-      Your virtual machines will be kept until they expire or the
-      course is marked as "complete". Selecting "FORCE" will immediately
-      deprovision and delete your virtual machines and resources.
+      Your virtual machines will be kept until they expire or
+      the course is marked as "complete". Selecting "FORCE"
+      will immediately deprovision and delete your resources.
     </p>
     <ng-template #no_course>
       Selecting "FINISH" will immediately deprovision and delete
-      your virtual machines and resources.
+      your resources.
     </ng-template>
   </div>
   <div class="modal-footer">
