@@ -226,12 +226,12 @@
   <div class="modal-body">
     <p *ngIf="shouldKeepVmOnFinish; else no_course">
       Your virtual machines will be kept until they expire or the
-      courseis marked as "complete". Selecting "FORCE" will immediately
+      course is marked as "complete". Selecting "FORCE" will immediately
       deprovision and delete your virtual machines and resources.
     </p>
     <ng-template #no_course>
       Selecting "FINISH" will immediately deprovision and delete
-      your virtual machines and resources
+      your virtual machines and resources.
     </ng-template>
   </div>
   <div class="modal-footer">
