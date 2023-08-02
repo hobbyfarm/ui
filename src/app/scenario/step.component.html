@@ -225,15 +225,13 @@
   <h3 class="modal-title">Are you sure you want to finish?</h3>
   <div class="modal-body">
     <p *ngIf="shouldKeepVmOnFinish; else no_course">
-      Your VMs will be kept until they expire or the course is marked as
-      "complete".
-      <br />
-      Forcing the finish will immediately de-provision your resources. Any VMs
-      that you are using will be wiped.
+      Your virtual machines will be kept until they expire or the
+      courseis marked as "complete". Selecting "FORCE" will immediately
+      deprovision and delete your virtual machines and resources.
     </p>
     <ng-template #no_course>
-      Finishing a scenario will immediately de-provision your resources. Any VMs
-      that you are using will be wiped.
+      Selecting "FINISH" will immediately deprovision and delete
+      your virtual machines and resources
     </ng-template>
   </div>
   <div class="modal-footer">
@@ -243,7 +241,7 @@
         Force
       </button>
     </div>
-    <button class="btn btn-danger-outline" (click)="actuallyFinish()">
+    <button class="btn btn-next btn-success-outline" (click)="actuallyFinish()">
       Finish
     </button>
   </div>
@@ -253,9 +251,9 @@
   <h3 class="modal-title">Scenario Paused</h3>
   <div class="modal-body">
     <p>
-      This scenario has been paused. If you do nothing, the scenario will
-      automatically resume in
-      {{ pauseRemainingString }}
+      This scenario has been paused successfully. If you do not take
+      any actions, the scenario will automatically resume in
+      {{ pauseRemainingString }}.
     </p>
     <p>
       <span class="clr-subtext"
