@@ -10,7 +10,7 @@
     <h5>
       {{ scenario?.description | atob }}
     </h5>
-    <div class="clr-row" *ngIf="vmclaims.length === 0">
+    <div class="clr-row" *ngIf="vmclaims.length === 0 && !error">
       <div class="clr-col">
         <br />
         <span class="spinner spinner-inline">
@@ -31,7 +31,19 @@
         </span>
       </clr-alert-item>
     </clr-alert>
-    <table class="table">
+    <clr-alert
+      [clrAlertType]="'danger'"
+      [clrAlertClosable]="false"
+      *ngIf="error"
+    >
+      <clr-alert-item>
+        <span class="alert-text">
+          There was an error creating the session. Try again later or contact
+          administrator.
+        </span>
+      </clr-alert-item>
+    </clr-alert>
+    <table class="table" *ngIf="!error">
       <thead>
         <tr>
           <th class="left">name</th>

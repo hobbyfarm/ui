@@ -41,6 +41,10 @@ import { QuizCheckboxComponent } from './quiz/quiz-checkbox.component';
 import { QuizRadioComponent } from './quiz/quiz-radio.component';
 import { QuizBodyComponent } from './quiz/quiz-body.component';
 import { QuizComponent } from './quiz/quiz.component';
+import { GuacTerminalComponent } from './scenario/guacTerminal.component';
+import { IdeWindowComponent } from './scenario/ideWindow.component';
+import { ContextService } from './services/context.service';
+import { TypedSettingsService } from './services/typedSettings.service';
 
 export function tokenGetter() {
   return localStorage.getItem('hobbyfarm_token');
@@ -70,6 +74,7 @@ export function jwtOptionsFactory() {
     HomeComponent,
     ScenarioComponent,
     TerminalComponent,
+    GuacTerminalComponent,
     LoginComponent,
     ScenarioCardComponent,
     StepComponent,
@@ -82,6 +87,7 @@ export function jwtOptionsFactory() {
     AtobPipe,
     HfMarkdownComponent,
     PrintableComponent,
+    IdeWindowComponent,
   ],
   imports: [
     BrowserModule,
@@ -126,6 +132,8 @@ export function jwtOptionsFactory() {
     GargantuaClientFactory,
     AppConfigService,
     ProgressService,
+    ContextService,
+    TypedSettingsService,
     {
       provide: APP_INITIALIZER,
       useFactory: appInitializerFn,

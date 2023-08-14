@@ -2,8 +2,7 @@ import { Component, OnInit, ViewChild } from '@angular/core';
 import { ClarityIcons } from '@clr/icons';
 import { JwtHelperService } from '@auth0/angular-jwt';
 import { ClrModal } from '@clr/angular';
-import { Router } from '@angular/router';
-import { version } from 'src/environments/version';
+import { ActivatedRoute, Router } from '@angular/router';
 import { UserService } from './services/user.service';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
 import { ServerResponse } from './ServerResponse';
@@ -11,17 +10,21 @@ import { AppConfigService } from './app-config.service';
 import { SettingsService } from './services/settings.service';
 import { themes } from './scenario/terminal-themes/themes';
 import { first } from 'rxjs/operators';
+import { Context, ContextService } from './services/context.service';
+import {
+  TypedInput,
+  TypedSettingsService,
+} from './services/typedSettings.service';
 
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
-  styleUrls: ['./app.component.css'],
+  styleUrls: ['./app.component.scss'],
 })
 export class AppComponent implements OnInit {
   public logoutModalOpened = false;
   public aboutModalOpened = false;
   public changePasswordModalOpened = false;
-  public version: string;
 
   public changePwDangerClosed = true;
   public changePwSuccessClosed = true;
@@ -35,30 +38,54 @@ export class AppComponent implements OnInit {
   public accessCodeDangerAlert = '';
   public accessCodeSuccessAlert = '';
 
+  public accessCodeLinkSuccessAlert = '';
+  public accessCodeLinkSuccessClosed = true;
+
   public newAccessCode = false;
   public fetchingAccessCodes = false;
+
+  public alertDeleteAccessCodeModal = false;
 
   public accessCodeModalOpened = false;
 
   public settingsModalOpened = false;
   public fetchingSettings = false;
 
+  public theme: 'dark' | 'light' | 'system' = 'system';
+
   public accesscodes: string[] = [];
+  public selectedAccesscodesForDeletion: string[] = [];
+  public scheduledEvents: Map<string, string> = new Map();
+  public ctx: Context = {} as Context;
 
   public email = '';
 
   private Config = this.config.getConfig();
   public title = this.Config.title || "Rancher's Hobby Farm";
   private logo = this.Config.logo || '/assets/default/logo.svg';
+  public aboutTitle = this.Config.about?.title || 'About HobbyFarm';
+  public aboutBody =
+    this.Config.about?.body ||
+    'HobbyFarm is lovingly crafted by the HobbyFarm team';
+  public buttons = this.Config.about?.buttons || [
+    {
+      title: 'Hobbyfarm Project',
+      url: 'https://github.com/hobbyfarm/hobbyfarm',
+    },
+  ];
 
   public themes = themes;
+  public motd = '';
 
   constructor(
     private helper: JwtHelperService,
     private userService: UserService,
     private router: Router,
+    private route: ActivatedRoute,
     private config: AppConfigService,
     private settingsService: SettingsService,
+    private contextService: ContextService,
+    private typedSettingsService: TypedSettingsService,
   ) {
     this.config.getLogo(this.logo).then((obj: string) => {
       ClarityIcons.add({
@@ -69,12 +96,6 @@ export class AppComponent implements OnInit {
     if (this.Config.favicon) {
       const fi = <HTMLLinkElement>document.querySelector('#favicon');
       fi.href = this.Config.favicon;
-    }
-
-    if (version.tag) {
-      this.version = version.tag;
-    } else {
-      this.version = version.revision;
     }
   }
 
@@ -106,11 +127,65 @@ export class AppComponent implements OnInit {
 
   public settingsForm: FormGroup = new FormGroup({
     terminal_theme: new FormControl(null, [Validators.required]),
+    terminal_fontSize: new FormControl(null, [Validators.required]),
+    ctr_enabled: new FormControl(false),
+    theme: new FormControl(null, [Validators.required]),
   });
 
   ngOnInit() {
     const tok = this.helper.decodeToken(this.helper.tokenGetter());
     this.email = tok.email;
+
+    // Automatically logout the user after token expiration
+    const timeout = tok.exp * 1000 - Date.now();
+    setTimeout(() => this.doLogout(), timeout);
+
+    const addAccessCode = this.route.snapshot.params['accesscode'];
+    if (addAccessCode) {
+      this.userService.addAccessCode(addAccessCode).subscribe(
+        (s: ServerResponse) => {
+          this.accesscodes.push(addAccessCode);
+          this.setAccessCode(addAccessCode);
+          this.doHomeAccessCode(addAccessCode);
+        },
+        (s: ServerResponse) => {
+          // failure
+          this.doHomeAccessCodeError(addAccessCode);
+        },
+      );
+    }
+    //react to changes on users accesscodess
+    this.contextService.watch().subscribe((c: Context) => {
+      this.ctx = c;
+      this.userService
+        .getScheduledEvents()
+        .subscribe((se: Map<string, string>) => {
+          se = new Map(Object.entries(se));
+          this.scheduledEvents = se;
+        });
+    });
+    this.contextService.init();
+
+    this.settingsService.fetch().subscribe((response) => {
+      if (response.theme == 'light') {
+        this.disableDarkMode();
+      } else if (response.theme == 'dark') {
+        this.enableDarkMode();
+      } else {
+        if (
+          window.matchMedia &&
+          window.matchMedia('(prefers-color-scheme: dark)').matches
+        ) {
+          this.enableDarkMode();
+        } else this.disableDarkMode();
+      }
+    });
+
+    this.typedSettingsService
+      .get('public', 'motd-ui')
+      .subscribe((typedInput: TypedInput) => {
+        this.motd = typedInput?.value ?? '';
+      });
   }
 
   public logout() {
@@ -124,6 +199,12 @@ export class AppComponent implements OnInit {
   public changePassword() {
     this.passwordChangeForm.reset();
     this.changePasswordModal.open();
+  }
+
+  public setAccessCode(ac: string) {
+    if (ac != '') {
+      this.settingsService.update({ ctxAccessCode: ac }).subscribe();
+    }
   }
 
   public openAccessCodes() {
@@ -148,14 +229,34 @@ export class AppComponent implements OnInit {
     this.fetchingSettings = true;
     this.settingsService.settings$
       .pipe(first())
-      .subscribe(({ terminal_theme }) => {
-        this.settingsForm.setValue({ terminal_theme });
-        this.fetchingSettings = false;
-      });
+      .subscribe(
+        ({
+          terminal_theme = 'default',
+          terminal_fontSize = 16,
+          ctr_enabled = true,
+          theme = 'light',
+        }) => {
+          this.settingsForm.setValue({
+            terminal_theme,
+            terminal_fontSize,
+            ctr_enabled,
+            theme,
+          });
+          this.fetchingSettings = false;
+        },
+      );
     this.settingsModal.open();
   }
 
-  public saveAccessCode() {
+  public isValidAccessCode(ac: string) {
+    return this.scheduledEvents?.has(ac);
+  }
+
+  public getScheduledEventNameForAccessCode(ac: string) {
+    return this.scheduledEvents?.get(ac);
+  }
+
+  public saveAccessCode(activate = false) {
     const { access_code: a } = this.newAccessCodeForm.value;
     this.userService.addAccessCode(a).subscribe(
       (s: ServerResponse) => {
@@ -164,6 +265,10 @@ export class AppComponent implements OnInit {
         this.accessCodeSuccessClosed = false;
         this.accesscodes.push(a);
         this.newAccessCode = false;
+        this.newAccessCodeForm.reset();
+        if (activate) {
+          this.setAccessCode(a);
+        }
         setTimeout(() => (this.accessCodeSuccessClosed = true), 2000);
       },
       (s: ServerResponse) => {
@@ -202,6 +307,20 @@ export class AppComponent implements OnInit {
     this.settingsService.update(this.settingsForm.value).subscribe(
       () => {
         this.settingsModalOpened = false;
+        const theme: 'light' | 'dark' | 'system' =
+          this.settingsForm.controls['theme'].value;
+        if (theme == 'dark') {
+          this.enableDarkMode();
+        } else if (theme == 'light') {
+          this.disableDarkMode();
+        } else {
+          if (
+            window.matchMedia &&
+            window.matchMedia('(prefers-color-scheme: dark)').matches
+          ) {
+            this.enableDarkMode();
+          } else this.disableDarkMode();
+        }
       },
       () => {
         setTimeout(() => (this.settingsModalOpened = false), 2000);
@@ -228,5 +347,34 @@ export class AppComponent implements OnInit {
   public doLogout() {
     localStorage.removeItem('hobbyfarm_token');
     this.router.navigateByUrl('/login');
+  }
+
+  public doHomeAccessCode(accesscode: string) {
+    this.router.navigateByUrl(`/app/home?ac=${accesscode}`);
+  }
+
+  public doHomeAccessCodeError(error: string) {
+    this.router.navigateByUrl(`/app/home?acError=${error}`);
+  }
+
+  public accessCodeSelectedForDeletion(a: string[]) {
+    this.selectedAccesscodesForDeletion = a;
+  }
+  public deleteAccessCodes() {
+    this.selectedAccesscodesForDeletion.forEach((element) =>
+      this.deleteAccessCode(element),
+    );
+    this.alertDeleteAccessCodeModal = false;
+  }
+  public enableDarkMode() {
+    document.body.classList.add('darkmode');
+  }
+
+  public disableDarkMode() {
+    document.body.classList.remove('darkmode');
+  }
+
+  public closeMotd() {
+    this.motd = '';
   }
 }

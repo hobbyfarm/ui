@@ -1,37 +1,70 @@
 <div class="main-container">
   <header class="header header-4">
     <div class="branding">
-      <a class="logo-and-title">
+      <a
+        class="logo-and-title"
+        href="javascript://"
+        class="nav-link nav-text"
+        [routerLink]="['/app/home']"
+      >
         <clr-icon shape="logo"></clr-icon>
         <span class="title">{{ title }}</span>
       </a>
     </div>
 
-    <div class="header-nav">
-      <a
-        href="javascript://"
-        class="nav-link nav-text"
-        [routerLink]="['/app/home']"
-        >Home</a
-      >
+    <div class="settings">
+      <clr-dropdown *ngIf="ctx.valid">
+        <button class="nav-text" clrDropdownToggle>
+          <clr-icon shape="layers" class="is-solid"></clr-icon>
+          {{ ctx.scheduledEventName }}
+          <clr-icon shape="caret down"></clr-icon>
+        </button>
+        <clr-dropdown-menu *clrIfOpen clrPosition="bottom">
+          <a
+            clrDropdownItem
+            *ngFor="let a of scheduledEvents | keyvalue"
+            (click)="setAccessCode(a.key)"
+            >{{ a.value }}</a
+          >
+        </clr-dropdown-menu>
+      </clr-dropdown>
     </div>
 
     <div class="header-actions">
       <clr-dropdown>
         <button class="nav-text" clrDropdownToggle>
-          {{ email }}
+          <clr-icon shape="user" class="is-solid"></clr-icon> {{ email }}
           <clr-icon shape="caret down"></clr-icon>
         </button>
         <clr-dropdown-menu *clrIfOpen clrPosition="bottom-right">
-          <a (click)="openAccessCodes()" clrDropdownItem>Manage Access Codes</a>
-          <a (click)="openSettings()" clrDropdownItem>Settings</a>
-          <a (click)="changePassword()" clrDropdownItem>Change Password</a>
-          <a (click)="about()" clrDropdownItem>About</a>
-          <a (click)="logout()" clrDropdownItem>Logout</a>
+          <a (click)="openAccessCodes()" clrDropdownItem
+            ><clr-icon shape="tags"></clr-icon> Manage Access Codes</a
+          >
+          <a (click)="openSettings()" clrDropdownItem
+            ><clr-icon shape="cog"></clr-icon> Settings</a
+          >
+          <a (click)="changePassword()" clrDropdownItem
+            ><clr-icon shape="key"></clr-icon> Change Password</a
+          >
+          <a (click)="about()" clrDropdownItem
+            ><clr-icon shape="help-info"></clr-icon> About</a
+          >
+          <a (click)="logout()" clrDropdownItem
+            ><clr-icon shape="logout"></clr-icon> Logout</a
+          >
         </clr-dropdown-menu>
       </clr-dropdown>
     </div>
   </header>
+
+  <div
+    class="motd-container"
+    *ngIf="motd"
+    title="Click to close"
+    (click)="closeMotd()"
+  >
+    <p class="motd">{{ motd }}</p>
+  </div>
 
   <div class="content-container">
     <div class="content-area">
@@ -63,14 +96,19 @@
   </clr-modal>
 
   <clr-modal #aboutmodal [(clrModalOpen)]="aboutModalOpened">
-    <h3 class="modal-title">About HobbyFarm</h3>
+    <h3 class="modal-title">{{ aboutTitle }}</h3>
     <div class="modal-body">
-      <p>
-        HobbyFarm was lovingly crafted by @ebauman and @Oats87 from @RancherLabs
+      <p class="about-body">
+        {{ aboutBody }}
       </p>
-      <p>
-        <i>UI Version: {{ version }}</i>
-      </p>
+      <ng-container *ngFor="let button of buttons">
+        <a href="{{ button.url }}" target="_blank">
+          <button class="btn btn-sm btn-link">
+            {{ button.title }}
+            <clr-icon shape="pop-out"></clr-icon>
+          </button>
+        </a>
+      </ng-container>
     </div>
   </clr-modal>
 
@@ -107,6 +145,14 @@
         <clr-icon shape="plus"></clr-icon> Add Access Code
       </button>
 
+      <button
+        class="btn btn-danger-outline btn-sm"
+        (click)="alertDeleteAccessCodeModal = true"
+        *ngIf="selectedAccesscodesForDeletion.length > 0"
+      >
+        <clr-icon shape="trash"></clr-icon> Delete Access Code
+      </button>
+
       <ng-container *ngIf="newAccessCode">
         <form clrForm [formGroup]="newAccessCodeForm">
           <clr-input-container>
@@ -130,6 +176,13 @@
             <button
               class="btn btn-success btn-sm"
               [disabled]="!newAccessCodeForm.valid"
+              (click)="saveAccessCode(true)"
+            >
+              Save & Activate
+            </button>
+            <button
+              class="btn btn-outline btn-sm"
+              [disabled]="!newAccessCodeForm.valid"
               (click)="saveAccessCode()"
             >
               Save
@@ -143,16 +196,31 @@
         <span> Loading... </span>
       </ng-container>
       <ng-container *ngIf="!fetchingAccessCodes">
-        <clr-datagrid class="datagrid-compact">
+        <clr-datagrid
+          class="datagrid-compact"
+          [clrDgSelected]="selectedAccesscodesForDeletion"
+          (clrDgSelectedChange)="accessCodeSelectedForDeletion($event)"
+        >
           <clr-dg-column>Access Code</clr-dg-column>
-
+          <clr-dg-column>Valid</clr-dg-column>
           <clr-dg-row *clrDgItems="let a of accesscodes" [clrDgItem]="a">
-            <clr-dg-action-overflow>
-              <button class="action-item" (click)="deleteAccessCode(a)">
-                Delete
-              </button>
-            </clr-dg-action-overflow>
             <clr-dg-cell>{{ a }}</clr-dg-cell>
+            <clr-dg-cell>
+              <ng-container *ngIf="!isValidAccessCode(a)">
+                <clr-icon
+                  class="invalid-access-code"
+                  shape="warning-standard"
+                ></clr-icon>
+                <span> No associated event</span>
+              </ng-container>
+              <ng-container *ngIf="isValidAccessCode(a)">
+                <clr-icon
+                  class="valid-access-code"
+                  shape="success-standard"
+                ></clr-icon>
+              </ng-container>
+              <span> {{ getScheduledEventNameForAccessCode(a) }}</span>
+            </clr-dg-cell>
           </clr-dg-row>
         </clr-datagrid>
       </ng-container>
@@ -173,8 +241,39 @@
         <form clrForm [formGroup]="settingsForm">
           <clr-tabs>
             <clr-tab>
-              <button clrTabLink>Terminal Theme</button>
+              <button clrTabLink>Terminal</button>
               <clr-tab-content *clrIfActive="true">
+                <clr-input-container>
+                  <label class="clr-col-md-4">Font-Size</label>
+                  <input
+                    class="clr-col-md-8"
+                    clrInput
+                    type="number"
+                    required
+                    name="terminal_fontSize"
+                    formControlName="terminal_fontSize"
+                  />
+                  <clr-control-error *clrIfError="'required'"
+                    >Font Size required.</clr-control-error
+                  >
+                </clr-input-container>
+                <clr-checkbox-container>
+                  <label class="clr-col-md-4">CTR Enabled</label>
+                  <clr-checkbox-wrapper>
+                    <input
+                      class="clr-col-md-8"
+                      type="checkbox"
+                      clrCheckbox
+                      name="ctr_enabled"
+                      formControlName="ctr_enabled"
+                    />
+                  </clr-checkbox-wrapper>
+                </clr-checkbox-container>
+              </clr-tab-content>
+            </clr-tab>
+            <clr-tab>
+              <button clrTabLink>Terminal Theme</button>
+              <clr-tab-content>
                 <div
                   *ngFor="let theme of themes"
                   class="radio-box-container clr-col-6"
@@ -392,6 +491,27 @@
                 </div>
               </clr-tab-content>
             </clr-tab>
+            <clr-tab>
+              <button clrTabLink>Theme</button>
+              <clr-tab-content>
+                <clr-combobox-container>
+                  <label>Theme</label>
+                  <clr-combobox
+                    name="Theme"
+                    required
+                    placeholder="{{ theme }}"
+                    formControlName="theme"
+                  >
+                    <clr-options>
+                      <clr-option clrValue="light">light</clr-option>
+                      <clr-option clrValue="dark">dark</clr-option>
+                      <clr-option clrValue="system"> system</clr-option>
+                    </clr-options>
+                  </clr-combobox>
+                </clr-combobox-container>
+              </clr-tab-content>
+              <clr-tab-content> </clr-tab-content>
+            </clr-tab>
           </clr-tabs>
         </form>
       </ng-container>
@@ -494,6 +614,53 @@
         (click)="doChangePassword()"
       >
         Change Password
+      </button>
+    </div>
+  </clr-modal>
+  <clr-modal [(clrModalOpen)]="alertDeleteAccessCodeModal">
+    <h3 class="modal-title">
+      Are you sure you want to delete
+      {{
+        selectedAccesscodesForDeletion.length === 1
+          ? 'this'
+          : selectedAccesscodesForDeletion.length
+      }}
+      access code{{ selectedAccesscodesForDeletion.length > 1 ? 's' : null }}?
+    </h3>
+    <div class="modal-body">
+      <div class="alert alert-danger">
+        <div class="alert-items">
+          <div class="alert-item static" role="alert">
+            <div class="alert-icon-wrapper">
+              <cds-icon
+                class="alert-icon"
+                shape="exclamation-triangle"
+              ></cds-icon>
+            </div>
+            <span class="alert-text">
+              The access code{{
+                selectedAccesscodesForDeletion.length > 1 ? 's' : null
+              }}
+              will be deleted permanently!
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button
+        type="button"
+        class="btn btn-outline"
+        (click)="this.alertDeleteAccessCodeModal = false"
+      >
+        Cancel
+      </button>
+      <button
+        type="button"
+        class="btn btn-danger-outline"
+        (click)="deleteAccessCodes()"
+      >
+        Ok
       </button>
     </div>
   </clr-modal>

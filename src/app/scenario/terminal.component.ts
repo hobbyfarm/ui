@@ -17,9 +17,11 @@ import { CodeExec } from './CodeExec';
 import { ShellService } from '../services/shell.service';
 import { environment } from 'src/environments/environment';
 import { HostListener } from '@angular/core';
-import { Subscription } from 'rxjs';
+import { interval, Subscription, timer } from 'rxjs';
 import { themes } from './terminal-themes/themes';
 import { SettingsService } from '../services/settings.service';
+
+const WS_CODE_NORMAL_CLOSURE = 1000;
 
 @Component({
   selector: 'app-terminal',
@@ -45,7 +47,10 @@ export class TerminalComponent implements OnChanges, AfterViewInit, OnDestroy {
   private firstTabChange = true;
   private isVisible = false;
   public mutationObserver: MutationObserver;
-  private subscription: Subscription;
+  private subscription = new Subscription();
+
+  private DEFAULT_FONT_SIZE = 16;
+  private DEFAULT_TERMINAL_THEME = 'default';
 
   @ViewChild('terminal', { static: true }) terminalDiv: ElementRef;
 
@@ -97,13 +102,20 @@ export class TerminalComponent implements OnChanges, AfterViewInit, OnDestroy {
       'InstallTrigger' in window;
     this.term = new Terminal({
       fontFamily: 'monospace',
-      fontSize: 16,
+      fontSize: this.DEFAULT_FONT_SIZE,
       letterSpacing: 1.1,
       rendererType: isFirefox ? 'dom' : 'canvas',
     });
-    this.settingsService.settings$.subscribe(({ terminal_theme }) => {
-      this.setTerminalTheme(terminal_theme);
-    });
+    this.settingsService.settings$.subscribe(
+      ({ terminal_theme = this.DEFAULT_TERMINAL_THEME }) => {
+        this.setTerminalTheme(terminal_theme);
+      },
+    );
+    this.settingsService.settings$.subscribe(
+      ({ terminal_fontSize = this.DEFAULT_FONT_SIZE }) => {
+        this.setFontSize(terminal_fontSize);
+      },
+    );
     this.attachAddon = new AttachAddon(this.socket);
     this.term.loadAddon(this.fitAddon);
     this.term.open(this.terminalDiv.nativeElement);
@@ -111,14 +123,14 @@ export class TerminalComponent implements OnChanges, AfterViewInit, OnDestroy {
     this.socket.onclose = (e) => {
       this.term.dispose(); // destroy the terminal on the page to avoid bad display
       this.shellService.setStatus(this.vmname, 'Disconnected (' + e.code + ')');
-      if (!e.wasClean) {
+      if (e.code !== WS_CODE_NORMAL_CLOSURE) {
         this.shellService.setStatus(
           this.vmname,
           'Reconnecting ' + new Date().toLocaleTimeString(),
         );
         // we're going to try and rebuild things
         // but only after waiting an appropriate mourning period...
-        setTimeout(() => this.buildSocket(), 5000);
+        this.subscription.add(timer(5000).subscribe(() => this.buildSocket()));
       }
     };
 
@@ -144,19 +156,28 @@ export class TerminalComponent implements OnChanges, AfterViewInit, OnDestroy {
           }
         });
 
-      setInterval(() => {
-        this.socket.send(''); // websocket keepalive
-      }, 5000);
+      this.subscription.add(
+        interval(5000).subscribe(() => {
+          this.socket.send(''); // websocket keepalive
+        }),
+      );
     };
+  }
+
+  private closeSocket() {
+    if (!this.socket) return;
+    this.socket.close(WS_CODE_NORMAL_CLOSURE);
   }
 
   ngOnChanges() {
     if (this.vmid != null && this.endpoint != null) {
+      this.closeSocket();
       this.buildSocket();
     }
   }
 
   ngOnDestroy() {
+    this.closeSocket();
     if (this.subscription) {
       this.subscription.unsubscribe();
     }
@@ -247,5 +268,11 @@ export class TerminalComponent implements OnChanges, AfterViewInit, OnDestroy {
     if (!this.term) return;
     const theme = themes.find((t) => t.id === themeId) || themes[0];
     this.term.setOption('theme', theme.styles);
+  }
+
+  private setFontSize(size: number) {
+    if (!this.term) return;
+    this.term.setOption('fontSize', size ?? this.DEFAULT_FONT_SIZE);
+    this.resize();
   }
 }

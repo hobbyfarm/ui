@@ -1,0 +1,27 @@
+<div class="terminal-div" #ide>
+  <div *ngIf="disallowIFrame" [ngClass]="'info'">
+    This Service does not allow iFrames. It has to be opened in a new Tab:
+    <button
+      class="btn btn-icon btn-primary btn-sm"
+      title="Open in a new Tab"
+      (click)="openWebinterfaceFn.emit()"
+    >
+      <clr-icon shape="pop-out"></clr-icon>
+    </button>
+  </div>
+  <div *ngIf="isLoading" [ngClass]="'info'">Loading</div>
+  <div *ngIf="isConnError" [ngClass]="'info'">
+    <p>An Error has occurred</p>
+    <button
+      type="button"
+      class="btn btn-icon btn-primary"
+      (click)="callEndpoint()"
+    >
+      <clr-icon shape="refresh"></clr-icon>
+    </button>
+  </div>
+  <iframe
+    #ideIframe
+    [ngClass]="isLoading || !isOK ? 'ideHidden' : 'ide'"
+  ></iframe>
+</div>

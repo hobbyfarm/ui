@@ -19,12 +19,15 @@ export class ScenarioComponent implements OnInit {
   public scenarioid: string;
   @Input()
   public courseid: string;
+  @Input()
+  public accessCode: string;
   @Output()
   public scenarioModal = new EventEmitter();
 
   public scenario: Scenario = new Scenario();
   public session: Session = new Session();
   public vmclaims: VMClaim[] = [];
+  public error = false;
 
   constructor(
     private scenarioService: ScenarioService,
@@ -56,11 +59,13 @@ export class ScenarioComponent implements OnInit {
     });
 
     this.ssService
-      .new(this.scenarioid, this.courseid)
+      .new(this.scenarioid, this.courseid, this.accessCode)
       .pipe(
         concatMap((s: Session) => {
           this.session = s;
-          this.ssService.keepalive(s.id).subscribe();
+          this.ssService.keepalive(s.id).subscribe(undefined, () => {
+            this.error = true;
+          });
 
           return from(s.vm_claim);
         }),
@@ -69,8 +74,13 @@ export class ScenarioComponent implements OnInit {
           return this.vmClaimService.get(claimid);
         }),
       )
-      .subscribe((s: VMClaim) => {
-        this.vmclaims.push(s);
-      });
+      .subscribe(
+        (s: VMClaim) => {
+          this.vmclaims.push(s);
+        },
+        () => {
+          this.error = true;
+        },
+      );
   }
 }

@@ -85,7 +85,7 @@
     </as-split-area>
     <as-split-area [size]="60" class="split-area-2">
       <div id="terminal-column">
-        <clr-tabs>
+        <clr-tabs class="tab-container">
           <clr-tab *ngFor="let v of vms | keyvalue" #tab>
             <button clrTabLink [id]="v.key">
               <clr-icon size="24" shape="host"></clr-icon> {{ v.key }}
@@ -100,13 +100,105 @@
                 </tr>
               </table>
               <app-terminal
+                *ngIf="!isGuacamoleTerminal(v.value.protocol)"
                 [vmname]="v.key"
                 [vmid]="v.value.id"
                 [endpoint]="v.value.ws_endpoint"
                 #term
-              ></app-terminal>
+              >
+              </app-terminal>
+              <app-guac-terminal
+                *ngIf="isGuacamoleTerminal(v.value.protocol)"
+                [vmname]="v.key"
+                [vmid]="v.value.id"
+                [endpoint]="v.value.ws_endpoint"
+                #guacterm
+              >
+              </app-guac-terminal>
             </clr-tab-content>
           </clr-tab>
+          <ng-container *ngFor="let v of vms | keyvalue">
+            <ng-container
+              *ngFor="let webinterface of v.value.webinterfaces; let i = index"
+            >
+              <clr-tab
+                *ngIf="
+                  (webinterface.hasOwnTab && i < maxInterfaceTabs) ||
+                  webinterface.active
+                "
+              >
+                <button
+                  clrTabLink
+                  [clrTabLinkInOverflow]="false"
+                  (click)="setTabActive(webinterface)"
+                >
+                  {{ v.key }} - {{ webinterface.name }}
+                </button>
+                <ng-template [(clrIfActive)]="webinterface.active">
+                  <clr-tab-content>
+                    <table class="table compact">
+                      <tr>
+                        <td><b>Webinterface:</b> {{ webinterface.name }}</td>
+                        <td><b>Node:</b> {{ v.key }}</td>
+                        <td><b>Port:</b> {{ webinterface.port }}</td>
+                        <td><b>Path:</b> {{ webinterface.path }}</td>
+                        <td style="padding: 0">
+                          <button
+                            class="btn btn-icon btn-primary btn-sm"
+                            title="Reload Tab"
+                            (click)="
+                              reloadWebinterface(v.value.id, webinterface)
+                            "
+                          >
+                            <clr-icon shape="refresh"></clr-icon>
+                          </button>
+                          <button
+                            class="btn btn-icon btn-primary btn-sm"
+                            title="Open in a new Tab"
+                            (click)="
+                              openWebinterfaceInNewTab(v.value, webinterface)
+                            "
+                          >
+                            <clr-icon shape="pop-out"></clr-icon>
+                          </button>
+                        </td>
+                      </tr>
+                    </table>
+                    <app-ide-window
+                      *ngIf="!isGuacamoleTerminal(v.value.protocol)"
+                      [vmid]="v.value.id"
+                      [endpoint]="v.value.ws_endpoint"
+                      [port]="webinterface.port"
+                      [path]="webinterface.path"
+                      [disallowIFrame]="webinterface.disallowIFrame"
+                      (openWebinterfaceFn)="
+                        openWebinterfaceInNewTab(v.value, webinterface)
+                      "
+                      [reloadEvent]="reloadTabObservable"
+                    >
+                    </app-ide-window>
+                  </clr-tab-content>
+                </ng-template>
+              </clr-tab>
+
+              <clr-tab
+                *ngIf="
+                  (!webinterface.hasOwnTab ||
+                    (webinterface.hasOwnTab && i >= maxInterfaceTabs)) &&
+                  !webinterface.active
+                "
+                #tab
+              >
+                <button
+                  clrTabLink
+                  [clrTabLinkInOverflow]="true"
+                  (click)="setTabActive(webinterface)"
+                >
+                  {{ v.key }} - {{ webinterface.name }}
+                </button>
+              </clr-tab>
+            </ng-container>
+          </ng-container>
         </clr-tabs>
       </div>
     </as-split-area>
@@ -190,5 +282,15 @@
   </div>
   <div class="modal-footer">
     <button class="btn btn-outline" (click)="actuallyClose()">Ok</button>
+  </div>
+</clr-modal>
+<clr-modal
+  [(clrModalOpen)]="imgXlargeModal"
+  [clrModalClosable]="false"
+  (click)="imgXlargeModal = false"
+  clrModalSize="xl"
+>
+  <div class="modal-body">
+    <img src="{{ srcImgXlarge }}" alt="ImageMadeLarger" class="modal-image" />
   </div>
 </clr-modal>

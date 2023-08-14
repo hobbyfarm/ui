@@ -27,7 +27,7 @@ import { ClrTabContent, ClrTab, ClrModal } from '@clr/angular';
 import { ServerResponse } from '../ServerResponse';
 import { Scenario } from './Scenario';
 import { Session } from '../Session';
-import { from, of, throwError, iif } from 'rxjs';
+import { from, of, throwError, iif, Subject, Observable } from 'rxjs';
 import { VMClaim } from '../VMClaim';
 import { VMClaimVM } from '../VMClaimVM';
 import { VM } from '../VM';
@@ -42,6 +42,26 @@ import { ShellService } from '../services/shell.service';
 import { atou } from '../unicode';
 import { ProgressService } from '../services/progress.service';
 import { HfMarkdownRenderContext } from '../hf-markdown/hf-markdown.component';
+import { GuacTerminalComponent } from './guacTerminal.component';
+import { JwtHelperService } from '@auth0/angular-jwt';
+
+type Service = {
+  name: string;
+  port: number;
+  path: string;
+  hasOwnTab: boolean;
+  hasWebinterface: boolean;
+  disallowIFrame: boolean;
+  active: boolean;
+};
+interface stepVM extends VM {
+  webinterfaces?: Service[];
+}
+
+export type webinterfaceTabIdentifier = {
+  vmId: string;
+  port: number;
+};
 
 @Component({
   selector: 'app-step',
@@ -58,19 +78,31 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
   public finishOpen = false;
   public closeOpen = false;
 
+  public imgXlargeModal = false;
+  public srcImgXlarge = '';
+
   public session: Session = new Session();
   public sessionExpired = false;
-  public vms: Map<string, VM> = new Map();
+  public vms: Map<string, stepVM> = new Map();
 
-  mdContext: HfMarkdownRenderContext = { vmInfo: {} };
+  mdContext: HfMarkdownRenderContext = { vmInfo: {}, session: '' };
+
+  maxInterfaceTabs = 2;
 
   public pauseOpen = false;
 
   public pauseLastUpdated: Date = new Date();
   public pauseRemainingString = '';
 
+  private reloadTabSubject: Subject<webinterfaceTabIdentifier> =
+    new Subject<webinterfaceTabIdentifier>();
+  public reloadTabObservable: Observable<webinterfaceTabIdentifier> =
+    this.reloadTabSubject.asObservable();
+
   @ViewChildren('term') private terms: QueryList<TerminalComponent> =
     new QueryList();
+  @ViewChildren('guacterm')
+  private guacterms: QueryList<GuacTerminalComponent> = new QueryList();
   @ViewChildren('tabcontent') private tabContents: QueryList<ClrTabContent> =
     new QueryList();
   @ViewChildren('tab') private tabs: QueryList<ClrTab> = new QueryList();
@@ -88,13 +120,29 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
     private vmService: VMService,
     private shellService: ShellService,
     private progressService: ProgressService,
+    private jwtHelper: JwtHelperService,
   ) {}
+
+  setTabActive(webinterface: Service) {
+    this.vms.forEach((vm) => {
+      vm.webinterfaces?.forEach((wi) => {
+        wi.active = false;
+        if (wi.name == webinterface.name) {
+          wi.active = true;
+        }
+      });
+    });
+  }
 
   handleStepContentClick(e: MouseEvent) {
     // Open all links in a new window
     if (e.target instanceof HTMLAnchorElement && e.target.href) {
       e.preventDefault();
       window.open(e.target.href, '_blank');
+    }
+    if ((e.target as HTMLElement).tagName === 'IMG') {
+      this.imgXlargeModal = true;
+      this.srcImgXlarge = (e.target as HTMLImageElement).src;
     }
   }
 
@@ -145,12 +193,39 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
       .subscribe((entries) => {
         this.vms = new Map(entries);
         this.sendProgressUpdate();
+        this.vms.forEach((vm) => {
+          this.vmService.getWebinterfaces(vm.id).subscribe(
+            (res) => {
+              const stringContent: string = atou(res.content);
+              const services = JSON.parse(JSON.parse(stringContent)); //TODO: See if we can skip one stringify somwhere, so we dont have to parse twice
+              services.forEach((service: Service) => {
+                if (service.hasWebinterface) {
+                  const webinterface = {
+                    name: service.name ?? 'Service',
+                    port: service.port ?? 80,
+                    path: service.path ?? '/',
+                    hasOwnTab: !!service.hasOwnTab,
+                    hasWebinterface: true,
+                    disallowIFrame: !!service.disallowIFrame,
+                    active: false,
+                  };
+                  vm.webinterfaces
+                    ? vm.webinterfaces.push(webinterface)
+                    : (vm.webinterfaces = [webinterface]);
+                }
+              });
+            },
+            () => {
+              vm.webinterfaces = [];
+            },
+          );
+        });
 
         const vmInfo: HfMarkdownRenderContext['vmInfo'] = {};
         for (const [k, v] of this.vms) {
           vmInfo[k.toLowerCase()] = v;
         }
-        this.mdContext = { vmInfo };
+        this.mdContext = { vmInfo: vmInfo, session: this.session.id };
       });
 
     // setup keepalive
@@ -210,11 +285,15 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
     this.tabs.changes.pipe(first()).subscribe((tabs: QueryList<ClrTab>) => {
       tabs.first.tabLink.activate();
     });
+    setTimeout(() => this.calculateMaxInterfaceTabs(), 2000);
   }
 
   ngOnDestroy() {
     this.terms.forEach((term) => {
       term.mutationObserver.disconnect();
+    });
+    this.guacterms.forEach((guacTerm) => {
+      guacTerm.client.disconnect();
     });
   }
 
@@ -285,6 +364,10 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
     this.router.navigateByUrl('/app/home');
   }
 
+  isGuacamoleTerminal(protocol: string): boolean {
+    return !!protocol && protocol !== 'ssh';
+  }
+
   public pause() {
     this.ssService
       .pause(this.session.id)
@@ -319,14 +402,84 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   public dragEnd() {
+    let numberOfGuacTabs = 0;
+    let numberOfTermTabs = 0;
+    const vmArray: VM[] = [...this.vms.values()];
     // For each tab...
     this.tabContents.forEach((t: ClrTabContent, i: number) => {
-      // ... if the active tab is the same as itself ...
-      if (t.ifActiveService.current == t.id) {
+      const isGuacTerminal: boolean = this.isGuacamoleTerminal(
+        vmArray[i].protocol,
+      );
+      const isActiveTab: boolean = t.ifActiveService.current === t.id;
+      if (isGuacTerminal) {
+        ++numberOfGuacTabs;
+        // If the active tab is the same as the currently scoped ...
         // ... resize the terminal that corresponds to the index of the active tab.
-        // e.g. tab could have ID of 45, but would be index 2 in list of tabs, so reload terminal with index 2.
-        this.terms.toArray()[i].resize();
+        // Subtract the number of terminal tabs over which it has already been iterated.
+        // e.g.:
+        // - Tab 0 could have been a (regular) terminal, so the index sits now at 1
+        // - But we need the guacamole terminal at index 0 to retrieve the first one from guacterms
+        // - Therefore calculate i (index) - numberOfTermTabs (iterated term tabs) ...
+        // ... to retrieve the current index of guacterms.toArray()
+        isActiveTab && this.guacterms.toArray()[i - numberOfTermTabs].resize();
+      } else {
+        ++numberOfTermTabs;
+        // see above
+        isActiveTab && this.terms.toArray()[i - numberOfGuacTabs].resize();
       }
     });
+    this.calculateMaxInterfaceTabs();
+  }
+
+  openWebinterfaceInNewTab(vm: stepVM, wi: Service) {
+    const url: string =
+      'https://' +
+      vm.ws_endpoint +
+      '/auth/' +
+      this.jwtHelper.tokenGetter() +
+      '/p/' +
+      vm.id +
+      '/' +
+      wi.port +
+      wi.path;
+    window.open(url, '_blank');
+  }
+
+  reloadWebinterface(vmId: string, webinterface: Service) {
+    this.reloadTabSubject.next({
+      vmId: vmId,
+      port: webinterface.port,
+    } as webinterfaceTabIdentifier);
+  }
+
+  calculateMaxInterfaceTabs(reduce: boolean = false) {
+    const tabs = document.getElementsByTagName('li');
+    let tabsBarWidth: number | undefined = 0;
+    let allTabsWidth = 0;
+    const tabsArray = Array.from(tabs);
+    tabsArray.forEach((tab, i) => {
+      if (i == 0) {
+        tabsBarWidth = tab.parentElement?.offsetWidth;
+      }
+      allTabsWidth += tab.offsetWidth;
+    });
+    if (tabsBarWidth) {
+      const averageTabWidth = allTabsWidth / tabsArray.length;
+      tabsBarWidth = 0.9 * tabsBarWidth - 1.5 * averageTabWidth;
+      if (allTabsWidth > tabsBarWidth) {
+        --this.maxInterfaceTabs;
+        setTimeout(() => {
+          this.calculateMaxInterfaceTabs(true);
+        }, 10);
+      } else if (
+        !reduce &&
+        allTabsWidth + 1.5 * (allTabsWidth / tabsArray.length) < tabsBarWidth
+      ) {
+        ++this.maxInterfaceTabs;
+        setTimeout(() => {
+          this.calculateMaxInterfaceTabs();
+        }, 10);
+      }
+    }
   }
 }

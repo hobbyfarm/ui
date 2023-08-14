@@ -48,5 +48,6 @@ Thumbs.db
 # docker-compose enviornment variables
 /.env
 
-# ignore generated version file 
+# ignore generated version file
 /src/environments/version.ts
+/src/environments/environment.local.ts

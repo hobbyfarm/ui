@@ -1,3 +1,7 @@
+:root {
+  --clr-icon-costum: black;
+}
+
 .clr-subtext {
   color: #c72100;
 }
@@ -99,4 +103,56 @@
   padding-top: 0;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.about-body {
+  margin-bottom: 1em;
+}
+
+.settings {
+  button.nav-text {
+    font-size: 20px;
+  }
+
+  clr-icon {
+    font-size: 20px;
+    width: 1rem;
+    height: 1rem;
+  }
+}
+.invalid-access-code {
+  color: var(--clr-color-danger-500, red);
+}
+
+.valid-access-code {
+  color: var(--clr-color-success-500, green);
+}
+
+.header-actions {
+  clr-dropdown-menu {
+    a {
+      clr-icon {
+        color: var(--clr-icon-dropdown);
+      }
+    }
+  }
+}
+
+.motd {
+  align-self: center;
+  margin-top: 0px;
+  text-align: center;
+  color: white;
+}
+
+.motd-container {
+  background-color: red;
+  margin-top: 0px;
+  width: 100%;
+  cursor: pointer;
+}
+
+.motd-close {
+  float: right;
+  position: relative;
 }

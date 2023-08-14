@@ -1,4 +1,30 @@
 <div class="content-area">
+  <clr-alert
+    [clrAlertType]="'success'"
+    [(clrAlertClosed)]="accessCodeLinkSuccessClosed"
+    [clrAlertClosable]="false"
+    class="alert-home"
+  >
+    <clr-alert-item>
+      <span>
+        {{ accessCodeLinkSuccessAlert }}
+      </span>
+    </clr-alert-item>
+  </clr-alert>
+
+  <clr-alert
+    [clrAlertType]="'danger'"
+    [(clrAlertClosed)]="accessCodeLinkErrorClosed"
+    [clrAlertClosable]="false"
+    class="alert-home"
+  >
+    <clr-alert-item>
+      <span>
+        {{ accessCodeLinkErrorAlert }}
+      </span>
+    </clr-alert-item>
+  </clr-alert>
+
   <div *ngIf="activeSession !== undefined">
     <div class="clr-row">
       <div class="clr-col">
@@ -17,21 +43,38 @@
     </div>
   </div>
 
-  <div class="clr-row">
+  <div class="clr-row" *ngIf="ctx.valid">
     <div class="clr-col">
-      <h1>Select a scenario</h1>
+      <h1>{{ ctx.scheduledEventName }}</h1>
+      <h3>Select a scenario</h3>
     </div>
   </div>
 
   <div class="clr-row">
-    <div class="clr-col-12">
-      <div *ngIf="!courses && !scenarios && loadedScenarios && loadedCourses">
-        No scenarios or courses found.
-      </div>
-      <div *ngIf="!loadedScenarios && !loadedCourses">Loading scenarios...</div>
+    <div class="clr-col-12" *ngIf="!ctx.valid">
+      <h1>Add AccessCode</h1>
+      Add AccessCodes to your account by clicking on your username on the top
+      right.
     </div>
 
-    <ng-container *ngIf="scenarios.length > 0">
+    <div class="clr-col-12">
+      <div
+        *ngIf="
+          !courses?.length &&
+          !scenarios?.length &&
+          loadedScenarios &&
+          loadedCourses &&
+          ctx.valid
+        "
+      >
+        No scenarios or courses found.
+      </div>
+      <div *ngIf="!loadedScenarios && !loadedCourses && ctx.valid">
+        Loading scenarios...
+      </div>
+    </div>
+
+    <ng-container *ngIf="scenarios.length > 0 && ctx.valid">
       <div
         class="clr-col-12 clr-col-sm-6 clr-col-md-4 clr-col-lg-3"
         *ngFor="let s of scenarios"
@@ -45,10 +88,10 @@
     </ng-container>
   </div>
 
-  <div class="clr-row">
+  <div class="clr-row" *ngIf="courses.length > 0 && ctx.valid">
     <div class="clr-col-12">
       <ng-container *ngFor="let c of courses">
-        <h2 class="course-header">{{ c.name | atob }}</h2>
+        <h3 class="course-header">{{ c.name | atob }}</h3>
         <hr />
         <p class="course-description">{{ c.description | atob }}</p>
 
@@ -83,6 +126,7 @@
   *ngIf="scenarioid"
   [scenarioid]="scenarioid"
   [courseid]="courseid"
+  [accessCode]="ctx.accessCode"
   [showScenarioModal]="showScenarioModal"
   (scenarioModal)="toggleScenarioModal()"
 ></app-scenario>
