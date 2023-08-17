@@ -432,11 +432,14 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   openWebinterfaceInNewTab(vm: stepVM, wi: Service) {
+    // we always load our token synchronously from local storage
+    // for symplicity we are using type assertion to string here, avoiding to handle promises we're not expecting
+    const token = this.jwtHelper.tokenGetter() as string;
     const url: string =
       'https://' +
       vm.ws_endpoint +
       '/auth/' +
-      this.jwtHelper.tokenGetter() +
+      token +
       '/p/' +
       vm.id +
       '/' +

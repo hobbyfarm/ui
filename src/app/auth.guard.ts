@@ -12,8 +12,9 @@ export class AuthGuard implements CanActivate {
   constructor(private router: Router, private helper: JwtHelperService) {}
 
   canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot) {
+    const token = this.helper.tokenGetter();
     const hasValidToken =
-      this.helper.tokenGetter() && !this.helper.isTokenExpired();
+      typeof token === 'string' && token && !this.helper.isTokenExpired(token);
     return (
       hasValidToken ||
       this.router.createUrlTree(['/login'], {

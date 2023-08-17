@@ -133,12 +133,15 @@ export class AppComponent implements OnInit {
   });
 
   ngOnInit() {
-    const tok = this.helper.decodeToken(this.helper.tokenGetter());
-    this.email = tok.email;
-
-    // Automatically logout the user after token expiration
-    const timeout = tok.exp * 1000 - Date.now();
-    setTimeout(() => this.doLogout(), timeout);
+    // we always expect our token to be a string since we load it syncronously from local storage
+    const token = this.helper.tokenGetter();
+    if(typeof token === 'string') {
+      this.processToken(token);
+    } else {
+      // ... however if for some reason it is not the case, this means that the token could not be loaded from local storage
+      // hence we automatically logout the user
+      this.doLogout();
+    }
 
     const addAccessCode = this.route.snapshot.params['accesscode'];
     if (addAccessCode) {
@@ -186,6 +189,15 @@ export class AppComponent implements OnInit {
       .subscribe((typedInput: TypedInput) => {
         this.motd = typedInput?.value ?? '';
       });
+  }
+
+  private processToken(token: string) {
+    const tok = this.helper.decodeToken(token);
+    this.email = tok.email;
+
+    // Automatically logout the user after token expiration
+    const timeout = tok.exp * 1000 - Date.now();
+    setTimeout(() => this.doLogout(), timeout);
   }
 
   public logout() {

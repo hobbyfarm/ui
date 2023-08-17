@@ -54,7 +54,9 @@ export class IdeWindowComponent implements OnInit {
     if (this.disallowIFrame) {
       return;
     }
-    this.token = this.jwtHelper.tokenGetter();
+    // we always load our token synchronously from local storage
+    // for symplicity we are using type assertion to string here, avoiding to handle promises we're not expecting
+    this.token = this.jwtHelper.tokenGetter() as string;
     this.reloadEvent.subscribe((data: webinterfaceTabIdentifier) => {
       if (this.vmid == data.vmId && this.port == data.port) {
         this.callEndpoint();
