@@ -135,7 +135,7 @@ export class AppComponent implements OnInit {
   ngOnInit() {
     // we always expect our token to be a string since we load it syncronously from local storage
     const token = this.helper.tokenGetter();
-    if(typeof token === 'string') {
+    if (typeof token === 'string') {
       this.processToken(token);
     } else {
       // ... however if for some reason it is not the case, this means that the token could not be loaded from local storage
