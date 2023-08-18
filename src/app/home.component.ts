@@ -9,7 +9,7 @@ import { Progress } from './Progress';
 import { Context, ContextService } from './services/context.service';
 import { ActivatedRoute } from '@angular/router';
 import { Location } from '@angular/common';
-import { catchError, merge, mergeMap, tap } from 'rxjs';
+import { Subscription, catchError, merge, mergeMap, tap } from 'rxjs';
 
 @Component({
   selector: 'app-home',
@@ -29,6 +29,8 @@ export class HomeComponent implements OnInit, OnDestroy {
   public accessCodeLinkSuccessAlert = '';
   public accessCodeLinkErrorClosed = true;
   public accessCodeLinkErrorAlert = '';
+  public contextSubscription: Subscription;
+  public progressSubscription: Subscription;
 
   private callDelay = 10;
   private interval;
@@ -44,7 +46,7 @@ export class HomeComponent implements OnInit, OnDestroy {
     private route: ActivatedRoute,
     private location: Location,
   ) {
-    this.progressService.watch().subscribe((p: Progress[]) => {
+    this.progressSubscription = this.progressService.watch().subscribe((p: Progress[]) => {
       this.activeSession = undefined;
       p.forEach((progress) => {
         if (!progress.finished) {
@@ -53,7 +55,7 @@ export class HomeComponent implements OnInit, OnDestroy {
       });
     });
 
-    this.contextService
+    this.contextSubscription = this.contextService
       .watch()
       .pipe(
         tap((c: Context) => (this.ctx = c)),
@@ -129,5 +131,7 @@ export class HomeComponent implements OnInit, OnDestroy {
     if (this.interval) {
       clearInterval(this.interval);
     }
+    this.contextSubscription.unsubscribe();
+    this.progressSubscription.unsubscribe();
   }
 }
