@@ -42,6 +42,7 @@ import { TypedSettingsService } from './services/typedSettings.service';
 import { VerificationService } from './services/verification.service';
 import { TaskProgressComponent } from './scenario/task-progress/task-progress.component';
 import { TaskModalComponent } from './scenario/task-modal/task-modal.component';
+import { SingleTaskVerificationMarkdownComponent } from './hf-markdown/single-task-verification-markdown/single-task-verification-markdown.component';
 import '@cds/core/icon/register.js';
 import {
   ClarityIcons,
@@ -145,6 +146,7 @@ export function jwtOptionsFactory() {
     IdeWindowComponent,
     TaskProgressComponent,
     TaskModalComponent,
+    SingleTaskVerificationMarkdownComponent,
   ],
   imports: [
     BrowserModule,
@@ -163,7 +165,7 @@ export function jwtOptionsFactory() {
         sanitize: false,
         convertHTMLEntities: false,
       },
-      globalParsers: [{ component: CtrComponent }],
+      globalParsers: [{ component: CtrComponent }, { component: SingleTaskVerificationMarkdownComponent }],
     }),
     JwtModule.forRoot({
       jwtOptionsProvider: {

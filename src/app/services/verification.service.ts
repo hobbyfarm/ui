@@ -1,11 +1,12 @@
 import { Injectable } from "@angular/core";
 import { GargantuaClient, GargantuaClientFactory, extractResponseContent } from "./gargantua.service";
-import { TaskVerification } from "../scenario/taskVerification.type";
+import { TaskVerification, TaskVerificationResponse } from "../scenario/taskVerification.type";
 import { VM } from "../VM";
 import { ServerResponse } from "../ServerResponse";
 import { BehaviorSubject, throwError } from "rxjs";
 import { catchError, tap } from "rxjs/operators";
 import { HttpErrorResponse } from "@angular/common/http";
+import { VMService } from "./vm.service";
 
 
 
@@ -32,6 +33,7 @@ export class VerificationService {
     
     constructor(
         private gcf: GargantuaClientFactory,
+        private vmService: VMService
     ) { }
 
     private useShellClient(endpoint: string): GargantuaClient {
@@ -42,6 +44,31 @@ export class VerificationService {
             client = newClient
         }
         return client
+    }
+
+    verifyTask(vmName: string, taskName: string) {
+        const taskVerification = {...this.verificationTaskRequests.get(vmName)} as TaskVerification
+        if (!taskVerification) {
+            return
+        }
+        const command = taskVerification.task_command?.filter(command => command.name == taskName)
+        if (!command) {
+            return
+        }
+        taskVerification.task_command = command
+        const body = [taskVerification]
+        const vm = this.vmService.cache.get(taskVerification.vm_id)
+        if (!vm) {
+            return
+        }
+        return this.useShellClient(vm.ws_endpoint).post("/verify", body).pipe(
+            catchError((e: HttpErrorResponse) => {
+              return throwError(e.error);
+            }),
+            tap((response: ServerResponse) => {
+                this.publishNewVerificationResults(response)
+            })
+          );
     }
 
     verify(vm: VM, vmName: string) {
@@ -59,9 +86,8 @@ export class VerificationService {
     }
 
     private publishNewVerificationResults(response: ServerResponse) {
-        const newVerificationList = JSON.parse(atob(response.content)) as unknown as TaskVerification[]
-
-        newVerificationList.forEach((newTaskVerification: TaskVerification) => {
+        const newVerificationList = JSON.parse(atob(response.content)) as unknown as TaskVerificationResponse[]
+        newVerificationList.forEach((newTaskVerification: TaskVerificationResponse) => {
             const existingVerification = this._verifications.value.get(newTaskVerification.vm_name)
             if (existingVerification !== undefined) {                
                 existingVerification.task_command?.forEach((taskCommand, index, array) => {

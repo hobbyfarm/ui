@@ -116,6 +116,14 @@ ${token}`;
         title="Click to create ${filepath} on ${target}"
       >${this.renderHighlightedCode(code, language, filename)}</ctr>`;
     },
+
+    verifyTask(code: string, target: string, taskName: string) {
+      return `<app-single-task-verification-markdown
+        target="${target}" 
+        message="${code}" 
+        taskName="${taskName}"
+        ></app-single-task-verification-markdown>`
+    },
   };
 
   private renderHighlightedCode(
