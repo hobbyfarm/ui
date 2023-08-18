@@ -9,6 +9,7 @@ import { Progress } from './Progress';
 import { Context, ContextService } from './services/context.service';
 import { ActivatedRoute } from '@angular/router';
 import { Location } from '@angular/common';
+import { catchError, merge, mergeMap, tap } from 'rxjs';
 
 @Component({
   selector: 'app-home',
@@ -51,28 +52,39 @@ export class HomeComponent implements OnInit, OnDestroy {
         }
       });
     });
-    this.contextService.watch().subscribe((c: Context) => {
-      this.ctx = c;
 
-      this.courseService.fetch(this.ctx.accessCode).subscribe(
-        (c: Course[]) => {
-          this.courses = c ?? [];
-          this.loadedCourses = true;
-        },
-        () => {
-          this.loadedCourses = false;
-        },
-      );
-      this.scenarioService.fetch(this.ctx.accessCode).subscribe(
-        (s: Scenario[]) => {
-          this.scenarios = s ?? [];
-          this.loadedScenarios = true;
-        },
-        () => {
-          this.loadedScenarios = false;
-        },
-      );
-    });
+    this.contextService
+      .watch()
+      .pipe(
+        tap((c: Context) => (this.ctx = c)),
+        mergeMap((c: Context) => {
+          const courseList = this.courseService.fetch(c.accessCode).pipe(
+            tap((courses: Course[]) => {
+              this.courses = courses ?? [];
+              this.loadedCourses = true;
+            }),
+            catchError(() => {
+              this.loadedCourses = false;
+              return [];
+            }),
+          );
+
+          const scenarioList = this.scenarioService.fetch(c.accessCode).pipe(
+            tap((scenarios: Scenario[]) => {
+              this.scenarios = scenarios ?? [];
+              this.loadedScenarios = true;
+            }),
+            catchError(() => {
+              this.loadedScenarios = false;
+              return [];
+            }),
+          );
+
+          return merge(courseList, scenarioList);
+        }),
+      )
+      .subscribe();
+
     this.progressService.list(true).subscribe(); //fill cache
     this.interval = setInterval(() => {
       this.progressService.list(true).subscribe();
