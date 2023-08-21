@@ -24,7 +24,7 @@ export class SingleTaskVerificationMarkdownComponent implements OnInit {
 
   ngOnInit(): void {
     this.verificationService.currentVerifications.subscribe((verificationMap) => {
-      let temp = verificationMap.get(this.target)
+      const temp = verificationMap.get(this.target)
       this.task = temp?.task_command?.filter(taskCommand => taskCommand.name == this.taskName)[0]
     })
   }

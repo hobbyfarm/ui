@@ -1,5 +1,5 @@
 import { Injectable } from "@angular/core";
-import { GargantuaClient, GargantuaClientFactory, extractResponseContent } from "./gargantua.service";
+import { GargantuaClient, GargantuaClientFactory } from "./gargantua.service";
 import { TaskVerification, TaskVerificationResponse } from "../scenario/taskVerification.type";
 import { VM } from "../VM";
 import { ServerResponse } from "../ServerResponse";
@@ -14,7 +14,7 @@ import { VMService } from "./vm.service";
 export class VerificationService {
 
     private shellClients: Map<string, GargantuaClient> = new Map()
-    private pathPrefix: string = "/shell"
+    private pathPrefix = "/shell"
 
     private verificationTaskRequests: Map<string, TaskVerification> = new Map()
 

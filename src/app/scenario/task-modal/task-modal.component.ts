@@ -20,13 +20,13 @@ export class TaskModalComponent implements OnInit, OnDestroy {
 
   modalOpen = false
 
-  percentSuccessful: number = 0
+  percentSuccessful = 0
 
   private unsubscribe = new Subject<void>();
 
   private forceUpdateIfModalOpen = false
 
-  loading: boolean = false
+  loading = false
 
   constructor(
     private verificationService: VerificationService
@@ -35,7 +35,7 @@ export class TaskModalComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.verificationService.currentVerifications.pipe(takeUntil(this.unsubscribe)).subscribe((currentVeriications: Map<string, TaskVerification>) => {
-      let commandOutput: TaskCommand[] = []
+      const commandOutput: TaskCommand[] = []
       currentVeriications.forEach(taskCommand => {
         taskCommand.task_command?.forEach(output => {
           commandOutput.push(output)
@@ -67,7 +67,7 @@ export class TaskModalComponent implements OnInit, OnDestroy {
     this.vms.forEach((vm, name) => {
       this.verificationService.verify(vm, name).pipe(take(1)).subscribe(() => {
         count++
-        if (count = this.vms.size) {
+        if (count == this.vms.size) {
           this.loading = false
         }
       })

@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ElementRef, Input, OnDestroy, OnInit, Renderer2, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, Input, OnDestroy, ViewChild } from '@angular/core';
 import { VM } from 'src/app/VM';
 import { VerificationService } from 'src/app/services/verification.service';
 import { TaskCommand, TaskVerification } from '../taskVerification.type';
@@ -18,17 +18,17 @@ export class TaskProgressComponent implements AfterViewInit, OnDestroy {
   @Input() set vms(value: Map<string, VM>) {
     this._vms = value
     this.verifyAll().subscribe()
-  };
+  }
 
   @ViewChild('circle') circle: ElementRef;
 
-  tasks: number = 0 
+  tasks = 0 
 
   percentages: number[];
 
   circumference: number;
 
-  index: number = 0
+  index = 0
 
   modalOpen = false
 
@@ -40,14 +40,14 @@ export class TaskProgressComponent implements AfterViewInit, OnDestroy {
 
   ngAfterViewInit() {
     this.verificationService.currentVerifications.subscribe((currentVeriications: Map<string, TaskVerification>) => {
-      let taskList: TaskCommand[] = this.buildTaskList(currentVeriications)      
+      const taskList: TaskCommand[] = this.buildTaskList(currentVeriications)      
       this.tasks = taskList.length
       this.index = taskList.filter(taskCommand => !!taskCommand.success).length ?? 0
       
     if (!this.percentages && this.tasks > 0) {
       this.buildPercentagesArray();
     }
-    if (!!this.percentages) {
+    if (this.percentages) {
       this.setProgress(this.percentages[this.index])
     }
     }) 
@@ -74,7 +74,7 @@ export class TaskProgressComponent implements AfterViewInit, OnDestroy {
   }
 
   buildTaskList(currentVerifications: Map<string, TaskVerification>): TaskCommand[] {
-    let tasks: TaskCommand[] = []
+    const tasks: TaskCommand[] = []
     currentVerifications.forEach(taskCommand => {
       taskCommand.task_command?.forEach(task => {
         tasks.push(task)
