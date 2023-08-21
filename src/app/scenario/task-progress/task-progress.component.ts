@@ -1,4 +1,11 @@
-import { AfterViewInit, Component, ElementRef, Input, OnDestroy, ViewChild } from '@angular/core';
+import {
+  AfterViewInit,
+  Component,
+  ElementRef,
+  Input,
+  OnDestroy,
+  ViewChild,
+} from '@angular/core';
 import { VM } from 'src/app/VM';
 import { VerificationService } from 'src/app/services/verification.service';
 import { TaskCommand, TaskVerification } from '../taskVerification.type';
@@ -9,102 +16,107 @@ import { ServerResponse } from 'src/app/ServerResponse';
 @Component({
   selector: 'app-task-progress',
   templateUrl: './task-progress.component.html',
-  styleUrls: ['./task-progress.component.scss']
+  styleUrls: ['./task-progress.component.scss'],
 })
 export class TaskProgressComponent implements AfterViewInit, OnDestroy {
-
-  private _vms: Map<string, VM> = new Map()
+  private _vms: Map<string, VM> = new Map();
 
   @Input() set vms(value: Map<string, VM>) {
-    this._vms = value
-    this.verifyAll().subscribe()
+    this._vms = value;
+    this.verifyAll().subscribe();
   }
 
   @ViewChild('circle') circle: ElementRef;
 
-  tasks = 0 
+  tasks = 0;
 
   percentages: number[];
 
   circumference: number;
 
-  index = 0
+  index = 0;
 
-  modalOpen = false
+  modalOpen = false;
 
-  unsubscribe = new Subject<void>()
+  unsubscribe = new Subject<void>();
 
-  constructor(
-    private verificationService: VerificationService,
-  ) { }
+  constructor(private verificationService: VerificationService) {}
 
   ngAfterViewInit() {
-    this.verificationService.currentVerifications.subscribe((currentVeriications: Map<string, TaskVerification>) => {
-      const taskList: TaskCommand[] = this.buildTaskList(currentVeriications)      
-      this.tasks = taskList.length
-      this.index = taskList.filter(taskCommand => !!taskCommand.success).length ?? 0
-      
-    if (!this.percentages && this.tasks > 0) {
-      this.buildPercentagesArray();
-    }
-    if (this.percentages) {
-      this.setProgress(this.percentages[this.index])
-    }
-    }) 
+    this.verificationService.currentVerifications.subscribe(
+      (currentVeriications: Map<string, TaskVerification>) => {
+        const taskList: TaskCommand[] = this.buildTaskList(currentVeriications);
+        this.tasks = taskList.length;
+        this.index =
+          taskList.filter((taskCommand) => !!taskCommand.success).length ?? 0;
+
+        if (!this.percentages && this.tasks > 0) {
+          this.buildPercentagesArray();
+        }
+        if (this.percentages) {
+          this.setProgress(this.percentages[this.index]);
+        }
+      },
+    );
     const radius = this.circle.nativeElement.r.baseVal.value;
     this.circumference = radius * 2 * Math.PI;
     this.circle.nativeElement.style.strokeDasharray = `${this.circumference} ${this.circumference}`;
     this.circle.nativeElement.style.strokeDashoffset = this.circumference;
 
-    timer(1000, 10000).pipe(
-      takeUntil(this.unsubscribe),
-      switchMap(() => this.verifyAll())
-    ).subscribe()
+    timer(1000, 10000)
+      .pipe(
+        takeUntil(this.unsubscribe),
+        switchMap(() => this.verifyAll()),
+      )
+      .subscribe();
   }
 
   onClickVerify() {
-    this.verifyAll().subscribe()
+    this.verifyAll().subscribe();
   }
 
   private buildPercentagesArray() {
     this.percentages = [0];
     while (this.percentages[this.percentages.length - 1] < 100) {
-      this.percentages.push(this.percentages[this.percentages.length - 1] + 100 / this.tasks);
+      this.percentages.push(
+        this.percentages[this.percentages.length - 1] + 100 / this.tasks,
+      );
     }
   }
 
-  buildTaskList(currentVerifications: Map<string, TaskVerification>): TaskCommand[] {
-    const tasks: TaskCommand[] = []
-    currentVerifications.forEach(taskCommand => {
-      taskCommand.task_command?.forEach(task => {
-        tasks.push(task)
-      })
-    })
-    return tasks
+  buildTaskList(
+    currentVerifications: Map<string, TaskVerification>,
+  ): TaskCommand[] {
+    const tasks: TaskCommand[] = [];
+    currentVerifications.forEach((taskCommand) => {
+      taskCommand.task_command?.forEach((task) => {
+        tasks.push(task);
+      });
+    });
+    return tasks;
   }
 
   setProgress(percent: number) {
-    percent = percent > 100 ? 100 : percent
-    const offset = this.circumference - percent / 100 * this.circumference;
+    percent = percent > 100 ? 100 : percent;
+    const offset = this.circumference - (percent / 100) * this.circumference;
     this.circle.nativeElement.style.strokeDashoffset = offset;
   }
 
   verifyAll() {
-    const verifyCalls: Observable<ServerResponse>[] = []
+    const verifyCalls: Observable<ServerResponse>[] = [];
     this._vms.forEach((vm, name) => {
-      verifyCalls.push(this.verificationService.verify(vm, name).pipe(take(1)))
-    })
-    return forkJoin(verifyCalls)
+      verifyCalls.push(this.verificationService.verify(vm, name).pipe(take(1)));
+    });
+    return forkJoin(verifyCalls);
   }
 
   openTaskModal() {
-    this.modalOpen = true
-    this.verifyAll()
+    this.modalOpen = true;
+    this.verifyAll();
   }
 
   ngOnDestroy(): void {
     this.unsubscribe.next();
     this.unsubscribe.complete();
   }
-
 }

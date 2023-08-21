@@ -1,59 +1,62 @@
-<ng-container >
-    <!-- *ngIf="commands.length > 0" -->
-    <app-task-progress [vms]="vms" (click)="openTaskModal()"></app-task-progress>
-    <!-- <div class="check-tasks-button" (click)="openTaskModal()">Check your Progress</div> -->
+<ng-container>
+  <!-- *ngIf="commands.length > 0" -->
+  <app-task-progress [vms]="vms" (click)="openTaskModal()"></app-task-progress>
+  <!-- <div class="check-tasks-button" (click)="openTaskModal()">Check your Progress</div> -->
 </ng-container>
 
 <ng-template #loadingSpinner>
-    <div style="width: 100%; min-height: 20vh;">
-        <clr-spinner style="position: absolute; left: 45%; top: 40%;"></clr-spinner>
-    </div>
+  <div style="width: 100%; min-height: 20vh">
+    <clr-spinner style="position: absolute; left: 45%; top: 40%"></clr-spinner>
+  </div>
 </ng-template>
 
-
-
-    <clr-modal
-    [(clrModalOpen)]="modalOpen"
-    [clrModalClosable]="true">
-            <div class="modal-header">
-                <button aria-label="Close" class="close" type="button">
-                    <cds-icon shape="close"></cds-icon>
-                </button>                
+<clr-modal [(clrModalOpen)]="modalOpen" [clrModalClosable]="true">
+  <div class="modal-header">
+    <button aria-label="Close" class="close" type="button">
+      <cds-icon shape="close"></cds-icon>
+    </button>
+  </div>
+  <h3 class="modal-title">Task Progress:</h3>
+  <div class="modal-body">
+    <clr-accordion
+      clrAccordionMultiPanel="true"
+      *ngIf="!loading; else loadingSpinner"
+    >
+      <clr-accordion-panel *ngFor="let task of commands">
+        <clr-accordion-title style="width: 100%">
+          <div
+            style="display: flex; justify-content: space-between; width: 100%"
+          >
+            <div>
+              <b>{{ task.name }}</b>
             </div>
-            <h3 class="modal-title">Task Progress:</h3>
-            <div class="modal-body">
-
-                <clr-accordion clrAccordionMultiPanel="true" *ngIf="!loading; else loadingSpinner">
-                    <clr-accordion-panel *ngFor="let task of commands">
-                        <clr-accordion-title style="width: 100%;">
-                            <div style="display: flex; justify-content: space-between; width: 100%;">
-                                <div><b>{{ task.name }}</b></div>
-                                <div><clr-icon shape="check" *ngIf="task.success"></clr-icon></div>
-                            </div>
-                        </clr-accordion-title>
-                        <clr-accordion-content *clrIfExpanded>
-                            <ul class="list-group">
-                                <li class="list-group-item">
-                                    <p>Description: {{ task.description }}</p>
-                                    <p>Command: {{ task.command }}</p>
-                                </li>
-                                <li class="list-group-item">
-                                    <p>Expected Output: {{ task.expected_output_value }}</p>
-                                    <p>Actual Output: {{ task.actual_output_value }}</p>
-                                </li>
-                                <li class="list-group-item">
-                                    <p>Expected Returncode: {{ task.expected_return_code }}</p>
-                                    <p>Actual Returncode: {{ task.actual_return_code }}</p>
-                                </li>
-                                <li class="list-group-item">
-                                    <p>Success: {{ task.success }}</p>
-                                </li>
-                            </ul>
-                        </clr-accordion-content>
-                    </clr-accordion-panel>
-                </clr-accordion>
-            </div>
-            <div class="modal-footer">
-                <div>{{ percentSuccessful }}% </div><button class="btn btn-primary" type="button" (click)="close()">Ok</button>
-            </div>
-    </clr-modal>
+            <div><clr-icon shape="check" *ngIf="task.success"></clr-icon></div>
+          </div>
+        </clr-accordion-title>
+        <clr-accordion-content *clrIfExpanded>
+          <ul class="list-group">
+            <li class="list-group-item">
+              <p>Description: {{ task.description }}</p>
+              <p>Command: {{ task.command }}</p>
+            </li>
+            <li class="list-group-item">
+              <p>Expected Output: {{ task.expected_output_value }}</p>
+              <p>Actual Output: {{ task.actual_output_value }}</p>
+            </li>
+            <li class="list-group-item">
+              <p>Expected Returncode: {{ task.expected_return_code }}</p>
+              <p>Actual Returncode: {{ task.actual_return_code }}</p>
+            </li>
+            <li class="list-group-item">
+              <p>Success: {{ task.success }}</p>
+            </li>
+          </ul>
+        </clr-accordion-content>
+      </clr-accordion-panel>
+    </clr-accordion>
+  </div>
+  <div class="modal-footer">
+    <div>{{ percentSuccessful }}%</div>
+    <button class="btn btn-primary" type="button" (click)="close()">Ok</button>
+  </div>
+</clr-modal>

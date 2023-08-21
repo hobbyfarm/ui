@@ -1,12 +1,20 @@
 <div class="flex-container">
-    <div class="flex-element" (click)="onClickVerify()">
-        <svg class="progress-ring" height="38" width="38">
-            <circle #circle class="circle" stroke="var(--clr-nav-active-box-shadow-color, #54cbf2)" stroke-width="3" fill="var(--clr-global-hover-bg-color, #f6f6f6)" r="13" cx="19" cy="19" />
-        </svg>
-    </div>
-    <div class="flex-element, text-box">
-        <div class="info-text">{{index}} of {{tasks}} Tasks successful</div>
-        <div class="info-text-hover">Click to show more</div>
-    </div>
-    
+  <div class="flex-element" (click)="onClickVerify()">
+    <svg class="progress-ring" height="38" width="38">
+      <circle
+        #circle
+        class="circle"
+        stroke="var(--clr-nav-active-box-shadow-color, #54cbf2)"
+        stroke-width="3"
+        fill="var(--clr-global-hover-bg-color, #f6f6f6)"
+        r="13"
+        cx="19"
+        cy="19"
+      />
+    </svg>
+  </div>
+  <div class="flex-element, text-box">
+    <div class="info-text">{{ index }} of {{ tasks }} Tasks successful</div>
+    <div class="info-text-hover">Click to show more</div>
+  </div>
 </div>

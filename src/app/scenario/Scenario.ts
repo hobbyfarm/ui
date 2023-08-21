@@ -1,4 +1,4 @@
-import { TaskVerification } from "./taskVerification.type";
+import { TaskVerification } from './taskVerification.type';
 
 export class Scenario {
   id: string;
@@ -8,5 +8,5 @@ export class Scenario {
   virtualmachines: Map<string, string>[];
   pauseable: boolean;
   printable: boolean;
-  vm_tasks: TaskVerification[]
+  vm_tasks: TaskVerification[];
 }

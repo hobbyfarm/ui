@@ -22,12 +22,12 @@ export class GargantuaClientFactory {
 
   scopedClient(prefix: string): GargantuaClient {
     const baseUrl = environment.server + prefix;
-    return this.buildPRoxy(baseUrl)
+    return this.buildPRoxy(baseUrl);
   }
 
   scopedShellClient(shellEndpoint: string, prefix: string): GargantuaClient {
     const baseUrl = shellEndpoint + prefix;
-    return this.buildPRoxy(baseUrl)
+    return this.buildPRoxy(baseUrl);
   }
 
   private buildPRoxy(baseUrl: string): HttpClient {

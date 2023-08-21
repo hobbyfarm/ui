@@ -1,17 +1,15 @@
-
-
 type BaseTaskVerification = {
   vm_id: string;
   vm_name: string;
 };
 
 export type TaskVerification = BaseTaskVerification & {
-  task_command: TaskCommand[];  
+  task_command: TaskCommand[];
 };
 
 export type TaskVerificationResponse = BaseTaskVerification & {
-    task_command_output?: TaskCommand[];
-}
+  task_command_output?: TaskCommand[];
+};
 
 export type TaskCommand = {
   name: string;

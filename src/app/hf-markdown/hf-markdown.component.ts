@@ -122,7 +122,7 @@ ${token}`;
         target="${target}" 
         message="${code}" 
         taskName="${taskName}"
-        ></app-single-task-verification-markdown>`
+        ></app-single-task-verification-markdown>`;
     },
   };
 

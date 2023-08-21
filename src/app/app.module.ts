@@ -107,12 +107,14 @@ const appInitializerFn = (appConfig: AppConfigService) => {
   };
 };
 
-export const jwtAllowedDomains = [environment.server.replace(/(^\w+:|^)\/\//, '')]
+export const jwtAllowedDomains = [
+  environment.server.replace(/(^\w+:|^)\/\//, ''),
+];
 
-export function addJwtAllowedDomain(domain: string) { 
-  const newDomain = domain.replace(/(^\w+:|^)\/\//, '')
+export function addJwtAllowedDomain(domain: string) {
+  const newDomain = domain.replace(/(^\w+:|^)\/\//, '');
   if (!jwtAllowedDomains.includes(newDomain)) {
-    jwtAllowedDomains.push( newDomain )
+    jwtAllowedDomains.push(newDomain);
   }
 }
 
@@ -165,7 +167,10 @@ export function jwtOptionsFactory() {
         sanitize: false,
         convertHTMLEntities: false,
       },
-      globalParsers: [{ component: CtrComponent }, { component: SingleTaskVerificationMarkdownComponent }],
+      globalParsers: [
+        { component: CtrComponent },
+        { component: SingleTaskVerificationMarkdownComponent },
+      ],
     }),
     JwtModule.forRoot({
       jwtOptionsProvider: {

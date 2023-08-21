@@ -11,29 +11,37 @@
       Verify: {{ taskName }} on {{ target }}
     </div>
     <div class="label-container">
-      <button id=refreshButton (click)="elementClicked()" class="label label-info"><clr-icon shape="sync"></clr-icon></button>
-      <div *ngIf="task?.success" class="label label-success"><clr-icon shape="check"></clr-icon></div>
-      <div *ngIf="!task?.success" class="label label-danger"><clr-icon shape="times"></clr-icon></div>
+      <button
+        id="refreshButton"
+        (click)="elementClicked()"
+        class="label label-info"
+      >
+        <clr-icon shape="sync"></clr-icon>
+      </button>
+      <div *ngIf="task?.success" class="label label-success">
+        <clr-icon shape="check"></clr-icon>
+      </div>
+      <div *ngIf="!task?.success" class="label label-danger">
+        <clr-icon shape="times"></clr-icon>
+      </div>
     </div>
   </summary>
 
-    <ul class="list-group" *ngIf="task">
-      <li class="list-group-item">
-        <p>Description: {{ task.description }}</p>
-        <p>Command: {{ task.command }}</p>
-      </li>
-      <li class="list-group-item">
-        <p>Expected Output: {{ task.expected_output_value }}</p>
-        <p>Actual Output: {{ task.actual_output_value }}</p>
-      </li>
-      <li class="list-group-item">
-        <p>Expected Returncode: {{ task.expected_return_code }}</p>
-        <p>Actual Returncode: {{ task.actual_return_code }}</p>
-      </li>
-      <li class="list-group-item">
-        <p>Success: {{ task.success }}</p>
-      </li>
-    </ul>
+  <ul class="list-group" *ngIf="task">
+    <li class="list-group-item">
+      <p>Description: {{ task.description }}</p>
+      <p>Command: {{ task.command }}</p>
+    </li>
+    <li class="list-group-item">
+      <p>Expected Output: {{ task.expected_output_value }}</p>
+      <p>Actual Output: {{ task.actual_output_value }}</p>
+    </li>
+    <li class="list-group-item">
+      <p>Expected Returncode: {{ task.expected_return_code }}</p>
+      <p>Actual Returncode: {{ task.actual_return_code }}</p>
+    </li>
+    <li class="list-group-item">
+      <p>Success: {{ task.success }}</p>
+    </li>
+  </ul>
 </details>
-
-
