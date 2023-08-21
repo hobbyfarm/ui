@@ -119,7 +119,7 @@ export const genericRetryStrategy =
       mergeMap((error, i) => {
         const retryAttempt = i + 1;
         if (retryAttempt > maxRetryAttempts) {
-          return throwError(error);
+          return throwError(() => error);
         }
         return timer(retryAttempt * scalingDuration);
       }),

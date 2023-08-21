@@ -248,7 +248,7 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
                   }
                   return e.status > 0;
                 },
-                throwError(e),
+                throwError(() => e),
                 of(e).pipe(delay(10000)),
               ),
             ),

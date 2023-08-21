@@ -33,7 +33,7 @@ export class UserService {
 
     return this.garg.post('/registerwithaccesscode', body).pipe(
       catchError(({ error }) => {
-        return throwError(error.message ?? error.error);
+        return throwError(() => error.message ?? error.error);
       }),
     );
   }
@@ -44,7 +44,7 @@ export class UserService {
     return this.garg.post('/authenticate', body).pipe(
       map((s) => s.message), // not b64 from authenticate
       catchError(({ error }) => {
-        return throwError(error.message ?? error.error);
+        return throwError(() => error.message ?? error.error);
       }),
     );
   }
@@ -56,7 +56,7 @@ export class UserService {
 
     return this.garg.post('/changepassword', params).pipe(
       catchError((e: HttpErrorResponse) => {
-        return throwError(e.error);
+        return throwError(() => e.error);
       }),
     );
   }
@@ -83,7 +83,7 @@ export class UserService {
     return this.garg.get('/accesscode').pipe(
       map<any, string[]>(extractResponseContent),
       catchError((e: HttpErrorResponse) => {
-        return throwError(e.error);
+        return throwError(() => e.error);
       }),
     );
   }
@@ -92,7 +92,7 @@ export class UserService {
     const params = new HttpParams().set('access_code', a);
     return this.garg.post('/accesscode', params).pipe(
       catchError((e: HttpErrorResponse) => {
-        return throwError(e.error);
+        return throwError(() => e.error);
       }),
       tap(() => this._acModified.next(true)),
     );
@@ -101,7 +101,7 @@ export class UserService {
   public deleteAccessCode(a: string) {
     return this.garg.delete('/accesscode/' + a).pipe(
       catchError((e: HttpErrorResponse) => {
-        return throwError(e.error);
+        return throwError(() => e.error);
       }),
       tap(() => this._acModified.next(true)),
     );
