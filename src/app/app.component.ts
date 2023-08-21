@@ -108,9 +108,9 @@ export class AppComponent implements OnInit {
 
   public passwordChangeForm: FormGroup = new FormGroup(
     {
-      old_password: new FormControl(null, [Validators.required]),
-      new_password1: new FormControl(null, [Validators.required]),
-      new_password2: new FormControl(null, [Validators.required]),
+      old_password: new FormControl<string | null>(null, [Validators.required]),
+      new_password1: new FormControl<string | null>(null, [Validators.required]),
+      new_password2: new FormControl<string | null>(null, [Validators.required]),
     },
     {
       validators: ({ value: { new_password1: pw1, new_password1: pw2 } }) =>
@@ -119,17 +119,17 @@ export class AppComponent implements OnInit {
   );
 
   public newAccessCodeForm: FormGroup = new FormGroup({
-    access_code: new FormControl(null, [
+    access_code: new FormControl<string | null>(null, [
       Validators.required,
       Validators.minLength(4),
     ]),
   });
 
   public settingsForm: FormGroup = new FormGroup({
-    terminal_theme: new FormControl(null, [Validators.required]),
-    terminal_fontSize: new FormControl(null, [Validators.required]),
-    ctr_enabled: new FormControl(false),
-    theme: new FormControl(null, [Validators.required]),
+    terminal_theme: new FormControl<typeof themes[number]['id'] | null>(null, [Validators.required]),
+    terminal_fontSize: new FormControl<number | null>(null, [Validators.required]),
+    ctr_enabled: new FormControl<boolean>(false),
+    theme: new FormControl<'light' | 'dark' | 'system' | null>(null, [Validators.required]),
   });
 
   ngOnInit() {
