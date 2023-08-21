@@ -380,28 +380,28 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
           return this.ssService.keepalive(this.session.id);
         }),
       )
-      .subscribe(
-        (s: ServerResponse) => {
+      .subscribe({
+        next: (s: ServerResponse) => {
           // all should have been successful, so just update time and open modal.
           this._updatePauseRemaining(s.message);
           this.pauseModal.open();
         },
-        () => {
+        error: () => {
           // failure! what now?
         },
-      );
+      });
   }
 
   public resume() {
-    this.ssService.resume(this.session.id).subscribe(
-      () => {
+    this.ssService.resume(this.session.id).subscribe({
+      next: () => {
         // successful means we're resumed
         this.pauseOpen = false;
       },
-      () => {
+      error: () => {
         // something went wrong
       },
-    );
+    });
   }
 
   public dragEnd() {

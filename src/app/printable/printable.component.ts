@@ -42,16 +42,16 @@ export class PrintableComponent implements OnInit, AfterViewChecked {
     const { paramMap } = this.route.snapshot;
     const scenarioId = paramMap.get('scenario')!;
 
-    this.scenarioService.printable(scenarioId).subscribe(
-      (content: any) => {
+    this.scenarioService.printable(scenarioId).subscribe({
+      next: (content: string) => {
         this.scenario = content;
       },
-      (error: HttpErrorResponse) => {
+      error: (error: HttpErrorResponse) => {
         this.scenario =
           'There was an error rendering printable scenario content: ' +
           error.message;
       },
-    );
+    });
   }
 
   printPdf() {

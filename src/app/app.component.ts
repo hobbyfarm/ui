@@ -145,17 +145,17 @@ export class AppComponent implements OnInit {
 
     const addAccessCode = this.route.snapshot.params['accesscode'];
     if (addAccessCode) {
-      this.userService.addAccessCode(addAccessCode).subscribe(
-        (s: ServerResponse) => {
+      this.userService.addAccessCode(addAccessCode).subscribe({
+        next: (_s: ServerResponse) => {
           this.accesscodes.push(addAccessCode);
           this.setAccessCode(addAccessCode);
           this.doHomeAccessCode(addAccessCode);
         },
-        (s: ServerResponse) => {
+        error: (_s: ServerResponse) => {
           // failure
           this.doHomeAccessCodeError(addAccessCode);
         },
-      );
+      });
     }
     //react to changes on users accesscodess
     this.contextService.watch().subscribe((c: Context) => {
@@ -222,17 +222,17 @@ export class AppComponent implements OnInit {
   public openAccessCodes() {
     this.newAccessCodeForm.reset();
     this.fetchingAccessCodes = true;
-    this.userService.getAccessCodes().subscribe(
-      (a: string[]) => {
+    this.userService.getAccessCodes().subscribe({
+      next: (a: string[]) => {
         this.accesscodes = a;
         this.fetchingAccessCodes = false;
       },
-      (s: ServerResponse) => {
+      error: (s: ServerResponse) => {
         this.accessCodeDangerClosed = false;
         this.accessCodeDangerAlert = s.message;
         this.fetchingAccessCodes = false;
       },
-    );
+    });
     this.accessCodeModal.open();
   }
 
@@ -270,8 +270,8 @@ export class AppComponent implements OnInit {
 
   public saveAccessCode(activate = false) {
     const { access_code: a } = this.newAccessCodeForm.value;
-    this.userService.addAccessCode(a).subscribe(
-      (s: ServerResponse) => {
+    this.userService.addAccessCode(a).subscribe({
+      next: (s: ServerResponse) => {
         // success
         this.accessCodeSuccessAlert = s.message + ' added.';
         this.accessCodeSuccessClosed = false;
@@ -283,13 +283,13 @@ export class AppComponent implements OnInit {
         }
         setTimeout(() => (this.accessCodeSuccessClosed = true), 2000);
       },
-      (s: ServerResponse) => {
+      error: (s: ServerResponse) => {
         // failure
         this.accessCodeDangerAlert = s.message;
         this.accessCodeDangerClosed = false;
         setTimeout(() => (this.accessCodeDangerClosed = true), 2000);
       },
-    );
+    });
   }
 
   private _removeAccessCode(a: string) {
@@ -300,24 +300,25 @@ export class AppComponent implements OnInit {
   }
 
   public deleteAccessCode(a: string) {
-    this.userService.deleteAccessCode(a).subscribe(
-      (s: ServerResponse) => {
+    this.userService.deleteAccessCode(a).subscribe({
+      next: (s: ServerResponse) => {
         this.accessCodeSuccessAlert = s.message + ' deleted.';
         this.accessCodeSuccessClosed = false;
         this._removeAccessCode(a);
         setTimeout(() => (this.accessCodeSuccessClosed = true), 2000);
       },
-      (s: ServerResponse) => {
+      error: (s: ServerResponse) => {
+        // failure
         this.accessCodeDangerAlert = s.message;
         this.accessCodeDangerClosed = false;
         setTimeout(() => (this.accessCodeDangerClosed = true), 2000);
       },
-    );
+    });
   }
 
   public doSaveSettings() {
-    this.settingsService.update(this.settingsForm.value).subscribe(
-      () => {
+    this.settingsService.update(this.settingsForm.value).subscribe({
+      next: (_s: ServerResponse) => {
         this.settingsModalOpened = false;
         const theme: 'light' | 'dark' | 'system' =
           this.settingsForm.controls['theme'].value;
@@ -331,29 +332,31 @@ export class AppComponent implements OnInit {
             window.matchMedia('(prefers-color-scheme: dark)').matches
           ) {
             this.enableDarkMode();
-          } else this.disableDarkMode();
+          } else {
+            this.disableDarkMode();
+          }
         }
       },
-      () => {
+      error: (_s: ServerResponse) => {
         setTimeout(() => (this.settingsModalOpened = false), 2000);
       },
-    );
+    });
   }
 
   public doChangePassword() {
     const { old_password, new_password1 } = this.passwordChangeForm.value;
-    this.userService.changepassword(old_password, new_password1).subscribe(
-      (s: ServerResponse) => {
+    this.userService.changepassword(old_password, new_password1).subscribe({
+      next: (s: ServerResponse) => {
         this.changePwSuccessAlert = s.message + '. Logging you out...';
         this.changePwSuccessClosed = false;
         setTimeout(() => this.doLogout(), 2000);
       },
-      (s: ServerResponse) => {
+      error: (s: ServerResponse) => {
         this.changePwDangerAlert = s.message;
         this.changePwDangerClosed = false;
         setTimeout(() => (this.changePwDangerClosed = true), 2000);
       },
-    );
+    });
   }
 
   public doLogout() {

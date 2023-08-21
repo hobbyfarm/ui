@@ -1,8 +1,8 @@
 import { Component, OnInit, Input, EventEmitter, Output } from '@angular/core';
 import { Scenario } from './Scenario';
-import { concatMap, delay } from 'rxjs/operators';
+import { catchError, concatMap, delay } from 'rxjs/operators';
 import { Session } from '../Session';
-import { from } from 'rxjs';
+import { from, of } from 'rxjs';
 import { ScenarioService } from '../services/scenario.service';
 import { SessionService } from '../services/session.service';
 import { VMClaimService } from '../services/vmclaim.service';
@@ -63,24 +63,26 @@ export class ScenarioComponent implements OnInit {
       .pipe(
         concatMap((s: Session) => {
           this.session = s;
-          this.ssService.keepalive(s.id).subscribe(undefined, () => {
-            this.error = true;
-          });
 
-          return from(s.vm_claim);
+          return this.ssService.keepalive(s.id).pipe(
+            // if keepalive throws an error -> catch it -> set this.error to true ... and then continue with the rest of the flow
+            catchError(() => {
+              this.error = true;
+              return of(null);
+            }),
+            concatMap(() => from(s.vm_claim)),
+          );
         }),
         delay(2000),
-        concatMap((claimid: string) => {
-          return this.vmClaimService.get(claimid);
-        }),
+        concatMap((claimid: string) => this.vmClaimService.get(claimid)),
       )
-      .subscribe(
-        (s: VMClaim) => {
+      .subscribe({
+        next: (s: VMClaim) => {
           this.vmclaims.push(s);
         },
-        () => {
+        error: () => {
           this.error = true;
         },
-      );
+      });
   }
 }

@@ -84,8 +84,8 @@ export class IdeWindowComponent implements OnInit {
       .get(this.url, { observe: 'response', responseType: 'text' })
       .pipe(retryWhen(genericRetryStrategy()));
 
-    req.subscribe(
-      (res) => {
+    req.subscribe({
+      next: (res) => {
         if (res.status == 200) {
           this.isOK = true;
           this.isLoading = false;
@@ -96,13 +96,13 @@ export class IdeWindowComponent implements OnInit {
           this.isConnError = true;
         }
       },
-      () => {
+      error: () => {
         // This only Errors if the Proxy in gargantua-shell throws an Error, not if the Service on the VM fails
         this.isLoading = false;
         this.isOK = false;
         this.isConnError = true;
       },
-    );
+    });
   }
 }
 

@@ -59,16 +59,16 @@ export class LoginComponent {
         password: this.password,
         access_code: this.accesscode,
       })
-      .subscribe(
-        () => {
+      .subscribe({
+        next: () => {
           this.loginactive = true;
           this.registrationDisabled = false;
         },
-        (error) => {
+        error: (error) => {
           this.error = error;
           this.registrationDisabled = false;
         },
-      );
+      });
   }
 
   public login() {
@@ -79,8 +79,8 @@ export class LoginComponent {
         email: this.email,
         password: this.password,
       })
-      .subscribe(
-        (s) => {
+      .subscribe({
+        next: (s: string) => {
           // persist the token we received
           localStorage.setItem('hobbyfarm_token', s);
 
@@ -89,9 +89,9 @@ export class LoginComponent {
             this.route.snapshot.queryParams['returnUrl'] || '/app/home',
           );
         },
-        (error) => {
+        error: (error) => {
           this.error = error;
         },
-      );
+      });
   }
 }
