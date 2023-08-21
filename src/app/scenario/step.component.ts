@@ -21,13 +21,15 @@ import {
   tap,
   map,
   toArray,
+  mergeMap,
+  catchError,
 } from 'rxjs/operators';
 import { TerminalComponent } from './terminal.component';
 import { ClrTabContent, ClrTab, ClrModal } from '@clr/angular';
 import { ServerResponse } from '../ServerResponse';
 import { Scenario } from './Scenario';
 import { Session } from '../Session';
-import { from, of, throwError, iif, Subject, Observable } from 'rxjs';
+import { from, of, throwError, iif, Subject, Observable, forkJoin } from 'rxjs';
 import { VMClaim } from '../VMClaim';
 import { VMClaimVM } from '../VMClaimVM';
 import { VM } from '../VM';
@@ -174,59 +176,60 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
           this.scenario = s;
           this._loadStep();
         }),
-        switchMap(() => {
-          return from(this.session.vm_claim);
-        }),
-        concatMap((v: string) => {
-          return this.vmClaimService.get(v);
-        }),
-        concatMap((v: VMClaim) => {
-          return from(v.vm);
-        }),
-        concatMap(([k, v]: [string, VMClaimVM]) => {
-          return this.vmService
-            .get(v.vm_id)
-            .pipe(map((vm) => [k, vm] as const));
-        }),
+        switchMap(() => from(this.session.vm_claim)),
+        concatMap((v: string) => this.vmClaimService.get(v)),
+        concatMap((v: VMClaim) => from(v.vm)),
+        concatMap(([k, v]: [string, VMClaimVM]) =>
+          this.vmService.get(v.vm_id).pipe(map((vm) => [k, vm] as const)),
+        ),
         toArray(),
-      )
-      .subscribe((entries) => {
-        this.vms = new Map(entries);
-        this.sendProgressUpdate();
-        this.vms.forEach((vm) => {
-          this.vmService.getWebinterfaces(vm.id).subscribe(
-            (res) => {
-              const stringContent: string = atou(res.content);
-              const services = JSON.parse(JSON.parse(stringContent)); //TODO: See if we can skip one stringify somwhere, so we dont have to parse twice
-              services.forEach((service: Service) => {
-                if (service.hasWebinterface) {
-                  const webinterface = {
-                    name: service.name ?? 'Service',
-                    port: service.port ?? 80,
-                    path: service.path ?? '/',
-                    hasOwnTab: !!service.hasOwnTab,
-                    hasWebinterface: true,
-                    disallowIFrame: !!service.disallowIFrame,
-                    active: false,
-                  };
-                  vm.webinterfaces
-                    ? vm.webinterfaces.push(webinterface)
-                    : (vm.webinterfaces = [webinterface]);
-                }
-              });
-            },
-            () => {
-              vm.webinterfaces = [];
-            },
+        tap((entries: (readonly [string, VM])[]) => {
+          this.vms = new Map(entries);
+          this.sendProgressUpdate();
+          const vmInfo: HfMarkdownRenderContext['vmInfo'] = {};
+          for (const [k, v] of this.vms) {
+            vmInfo[k.toLowerCase()] = v;
+          }
+          this.mdContext = { vmInfo: vmInfo, session: this.session.id };
+        }),
+        // Using mergeMap here to handle async "getWebinterfaces(...)" operations concurrently
+        // This allows multiple observables to be active and processed in parallel
+        // The order in which these observables are processed is not important
+        mergeMap(() => {
+          const vmObservables = Array.from<stepVM>(this.vms.values()).map((vm) =>
+            this.vmService.getWebinterfaces(vm.id).pipe(
+              map((res) => {
+                const stringContent: string = atou(res.content);
+                const services = JSON.parse(JSON.parse(stringContent)); // Consider revising double parse if possible
+                services.forEach((service: Service) => {
+                  if (service.hasWebinterface) {
+                    const webinterface = {
+                      name: service.name ?? 'Service',
+                      port: service.port ?? 80,
+                      path: service.path ?? '/',
+                      hasOwnTab: !!service.hasOwnTab,
+                      hasWebinterface: true,
+                      disallowIFrame: !!service.disallowIFrame,
+                      active: false,
+                    };
+                    vm.webinterfaces
+                      ? vm.webinterfaces.push(webinterface)
+                      : (vm.webinterfaces = [webinterface]);
+                  }
+                });
+                return vm;
+              }),
+              catchError(() => {
+                vm.webinterfaces = [];
+                return of(vm);
+              }),
+            ),
           );
-        });
-
-        const vmInfo: HfMarkdownRenderContext['vmInfo'] = {};
-        for (const [k, v] of this.vms) {
-          vmInfo[k.toLowerCase()] = v;
-        }
-        this.mdContext = { vmInfo: vmInfo, session: this.session.id };
-      });
+          // Using forkJoin to ensure that all inner observables complete, before we return their combined output
+          return forkJoin(vmObservables);
+        }),
+      )
+      .subscribe();
 
     // setup keepalive
     this.ssService
