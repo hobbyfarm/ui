@@ -33,7 +33,7 @@
     "angular-split": "^13.2.0",
     "guacamole-common-js": "^1.4.0-a",
     "ngx-dynamic-hooks": "^2.1.0",
-    "ngx-markdown": "^13.0.0",
+    "ngx-markdown": "^14.0.1",
     "rxjs": "^7.4.0",
     "tslib": "^2.6.1",
     "xterm": "^5.2.1",
