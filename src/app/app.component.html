@@ -171,6 +171,15 @@
             <clr-control-error *clrIfError="'minLength'"
               >Access code must be longer than 4 characters
             </clr-control-error>
+            <clr-control-error *clrIfError="'pattern'"
+              >Access code must
+              <ul>
+                <li>
+                  contain only lowercase alphanumeric characters, '-', or '.'
+                </li>
+                <li>start and end with an alphanumeric character</li>
+              </ul>
+            </clr-control-error>
           </clr-input-container>
           <div class="col-md-2">
             <button
