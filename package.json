@@ -34,7 +34,7 @@
     "guacamole-common-js": "^1.4.0-a",
     "marked": "^4.3.0",
     "ngx-dynamic-hooks": "^2.1.0",
-    "ngx-markdown": "^15.1.2",
+    "ngx-markdown": "^16.0.0",
     "rxjs": "^7.4.0",
     "tslib": "^2.6.1",
     "xterm": "^5.2.1",
