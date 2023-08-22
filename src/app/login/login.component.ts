@@ -27,9 +27,9 @@ export class LoginComponent {
   public loginactive = false;
 
   public loginForm: FormGroup = new FormGroup({
-    email: new FormControl(null, [Validators.required]),
-    password: new FormControl(null, [Validators.required]),
-    accesscode: new FormControl(null, [
+    email: new FormControl<string | null>(null, [Validators.required]),
+    password: new FormControl<string | null>(null, [Validators.required]),
+    accesscode: new FormControl<string | null>(null, [
       Validators.required,
       Validators.minLength(5),
       Validators.pattern(/^[a-z0-9][a-z0-9.-]{3,}[a-z0-9]$/),
