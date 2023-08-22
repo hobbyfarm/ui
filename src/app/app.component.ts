@@ -1,5 +1,6 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
-import { ClarityIcons } from '@clr/icons';
+import '@cds/core/icon/register.js';
+import { ClarityIcons } from '@cds/core/icon';
 import { JwtHelperService } from '@auth0/angular-jwt';
 import { ClrModal } from '@clr/angular';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -88,9 +89,7 @@ export class AppComponent implements OnInit {
     private typedSettingsService: TypedSettingsService,
   ) {
     this.config.getLogo(this.logo).then((obj: string) => {
-      ClarityIcons.add({
-        logo: obj,
-      });
+      ClarityIcons.addIcons(['logo', obj]);
     });
 
     if (this.Config.favicon) {
@@ -109,8 +108,12 @@ export class AppComponent implements OnInit {
   public passwordChangeForm: FormGroup = new FormGroup(
     {
       old_password: new FormControl<string | null>(null, [Validators.required]),
-      new_password1: new FormControl<string | null>(null, [Validators.required]),
-      new_password2: new FormControl<string | null>(null, [Validators.required]),
+      new_password1: new FormControl<string | null>(null, [
+        Validators.required,
+      ]),
+      new_password2: new FormControl<string | null>(null, [
+        Validators.required,
+      ]),
     },
     {
       validators: ({ value: { new_password1: pw1, new_password1: pw2 } }) =>
@@ -126,10 +129,16 @@ export class AppComponent implements OnInit {
   });
 
   public settingsForm: FormGroup = new FormGroup({
-    terminal_theme: new FormControl<typeof themes[number]['id'] | null>(null, [Validators.required]),
-    terminal_fontSize: new FormControl<number | null>(null, [Validators.required]),
+    terminal_theme: new FormControl<typeof themes[number]['id'] | null>(null, [
+      Validators.required,
+    ]),
+    terminal_fontSize: new FormControl<number | null>(null, [
+      Validators.required,
+    ]),
     ctr_enabled: new FormControl<boolean>(false),
-    theme: new FormControl<'light' | 'dark' | 'system' | null>(null, [Validators.required]),
+    theme: new FormControl<'light' | 'dark' | 'system' | null>(null, [
+      Validators.required,
+    ]),
   });
 
   ngOnInit() {

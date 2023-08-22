@@ -26,7 +26,6 @@
     "@auth0/angular-jwt": "^5.1.2",
     "@cds/core": "^6.5.0",
     "@clr/angular": "^15.10.0",
-    "@clr/icons": "^13.0.2",
     "@clr/ui": "^15.10.0",
     "@webcomponents/custom-elements": "^1.0.0",
     "@webcomponents/webcomponentsjs": "^2.0.0",

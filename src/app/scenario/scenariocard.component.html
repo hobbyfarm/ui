@@ -24,7 +24,7 @@
         (click)="navScenario()"
         [disabled]="activeSession"
       >
-        <clr-icon shape="play"></clr-icon> Start Scenario
+        <cds-icon shape="play"></cds-icon> Start Scenario
       </button>
     </ng-template>
     <ng-template #activeProgressControls>
@@ -33,14 +33,14 @@
         (click)="terminate()"
         [disabled]="terminated"
       >
-        <clr-icon shape="times"></clr-icon> Terminate Session
+        <cds-icon shape="times"></cds-icon> Terminate Session
       </button>
       <button
         class="btn btn-success"
         (click)="continue()"
         [disabled]="terminated"
       >
-        <clr-icon shape="play"></clr-icon> Continue
+        <cds-icon shape="play"></cds-icon> Continue
       </button>
     </ng-template>
 
@@ -50,7 +50,7 @@
       target="_blank"
     >
       <button class="btn btn-sm btn-link">
-        <clr-icon shape="printer"></clr-icon> Print
+        <cds-icon shape="printer"></cds-icon> Print
       </button>
     </a>
   </div>

@@ -26,7 +26,6 @@
               "src/custom.css"
             ],
             "styles": [
-              "node_modules/@clr/icons/clr-icons.min.css",
               "node_modules/xterm/css/xterm.css",
               "src/styles.scss",
               "src/dark-theme.css",
