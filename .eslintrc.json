@@ -1,11 +1,18 @@
 {
   "root": true,
-  "ignorePatterns": ["projects/**/*"],
+  "ignorePatterns": [
+    "projects/**/*"
+  ],
   "overrides": [
     {
-      "files": ["*.ts"],
+      "files": [
+        "*.ts"
+      ],
       "parserOptions": {
-        "project": ["tsconfig.json", "e2e/tsconfig.json"],
+        "project": [
+          "tsconfig.json",
+          "e2e/tsconfig.json"
+        ],
         "createDefaultProgram": true
       },
       "extends": [
@@ -16,11 +23,9 @@
         "plugin:@angular-eslint/template/process-inline-templates"
       ],
       "rules": {
-        // TODO enable these rules
         "@typescript-eslint/no-explicit-any": "off",
         "@typescript-eslint/no-non-null-assertion": "off",
         "@typescript-eslint/explicit-module-boundary-types": "off",
-
         "@angular-eslint/component-selector": [
           "error",
           {
@@ -40,8 +45,12 @@
       }
     },
     {
-      "files": ["*.html"],
-      "extends": ["plugin:@angular-eslint/template/recommended"],
+      "files": [
+        "*.html"
+      ],
+      "extends": [
+        "plugin:@angular-eslint/template/recommended"
+      ],
       "rules": {}
     }
   ]
