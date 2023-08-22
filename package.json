@@ -24,7 +24,7 @@
     "@angular/platform-browser-dynamic": "^15.2.9",
     "@angular/router": "^15.2.9",
     "@auth0/angular-jwt": "^5.1.2",
-    "@cds/core": "^5.0.0",
+    "@cds/core": "^6.0.0",
     "@clr/angular": "^13.18.2",
     "@clr/icons": "^13.0.2",
     "@clr/ui": "^13.18.2",
