@@ -33,22 +33,22 @@ jobs:
 
       - name: Prep build and fill cache
         run: | 
-          #docker buildx create --use
-          #docker buildx build --platform linux/amd64,linux/arm64 -f Dockerfile -t $app_image:${GIT_COMMIT_SHORT_HASH:-dev} .
+          docker buildx create --use
+          docker buildx build --platform linux/amd64,linux/arm64 -f Dockerfile -t $app_image:${GIT_COMMIT_SHORT_HASH:-dev} .
         
       - name: Login container registry
         if: fromJSON(env.should_push_image)
         run: |
           echo "${{ secrets.REGISTRY_PASSWORD }}" \
-            | docker login -u "${{ secrets.REGISTRY_USER }}"
+            | docker login -u "${{ secrets.REGISTRY_USER }}" --password-stdin
 
       - name: Build & Push
         if: fromJSON(env.should_push_image)
         run: |
           safe_ref=$(echo "${{ github.ref_name }}" | sed -e 's/[^a-zA-Z0-9\-\.]/-/g')
-          #docker buildx build --push --platform linux/amd64,linux/arm64 -f Dockerfile -t $app_image:$safe_ref .
+          docker buildx build --push --platform linux/amd64,linux/arm64 -f Dockerfile -t $app_image:$safe_ref .
 
       - name: Push latest
         if: fromJSON(env.should_tag_latest)
         run: |
-          #docker buildx build --push --platform linux/amd64,linux/arm64 -f Dockerfile -t $app_image:latest .
+          docker buildx build --push --platform linux/amd64,linux/arm64 -f Dockerfile -t $app_image:latest .
