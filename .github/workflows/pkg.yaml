@@ -31,29 +31,24 @@ jobs:
       - name: Checkout
         uses: actions/checkout@master
 
-      - name: Build container image
-        run: |
+      - name: Prep build and fill cache
+        run: | 
           docker buildx create --use
-          docker buildx build --load --platform linux/amd64 -f Dockerfile -t $app_image:${GIT_COMMIT_SHORT_HASH:-dev} .
-          #docker buildx build --load --platform linux/amd64,linux/arm64 -f Dockerfile -t $app_image:${GIT_COMMIT_SHORT_HASH:-dev} .
-
-      - name: Log in container registry
+          docker buildx build --platform linux/amd64,linux/arm64 -f Dockerfile -t $app_image:${GIT_COMMIT_SHORT_HASH:-dev} .
+        
+      - name: Login container registry
         if: fromJSON(env.should_push_image)
         run: |
           echo "${{ secrets.REGISTRY_PASSWORD }}" \
-            | docker login -u "${{ secrets.REGISTRY_USER }}" --password-stdin
+            | docker login -u "${{ secrets.REGISTRY_USER }}"
 
-      - name: Push to container registry
+      - name: Build & Push
         if: fromJSON(env.should_push_image)
         run: |
           safe_ref=$(echo "${{ github.ref_name }}" | sed -e 's/[^a-zA-Z0-9\-\.]/-/g')
-          publish_tag=$app_image:$safe_ref
+          docker buildx build --push --platform linux/amd64,linux/arm64 -f Dockerfile -t $app_image:$safe_ref .
 
-          docker tag $app_image:${GIT_COMMIT_SHORT_HASH:-dev} $publish_tag
-          docker push $publish_tag
-
-      - name: Push latest tag
+      - name: Push latest
         if: fromJSON(env.should_tag_latest)
         run: |
-          docker tag $app_image:${GIT_COMMIT_SHORT_HASH:-dev} $app_image:latest
-          docker push $app_image:latest
+          docker buildx build --push --platform linux/amd64,linux/arm64 -f Dockerfile -t $app_image:latest .
