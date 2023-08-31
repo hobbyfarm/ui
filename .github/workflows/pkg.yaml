@@ -34,7 +34,8 @@ jobs:
       - name: Build container image
         run: |
           docker buildx create --use
-          docker buildx build --load --platform linux/amd64,linux/arm64 -f Dockerfile -t $app_image:${GIT_COMMIT_SHORT_HASH:-dev} .
+          docker buildx build --load --platform linux/amd64 -f Dockerfile -t $app_image:${GIT_COMMIT_SHORT_HASH:-dev} .
+          #docker buildx build --load --platform linux/amd64,linux/arm64 -f Dockerfile -t $app_image:${GIT_COMMIT_SHORT_HASH:-dev} .
 
       - name: Log in container registry
         if: fromJSON(env.should_push_image)
