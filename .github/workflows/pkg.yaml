@@ -7,7 +7,7 @@ on:
   workflow_dispatch: {}
 
 env:
-  app_image: hobbyfarm/ui
+  app_image: seboknt/ui
 
   should_push_image: |-
     ${{
@@ -32,7 +32,9 @@ jobs:
         uses: actions/checkout@master
 
       - name: Build container image
-        run: docker build -f Dockerfile -t $app_image:${GIT_COMMIT_SHORT_HASH:-dev} .
+        run: |
+          docker buildx create --use
+          docker buildx build --platform linux/amd64,linux/arm64 -f Dockerfile -t $app_image:${GIT_COMMIT_SHORT_HASH:-dev} .
 
       - name: Log in container registry
         if: fromJSON(env.should_push_image)
