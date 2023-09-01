@@ -10,7 +10,7 @@ env:
   should_push_image: |-
     ${{
       github.event_name == 'push' && (
-        github.ref_type == 'tag' ||
+        github.ref_type == 'tag' ||  
         github.ref_name == 'master'
       )
     }}
@@ -29,24 +29,59 @@ jobs:
       - name: Checkout
         uses: actions/checkout@master
 
-      - name: Prep build and fill cache
+      - name: Cache docker buildx
+        uses: actions/cache@v2
+        with:
+          path: |
+            /home/runner/tmp
+          key: docker-tmp
+
+      - name: Prep build # also builds the conatiner when triggered via workflow_dispatch
         run: | 
           docker buildx create --use
-          docker buildx build --platform linux/amd64,linux/arm64 -f Dockerfile -t ${GITHUB_REPOSITORY,,}:${GIT_COMMIT_SHORT_HASH:-dev} .
-        
+          docker buildx inspect --bootstrap
+
+      - name: Fill AMD64 cache
+        run: |
+          docker buildx build \
+          --platform linux/amd64 \
+          --cache-from type=local,src=/home/runner/tmp/amd64 \
+          --cache-to type=local,dest=/home/runner/tmp/amd64 \
+          --tag ${GITHUB_REPOSITORY,,}:amd64 \
+          --file Dockerfile .
+      
+      - name: Fill ARM cache
+        run: |
+          docker buildx build \
+          --platform linux/arm64 \
+          --cache-from type=local,src=/home/runner/tmp/arm64 \
+          --cache-to type=local,dest=/home/runner/tmp/arm64 \
+          --tag ${GITHUB_REPOSITORY,,}:arm64 \
+          --file Dockerfile .
+
       - name: Login container registry
         if: fromJSON(env.should_push_image)
         run: |
           echo "${{ secrets.REGISTRY_PASSWORD }}" \
             | docker login -u "${{ secrets.REGISTRY_USER }}" --password-stdin
 
-      - name: Build & Push
+      - name: Build from cache & Push # if commit is taged, the container name is freed from unwanted chars
         if: fromJSON(env.should_push_image)
         run: |
           safe_ref=$(echo "${{ github.ref_name }}" | sed -e 's/[^a-zA-Z0-9\-\.]/-/g')
-          docker buildx build --push --platform linux/amd64,linux/arm64 -f Dockerfile -t ${GITHUB_REPOSITORY,,}:$safe_ref .
+          docker buildx build --push \
+          --platform linux/amd64,linux/arm64 \
+          --cache-from type=local,src=/home/runner/tmp/amd64 \
+          --cache-from type=local,src=/home/runner/tmp/arm64 \
+          --tag ${GITHUB_REPOSITORY,,}:$safe_ref
+          --file Dockerfile .
 
-      - name: Push latest
+      - name: Build from cache & Push latest
         if: fromJSON(env.should_tag_latest)
         run: |
-          docker buildx build --push --platform linux/amd64,linux/arm64 -f Dockerfile -t ${GITHUB_REPOSITORY,,}:latest .
+          docker buildx build --push \
+          --platform linux/amd64,linux/arm64 \
+          --cache-from type=local,src=/home/runner/tmp/amd64 \
+          --cache-from type=local,src=/home/runner/tmp/arm64 \
+          --tag ${GITHUB_REPOSITORY,,}:latest
+          --file Dockerfile .
