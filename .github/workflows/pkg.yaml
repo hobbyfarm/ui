@@ -6,9 +6,6 @@ on:
     tags: ['*']
   workflow_dispatch: {}
 
-env:
-  app_image: seboknt/ui
-
   should_push_image: |-
     ${{
       github.event_name == 'push' && (
@@ -34,7 +31,7 @@ jobs:
       - name: Prep build and fill cache
         run: | 
           docker buildx create --use
-          docker buildx build --platform linux/amd64,linux/arm64 -f Dockerfile -t $app_image:${GIT_COMMIT_SHORT_HASH:-dev} .
+          docker buildx build --platform linux/amd64,linux/arm64 -f Dockerfile -t ${GITHUB_REPOSITORY,,}:${GIT_COMMIT_SHORT_HASH:-dev} .
         
       - name: Login container registry
         if: fromJSON(env.should_push_image)
@@ -46,9 +43,9 @@ jobs:
         if: fromJSON(env.should_push_image)
         run: |
           safe_ref=$(echo "${{ github.ref_name }}" | sed -e 's/[^a-zA-Z0-9\-\.]/-/g')
-          docker buildx build --push --platform linux/amd64,linux/arm64 -f Dockerfile -t $app_image:$safe_ref .
+          docker buildx build --push --platform linux/amd64,linux/arm64 -f Dockerfile -t ${GITHUB_REPOSITORY,,}:$safe_ref .
 
       - name: Push latest
         if: fromJSON(env.should_tag_latest)
         run: |
-          docker buildx build --push --platform linux/amd64,linux/arm64 -f Dockerfile -t $app_image:latest .
+          docker buildx build --push --platform linux/amd64,linux/arm64 -f Dockerfile -t ${GITHUB_REPOSITORY,,}:latest .
