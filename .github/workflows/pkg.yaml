@@ -6,6 +6,7 @@ on:
     tags: ['*']
   workflow_dispatch: {}
 
+env:
   should_push_image: |-
     ${{
       github.event_name == 'push' && (
