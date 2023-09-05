@@ -16,7 +16,7 @@
         (click)="elementClicked()"
         class="label label-info"
       >
-        <clr-icon shape="sync"></clr-icon>
+        <clr-icon [@rotatedState]="rotationState" shape="sync"></clr-icon>
       </button>
       <div *ngIf="task?.success" class="label label-success">
         <clr-icon shape="check"></clr-icon>

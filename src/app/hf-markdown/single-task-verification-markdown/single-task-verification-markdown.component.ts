@@ -1,3 +1,10 @@
+import {
+  animate,
+  state,
+  style,
+  transition,
+  trigger,
+} from '@angular/animations';
 import { Component, Input, OnInit } from '@angular/core';
 import { TaskCommand } from 'src/app/scenario/taskVerification.type';
 import { VerificationService } from 'src/app/services/verification.service';
@@ -5,6 +12,13 @@ import { VerificationService } from 'src/app/services/verification.service';
 @Component({
   selector: 'app-single-task-verification-markdown',
   templateUrl: './single-task-verification-markdown.component.html',
+  animations: [
+    trigger('rotatedState', [
+      state('default', style({ transform: 'rotate(0)' })),
+      state('rotating', style({ transform: 'rotate(360deg)' })),
+      transition('default => rotating', animate('1500ms')),
+    ]),
+  ],
   styleUrls: ['./single-task-verification-markdown.component.scss'],
 })
 export class SingleTaskVerificationMarkdownComponent implements OnInit {
@@ -13,6 +27,8 @@ export class SingleTaskVerificationMarkdownComponent implements OnInit {
   @Input() taskName: string;
 
   detailsOpen = false;
+
+  rotationState = 'default';
 
   task?: TaskCommand;
 
@@ -30,6 +46,10 @@ export class SingleTaskVerificationMarkdownComponent implements OnInit {
   }
 
   elementClicked() {
+    this.rotationState = 'rotating';
+    setTimeout(() => {
+      this.rotationState = 'default';
+    }, 1500);
     this.verificationService
       .verifyTask(this.target, this.taskName)
       ?.subscribe();
