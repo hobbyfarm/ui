@@ -15,7 +15,6 @@ import {
   switchMap,
   concatMap,
   first,
-  repeatWhen,
   delay,
   tap,
   map,
@@ -23,6 +22,7 @@ import {
   mergeMap,
   catchError,
   retry,
+  repeat,
 } from 'rxjs/operators';
 import { TerminalComponent } from './terminal.component';
 import { ClrTabContent, ClrTab, ClrModal } from '@clr/angular';
@@ -241,9 +241,7 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
     this.ssService
       .keepalive(sessionId)
       .pipe(
-        repeatWhen((obs) => {
-          return obs.pipe(delay(60000));
-        }),
+        repeat({ delay: 60000 }),
         retry({
           delay: (errors) =>
             errors.pipe(
