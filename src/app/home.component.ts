@@ -46,14 +46,16 @@ export class HomeComponent implements OnInit, OnDestroy {
     private route: ActivatedRoute,
     private location: Location,
   ) {
-    this.progressSubscription = this.progressService.watch().subscribe((p: Progress[]) => {
-      this.activeSession = undefined;
-      p.forEach((progress) => {
-        if (!progress.finished) {
-          this.activeSession = progress;
-        }
+    this.progressSubscription = this.progressService
+      .watch()
+      .subscribe((p: Progress[]) => {
+        this.activeSession = undefined;
+        p.forEach((progress) => {
+          if (!progress.finished) {
+            this.activeSession = progress;
+          }
+        });
       });
-    });
 
     this.contextSubscription = this.contextService
       .watch()

@@ -176,7 +176,9 @@ ${token}`;
       this.replaceVmInfoTokens(this.content),
     );
     // the parse method internally uses the Angular Dom Sanitizer and is therefore safe to use
-    this.processedContent = this.markdownService.parse(contentWithReplacedTokens);
+    this.processedContent = this.markdownService.parse(
+      contentWithReplacedTokens,
+    );
   }
 
   private replaceVmInfoTokens(content: string) {

@@ -165,9 +165,9 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
     const sessionId = paramMap.get('session');
     this.stepnumber = Number(paramMap.get('step') ?? 0);
 
-    if(!sessionId) {
+    if (!sessionId) {
       // Something went wrong ... the route snapshot should always contain the sessionId
-      return
+      return;
     }
 
     this.ssService
@@ -201,34 +201,35 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
         // This allows multiple observables to be active and processed in parallel
         // The order in which these observables are processed is not important
         mergeMap(() => {
-          const vmObservables = Array.from<stepVM>(this.vms.values()).map((vm) =>
-            this.vmService.getWebinterfaces(vm.id).pipe(
-              map((res) => {
-                const stringContent: string = atou(res.content);
-                const services = JSON.parse(JSON.parse(stringContent)); // Consider revising double parse if possible
-                services.forEach((service: Service) => {
-                  if (service.hasWebinterface) {
-                    const webinterface = {
-                      name: service.name ?? 'Service',
-                      port: service.port ?? 80,
-                      path: service.path ?? '/',
-                      hasOwnTab: !!service.hasOwnTab,
-                      hasWebinterface: true,
-                      disallowIFrame: !!service.disallowIFrame,
-                      active: false,
-                    };
-                    vm.webinterfaces
-                      ? vm.webinterfaces.push(webinterface)
-                      : (vm.webinterfaces = [webinterface]);
-                  }
-                });
-                return vm;
-              }),
-              catchError(() => {
-                vm.webinterfaces = [];
-                return of(vm);
-              }),
-            ),
+          const vmObservables = Array.from<stepVM>(this.vms.values()).map(
+            (vm) =>
+              this.vmService.getWebinterfaces(vm.id).pipe(
+                map((res) => {
+                  const stringContent: string = atou(res.content);
+                  const services = JSON.parse(JSON.parse(stringContent)); // Consider revising double parse if possible
+                  services.forEach((service: Service) => {
+                    if (service.hasWebinterface) {
+                      const webinterface = {
+                        name: service.name ?? 'Service',
+                        port: service.port ?? 80,
+                        path: service.path ?? '/',
+                        hasOwnTab: !!service.hasOwnTab,
+                        hasWebinterface: true,
+                        disallowIFrame: !!service.disallowIFrame,
+                        active: false,
+                      };
+                      vm.webinterfaces
+                        ? vm.webinterfaces.push(webinterface)
+                        : (vm.webinterfaces = [webinterface]);
+                    }
+                  });
+                  return vm;
+                }),
+                catchError(() => {
+                  vm.webinterfaces = [];
+                  return of(vm);
+                }),
+              ),
           );
           // Using forkJoin to ensure that all inner observables complete, before we return their combined output
           return forkJoin(vmObservables);
@@ -275,18 +276,18 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
         }
       });
 
-      this.ctr.getCodeStream().subscribe((c: CodeExec) => {
-        // watch for tab changes
-        this.tabs.forEach((i: ClrTab) => {
-          if (c.target.toLowerCase() == i.tabLink.tabLinkId.toLowerCase()) {
-            i.ifActiveService.current = i.id;
-          }
-        });
+    this.ctr.getCodeStream().subscribe((c: CodeExec) => {
+      // watch for tab changes
+      this.tabs.forEach((i: ClrTab) => {
+        if (c.target.toLowerCase() == i.tabLink.tabLinkId.toLowerCase()) {
+          i.ifActiveService.current = i.id;
+        }
       });
-  
-      this.shellService.watch().subscribe((ss: Map<string, string>) => {
-        this.shellStatus = ss;
-      });
+    });
+
+    this.shellService.watch().subscribe((ss: Map<string, string>) => {
+      this.shellStatus = ss;
+    });
   }
 
   ngAfterViewInit() {

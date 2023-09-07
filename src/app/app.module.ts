@@ -64,7 +64,7 @@ import {
   pauseIcon,
   windowCloseIcon,
   arrowIcon,
-  hostIcon
+  hostIcon,
 } from '@cds/core/icon';
 
 ClarityIcons.addIcons(
@@ -90,7 +90,7 @@ ClarityIcons.addIcons(
   pauseIcon,
   windowCloseIcon,
   arrowIcon,
-  hostIcon
+  hostIcon,
 );
 
 export function tokenGetter() {

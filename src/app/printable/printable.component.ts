@@ -44,9 +44,10 @@ export class PrintableComponent implements OnInit, AfterViewChecked {
     const { paramMap } = this.route.snapshot;
     const scenarioId = paramMap.get('scenario');
 
-    if(!scenarioId) {
+    if (!scenarioId) {
       this.err = true;
-      this.errorMsg = 'Unable to load scenario. Failed to retrieve scenario id.'
+      this.errorMsg =
+        'Unable to load scenario. Failed to retrieve scenario id.';
       return;
     }
     this.scenarioService.printable(scenarioId).subscribe({

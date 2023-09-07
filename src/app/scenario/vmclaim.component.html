@@ -3,11 +3,7 @@
   <td class="left">{{ vm.value.vm_id }}</td>
   <td class="left">{{ vm.value.template }}</td>
   <td>
-    <cds-icon
-      *ngIf="vmclaim?.ready"
-      shape="check"
-      status="success"
-    ></cds-icon>
+    <cds-icon *ngIf="vmclaim?.ready" shape="check" status="success"></cds-icon>
     <clr-spinner *ngIf="!vmclaim?.ready" [clrInline]="true"></clr-spinner>
     {{ getVm(vm.value.vm_id)?.status }}
   </td>
