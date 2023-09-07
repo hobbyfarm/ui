@@ -162,8 +162,13 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
 
   ngOnInit() {
     const { paramMap } = this.route.snapshot;
-    const sessionId = paramMap.get('session')!;
+    const sessionId = paramMap.get('session');
     this.stepnumber = Number(paramMap.get('step') ?? 0);
+
+    if(!sessionId) {
+      // Something went wrong ... the route snapshot should always contain the sessionId
+      return
+    }
 
     this.ssService
       .get(sessionId)
@@ -270,18 +275,18 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
         }
       });
 
-    this.ctr.getCodeStream().subscribe((c: CodeExec) => {
-      // watch for tab changes
-      this.tabs.forEach((i: ClrTab) => {
-        if (c.target.toLowerCase() == i.tabLink.tabLinkId.toLowerCase()) {
-          i.ifActiveService.current = i.id;
-        }
+      this.ctr.getCodeStream().subscribe((c: CodeExec) => {
+        // watch for tab changes
+        this.tabs.forEach((i: ClrTab) => {
+          if (c.target.toLowerCase() == i.tabLink.tabLinkId.toLowerCase()) {
+            i.ifActiveService.current = i.id;
+          }
+        });
       });
-    });
-
-    this.shellService.watch().subscribe((ss: Map<string, string>) => {
-      this.shellStatus = ss;
-    });
+  
+      this.shellService.watch().subscribe((ss: Map<string, string>) => {
+        this.shellStatus = ss;
+      });
   }
 
   ngAfterViewInit() {
