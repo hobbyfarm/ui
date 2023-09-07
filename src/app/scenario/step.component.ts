@@ -242,23 +242,10 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
       .keepalive(sessionId)
       .pipe(
         repeat({ delay: 60000 }),
-        retry({
-          delay: (errors) =>
-            errors.pipe(
-              concatMap((e: HttpErrorResponse) =>
-                iif(
-                  () => {
-                    if (e.status != 202) {
-                      this.sessionExpired = true;
-                    }
-                    return e.status > 0;
-                  },
-                  throwError(() => e),
-                  of(e).pipe(delay(10000)),
-                ),
-              ),
-            ),
-        }),
+        catchError((e: HttpErrorResponse) => {
+          this.sessionExpired = true;
+          return throwError(() => e);
+        })
       )
       .subscribe((s: ServerResponse) => {
         if (s.type == 'paused') {

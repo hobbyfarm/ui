@@ -53,7 +53,7 @@ export class VMClaimComponent implements OnChanges {
           if (!vcv) throw 1;
           return this.vmService.get(vcv.vm_id);
         }),
-        retry({ delay: (obs) => obs.pipe(delay(5000)) }),
+        retry({ delay: 5000 }),
       )
       .subscribe((vm: VM) => {
         this.vms.set(vm.id, vm);

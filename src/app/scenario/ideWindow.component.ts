@@ -9,8 +9,8 @@ import {
   ViewChild,
 } from '@angular/core';
 import { JwtHelperService } from '@auth0/angular-jwt';
-import { Observable, throwError, timer } from 'rxjs';
-import { mergeMap, retry } from 'rxjs/operators';
+import { Observable, timer } from 'rxjs';
+import { RetryConfig, retry } from 'rxjs/operators';
 import { webinterfaceTabIdentifier } from './step.component';
 
 @Component({
@@ -82,7 +82,7 @@ export class IdeWindowComponent implements OnInit {
 
     const req = this.http
       .get(this.url, { observe: 'response', responseType: 'text' })
-      .pipe(retry({ delay: genericRetryStrategy() }));
+      .pipe(retry(retryConfig));
 
     req.subscribe({
       next: (res) => {
@@ -106,22 +106,10 @@ export class IdeWindowComponent implements OnInit {
   }
 }
 
-export const genericRetryStrategy =
-  ({
-    maxRetryAttempts = 7,
-    scalingDuration = 1000,
-  }: {
-    maxRetryAttempts?: number;
-    scalingDuration?: number;
-  } = {}) =>
-  (attempts: Observable<any>) => {
-    return attempts.pipe(
-      mergeMap((error, i) => {
-        const retryAttempt = i + 1;
-        if (retryAttempt > maxRetryAttempts) {
-          return throwError(() => error);
-        }
-        return timer(retryAttempt * scalingDuration);
-      }),
-    );
-  };
+export const retryConfig: RetryConfig = {
+  count: 7,
+  delay: (_error: any, retryCount: number) => {
+    const scalingDuration = 1000;
+    return timer(retryCount * scalingDuration);
+  },
+};
