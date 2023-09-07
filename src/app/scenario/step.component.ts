@@ -245,7 +245,7 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
         catchError((e: HttpErrorResponse) => {
           this.sessionExpired = true;
           return throwError(() => e);
-        })
+        }),
       )
       .subscribe((s: ServerResponse) => {
         if (s.type == 'paused') {
