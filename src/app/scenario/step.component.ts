@@ -17,12 +17,12 @@ import {
   first,
   repeatWhen,
   delay,
-  retryWhen,
   tap,
   map,
   toArray,
   mergeMap,
   catchError,
+  retry,
 } from 'rxjs/operators';
 import { TerminalComponent } from './terminal.component';
 import { ClrTabContent, ClrTab, ClrModal } from '@clr/angular';
@@ -244,22 +244,23 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
         repeatWhen((obs) => {
           return obs.pipe(delay(60000));
         }),
-        retryWhen((errors) =>
-          errors.pipe(
-            concatMap((e: HttpErrorResponse) =>
-              iif(
-                () => {
-                  if (e.status != 202) {
-                    this.sessionExpired = true;
-                  }
-                  return e.status > 0;
-                },
-                throwError(() => e),
-                of(e).pipe(delay(10000)),
+        retry({
+          delay: (errors) =>
+            errors.pipe(
+              concatMap((e: HttpErrorResponse) =>
+                iif(
+                  () => {
+                    if (e.status != 202) {
+                      this.sessionExpired = true;
+                    }
+                    return e.status > 0;
+                  },
+                  throwError(() => e),
+                  of(e).pipe(delay(10000)),
+                ),
               ),
             ),
-          ),
-        ),
+        }),
       )
       .subscribe((s: ServerResponse) => {
         if (s.type == 'paused') {

@@ -10,7 +10,7 @@ import {
 } from '@angular/core';
 import { JwtHelperService } from '@auth0/angular-jwt';
 import { Observable, throwError, timer } from 'rxjs';
-import { mergeMap, retryWhen } from 'rxjs/operators';
+import { mergeMap, retry } from 'rxjs/operators';
 import { webinterfaceTabIdentifier } from './step.component';
 
 @Component({
@@ -82,7 +82,7 @@ export class IdeWindowComponent implements OnInit {
 
     const req = this.http
       .get(this.url, { observe: 'response', responseType: 'text' })
-      .pipe(retryWhen(genericRetryStrategy()));
+      .pipe(retry({ delay: genericRetryStrategy() }));
 
     req.subscribe({
       next: (res) => {

@@ -5,7 +5,7 @@ import {
   Output,
   EventEmitter,
 } from '@angular/core';
-import { delay, retryWhen, concatMap } from 'rxjs/operators';
+import { delay, concatMap, retry } from 'rxjs/operators';
 import { from } from 'rxjs';
 import { VM } from '../VM';
 import { VMClaimService } from '../services/vmclaim.service';
@@ -53,7 +53,7 @@ export class VMClaimComponent implements OnChanges {
           if (!vcv) throw 1;
           return this.vmService.get(vcv.vm_id);
         }),
-        retryWhen((obs) => obs.pipe(delay(5000))),
+        retry({ delay: (obs) => obs.pipe(delay(5000)) }),
       )
       .subscribe((vm: VM) => {
         this.vms.set(vm.id, vm);
