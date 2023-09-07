@@ -224,7 +224,9 @@
   --clr-datagrid-pagination-input-border-color: hsl(208, 16%, 34%);
   --clr-datagrid-pagination-input-border-focus-color: hsl(198, 65%, 57%);
   --clr-datagrid-popover-border-color: hsl(0, 0%, 0%);
-  --clr-datagrid-action-popover-hover-color: var(--clr-datagrid-row-hover-color);
+  --clr-datagrid-action-popover-hover-color: var(
+    --clr-datagrid-row-hover-color
+  );
   --clr-datagrid-loading-background: rgba(0, 0, 0, 0.5);
 
   /*********
