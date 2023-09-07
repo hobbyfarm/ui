@@ -35,6 +35,7 @@ span.shell-status {
 }
 
 #step-navigator {
+  width: 100%;
   display: flex;
   align-items: center;
   button {
@@ -54,6 +55,7 @@ table {
   margin-top: -0.5em;
 }
 .progress {
+  top: 0;
   margin-bottom: 1rem;
 }
 
@@ -75,6 +77,10 @@ table {
 }
 #sidebar .card-footer {
   flex: 0 1 40px;
+}
+
+.card-footer {
+  position: relative;
 }
 
 #scenario-name {
