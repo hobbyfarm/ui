@@ -29,12 +29,13 @@ jobs:
       - name: Checkout
         uses: actions/checkout@master
 
-      - name: Cache docker buildx
-        uses: actions/cache@v2
-        with:
-          path: |
-            /home/runner/tmp
-          key: docker-tmp
+    - name: update cache on every commit
+      uses: actions/cache@v3
+      with:
+        path: /home/runner/tmp
+        key: docker-${{ github.run_id }}
+        restore-keys: |
+          docker-
 
       - name: Prep build # also builds the conatiner when triggered via workflow_dispatch
         run: |
@@ -43,21 +44,29 @@ jobs:
 
       - name: Fill AMD64 cache
         run: |
-          docker buildx build \
-          --platform linux/amd64 \
-          --cache-from type=local,src=/home/runner/tmp/amd64 \
-          --cache-to type=local,dest=/home/runner/tmp/amd64 \
-          --tag ${GITHUB_REPOSITORY,,}:amd64 \
-          --file Dockerfile .
+          if ! docker buildx build \
+            --platform linux/amd64 \
+            --cache-from type=local,src=/home/runner/tmp/amd64 \
+            --cache-to type=local,dest=/home/runner/tmp/amd64 \
+            --tag ${GITHUB_REPOSITORY,,}:amd64 \
+            --file Dockerfile . ; 
+          then
+            echo "::error::Docker-Build Error. AMD-Cache will be deleted now!"
+            rm -rf /home/runner/tmp/amd64
+          fi
 
-      - name: Fill ARM cache
+      - name: Fill ARM64 cache
         run: |
-          docker buildx build \
-          --platform linux/arm64 \
-          --cache-from type=local,src=/home/runner/tmp/arm64 \
-          --cache-to type=local,dest=/home/runner/tmp/arm64 \
-          --tag ${GITHUB_REPOSITORY,,}:arm64 \
-          --file Dockerfile .
+          if ! docker buildx build \
+            --platform linux/arm64 \
+            --cache-from type=local,src=/home/runner/tmp/arm64 \
+            --cache-to type=local,dest=/home/runner/tmp/arm64 \
+            --tag ${GITHUB_REPOSITORY,,}:arm64 \
+            --file Dockerfile . ; 
+          then
+            echo "::error::Docker-Build Error. ARM-Cache will be deleted now!"
+            rm -rf /home/runner/tmp/arm64
+          fi
 
       - name: Login container registry
         if: fromJSON(env.should_push_image)
