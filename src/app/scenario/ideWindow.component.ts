@@ -9,8 +9,8 @@ import {
   ViewChild,
 } from '@angular/core';
 import { JwtHelperService } from '@auth0/angular-jwt';
-import { Observable, throwError, timer } from 'rxjs';
-import { mergeMap, retryWhen } from 'rxjs/operators';
+import { Observable, timer } from 'rxjs';
+import { RetryConfig, retry } from 'rxjs/operators';
 import { webinterfaceTabIdentifier } from './step.component';
 
 @Component({
@@ -54,7 +54,9 @@ export class IdeWindowComponent implements OnInit {
     if (this.disallowIFrame) {
       return;
     }
-    this.token = this.jwtHelper.tokenGetter();
+    // we always load our token synchronously from local storage
+    // for symplicity we are using type assertion to string here, avoiding to handle promises we're not expecting
+    this.token = this.jwtHelper.tokenGetter() as string;
     this.reloadEvent.subscribe((data: webinterfaceTabIdentifier) => {
       if (this.vmid == data.vmId && this.port == data.port) {
         this.callEndpoint();
@@ -80,10 +82,10 @@ export class IdeWindowComponent implements OnInit {
 
     const req = this.http
       .get(this.url, { observe: 'response', responseType: 'text' })
-      .pipe(retryWhen(genericRetryStrategy()));
+      .pipe(retry(retryConfig));
 
-    req.subscribe(
-      (res) => {
+    req.subscribe({
+      next: (res) => {
         if (res.status == 200) {
           this.isOK = true;
           this.isLoading = false;
@@ -94,32 +96,20 @@ export class IdeWindowComponent implements OnInit {
           this.isConnError = true;
         }
       },
-      () => {
+      error: () => {
         // This only Errors if the Proxy in gargantua-shell throws an Error, not if the Service on the VM fails
         this.isLoading = false;
         this.isOK = false;
         this.isConnError = true;
       },
-    );
+    });
   }
 }
 
-export const genericRetryStrategy =
-  ({
-    maxRetryAttempts = 7,
-    scalingDuration = 1000,
-  }: {
-    maxRetryAttempts?: number;
-    scalingDuration?: number;
-  } = {}) =>
-  (attempts: Observable<any>) => {
-    return attempts.pipe(
-      mergeMap((error, i) => {
-        const retryAttempt = i + 1;
-        if (retryAttempt > maxRetryAttempts) {
-          return throwError(error);
-        }
-        return timer(retryAttempt * scalingDuration);
-      }),
-    );
-  };
+export const retryConfig: RetryConfig = {
+  count: 7,
+  delay: (_error: any, retryCount: number) => {
+    const scalingDuration = 1000;
+    return timer(retryCount * scalingDuration);
+  },
+};

@@ -56,7 +56,7 @@ export class SettingsService {
     const params = new HttpParams({ fromObject: newSettings });
     return this.garg.post('/settings', params).pipe(
       catchError((e: HttpErrorResponse) => {
-        return throwError(e.error);
+        return throwError(() => e.error);
       }),
       tap(() => this.subject.next(newSettings)),
     );

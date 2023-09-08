@@ -1,10 +1,23 @@
-<div class="printable-container">
-  <button
-    class="btn btn-outline clr-hidden-print"
-    (click)="printPdf()"
-    type="button"
-  >
-    Print to PDF
-  </button>
-  <app-hf-markdown [content]="scenario"></app-hf-markdown>
+<div class="content-area">
+  <div class="printable-container" *ngIf="!err; else noContent">
+    <button
+      class="btn btn-outline clr-hidden-print"
+      (click)="printPdf()"
+      type="button"
+    >
+      Print to PDF
+    </button>
+    <app-hf-markdown [content]="scenario"></app-hf-markdown>
+  </div>
+  <ng-template #noContent>
+    <clr-alert
+      class="alert-printable"
+      [clrAlertType]="'danger'"
+      [clrAlertClosable]="false"
+    >
+      <clr-alert-item>
+        <span class="alert-text">{{ errorMsg }}</span>
+      </clr-alert-item>
+    </clr-alert>
+  </ng-template>
 </div>

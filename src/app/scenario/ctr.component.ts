@@ -21,7 +21,7 @@ import { CtrService } from './ctr.service';
       #code
     ><ng-content></ng-content></pre>
     <i>
-      <clr-icon [attr.shape]="shape"></clr-icon> {{ statusText }}
+      <cds-icon [attr.shape]="shape"></cds-icon> {{ statusText }}
       <b>{{ target }}</b>
       <span> {{ countContent }}</span>
       <span> {{ disabledText }}</span>

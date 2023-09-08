@@ -17,7 +17,7 @@ export interface HfMarkdownRenderContext {
   template: `
     <ngx-dynamic-hooks
       class="hf-md-content"
-      [content]="processedContent | markdown"
+      [content]="processedContent"
       [context]="context"
     ></ngx-dynamic-hooks>
   `,
@@ -69,7 +69,7 @@ export class HfMarkdownComponent implements OnChanges {
       return `
         <details>
           <summary>${summary}</summary>
-          ${this.markdownService.compile(code)}
+          ${this.markdownService.parse(code)}
         </details>
       `;
     },
@@ -79,7 +79,7 @@ export class HfMarkdownComponent implements OnChanges {
         <div class="glossary">
           ${term}
           <span class='glossary-content'>
-            ${this.markdownService.compile(code)}
+            ${this.markdownService.parse(code)}
           </span>
         </div>
       `;
@@ -92,7 +92,7 @@ export class HfMarkdownComponent implements OnChanges {
           ${message ?? type.toUpperCase()}:
           </ng-container>
           <div class='note-content'>
-            ${this.markdownService.compile(code)}
+            ${this.markdownService.parse(code)}
           </div>
         </div>
       `;
@@ -150,7 +150,7 @@ ${token}`;
 
         // This case occurs inside nested blocks
       } else if (codePart) {
-        content += this.markdownService.compile('~~~' + codePart + '~~~');
+        content += this.markdownService.parse('~~~' + codePart + '~~~');
       } else {
         content += '~~~~~~';
       }
@@ -172,8 +172,12 @@ ${token}`;
   }
 
   ngOnChanges() {
-    this.processedContent = this.replaceSessionToken(
+    const contentWithReplacedTokens = this.replaceSessionToken(
       this.replaceVmInfoTokens(this.content),
+    );
+    // the parse method internally uses the Angular Dom Sanitizer and is therefore safe to use
+    this.processedContent = this.markdownService.parse(
+      contentWithReplacedTokens,
     );
   }
 

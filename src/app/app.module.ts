@@ -6,8 +6,6 @@ import { ClarityModule } from '@clr/angular';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { RootComponent } from './root.component';
 import { HomeComponent } from './home.component';
-import '@clr/icons';
-import '@clr/icons/shapes/all-shapes';
 import { ScenarioComponent } from './scenario/scenario.component';
 import { TerminalComponent } from './scenario/terminal.component';
 import { JwtModule, JWT_OPTIONS } from '@auth0/angular-jwt';
@@ -41,6 +39,59 @@ import { GuacTerminalComponent } from './scenario/guacTerminal.component';
 import { IdeWindowComponent } from './scenario/ideWindow.component';
 import { ContextService } from './services/context.service';
 import { TypedSettingsService } from './services/typedSettings.service';
+import '@cds/core/icon/register.js';
+import {
+  ClarityIcons,
+  layersIcon,
+  angleIcon,
+  userIcon,
+  tagsIcon,
+  cogIcon,
+  keyIcon,
+  helpInfoIcon,
+  logoutIcon,
+  popOutIcon,
+  plusIcon,
+  trashIcon,
+  warningStandardIcon,
+  successStandardIcon,
+  refreshIcon,
+  listIcon,
+  playIcon,
+  timesIcon,
+  printerIcon,
+  checkIcon,
+  pauseIcon,
+  windowCloseIcon,
+  arrowIcon,
+  hostIcon,
+} from '@cds/core/icon';
+
+ClarityIcons.addIcons(
+  layersIcon,
+  angleIcon,
+  userIcon,
+  tagsIcon,
+  cogIcon,
+  keyIcon,
+  helpInfoIcon,
+  logoutIcon,
+  popOutIcon,
+  plusIcon,
+  trashIcon,
+  warningStandardIcon,
+  successStandardIcon,
+  refreshIcon,
+  listIcon,
+  playIcon,
+  timesIcon,
+  printerIcon,
+  checkIcon,
+  pauseIcon,
+  windowCloseIcon,
+  arrowIcon,
+  hostIcon,
+);
 
 export function tokenGetter() {
   return localStorage.getItem('hobbyfarm_token');

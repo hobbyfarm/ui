@@ -214,17 +214,19 @@
     * Datagrid
     */
   --clr-datagrid-icon-color: hsl(203, 16%, 72%);
-  --clr-datagrid-row-hover: hsl(201, 31%, 23%);
+  --clr-datagrid-row-hover-color: hsl(201, 31%, 23%);
   --clr-datagrid-row-selected: hsl(0, 0%, 100%);
   --clr-datagrid-popover-bg-color: hsl(198, 28%, 18%);
-  --clr-datagrid-action-toggle: hsl(203, 16%, 72%);
+  --clr-datagrid-action-toggle-color: hsl(203, 16%, 72%);
   --clr-datagrid-pagination-btn-color: hsl(210, 16%, 93%);
   --clr-datagrid-pagination-btn-disabled-color: hsl(210, 16%, 93%);
   --clr-datagrid-pagination-btn-disabled-opacity: 0.46;
   --clr-datagrid-pagination-input-border-color: hsl(208, 16%, 34%);
   --clr-datagrid-pagination-input-border-focus-color: hsl(198, 65%, 57%);
   --clr-datagrid-popover-border-color: hsl(0, 0%, 0%);
-  --clr-datagrid-action-popover-hover-color: var(--clr-datagrid-row-hover);
+  --clr-datagrid-action-popover-hover-color: var(
+    --clr-datagrid-row-hover-color
+  );
   --clr-datagrid-loading-background: rgba(0, 0, 0, 0.5);
 
   /*********
@@ -520,15 +522,15 @@
   /**********
     * Wizard
     */
-  --clr-wizard-sidenav-bgcolor: hsl(201, 30%, 15%);
-  --clr-wizard-sidenav-text--active: hsl(0, 0%, 100%);
+  --clr-wizard-stepnav-bgcolor: hsl(201, 30%, 15%);
+  --clr-wizard-stepnav-text--active: hsl(0, 0%, 100%);
   --clr-wizard-stepnav-active-bgcolor: hsl(203, 32%, 29%);
-  --clr-wizard-stepnav-border-color: hsl(201, 14%, 27%);
-  --clr-wizard-stepnav-border-color--active: hsl(92, 79%, 40%);
-  --clr-wizard-step-nav-border-color: hsl(200, 30%, 12%);
-  --clr-wizard-sidenav-text: hsl(203, 16%, 72%);
+  --clr-wizard-stepnav-item-border-color: hsl(201, 14%, 27%);
+  --clr-wizard-stepnav-item-border-color--active: hsl(92, 79%, 40%);
+  --clr-wizard-stepnav-border-color: hsl(200, 30%, 12%);
+  --clr-wizard-stepnav-text: hsl(203, 16%, 72%);
   --clr-wizard-title-text: hsl(210, 16%, 93%);
-  --clr-wizard-main-textColor: hsl(203, 16%, 72%);
+  --clr-wizard-main-text-color: hsl(203, 16%, 72%);
   --clr-wizard-stepnav-error-color: hsl(3, 90%, 62%);
 
   --clr-accordion-text-color: var(--clr-color-neutral-0);
@@ -546,43 +548,35 @@
   }
 }
 
-clr-icon.is-green,
-clr-icon.is-success {
-  fill: var(--clr-icon-color-success);
-}
-
-clr-icon.is-red,
-clr-icon.is-danger,
-clr-icon.is-error {
-  fill: var(--clr-icon-color-error);
-}
-
-clr-icon.is-warning {
-  fill: var(--clr-icon-color-warning);
-}
-
-clr-icon.is-blue,
-clr-icon.is-info {
-  fill: var(--clr-icon-color-info);
-}
-
-clr-icon.is-white,
-clr-icon.is-inverse {
-  fill: var(--clr-icon-color-inverse);
-}
-
-clr-icon.is-highlight {
-  fill: var(--clr-icon-color-highlight);
-}
-
-clr-icon {
-  color: white;
-}
-
-.header-actions clr-dropdown-menu a clr-icon {
+.header-actions clr-dropdown-menu a cds-icon {
   color: white;
 }
 
 .clr-combobox-input {
   background: --clr-global-app-background;
+}
+
+cds-icon {
+  color: white;
+}
+
+cds-icon {
+  &[status='success'] {
+    fill: var(--clr-icon-color-success);
+  }
+  &[status='danger'] {
+    fill: var(--clr-icon-color-error);
+  }
+  &[status='warning'] {
+    fill: var(--clr-icon-color-warning);
+  }
+  &[status='info'] {
+    fill: var(--clr-icon-color-info);
+  }
+  &[inverse] {
+    fill: var(--clr-icon-color-inverse);
+  }
+  &[status='highlight'] {
+    fill: var(--clr-icon-color-highlight);
+  }
 }

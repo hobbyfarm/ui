@@ -27,9 +27,9 @@ export class LoginComponent {
   public loginactive = false;
 
   public loginForm: FormGroup = new FormGroup({
-    email: new FormControl(null, [Validators.required]),
-    password: new FormControl(null, [Validators.required]),
-    accesscode: new FormControl(null, [
+    email: new FormControl<string | null>(null, [Validators.required]),
+    password: new FormControl<string | null>(null, [Validators.required]),
+    accesscode: new FormControl<string | null>(null, [
       Validators.required,
       Validators.minLength(5),
       Validators.pattern(/^[a-z0-9][a-z0-9.-]{3,}[a-z0-9]$/),
@@ -68,15 +68,15 @@ export class LoginComponent {
         password: this.loginForm.controls['password'].value,
         access_code: this.loginForm.controls['accesscode'].value,
       })
-      .subscribe(
-        () => {
+      .subscribe({
+        next: () => {
           this.login();
         },
-        (error) => {
+        error: (error) => {
           this.error = error;
           this.registrationDisabled = false;
         },
-      );
+      });
   }
 
   public login() {
@@ -87,8 +87,8 @@ export class LoginComponent {
         email: this.loginForm.controls['email'].value,
         password: this.loginForm.controls['password'].value,
       })
-      .subscribe(
-        (s) => {
+      .subscribe({
+        next: (s: string) => {
           // persist the token we received
           localStorage.setItem('hobbyfarm_token', s);
 
@@ -97,9 +97,9 @@ export class LoginComponent {
             this.route.snapshot.queryParams['returnUrl'] || '/app/home',
           );
         },
-        (error) => {
+        error: (error) => {
           this.error = error;
         },
-      );
+      });
   }
 }
