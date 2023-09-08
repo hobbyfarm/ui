@@ -37,7 +37,7 @@ jobs:
           key: docker-tmp
 
       - name: Prep build # also builds the conatiner when triggered via workflow_dispatch
-        run: | 
+        run: |
           docker buildx create --use
           docker buildx inspect --bootstrap
 
@@ -49,7 +49,7 @@ jobs:
           --cache-to type=local,dest=/home/runner/tmp/amd64 \
           --tag ${GITHUB_REPOSITORY,,}:amd64 \
           --file Dockerfile .
-      
+
       - name: Fill ARM cache
         run: |
           docker buildx build \
