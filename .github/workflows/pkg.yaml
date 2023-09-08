@@ -29,13 +29,13 @@ jobs:
       - name: Checkout
         uses: actions/checkout@master
 
-    - name: update cache on every commit
-      uses: actions/cache@v3
-      with:
-        path: /home/runner/tmp
-        key: docker-${{ github.run_id }}
-        restore-keys: |
-          docker-
+      - name: update cache on every commit
+        uses: actions/cache@v3
+        with:
+          path: /home/runner/tmp
+          key: docker-${{ github.run_id }}
+          restore-keys: |
+            docker-
 
       - name: Prep build # also builds the conatiner when triggered via workflow_dispatch
         run: |
