@@ -21,6 +21,21 @@ env:
       github.ref_type == 'tag'
     }}
 
+  build_and_cache: |-
+    build_and_cache() {
+      arch="$1"
+      if ! docker buildx build \
+        --platform linux/$arch \
+        --cache-from type=local,src=/home/runner/tmp/$arch \
+        --cache-to type=local,dest=/home/runner/tmp/$arch \
+        --tag ${GITHUB_REPOSITORY,,}:$arch \
+        --file Dockerfile . ;
+      then
+        echo "::error::Docker-Build Error. $arch Cache will be deleted now!"
+        rm -rf /home/runner/tmp/$arch/
+      fi
+    }
+
 jobs:
   build:
     name: Build
@@ -42,31 +57,15 @@ jobs:
           docker buildx create --use
           docker buildx inspect --bootstrap
 
-      - name: Fill AMD64 cache
+      - name: Fill cache
         run: |
-          if ! docker buildx build \
-            --platform linux/amd64 \
-            --cache-from type=local,src=/home/runner/tmp/amd64 \
-            --cache-to type=local,dest=/home/runner/tmp/amd64 \
-            --tag ${GITHUB_REPOSITORY,,}:amd64 \
-            --file Dockerfile . ; 
-          then
-            echo "::error::Docker-Build Error. AMD-Cache will be deleted now!"
-            rm -rf /home/runner/tmp/amd64
-          fi
+          ${{ env.build_and_cache }} 
+          build_and_cache amd64
 
       - name: Fill ARM64 cache
         run: |
-          if ! docker buildx build \
-            --platform linux/arm64 \
-            --cache-from type=local,src=/home/runner/tmp/arm64 \
-            --cache-to type=local,dest=/home/runner/tmp/arm64 \
-            --tag ${GITHUB_REPOSITORY,,}:arm64 \
-            --file Dockerfile . ; 
-          then
-            echo "::error::Docker-Build Error. ARM-Cache will be deleted now!"
-            rm -rf /home/runner/tmp/arm64
-          fi
+          ${{ env.build_and_cache }} 
+          build_and_cache arm64
 
       - name: Login container registry
         if: fromJSON(env.should_push_image)
