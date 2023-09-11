@@ -57,7 +57,7 @@ jobs:
           docker buildx create --use
           docker buildx inspect --bootstrap
 
-      - name: Fill cache
+      - name: Fill AMD64 cache
         run: |
           ${{ env.build_and_cache }} 
           build_and_cache amd64
