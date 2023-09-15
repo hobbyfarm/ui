@@ -1,5 +1,5 @@
 ##### sdk image #####
-FROM node:latest AS sdk
+FROM node:20.6.1 AS sdk
 
 WORKDIR /app
 
