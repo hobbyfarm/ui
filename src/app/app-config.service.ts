@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { lastValueFrom } from 'rxjs';
 
 export interface Config {
   title: string;
@@ -23,20 +24,17 @@ export class AppConfigService {
   constructor(private http: HttpClient) {}
 
   loadAppConfig() {
-    return this.http
-      .get<Config>('/config.json')
-      .toPromise()
-      .then((data) => {
-        this.appConfig = data;
-      });
+    return lastValueFrom(this.http.get<Config>('/config.json')).then((data) => {
+      this.appConfig = data;
+    });
   }
 
   getLogo(logoPath: string) {
     const headers = new HttpHeaders();
     headers.set('Accept', '*');
-    return this.http
-      .get(logoPath, { headers, responseType: 'text' })
-      .toPromise();
+    return lastValueFrom(
+      this.http.get(logoPath, { headers, responseType: 'text' }),
+    );
   }
 
   getConfig() {

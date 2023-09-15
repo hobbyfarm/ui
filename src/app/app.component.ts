@@ -1,5 +1,6 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
-import { ClarityIcons } from '@clr/icons';
+import '@cds/core/icon/register.js';
+import { ClarityIcons } from '@cds/core/icon';
 import { JwtHelperService } from '@auth0/angular-jwt';
 import { ClrModal } from '@clr/angular';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -88,9 +89,7 @@ export class AppComponent implements OnInit {
     private typedSettingsService: TypedSettingsService,
   ) {
     this.config.getLogo(this.logo).then((obj: string) => {
-      ClarityIcons.add({
-        logo: obj,
-      });
+      ClarityIcons.addIcons(['logo', obj]);
     });
 
     if (this.Config.favicon) {
@@ -108,9 +107,13 @@ export class AppComponent implements OnInit {
 
   public passwordChangeForm: FormGroup = new FormGroup(
     {
-      old_password: new FormControl(null, [Validators.required]),
-      new_password1: new FormControl(null, [Validators.required]),
-      new_password2: new FormControl(null, [Validators.required]),
+      old_password: new FormControl<string | null>(null, [Validators.required]),
+      new_password1: new FormControl<string | null>(null, [
+        Validators.required,
+      ]),
+      new_password2: new FormControl<string | null>(null, [
+        Validators.required,
+      ]),
     },
     {
       validators: ({ value: { new_password1: pw1, new_password1: pw2 } }) =>
@@ -119,7 +122,7 @@ export class AppComponent implements OnInit {
   );
 
   public newAccessCodeForm: FormGroup = new FormGroup({
-    access_code: new FormControl(null, [
+    access_code: new FormControl<string | null>(null, [
       Validators.required,
       Validators.minLength(5),
       Validators.pattern(/^[a-z0-9][a-z0-9.-]{3,}[a-z0-9]$/),
@@ -127,33 +130,42 @@ export class AppComponent implements OnInit {
   });
 
   public settingsForm: FormGroup = new FormGroup({
-    terminal_theme: new FormControl(null, [Validators.required]),
-    terminal_fontSize: new FormControl(null, [Validators.required]),
-    ctr_enabled: new FormControl(false),
-    theme: new FormControl(null, [Validators.required]),
+    terminal_theme: new FormControl<typeof themes[number]['id'] | null>(null, [
+      Validators.required,
+    ]),
+    terminal_fontSize: new FormControl<number | null>(null, [
+      Validators.required,
+    ]),
+    ctr_enabled: new FormControl<boolean>(false),
+    theme: new FormControl<'light' | 'dark' | 'system' | null>(null, [
+      Validators.required,
+    ]),
   });
 
   ngOnInit() {
-    const tok = this.helper.decodeToken(this.helper.tokenGetter());
-    this.email = tok.email;
-
-    // Automatically logout the user after token expiration
-    const timeout = tok.exp * 1000 - Date.now();
-    setTimeout(() => this.doLogout(), timeout);
+    // we always expect our token to be a string since we load it syncronously from local storage
+    const token = this.helper.tokenGetter();
+    if (typeof token === 'string') {
+      this.processToken(token);
+    } else {
+      // ... however if for some reason it is not the case, this means that the token could not be loaded from local storage
+      // hence we automatically logout the user
+      this.doLogout();
+    }
 
     const addAccessCode = this.route.snapshot.params['accesscode'];
     if (addAccessCode) {
-      this.userService.addAccessCode(addAccessCode).subscribe(
-        (s: ServerResponse) => {
+      this.userService.addAccessCode(addAccessCode).subscribe({
+        next: (_s: ServerResponse) => {
           this.accesscodes.push(addAccessCode);
           this.setAccessCode(addAccessCode);
           this.doHomeAccessCode(addAccessCode);
         },
-        (s: ServerResponse) => {
+        error: (_s: ServerResponse) => {
           // failure
           this.doHomeAccessCodeError(addAccessCode);
         },
-      );
+      });
     }
     //react to changes on users accesscodess
     this.contextService.watch().subscribe((c: Context) => {
@@ -189,6 +201,15 @@ export class AppComponent implements OnInit {
       });
   }
 
+  private processToken(token: string) {
+    const tok = this.helper.decodeToken(token);
+    this.email = tok.email;
+
+    // Automatically logout the user after token expiration
+    const timeout = tok.exp * 1000 - Date.now();
+    setTimeout(() => this.doLogout(), timeout);
+  }
+
   public logout() {
     this.logoutModal.open();
   }
@@ -211,17 +232,17 @@ export class AppComponent implements OnInit {
   public openAccessCodes() {
     this.newAccessCodeForm.reset();
     this.fetchingAccessCodes = true;
-    this.userService.getAccessCodes().subscribe(
-      (a: string[]) => {
+    this.userService.getAccessCodes().subscribe({
+      next: (a: string[]) => {
         this.accesscodes = a;
         this.fetchingAccessCodes = false;
       },
-      (s: ServerResponse) => {
+      error: (s: ServerResponse) => {
         this.accessCodeDangerClosed = false;
         this.accessCodeDangerAlert = s.message;
         this.fetchingAccessCodes = false;
       },
-    );
+    });
     this.accessCodeModal.open();
   }
 
@@ -259,8 +280,8 @@ export class AppComponent implements OnInit {
 
   public saveAccessCode(activate = false) {
     const { access_code: a } = this.newAccessCodeForm.value;
-    this.userService.addAccessCode(a).subscribe(
-      (s: ServerResponse) => {
+    this.userService.addAccessCode(a).subscribe({
+      next: (s: ServerResponse) => {
         // success
         this.accessCodeSuccessAlert = s.message + ' added.';
         this.accessCodeSuccessClosed = false;
@@ -272,13 +293,13 @@ export class AppComponent implements OnInit {
         }
         setTimeout(() => (this.accessCodeSuccessClosed = true), 2000);
       },
-      (s: ServerResponse) => {
+      error: (s: ServerResponse) => {
         // failure
         this.accessCodeDangerAlert = s.message;
         this.accessCodeDangerClosed = false;
         setTimeout(() => (this.accessCodeDangerClosed = true), 2000);
       },
-    );
+    });
   }
 
   private _removeAccessCode(a: string) {
@@ -289,24 +310,25 @@ export class AppComponent implements OnInit {
   }
 
   public deleteAccessCode(a: string) {
-    this.userService.deleteAccessCode(a).subscribe(
-      (s: ServerResponse) => {
+    this.userService.deleteAccessCode(a).subscribe({
+      next: (s: ServerResponse) => {
         this.accessCodeSuccessAlert = s.message + ' deleted.';
         this.accessCodeSuccessClosed = false;
         this._removeAccessCode(a);
         setTimeout(() => (this.accessCodeSuccessClosed = true), 2000);
       },
-      (s: ServerResponse) => {
+      error: (s: ServerResponse) => {
+        // failure
         this.accessCodeDangerAlert = s.message;
         this.accessCodeDangerClosed = false;
         setTimeout(() => (this.accessCodeDangerClosed = true), 2000);
       },
-    );
+    });
   }
 
   public doSaveSettings() {
-    this.settingsService.update(this.settingsForm.value).subscribe(
-      () => {
+    this.settingsService.update(this.settingsForm.value).subscribe({
+      next: (_s: ServerResponse) => {
         this.settingsModalOpened = false;
         const theme: 'light' | 'dark' | 'system' =
           this.settingsForm.controls['theme'].value;
@@ -320,29 +342,31 @@ export class AppComponent implements OnInit {
             window.matchMedia('(prefers-color-scheme: dark)').matches
           ) {
             this.enableDarkMode();
-          } else this.disableDarkMode();
+          } else {
+            this.disableDarkMode();
+          }
         }
       },
-      () => {
+      error: (_s: ServerResponse) => {
         setTimeout(() => (this.settingsModalOpened = false), 2000);
       },
-    );
+    });
   }
 
   public doChangePassword() {
     const { old_password, new_password1 } = this.passwordChangeForm.value;
-    this.userService.changepassword(old_password, new_password1).subscribe(
-      (s: ServerResponse) => {
+    this.userService.changepassword(old_password, new_password1).subscribe({
+      next: (s: ServerResponse) => {
         this.changePwSuccessAlert = s.message + '. Logging you out...';
         this.changePwSuccessClosed = false;
         setTimeout(() => this.doLogout(), 2000);
       },
-      (s: ServerResponse) => {
+      error: (s: ServerResponse) => {
         this.changePwDangerAlert = s.message;
         this.changePwDangerClosed = false;
         setTimeout(() => (this.changePwDangerClosed = true), 2000);
       },
-    );
+    });
   }
 
   public doLogout() {

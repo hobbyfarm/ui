@@ -12,15 +12,11 @@
         "eslint:recommended",
         "plugin:@typescript-eslint/recommended",
         "plugin:@angular-eslint/recommended",
-        "plugin:@angular-eslint/recommended--extra",
         "plugin:@angular-eslint/template/process-inline-templates"
       ],
       "rules": {
-        // TODO enable these rules
         "@typescript-eslint/no-explicit-any": "off",
-        "@typescript-eslint/no-non-null-assertion": "off",
         "@typescript-eslint/explicit-module-boundary-types": "off",
-
         "@angular-eslint/component-selector": [
           "error",
           {
@@ -36,7 +32,42 @@
             "style": "camelCase",
             "type": "attribute"
           }
-        ]
+        ],
+        "no-restricted-imports": [
+          "error",
+          {
+            "paths": [
+              {
+                "name": "rxjs/Rx",
+                "message": "Please import directly from 'rxjs' instead"
+              }
+            ]
+          }
+        ],
+        "@typescript-eslint/member-ordering": [
+          "error",
+          {
+            "default": [
+              "static-field",
+              "instance-field",
+              "static-method",
+              "instance-method"
+            ]
+          }
+        ],
+        "no-restricted-syntax": [
+          "error",
+          {
+            "selector": "CallExpression[callee.object.name=\"console\"][callee.property.name=/^(debug|info|time|timeEnd|trace)$/]",
+            "message": "Unexpected property on console object was called"
+          }
+        ],
+        "@typescript-eslint/no-inferrable-types": [
+          "error",
+          { "ignoreParameters": true }
+        ],
+        "no-fallthrough": "error",
+        "@typescript-eslint/no-non-null-assertion": "error"
       }
     },
     {

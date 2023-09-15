@@ -11,13 +11,13 @@
             [class.btn-success]="isLastStepActive"
             (click)="goFinish()"
           >
-            <clr-icon shape="check"></clr-icon>
+            <cds-icon shape="check"></cds-icon>
             Finish
           </button>
 
           <ng-container *ngIf="scenario.pauseable">
             <button class="btn btn-pause" (click)="pause()">
-              <clr-icon shape="pause" class="is-solid"></clr-icon> Pause
+              <cds-icon shape="pause" solid></cds-icon> Pause
             </button>
             <clr-signpost class="signpost-after" style="z-index: 100000">
               <clr-signpost-content [clrPosition]="'bottom-right'" *clrIfOpen>
@@ -32,7 +32,7 @@
             [class.btn-outline]="!isLastStepActive"
             (click)="goClose()"
           >
-            <clr-icon shape="window-close"></clr-icon>Close
+            <cds-icon shape="window-close"></cds-icon>Close
           </button>
         </div>
 
@@ -60,7 +60,7 @@
               (click)="goPrevious()"
               [disabled]="this.stepnumber < 1"
             >
-              <clr-icon shape="arrow" dir="left"></clr-icon> Prev
+              <cds-icon shape="arrow" direction="left"></cds-icon> Prev
             </button>
             <span id="step-counter">
               {{ this.stepnumber + 1 }}/{{ this.scenario.stepcount }}
@@ -70,14 +70,14 @@
               *ngIf="!isLastStepActive"
               (click)="goNext()"
             >
-              Next <clr-icon shape="arrow" dir="right"></clr-icon>
+              Next <cds-icon shape="arrow" direction="right"></cds-icon>
             </button>
             <button
               class="btn btn-success btn-next"
               (click)="goFinish()"
               *ngIf="isLastStepActive"
             >
-              <clr-icon shape="check"></clr-icon> Finish
+              <cds-icon shape="check"></cds-icon> Finish
             </button>
           </div>
         </div>
@@ -88,7 +88,7 @@
         <clr-tabs class="tab-container">
           <clr-tab *ngFor="let v of vms | keyvalue" #tab>
             <button clrTabLink [id]="v.key">
-              <clr-icon size="24" shape="host"></clr-icon> {{ v.key }}
+              <cds-icon size="24" shape="host"></cds-icon> {{ v.key }}
             </button>
             <clr-tab-content #tabcontent>
               <table class="table compact">
@@ -150,7 +150,7 @@
                               reloadWebinterface(v.value.id, webinterface)
                             "
                           >
-                            <clr-icon shape="refresh"></clr-icon>
+                            <cds-icon shape="refresh"></cds-icon>
                           </button>
                           <button
                             class="btn btn-icon btn-primary btn-sm"
@@ -159,7 +159,7 @@
                               openWebinterfaceInNewTab(v.value, webinterface)
                             "
                           >
-                            <clr-icon shape="pop-out"></clr-icon>
+                            <cds-icon shape="pop-out"></cds-icon>
                           </button>
                         </td>
                       </tr>
@@ -263,7 +263,7 @@
   </div>
   <div class="modal-footer">
     <button class="btn" (click)="resume()">
-      <clr-icon shape="play" class="is-solid"></clr-icon> Resume Scenario
+      <cds-icon shape="play" solid></cds-icon> Resume Scenario
     </button>
   </div>
 </clr-modal>

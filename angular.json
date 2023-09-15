@@ -26,7 +26,6 @@
               "src/custom.css"
             ],
             "styles": [
-              "node_modules/@clr/icons/clr-icons.min.css",
               "node_modules/xterm/css/xterm.css",
               "src/styles.scss",
               "src/dark-theme.css",
@@ -36,7 +35,7 @@
               "node_modules/@webcomponents/webcomponentsjs/custom-elements-es5-adapter.js",
               "node_modules/@webcomponents/webcomponentsjs/webcomponents-bundle.js",
               "node_modules/xterm/lib/xterm.js",
-              "node_modules/marked/lib/marked.js",
+              "node_modules/marked/marked.min.js",
               "node_modules/prismjs/prism.js",
               "node_modules/prismjs/components/prism-yaml.min.js",
               "node_modules/prismjs/components/prism-python.min.js",
@@ -137,8 +136,15 @@
       }
     }
   },
-  "defaultProject": "hobbyfarm-ui",
   "cli": {
-    "defaultCollection": "@angular-eslint/schematics"
+    "schematicCollections": ["@angular-eslint/schematics"]
+  },
+  "schematics": {
+    "@angular-eslint/schematics:application": {
+      "setParserOptionsProject": true
+    },
+    "@angular-eslint/schematics:library": {
+      "setParserOptionsProject": true
+    }
   }
 }

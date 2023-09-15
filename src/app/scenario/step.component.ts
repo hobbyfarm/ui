@@ -15,19 +15,21 @@ import {
   switchMap,
   concatMap,
   first,
-  repeatWhen,
   delay,
-  retryWhen,
   tap,
   map,
   toArray,
+  mergeMap,
+  catchError,
+  retry,
+  repeat,
 } from 'rxjs/operators';
 import { TerminalComponent } from './terminal.component';
 import { ClrTabContent, ClrTab, ClrModal } from '@clr/angular';
 import { ServerResponse } from '../ServerResponse';
 import { Scenario } from './Scenario';
 import { Session } from '../Session';
-import { from, of, throwError, iif, Subject, Observable } from 'rxjs';
+import { from, of, throwError, iif, Subject, Observable, forkJoin } from 'rxjs';
 import { VMClaim } from '../VMClaim';
 import { VMClaimVM } from '../VMClaimVM';
 import { VM } from '../VM';
@@ -160,8 +162,13 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
 
   ngOnInit() {
     const { paramMap } = this.route.snapshot;
-    const sessionId = paramMap.get('session')!;
+    const sessionId = paramMap.get('session');
     this.stepnumber = Number(paramMap.get('step') ?? 0);
+
+    if (!sessionId) {
+      // Something went wrong ... the route snapshot should always contain the sessionId
+      return;
+    }
 
     this.ssService
       .get(sessionId)
@@ -174,83 +181,71 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
           this.scenario = s;
           this._loadStep();
         }),
-        switchMap(() => {
-          return from(this.session.vm_claim);
-        }),
-        concatMap((v: string) => {
-          return this.vmClaimService.get(v);
-        }),
-        concatMap((v: VMClaim) => {
-          return from(v.vm);
-        }),
-        concatMap(([k, v]: [string, VMClaimVM]) => {
-          return this.vmService
-            .get(v.vm_id)
-            .pipe(map((vm) => [k, vm] as const));
-        }),
+        switchMap(() => from(this.session.vm_claim)),
+        concatMap((v: string) => this.vmClaimService.get(v)),
+        concatMap((v: VMClaim) => from(v.vm)),
+        concatMap(([k, v]: [string, VMClaimVM]) =>
+          this.vmService.get(v.vm_id).pipe(map((vm) => [k, vm] as const)),
+        ),
         toArray(),
-      )
-      .subscribe((entries) => {
-        this.vms = new Map(entries);
-        this.sendProgressUpdate();
-        this.vms.forEach((vm) => {
-          this.vmService.getWebinterfaces(vm.id).subscribe(
-            (res) => {
-              const stringContent: string = atou(res.content);
-              const services = JSON.parse(JSON.parse(stringContent)); //TODO: See if we can skip one stringify somwhere, so we dont have to parse twice
-              services.forEach((service: Service) => {
-                if (service.hasWebinterface) {
-                  const webinterface = {
-                    name: service.name ?? 'Service',
-                    port: service.port ?? 80,
-                    path: service.path ?? '/',
-                    hasOwnTab: !!service.hasOwnTab,
-                    hasWebinterface: true,
-                    disallowIFrame: !!service.disallowIFrame,
-                    active: false,
-                  };
-                  vm.webinterfaces
-                    ? vm.webinterfaces.push(webinterface)
-                    : (vm.webinterfaces = [webinterface]);
-                }
-              });
-            },
-            () => {
-              vm.webinterfaces = [];
-            },
+        tap((entries: (readonly [string, VM])[]) => {
+          this.vms = new Map(entries);
+          this.sendProgressUpdate();
+          const vmInfo: HfMarkdownRenderContext['vmInfo'] = {};
+          for (const [k, v] of this.vms) {
+            vmInfo[k.toLowerCase()] = v;
+          }
+          this.mdContext = { vmInfo: vmInfo, session: this.session.id };
+        }),
+        // Using mergeMap here to handle async "getWebinterfaces(...)" operations concurrently
+        // This allows multiple observables to be active and processed in parallel
+        // The order in which these observables are processed is not important
+        mergeMap(() => {
+          const vmObservables = Array.from<stepVM>(this.vms.values()).map(
+            (vm) =>
+              this.vmService.getWebinterfaces(vm.id).pipe(
+                map((res) => {
+                  const stringContent: string = atou(res.content);
+                  const services = JSON.parse(JSON.parse(stringContent)); // Consider revising double parse if possible
+                  services.forEach((service: Service) => {
+                    if (service.hasWebinterface) {
+                      const webinterface = {
+                        name: service.name ?? 'Service',
+                        port: service.port ?? 80,
+                        path: service.path ?? '/',
+                        hasOwnTab: !!service.hasOwnTab,
+                        hasWebinterface: true,
+                        disallowIFrame: !!service.disallowIFrame,
+                        active: false,
+                      };
+                      vm.webinterfaces
+                        ? vm.webinterfaces.push(webinterface)
+                        : (vm.webinterfaces = [webinterface]);
+                    }
+                  });
+                  return vm;
+                }),
+                catchError(() => {
+                  vm.webinterfaces = [];
+                  return of(vm);
+                }),
+              ),
           );
-        });
-
-        const vmInfo: HfMarkdownRenderContext['vmInfo'] = {};
-        for (const [k, v] of this.vms) {
-          vmInfo[k.toLowerCase()] = v;
-        }
-        this.mdContext = { vmInfo: vmInfo, session: this.session.id };
-      });
+          // Using forkJoin to ensure that all inner observables complete, before we return their combined output
+          return forkJoin(vmObservables);
+        }),
+      )
+      .subscribe();
 
     // setup keepalive
     this.ssService
       .keepalive(sessionId)
       .pipe(
-        repeatWhen((obs) => {
-          return obs.pipe(delay(60000));
+        repeat({ delay: 60000 }),
+        catchError((e: HttpErrorResponse) => {
+          this.sessionExpired = true;
+          return throwError(() => e);
         }),
-        retryWhen((errors) =>
-          errors.pipe(
-            concatMap((e: HttpErrorResponse) =>
-              iif(
-                () => {
-                  if (e.status != 202) {
-                    this.sessionExpired = true;
-                  }
-                  return e.status > 0;
-                },
-                throwError(e),
-                of(e).pipe(delay(10000)),
-              ),
-            ),
-          ),
-        ),
       )
       .subscribe((s: ServerResponse) => {
         if (s.type == 'paused') {
@@ -377,28 +372,28 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
           return this.ssService.keepalive(this.session.id);
         }),
       )
-      .subscribe(
-        (s: ServerResponse) => {
+      .subscribe({
+        next: (s: ServerResponse) => {
           // all should have been successful, so just update time and open modal.
           this._updatePauseRemaining(s.message);
           this.pauseModal.open();
         },
-        () => {
+        error: () => {
           // failure! what now?
         },
-      );
+      });
   }
 
   public resume() {
-    this.ssService.resume(this.session.id).subscribe(
-      () => {
+    this.ssService.resume(this.session.id).subscribe({
+      next: () => {
         // successful means we're resumed
         this.pauseOpen = false;
       },
-      () => {
+      error: () => {
         // something went wrong
       },
-    );
+    });
   }
 
   public dragEnd() {
@@ -432,11 +427,14 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   openWebinterfaceInNewTab(vm: stepVM, wi: Service) {
+    // we always load our token synchronously from local storage
+    // for symplicity we are using type assertion to string here, avoiding to handle promises we're not expecting
+    const token = this.jwtHelper.tokenGetter() as string;
     const url: string =
       'https://' +
       vm.ws_endpoint +
       '/auth/' +
-      this.jwtHelper.tokenGetter() +
+      token +
       '/p/' +
       vm.id +
       '/' +

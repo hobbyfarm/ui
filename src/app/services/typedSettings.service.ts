@@ -89,8 +89,8 @@ export class TypedSettingsService {
 
   public get(scope: string, setting: string) {
     if (this.cachedTypedInputList && this.cachedTypedInputList.has(scope)) {
-      const scopedSettings = this.cachedTypedInputList.get(scope)!;
-      if (scopedSettings.has(setting)) {
+      const scopedSettings = this.cachedTypedInputList.get(scope);
+      if (scopedSettings && scopedSettings.has(setting)) {
         return of(scopedSettings.get(setting) ?? ({} as TypedInput));
       } else {
         return of({} as TypedInput);
