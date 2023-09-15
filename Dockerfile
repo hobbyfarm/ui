@@ -1,5 +1,5 @@
 ##### sdk image #####
-FROM node:lts-alpine3.18 AS sdk
+FROM node:latest AS sdk
 
 WORKDIR /app
 
