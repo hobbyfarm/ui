@@ -11,9 +11,6 @@ concurrency:
   group: 'ci'
   cancel-in-progress: true
 
-env:
-  app_image: hobbyfarm/ui
-
 jobs:
   build:
     name: Build
@@ -41,4 +38,4 @@ jobs:
         run: npm run build:prod
 
       - name: Build container image
-        run: docker build -f .github/workflows/Dockerfile-ci -t $app_image:${GIT_COMMIT_SHORT_HASH:-dev} .
+        run: docker build -f .github/workflows/Dockerfile-ci -t ${GITHUB_REPOSITORY,,}:${GIT_COMMIT_SHORT_HASH:-dev} .
