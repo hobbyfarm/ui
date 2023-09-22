@@ -14,8 +14,6 @@ export class VMService extends ResourceClient<VM> {
   get(id: string) {
     // Do not use cached responses
     console.log('vmservice called');
-    this.cache.clear();
-    this.inFlightRequests.clear();
 
     return super.get(id, true);
   }
