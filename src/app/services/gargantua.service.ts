@@ -75,12 +75,11 @@ export class ListableResourceClient<
     const cacheKey = listId !== '' ? '/list/' + listId : '/list';
 
     // If the cache has the result, return it.
-    if (!force && this.listCache.has(cacheKey))
-      return this.listCache.get(cacheKey)!;
+    const cachedResult = this.listCache.get(listId);
+    if (!force && cachedResult !== undefined) return cachedResult;
 
-    // If there is an in-flight request, return it.
-    if (!force && this.inFlightListRequests.has(cacheKey))
-      return this.inFlightListRequests.get(cacheKey)!;
+    const inflightResult = this.inFlightListRequests.get(listId);
+    if (!force && inflightResult) return inflightResult;
 
     // Perform the request if no cached result or in-flight request is found.
     const list$ = this.garg.get(cacheKey).pipe(
