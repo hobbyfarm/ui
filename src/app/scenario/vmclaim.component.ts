@@ -5,18 +5,8 @@ import {
   Output,
   EventEmitter,
 } from '@angular/core';
-import {
-  delay,
-  concatMap,
-  retry,
-  mergeMap,
-  retryWhen,
-  delayWhen,
-  tap,
-  switchMap,
-  takeWhile,
-} from 'rxjs/operators';
-import { from, timer } from 'rxjs';
+import { concatMap, switchMap, takeWhile } from 'rxjs/operators';
+import { timer } from 'rxjs';
 import { VM } from '../VM';
 import { VMClaimService } from '../services/vmclaim.service';
 import { VMClaim } from '../VMClaim';
