@@ -11,10 +11,12 @@ export class VMClaimService extends ResourceClient<any> {
   }
 
   get(id: string): Observable<VMClaim> {
+    console.log('get ressource');
     // Do not use cached responses
     this.cache.clear();
+    this.inFlightRequests.clear();
 
-    return super.get(id).pipe(
+    return super.get(id, true).pipe(
       map((v: any) => {
         // Convert object to Map
         const vm = new Map(
