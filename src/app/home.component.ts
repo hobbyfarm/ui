@@ -9,7 +9,7 @@ import { Progress } from './Progress';
 import { Context, ContextService } from './services/context.service';
 import { ActivatedRoute } from '@angular/router';
 import { Location } from '@angular/common';
-import { Subscription, catchError, merge, mergeMap, tap } from 'rxjs';
+import { Subscription, catchError, merge, mergeMap, shareReplay, tap } from 'rxjs';
 
 @Component({
   selector: 'app-home',
@@ -71,6 +71,7 @@ export class HomeComponent implements OnInit, OnDestroy {
               this.loadedCourses = false;
               return [];
             }),
+            shareReplay()
           );
 
           const scenarioList = this.scenarioService.list(c.accessCode).pipe(
@@ -82,6 +83,7 @@ export class HomeComponent implements OnInit, OnDestroy {
               this.loadedScenarios = false;
               return [];
             }),
+            shareReplay()
           );
 
           return merge(courseList, scenarioList);
