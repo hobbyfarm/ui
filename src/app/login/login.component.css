@@ -7,3 +7,7 @@
   width: 75%;
   height: auto;
 }
+
+.login-wrapper .login {
+  justify-content: center;
+}
