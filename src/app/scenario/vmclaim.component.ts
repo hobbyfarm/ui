@@ -5,8 +5,8 @@ import {
   Output,
   EventEmitter,
 } from '@angular/core';
-import { delay, concatMap, retry } from 'rxjs/operators';
-import { from } from 'rxjs';
+import { concatMap, switchMap, takeWhile } from 'rxjs/operators';
+import { timer } from 'rxjs';
 import { VM } from '../VM';
 import { VMClaimService } from '../services/vmclaim.service';
 import { VMClaim } from '../VMClaim';
@@ -39,24 +39,29 @@ export class VMClaimComponent implements OnChanges {
   ngOnChanges() {
     if (!this.vmclaim.id) return;
 
-    this.vmClaimService
-      .get(this.vmclaim.id)
+    const pollInterval = 5000; // Test if vmclaim is ready every 5 seconds
+
+    // Start a timer to poll every 'pollInterval' milliseconds
+    timer(0, pollInterval)
       .pipe(
+        // On every tick of the timer, call vmClaimService.get()
+        switchMap(() => this.vmClaimService.get(this.vmclaim.id)),
+        // Continue the Observable chain if vmclaim is not ready
+        takeWhile((s: VMClaim) => !s.ready, true),
+        // Convert object to Map and emit the VMs if vmclaim is ready
         concatMap((s: VMClaim) => {
           this.vmclaim = s;
-          if (!s.ready) throw 1;
-
+          if (!s.ready) return [];
           this.ready.emit(s.id);
-          return from(s.vm.values());
+          return s.vm.values();
         }),
         concatMap((vcv: VMClaimVM) => {
-          if (!vcv) throw 1;
+          if (!vcv) return [];
           return this.vmService.get(vcv.vm_id);
         }),
-        retry({ delay: 5000 }),
       )
       .subscribe((vm: VM) => {
-        this.vms.set(vm.id, vm);
+        if (vm && vm.id) this.vms.set(vm.id, vm);
       });
   }
 }

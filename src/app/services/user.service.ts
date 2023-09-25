@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpParams, HttpErrorResponse } from '@angular/common/http';
-import { catchError, map, tap } from 'rxjs/operators';
-import { throwError, BehaviorSubject, of } from 'rxjs';
+import { catchError, finalize, map, shareReplay, tap } from 'rxjs/operators';
+import { throwError, BehaviorSubject, of, Observable } from 'rxjs';
 import {
   extractResponseContent,
   GargantuaClientFactory,
@@ -17,6 +17,7 @@ export class UserService {
   private _acModified = new BehaviorSubject(false);
 
   private fetchedSEs = false;
+  private scheduledEvents$: Observable<Map<string, string>> | null = null;
   private cachedScheduledEventsList: Map<string, string> = new Map();
   private bh: BehaviorSubject<Map<string, string>> = new BehaviorSubject(
     this.cachedScheduledEventsList,
@@ -61,16 +62,23 @@ export class UserService {
     );
   }
 
-  public getScheduledEvents(force = false) {
+  public getScheduledEvents(force = false): Observable<Map<string, string>> {
     if (!force && this.fetchedSEs) {
       return of(this.cachedScheduledEventsList);
+    } else if (this.scheduledEvents$) {
+      // If request is in-flight, return the ongoing Observable
+      return this.scheduledEvents$;
     } else {
-      return this.garg.get('/scheduledevents').pipe(
+      this.scheduledEvents$ = this.garg.get('/scheduledevents').pipe(
         map<any, Map<string, string>>(extractResponseContent),
-        tap((p: Map<string, string>) => {
-          this.setScheduledEventsCache(p);
-        }),
+        tap((p: Map<string, string>) => this.setScheduledEventsCache(p)),
+        // Use shareReplay to multicast and replay the last emitted value to new subscribers
+        shareReplay(1),
+        // On complete or error, set the inflight observable to null
+        finalize(() => (this.scheduledEvents$ = null)),
       );
+
+      return this.scheduledEvents$;
     }
   }
   public setScheduledEventsCache(list: Map<string, string>) {

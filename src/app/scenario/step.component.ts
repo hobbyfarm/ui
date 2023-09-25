@@ -15,13 +15,11 @@ import {
   switchMap,
   concatMap,
   first,
-  delay,
   tap,
   map,
   toArray,
   mergeMap,
   catchError,
-  retry,
   repeat,
 } from 'rxjs/operators';
 import { TerminalComponent } from './terminal.component';
@@ -29,7 +27,7 @@ import { ClrTabContent, ClrTab, ClrModal } from '@clr/angular';
 import { ServerResponse } from '../ServerResponse';
 import { Scenario } from './Scenario';
 import { Session } from '../Session';
-import { from, of, throwError, iif, Subject, Observable, forkJoin } from 'rxjs';
+import { from, of, throwError, Subject, Observable, forkJoin } from 'rxjs';
 import { VMClaim } from '../VMClaim';
 import { VMClaimVM } from '../VMClaimVM';
 import { VM } from '../VM';
@@ -171,7 +169,7 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     this.ssService
-      .get(sessionId)
+      .get(sessionId, true)
       .pipe(
         switchMap((s: Session) => {
           this.session = s;

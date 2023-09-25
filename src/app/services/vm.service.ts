@@ -12,10 +12,7 @@ export class VMService extends ResourceClient<VM> {
   }
 
   get(id: string) {
-    // Do not use cached responses
-    this.cache.clear();
-
-    return super.get(id);
+    return super.get(id, true);
   }
 
   getWebinterfaces(id: string) {
