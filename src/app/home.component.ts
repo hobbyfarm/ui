@@ -9,14 +9,7 @@ import { Progress } from './Progress';
 import { Context, ContextService } from './services/context.service';
 import { ActivatedRoute } from '@angular/router';
 import { Location } from '@angular/common';
-import {
-  Subscription,
-  catchError,
-  merge,
-  mergeMap,
-  shareReplay,
-  tap,
-} from 'rxjs';
+import { Subscription, catchError, merge, mergeMap, tap } from 'rxjs';
 
 @Component({
   selector: 'app-home',
