@@ -169,7 +169,7 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     this.ssService
-      .get(sessionId)
+      .get(sessionId, true)
       .pipe(
         switchMap((s: Session) => {
           this.session = s;
