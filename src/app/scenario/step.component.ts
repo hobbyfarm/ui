@@ -183,10 +183,11 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
         concatMap((v: string) => this.vmClaimService.get(v)),
         concatMap((v: VMClaim) => from(v.vm)),
         concatMap(([k, v]: [string, VMClaimVM]) =>
-          this.vmService.get(v.vm_id).pipe(map((vm) => [k, vm] as const)),
+          this.vmService.get(v.vm_id, true).pipe(tap(()=>{console.log("here")}), map((vm) => [k, vm] as const)),
         ),
         toArray(),
         tap((entries: (readonly [string, VM])[]) => {
+          console.log(entries);
           this.vms = new Map(entries);
           this.sendProgressUpdate();
           const vmInfo: HfMarkdownRenderContext['vmInfo'] = {};
