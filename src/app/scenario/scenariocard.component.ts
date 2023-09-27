@@ -47,10 +47,6 @@ export class ScenarioCardComponent implements OnInit, OnChanges {
   }
 
   ngOnChanges() {
-    this.scenarioService.get(this.scenarioid).subscribe((s: Scenario) => {
-      this.scenario = s;
-    });
-
     if (!this.progress) {
       this.getProgressData();
     }

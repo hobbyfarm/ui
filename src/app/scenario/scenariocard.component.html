@@ -46,7 +46,7 @@
 
     <a
       *ngIf="scenario.printable && (!progress || progress.finished)"
-      [routerLink]="['/scenario', scenarioid, 'printable']"
+      [routerLink]="['/scenario', scenario.id, 'printable']"
       target="_blank"
     >
       <button class="btn btn-sm btn-link">
