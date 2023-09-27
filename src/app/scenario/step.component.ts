@@ -190,7 +190,6 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
         ),
         toArray(),
         tap((entries: (readonly [string, VM])[]) => {
-          console.log(entries);
           this.vms = new Map(entries);
           this.sendProgressUpdate();
           const vmInfo: HfMarkdownRenderContext['vmInfo'] = {};
