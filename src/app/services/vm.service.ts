@@ -11,10 +11,6 @@ export class VMService extends ResourceClient<VM> {
     super(gcf.scopedClient('/vm'));
   }
 
-  get(id: string) {
-    return super.get(id, true);
-  }
-
   getWebinterfaces(id: string) {
     return this.garg.get('/getwebinterfaces/' + id).pipe(
       catchError((e: HttpErrorResponse) => {

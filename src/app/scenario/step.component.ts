@@ -173,17 +173,20 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
       .pipe(
         switchMap((s: Session) => {
           this.session = s;
-          return this.scenarioService.get(s.scenario);
+          return this.scenarioService.get(s.scenario).pipe(first());
         }),
         tap((s: Scenario) => {
           this.scenario = s;
           this._loadStep();
         }),
         switchMap(() => from(this.session.vm_claim)),
-        concatMap((v: string) => this.vmClaimService.get(v)),
+        concatMap((v: string) => this.vmClaimService.get(v).pipe(first())),
         concatMap((v: VMClaim) => from(v.vm)),
         concatMap(([k, v]: [string, VMClaimVM]) =>
-          this.vmService.get(v.vm_id).pipe(map((vm) => [k, vm] as const)),
+          this.vmService.get(v.vm_id, true).pipe(
+            first(),
+            map((vm) => [k, vm] as const),
+          ),
         ),
         toArray(),
         tap((entries: (readonly [string, VM])[]) => {

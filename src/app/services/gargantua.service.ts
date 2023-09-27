@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, of } from 'rxjs';
+import { BehaviorSubject, Observable, of } from 'rxjs';
 import { map, tap, finalize, shareReplay } from 'rxjs/operators';
 import { ServerResponse } from '../ServerResponse';
 import { atou } from '../unicode';
@@ -36,7 +36,7 @@ export class GargantuaClientFactory {
 }
 
 export class ResourceClient<T> {
-  cache = new Map<string, T>();
+  cache = new Map<string, BehaviorSubject<T>>();
   inFlightRequests = new Map<string, Observable<T>>();
 
   constructor(protected garg: GargantuaClient) {}
@@ -44,7 +44,8 @@ export class ResourceClient<T> {
   get(id: string, force: boolean = false): Observable<T> {
     // Return the cached value if available
     const cachedResult = this.cache.get(id);
-    if (!force && cachedResult !== undefined) return of(cachedResult);
+    if (!force && cachedResult !== undefined)
+      return cachedResult.asObservable();
 
     // If a request is in flight, return the existing Observable
     const inFlight = this.inFlightRequests.get(id);
@@ -53,7 +54,15 @@ export class ResourceClient<T> {
     // Start a new request
     const result$ = this.garg.get('/' + id).pipe(
       map(extractResponseContent),
-      tap((it: T) => this.cache.set(id, it)), // cache the result
+      tap((it: T) => {
+        let subject = this.cache.get(id);
+        if (!subject) {
+          subject = new BehaviorSubject<T>(it);
+          this.cache.set(id, subject);
+        } else {
+          subject.next(it);
+        }
+      }),
       shareReplay(1), // Allow multiple subscribers to share the same result
       finalize(() => this.inFlightRequests.delete(id)), // remove from inFlightRequests map on completion
     );
@@ -68,16 +77,16 @@ export class ResourceClient<T> {
 export class ListableResourceClient<
   T extends { id: string },
 > extends ResourceClient<T> {
-  listCache = new Map<string, Observable<T[]>>();
+  listCache = new Map<string, BehaviorSubject<T[]>>();
   inFlightListRequests = new Map<string, Observable<T[]>>();
 
   list(listId: string = '', force: boolean = false): Observable<T[]> {
     const cacheKey = listId !== '' ? '/list/' + listId : '/list';
 
-    // If the cache has the result, return it.
-    if (!force && this.listCache.has(cacheKey)) {
-      return this.listCache.get(cacheKey) ?? of([]);
-    }
+    const cachedResult = this.listCache.get(cacheKey);
+
+    if (!force && cachedResult !== undefined)
+      return cachedResult.asObservable();
 
     // If there is an in-flight request, return it.
     if (!force && this.inFlightListRequests.has(cacheKey))
@@ -88,10 +97,23 @@ export class ListableResourceClient<
       map(extractResponseContent),
       tap((arr: T[]) => {
         if (!arr) return;
-        // Update the individual resource cache.
-        this.cache = new Map(arr.map((it) => [it.id, it]));
+        arr.forEach((it) => {
+          let subject = this.cache.get(it.id);
+          if (!subject) {
+            subject = new BehaviorSubject<T>(it);
+            this.cache.set(it.id, subject);
+          } else {
+            subject.next(it);
+          }
+        });
         // Cache the list result.
-        this.listCache.set(cacheKey, of(arr));
+        let subject = this.listCache.get(cacheKey);
+        if (!subject) {
+          subject = new BehaviorSubject<T[]>(arr);
+          this.listCache.set(cacheKey, subject);
+        } else {
+          subject.next(arr);
+        }
       }),
       // Remove from inFlightListRequests on completion
       finalize(() => this.inFlightListRequests.delete(cacheKey)),

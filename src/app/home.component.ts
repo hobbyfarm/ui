@@ -62,7 +62,7 @@ export class HomeComponent implements OnInit, OnDestroy {
       .pipe(
         tap((c: Context) => (this.ctx = c)),
         mergeMap((c: Context) => {
-          const courseList = this.courseService.list(c.accessCode).pipe(
+          const courseList = this.courseService.list(c.accessCode, true).pipe(
             tap((courses: Course[]) => {
               this.courses = courses ?? [];
               this.loadedCourses = true;
@@ -73,16 +73,18 @@ export class HomeComponent implements OnInit, OnDestroy {
             }),
           );
 
-          const scenarioList = this.scenarioService.list(c.accessCode).pipe(
-            tap((scenarios: Scenario[]) => {
-              this.scenarios = scenarios ?? [];
-              this.loadedScenarios = true;
-            }),
-            catchError(() => {
-              this.loadedScenarios = false;
-              return [];
-            }),
-          );
+          const scenarioList = this.scenarioService
+            .list(c.accessCode, true)
+            .pipe(
+              tap((scenarios: Scenario[]) => {
+                this.scenarios = scenarios ?? [];
+                this.loadedScenarios = true;
+              }),
+              catchError(() => {
+                this.loadedScenarios = false;
+                return [];
+              }),
+            );
 
           return merge(courseList, scenarioList);
         }),
