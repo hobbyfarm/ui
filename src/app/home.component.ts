@@ -73,16 +73,18 @@ export class HomeComponent implements OnInit, OnDestroy {
             }),
           );
 
-          const scenarioList = this.scenarioService.list(c.accessCode, true).pipe(
-            tap((scenarios: Scenario[]) => {
-              this.scenarios = scenarios ?? [];
-              this.loadedScenarios = true;
-            }),
-            catchError(() => {
-              this.loadedScenarios = false;
-              return [];
-            }),
-          );
+          const scenarioList = this.scenarioService
+            .list(c.accessCode, true)
+            .pipe(
+              tap((scenarios: Scenario[]) => {
+                this.scenarios = scenarios ?? [];
+                this.loadedScenarios = true;
+              }),
+              catchError(() => {
+                this.loadedScenarios = false;
+                return [];
+              }),
+            );
 
           return merge(courseList, scenarioList);
         }),
