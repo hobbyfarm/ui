@@ -97,19 +97,8 @@ export class TypedSettingsService {
       }
     } else {
       return this.list(scope).pipe(
-        tap((typedInputs: TypedInput[]) => {
-          const m: Map<string, TypedInput> = new Map();
-          typedInputs.forEach((typedSetting) => {
-            m.set(typedSetting.id, typedSetting);
-          });
-          this.cachedTypedInputList.set(scope, m);
-        }),
-        map((typedInputs) => {
-          return (
-            typedInputs.find((typedInput) => {
-              return typedInput.id === setting;
-            }) ?? ({} as TypedInput)
-          );
+        map((typedInputsMap: Map<string, TypedInput>) => {
+          return typedInputsMap.get(setting) ?? ({} as TypedInput);
         }),
       );
     }
@@ -123,6 +112,16 @@ export class TypedSettingsService {
           return [];
         }
         return this.buildTypedInputList(pList);
+      }),
+      map((typedInputs: TypedInput[]) => {
+        const m: Map<string, TypedInput> = new Map();
+        typedInputs.forEach((typedSetting) => {
+          m.set(typedSetting.id, typedSetting);
+        });
+        return m;
+      }),
+      tap((typedInputMap: Map<string, TypedInput>) => {
+        this.cachedTypedInputList.set(scope, typedInputMap);
       }),
     );
   }

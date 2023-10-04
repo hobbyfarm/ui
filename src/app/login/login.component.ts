@@ -19,6 +19,9 @@ export class LoginComponent {
   public registrationDisabled = false;
 
   public globalRegistrationDisabled = true;
+  public privacyPolicyRequired = true;
+  public privacyPolicyLink = '';
+  public privacyPolicyLinkName = '';
 
   private Config = this.config.getConfig();
   public logo;
@@ -51,14 +54,34 @@ export class LoginComponent {
     }
 
     this.typedSettingsService
-      .get('public', 'registration-disabled')
-      .subscribe((typedInput: TypedInput) => {
-        console.log(typedInput);
-        this.globalRegistrationDisabled = typedInput.value ?? true;
+      .list('public')
+      .subscribe((typedInputs: Map<string, TypedInput>) => {
+        this.globalRegistrationDisabled =
+          typedInputs.get('registration-disabled')?.value ?? true;
+        this.privacyPolicyRequired =
+          typedInputs.get('registration-privacy-policy-required')?.value ??
+          false;
+        this.privacyPolicyLink =
+          typedInputs.get('registration-privacy-policy-link')?.value ?? '';
+        this.privacyPolicyLinkName =
+          typedInputs.get('registration-privacy-policy-linkname')?.value ??
+          'Privacy Policy';
+
+        if (this.privacyPolicyRequired) {
+          this.loginForm.addControl(
+            'privacyPolicy',
+            new FormControl<string | null>(null, [Validators.required]),
+          );
+        }
       });
   }
 
   public register() {
+    if (this.loginForm.invalid) {
+      this.touchAllControls(this.loginForm);
+      return;
+    }
+
     this.registrationDisabled = true;
     this.error = '';
 
@@ -67,6 +90,8 @@ export class LoginComponent {
         email: this.loginForm.controls['email'].value,
         password: this.loginForm.controls['password'].value,
         access_code: this.loginForm.controls['accesscode'].value,
+        privacy_policy:
+          this.loginForm.controls['privacyPolicy']?.value ?? false,
       })
       .subscribe({
         next: () => {
@@ -101,5 +126,16 @@ export class LoginComponent {
           this.error = error;
         },
       });
+  }
+
+  touchAllControls(formGroup: FormGroup) {
+    Object.values(formGroup.controls).forEach((control) => {
+      if (control instanceof FormControl) {
+        control.markAsTouched();
+        control.updateValueAndValidity();
+      } else if (control instanceof FormGroup) {
+        this.touchAllControls(control);
+      }
+    });
   }
 }
