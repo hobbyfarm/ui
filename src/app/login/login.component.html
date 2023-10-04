@@ -96,6 +96,24 @@
                 >Password is required</clr-control-error
               >
             </clr-input-container>
+            <clr-checkbox-container *ngIf="privacyPolicyRequired">
+              <clr-checkbox-wrapper>
+                <input
+                  type="checkbox"
+                  clrCheckbox
+                  name="privacyPolicy"
+                  formControlName="privacyPolicy"
+                  required
+                />
+                <label>
+                  I accept the
+                  <a [href]="privacyPolicyLink">{{ privacyPolicyLinkName }}</a>
+                </label>
+              </clr-checkbox-wrapper>
+              <clr-control-error *clrIfError="'required'"
+                >Accepting the privacy policy is required</clr-control-error
+              >
+            </clr-checkbox-container>
             <div class="error" [class.active]="error.length > 0">
               {{ error }}
             </div>

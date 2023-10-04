@@ -28,7 +28,10 @@ export class UserService {
   }
 
   public register(
-    params: Record<'email' | 'password' | 'access_code', string>,
+    params: Record<
+      'email' | 'password' | 'access_code' | 'privacy_policy',
+      string
+    >,
   ) {
     const body = new HttpParams({ fromObject: params });
 
