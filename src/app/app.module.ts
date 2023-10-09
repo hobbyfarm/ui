@@ -65,6 +65,8 @@ import {
   windowCloseIcon,
   arrowIcon,
   hostIcon,
+  eyeIcon,
+  eyeHideIcon,
 } from '@cds/core/icon';
 
 ClarityIcons.addIcons(
@@ -91,7 +93,9 @@ ClarityIcons.addIcons(
   windowCloseIcon,
   arrowIcon,
   hostIcon,
-);
+  eyeIcon,
+  eyeHideIcon
+  );
 
 export function tokenGetter() {
   return localStorage.getItem('hobbyfarm_token');

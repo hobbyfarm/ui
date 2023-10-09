@@ -30,6 +30,7 @@
     "@webcomponents/custom-elements": "^1.0.0",
     "@webcomponents/webcomponentsjs": "^2.0.0",
     "angular-split": "^13.2.0",
+    "font-awesome": "^4.7.0",
     "guacamole-common-js": "^1.4.0-a",
     "marked": "^4.3.0",
     "ngx-dynamic-hooks": "^2.1.0",
