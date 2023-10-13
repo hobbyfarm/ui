@@ -17,14 +17,8 @@ import { FormControl, FormGroup, Validators } from '@angular/forms';
 export class LoginComponent {
 
   public showPassword = false;
-
-  togglePasswordVisibility() {
-    this.showPassword = !this.showPassword;
-  }
   public error = '';
-
   public registrationDisabled = false;
-
   public globalRegistrationDisabled = true;
   public privacyPolicyRequired = true;
   public privacyPolicyLink = '';
@@ -145,12 +139,17 @@ export class LoginComponent {
       }
     });
   }
+  
   passwordValidated(): boolean {
     if(this.loginForm.controls['password'].errors?.required) {
       return !this.loginForm.controls['password'].touched;
     } else {
       return true;
     }
+  }
+  
+  togglePasswordVisibility() {
+    this.showPassword = !this.showPassword;
   }
 
 }
