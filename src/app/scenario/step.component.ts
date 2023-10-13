@@ -188,18 +188,18 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
         concatMap(([k, v]: [string, VMClaimVM]) =>
           this.vmService.get(v.vm_id, true).pipe(
             first(),
-            tap(vm => addJwtAllowedDomain(vm.ws_endpoint)), //Allow JwtModule to intercept and add the JWT on shell-server requests
+            tap((vm) => addJwtAllowedDomain(vm.ws_endpoint)), //Allow JwtModule to intercept and add the JWT on shell-server requests
             map((vm) => [k, vm] as const),
           ),
         ),
         toArray(),
         tap((entries: (readonly [string, VM])[]) => {
-          const verificationTasks = this.scenario.vm_tasks ?? []
+          const verificationTasks = this.scenario.vm_tasks ?? [];
           this.vms = new Map(entries);
-          verificationTasks.forEach(task => {
-            task.vm_id = this.vms.get(task.vm_name)?.id ?? ''
-          })
-          this.verificationService.verifications = verificationTasks
+          verificationTasks.forEach((task) => {
+            task.vm_id = this.vms.get(task.vm_name)?.id ?? '';
+          });
+          this.verificationService.verifications = verificationTasks;
           this.sendProgressUpdate();
           const vmInfo: HfMarkdownRenderContext['vmInfo'] = {};
           for (const [k, v] of this.vms) {

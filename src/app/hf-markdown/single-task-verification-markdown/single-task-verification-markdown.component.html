@@ -16,13 +16,17 @@
         (click)="elementClicked()"
         class="label label-info"
       >
-        <clr-icon [@rotatedState]="rotationState" shape="sync"></clr-icon>
+        <cds-icon
+          [@rotatedState]="rotationState"
+          shape="sync"
+          inverse
+        ></cds-icon>
       </button>
       <div *ngIf="task?.success" class="label label-success">
-        <clr-icon shape="check"></clr-icon>
+        <cds-icon shape="check" inverse></cds-icon>
       </div>
       <div *ngIf="!task?.success" class="label label-danger">
-        <clr-icon shape="times"></clr-icon>
+        <cds-icon shape="times" inverse></cds-icon>
       </div>
     </div>
   </summary>

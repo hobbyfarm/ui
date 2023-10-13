@@ -69,7 +69,7 @@ export class VerificationService {
     if (!vm) {
       return;
     }
-    return this.useShellClient(vm.ws_endpoint)
+    return this.useShellClient(vm.value.ws_endpoint)
       .post('/verify', body)
       .pipe(
         catchError((e: HttpErrorResponse) => {
