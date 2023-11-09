@@ -309,26 +309,26 @@ export class AppComponent implements OnInit {
     this.accesscodes.splice(acIndex, 1);
   }
 
-public deleteAccessCode(a: string): Promise<ServerResponse> {
-  // Wrap the observable in a Promise
-  return new Promise((resolve, reject) => {
-    this.userService.deleteAccessCode(a).subscribe({
-      next: (s: ServerResponse) => {
-        this.accessCodeSuccessAlert = s.message + ' deleted.';
-        this.accessCodeSuccessClosed = false;
-        this._removeAccessCode(a);
-        setTimeout(() => (this.accessCodeSuccessClosed = true), 2000);
-        resolve(s); // Resolve the Promise with the success response
-      },
-      error: (s: ServerResponse) => {
-        this.accessCodeDangerAlert = s.message;
-        this.accessCodeDangerClosed = false;
-        setTimeout(() => (this.accessCodeDangerClosed = true), 2000);
-        reject(s); // Reject the Promise with the error response
-      },
+  public deleteAccessCode(a: string): Promise<ServerResponse> {
+    // Wrap the observable in a Promise
+    return new Promise((resolve, reject) => {
+      this.userService.deleteAccessCode(a).subscribe({
+        next: (s: ServerResponse) => {
+          this.accessCodeSuccessAlert = s.message + ' deleted.';
+          this.accessCodeSuccessClosed = false;
+          this._removeAccessCode(a);
+          setTimeout(() => (this.accessCodeSuccessClosed = true), 2000);
+          resolve(s); // Resolve the Promise with the success response
+        },
+        error: (s: ServerResponse) => {
+          this.accessCodeDangerAlert = s.message;
+          this.accessCodeDangerClosed = false;
+          setTimeout(() => (this.accessCodeDangerClosed = true), 2000);
+          reject(s); // Reject the Promise with the error response
+        },
+      });
     });
-  });
-}
+  }
 
   public doSaveSettings() {
     this.settingsService.update(this.settingsForm.value).subscribe({
