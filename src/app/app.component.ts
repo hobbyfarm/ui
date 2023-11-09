@@ -309,20 +309,24 @@ export class AppComponent implements OnInit {
     this.accesscodes.splice(acIndex, 1);
   }
 
-  public deleteAccessCode(a: string) {
-    this.userService.deleteAccessCode(a).subscribe({
-      next: (s: ServerResponse) => {
-        this.accessCodeSuccessAlert = s.message + ' deleted.';
-        this.accessCodeSuccessClosed = false;
-        this._removeAccessCode(a);
-        setTimeout(() => (this.accessCodeSuccessClosed = true), 2000);
-      },
-      error: (s: ServerResponse) => {
-        // failure
-        this.accessCodeDangerAlert = s.message;
-        this.accessCodeDangerClosed = false;
-        setTimeout(() => (this.accessCodeDangerClosed = true), 2000);
-      },
+  public deleteAccessCode(a: string): Promise<ServerResponse> {
+    // Wrap the observable in a Promise
+    return new Promise((resolve, reject) => {
+      this.userService.deleteAccessCode(a).subscribe({
+        next: (s: ServerResponse) => {
+          this.accessCodeSuccessAlert = s.message + ' deleted.';
+          this.accessCodeSuccessClosed = false;
+          this._removeAccessCode(a);
+          setTimeout(() => (this.accessCodeSuccessClosed = true), 2000);
+          resolve(s); // Resolve the Promise with the success response
+        },
+        error: (s: ServerResponse) => {
+          this.accessCodeDangerAlert = s.message;
+          this.accessCodeDangerClosed = false;
+          setTimeout(() => (this.accessCodeDangerClosed = true), 2000);
+          reject(s); // Reject the Promise with the error response
+        },
+      });
     });
   }
 
@@ -385,12 +389,13 @@ export class AppComponent implements OnInit {
   public accessCodeSelectedForDeletion(a: string[]) {
     this.selectedAccesscodesForDeletion = a;
   }
-  public deleteAccessCodes() {
-    this.selectedAccesscodesForDeletion.forEach((element) =>
-      this.deleteAccessCode(element),
-    );
+  public async deleteAccessCodes() {
+    for (const element of this.selectedAccesscodesForDeletion) {
+      await this.deleteAccessCode(element);
+    }
     this.alertDeleteAccessCodeModal = false;
   }
+
   public enableDarkMode() {
     document.body.classList.add('darkmode');
   }
