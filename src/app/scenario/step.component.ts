@@ -88,6 +88,7 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
   mdContext: HfMarkdownRenderContext = { vmInfo: {}, session: '' };
 
   maxInterfaceTabs = 2;
+  private activeWebinterface: Service;
 
   public pauseOpen = false;
 
@@ -123,15 +124,26 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
     private jwtHelper: JwtHelperService,
   ) {}
 
-  setTabActive(webinterface: Service) {
-    this.vms.forEach((vm) => {
-      vm.webinterfaces?.forEach((wi) => {
-        wi.active = false;
-        if (wi.name == webinterface.name) {
-          wi.active = true;
-        }
-      });
-    });
+  setTabActive(webinterface: Service, vmName: string) {
+    // Find our Webinterface and set it active, save currently active webinterface to set it unactive on change without having to iterate through all of them again.
+    const webi = this.vms
+      .get(vmName)
+      ?.webinterfaces?.find((wi) => wi.name == webinterface.name);
+    if (webi) {
+      if (this.activeWebinterface) {
+        this.activeWebinterface.active = false;
+      }
+      webi.active = true;
+      this.activeWebinterface = webi;
+    }
+    // Find the corresponding clrTab and call activate on that. Background discussion on why this workaround has to be used can be found here: https://github.com/vmware-archive/clarity/issues/2112
+    const tabLinkSelector = vmName + webinterface.name;
+    setTimeout(() => {
+      const tabLink = this.tabs
+        .map((x) => x.tabLink)
+        .find((x) => x.tabLinkId == tabLinkSelector);
+      if (tabLink) tabLink.activate();
+    }, 1);
   }
 
   handleStepContentClick(e: MouseEvent) {
