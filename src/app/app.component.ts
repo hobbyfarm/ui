@@ -68,12 +68,9 @@ export class AppComponent implements OnInit {
   public aboutBody =
     this.Config.about?.body ||
     'HobbyFarm is lovingly crafted by the HobbyFarm team';
-  public buttons = this.Config.about?.buttons || [
-    {
-      title: 'Hobbyfarm Project',
-      url: 'https://github.com/hobbyfarm/hobbyfarm',
-    },
-  ];
+  public buttons = {
+    'Hobbyfarm Project': 'https://github.com/hobbyfarm/hobbyfarm',
+  };
 
   public themes = themes;
   public motd = '';
@@ -198,6 +195,12 @@ export class AppComponent implements OnInit {
       .get('public', 'motd-ui')
       .subscribe((typedInput: TypedInput) => {
         this.motd = typedInput?.value ?? '';
+      });
+
+    this.typedSettingsService
+      .get('user-ui', 'aboutmodal-buttons')
+      .subscribe((typedInput: TypedInput) => {
+        this.buttons = typedInput?.value ?? this.buttons;
       });
   }
 
