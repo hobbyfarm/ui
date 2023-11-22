@@ -112,3 +112,9 @@ table {
   margin-right: auto;
   width: 100%;
 }
+
+img:hover {
+  cursor: zoom-out;
+  cursor: -moz-zoom-out;
+  cursor: -webkit-zoom-out;
+}
