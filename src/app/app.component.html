@@ -101,10 +101,10 @@
       <p class="about-body">
         {{ aboutBody }}
       </p>
-      <ng-container *ngFor="let button of buttons">
-        <a href="{{ button.url }}" target="_blank">
+      <ng-container *ngFor="let button of buttons | keyvalue">
+        <a href="{{ button.value }}" target="_blank">
           <button class="btn btn-sm btn-link">
-            {{ button.title }}
+            {{ button.key }}
             <cds-icon shape="pop-out"></cds-icon>
           </button>
         </a>
