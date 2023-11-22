@@ -114,5 +114,7 @@ table {
 }
 
 img:hover {
-  cursor: zoom-out
+  cursor: zoom-out;
+  cursor: -moz-zoom-out;
+  cursor: -webkit-zoom-out;
 }
