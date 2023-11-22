@@ -101,7 +101,7 @@
       <p class="about-body">
         {{ aboutBody }}
       </p>
-      <ng-container *ngFor="let button of buttons  | keyvalue">
+      <ng-container *ngFor="let button of buttons | keyvalue">
         <a href="{{ button.value }}" target="_blank">
           <button class="btn btn-sm btn-link">
             {{ button.key }}
