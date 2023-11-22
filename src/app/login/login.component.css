@@ -11,3 +11,9 @@
 .login-wrapper .login {
   justify-content: center;
 }
+
+.imprint {
+  position: absolute;
+  left: 5px;
+  bottom: 5px;
+}
