@@ -151,7 +151,7 @@ export class LoginComponent {
   }
 
   passwordValidated(): boolean {
-    if(this.loginForm.controls['password'].errors?.required) {
+    if (this.loginForm.controls['password'].errors?.required) {
       return !this.loginForm.controls['password'].touched;
     } else {
       return true;
