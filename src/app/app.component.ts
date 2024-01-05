@@ -72,6 +72,9 @@ export class AppComponent implements OnInit {
     'Hobbyfarm Project': 'https://github.com/hobbyfarm/hobbyfarm',
   };
 
+  public privacyPolicyLink = '';
+  public privacyPolicyLinkName = '';
+
   public themes = themes;
   public motd = '';
 
@@ -201,6 +204,16 @@ export class AppComponent implements OnInit {
       .get('user-ui', 'aboutmodal-buttons')
       .subscribe((typedInput: TypedInput) => {
         this.buttons = typedInput?.value ?? this.buttons;
+      });
+
+      this.typedSettingsService
+      .list('public')
+      .subscribe((typedInputs: Map<string, TypedInput>) => {
+        this.privacyPolicyLink =
+          typedInputs.get('registration-privacy-policy-link')?.value ?? '';
+        this.privacyPolicyLinkName =
+          typedInputs.get('registration-privacy-policy-linkname')?.value ??
+          'Privacy Policy';
       });
   }
 
