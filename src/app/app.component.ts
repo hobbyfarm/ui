@@ -206,7 +206,7 @@ export class AppComponent implements OnInit {
         this.buttons = typedInput?.value ?? this.buttons;
       });
 
-      this.typedSettingsService
+    this.typedSettingsService
       .list('public')
       .subscribe((typedInputs: Map<string, TypedInput>) => {
         this.privacyPolicyLink =

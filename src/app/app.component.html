@@ -49,7 +49,12 @@
           <a (click)="about()" clrDropdownItem
             ><cds-icon shape="help-info"></cds-icon> About</a
           >
-          <a [href]="privacyPolicyLink" *ngIf="privacyPolicyLink" clrDropdownItem target="_blank">
+          <a
+            [href]="privacyPolicyLink"
+            *ngIf="privacyPolicyLink"
+            clrDropdownItem
+            target="_blank"
+          >
             <cds-icon shape="pop-out"></cds-icon> {{ privacyPolicyLinkName }}
           </a>
           <a (click)="logout()" clrDropdownItem
