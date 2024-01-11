@@ -1,5 +1,10 @@
 <div class="split-container">
-  <as-split unit="percent" direction="horizontal" (dragEnd)="dragEnd()">
+  <as-split
+    unit="percent"
+    direction="horizontal"
+    (dragEnd)="dragEnd()"
+    #divider
+  >
     <as-split-area [size]="40" class="split-area-1">
       <div class="card" id="sidebar">
         <div class="card-header">
