@@ -512,12 +512,12 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   saveContentDivider() {
-    let dividerSize = this.divider.getVisibleAreaSizes()[0];
+    const dividerSize = this.divider.getVisibleAreaSizes()[0];
     let dividerSizeNumber = this.DEFAULT_DIVIDER_POSITION; // Default is 40% content, 60% terminal
     if (dividerSize != '*') {
       dividerSizeNumber = dividerSize;
     }
-    let dividerPosition = Math.round(dividerSizeNumber);
+    const dividerPosition = Math.round(dividerSizeNumber);
 
     this.settingsService
       .update({ divider_position: dividerPosition })
@@ -525,7 +525,7 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   setContentDividerPosition(percentage: number) {
-    let dividerPositions = [percentage, 100 - percentage];
+    const dividerPositions = [percentage, 100 - percentage];
     this.divider.setVisibleAreaSizes(dividerPositions);
     this.resizeTerminals();
   }
