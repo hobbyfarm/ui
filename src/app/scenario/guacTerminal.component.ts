@@ -373,6 +373,12 @@ export class GuacTerminalComponent implements OnChanges {
     return { width: width, height: height };
   }
 
+  reloadConnection() {
+    this.shellService.setStatus(this.vmname, 'Reconnecting');
+    this.client.disconnect();
+    this.connect();
+  }
+
   resize() {
     const elm = this.viewport.nativeElement;
     if (!elm || !elm.offsetWidth) {
