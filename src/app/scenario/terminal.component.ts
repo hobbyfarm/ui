@@ -178,7 +178,7 @@ export class TerminalComponent implements OnChanges, AfterViewInit, OnDestroy {
   reloadSocket() {
     // Override the socket.onclose function that was defined in the buildSocket function
     // to ensure we reconnect after the old socket has been closed and the terminal is disposed properly
-    this.socket.onclose = (e) => {
+    this.socket.onclose = () => {
       this.term.dispose(); // destroy the terminal on the page to avoid bad display
       this.shellService.setStatus(this.vmname, 'Reconnecting');
       this.buildSocket();
