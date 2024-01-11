@@ -480,6 +480,14 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
     } as webinterfaceTabIdentifier);
   }
 
+  reloadTerminal(target: string) {
+    this.terms.forEach((t: TerminalComponent) => {
+      if (t.vmname == target) {
+        t.reloadSocket();
+      }
+    });
+  }
+
   calculateMaxInterfaceTabs(reduce: boolean = false) {
     const tabs = document.getElementsByTagName('li');
     let tabsBarWidth: number | undefined = 0;
