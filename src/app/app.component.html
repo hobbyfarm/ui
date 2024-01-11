@@ -284,6 +284,26 @@
                     />
                   </clr-checkbox-wrapper>
                 </clr-checkbox-container>
+                <clr-input-container>
+                  <label class="clr-col-md-4">Divider Position</label>
+                  <input
+                    class="clr-col-md-8"
+                    clrInput
+                    type="number"
+                    required
+                    name="divider_position"
+                    formControlName="divider_position"
+                  />
+                  <clr-control-error *clrIfError="'required'"
+                    >Divider Position required.</clr-control-error
+                  >
+                  <clr-control-error *clrIfError="'min'"
+                    >Divider Position minimum is 0.</clr-control-error
+                  >
+                  <clr-control-error *clrIfError="'max'"
+                    >Divider Position maximum is 100.</clr-control-error
+                  >
+                </clr-input-container>
               </clr-tab-content>
             </clr-tab>
             <clr-tab>

@@ -137,6 +137,11 @@ export class AppComponent implements OnInit {
       Validators.required,
     ]),
     ctr_enabled: new FormControl<boolean>(false),
+    divider_position: new FormControl<number | null>(null, [
+      Validators.required,
+      Validators.max(100),
+      Validators.min(0),
+    ]),
     theme: new FormControl<'light' | 'dark' | 'system' | null>(null, [
       Validators.required,
     ]),
@@ -273,12 +278,14 @@ export class AppComponent implements OnInit {
           terminal_fontSize = 16,
           ctr_enabled = true,
           theme = 'light',
+          divider_position = 40,
         }) => {
           this.settingsForm.setValue({
             terminal_theme,
             terminal_fontSize,
             ctr_enabled,
             theme,
+            divider_position,
           });
           this.fetchingSettings = false;
         },

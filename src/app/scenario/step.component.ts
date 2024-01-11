@@ -44,6 +44,8 @@ import { ProgressService } from '../services/progress.service';
 import { HfMarkdownRenderContext } from '../hf-markdown/hf-markdown.component';
 import { GuacTerminalComponent } from './guacTerminal.component';
 import { JwtHelperService } from '@auth0/angular-jwt';
+import { SplitComponent } from 'angular-split';
+import { SettingsService } from '../services/settings.service';
 
 type Service = {
   name: string;
@@ -100,6 +102,8 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
   public reloadTabObservable: Observable<webinterfaceTabIdentifier> =
     this.reloadTabSubject.asObservable();
 
+  private DEFAULT_DIVIDER_POSITION = 40;
+
   @ViewChildren('term') private terms: QueryList<TerminalComponent> =
     new QueryList();
   @ViewChildren('guacterm')
@@ -109,6 +113,7 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChildren('tab') private tabs: QueryList<ClrTab> = new QueryList();
   @ViewChild('pausemodal', { static: true }) private pauseModal: ClrModal;
   @ViewChild('contentdiv', { static: false }) private contentDiv: ElementRef;
+  @ViewChild('divider', { static: true }) divider: SplitComponent;
 
   constructor(
     private route: ActivatedRoute,
@@ -122,6 +127,7 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
     private shellService: ShellService,
     private progressService: ProgressService,
     private jwtHelper: JwtHelperService,
+    private settingsService: SettingsService,
   ) {}
 
   setTabActive(webinterface: Service, vmName: string) {
@@ -287,6 +293,12 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
     this.shellService.watch().subscribe((ss: Map<string, string>) => {
       this.shellStatus = ss;
     });
+
+    this.settingsService.settings$.subscribe(
+      ({ divider_position = this.DEFAULT_DIVIDER_POSITION }) => {
+        this.setContentDividerPosition(divider_position);
+      },
+    );
   }
 
   ngAfterViewInit() {
@@ -410,6 +422,11 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   public dragEnd() {
+    this.resizeTerminals();
+    this.saveContentDivider();
+  }
+
+  resizeTerminals() {
     let numberOfGuacTabs = 0;
     let numberOfTermTabs = 0;
     const vmArray: VM[] = [...this.vms.values()];
@@ -492,5 +509,24 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
         }, 10);
       }
     }
+  }
+
+  saveContentDivider() {
+    let dividerSize = this.divider.getVisibleAreaSizes()[0];
+    let dividerSizeNumber = this.DEFAULT_DIVIDER_POSITION; // Default is 40% content, 60% terminal
+    if (dividerSize != '*') {
+      dividerSizeNumber = dividerSize;
+    }
+    let dividerPosition = Math.round(dividerSizeNumber);
+
+    this.settingsService
+      .update({ divider_position: dividerPosition })
+      .subscribe();
+  }
+
+  setContentDividerPosition(percentage: number) {
+    let dividerPositions = [percentage, 100 - percentage];
+    this.divider.setVisibleAreaSizes(dividerPositions);
+    this.resizeTerminals();
   }
 }
