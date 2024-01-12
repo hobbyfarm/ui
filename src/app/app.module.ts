@@ -67,7 +67,7 @@ import {
   hostIcon,
   eyeIcon,
   eyeHideIcon,
-  clockIcon
+  clockIcon,
 } from '@cds/core/icon';
 
 ClarityIcons.addIcons(
