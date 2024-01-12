@@ -17,7 +17,11 @@
         <button class="nav-text" clrDropdownToggle>
           <cds-icon shape="layers" solid></cds-icon>
           {{ ctx.scheduledEventName }}
-          <cds-icon shape="angle" direction="down"></cds-icon>
+          <cds-icon
+            shape="angle"
+            direction="down"
+            class="dropdown-selection-angle"
+          ></cds-icon>
         </button>
         <clr-dropdown-menu *clrIfOpen clrPosition="bottom">
           <a
