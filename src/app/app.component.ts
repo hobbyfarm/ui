@@ -16,6 +16,7 @@ import {
   TypedInput,
   TypedSettingsService,
 } from './services/typedSettings.service';
+import { ScheduledEvent } from 'src/data/ScheduledEvent';
 
 @Component({
   selector: 'app-root',
@@ -56,7 +57,7 @@ export class AppComponent implements OnInit {
 
   public accesscodes: string[] = [];
   public selectedAccesscodesForDeletion: string[] = [];
-  public scheduledEvents: Map<string, string> = new Map();
+  public scheduledEvents: Map<string, ScheduledEvent> = new Map();
   public ctx: Context = {} as Context;
 
   public email = '';
@@ -177,7 +178,7 @@ export class AppComponent implements OnInit {
       this.ctx = c;
       this.userService
         .getScheduledEvents()
-        .subscribe((se: Map<string, string>) => {
+        .subscribe((se: Map<string, ScheduledEvent>) => {
           se = new Map(Object.entries(se));
           this.scheduledEvents = se;
         });
@@ -298,7 +299,11 @@ export class AppComponent implements OnInit {
   }
 
   public getScheduledEventNameForAccessCode(ac: string) {
-    return this.scheduledEvents?.get(ac);
+    return this.scheduledEvents?.get(ac)?.name;
+  }
+
+  public getScheduledEventEndTimestampForAccessCode(ac: string) {
+    return this.scheduledEvents?.get(ac)?.end_timestamp;
   }
 
   public saveAccessCode(activate = false) {
