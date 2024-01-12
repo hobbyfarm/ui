@@ -46,6 +46,11 @@
   <div class="clr-row" *ngIf="ctx.valid">
     <div class="clr-col">
       <h1>{{ ctx.scheduledEvent.name }}</h1>
+      <div>
+        <cds-icon shape="clock"></cds-icon>
+        {{ getTimeLeftString(ctx.scheduledEvent.end_timestamp) }} left
+      </div>
+      <p>{{ ctx.scheduledEvent.description }}</p>
       <h3>Select a scenario</h3>
     </div>
   </div>

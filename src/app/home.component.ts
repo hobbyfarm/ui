@@ -138,4 +138,32 @@ export class HomeComponent implements OnInit, OnDestroy {
     this.contextSubscription.unsubscribe();
     this.progressSubscription.unsubscribe();
   }
+
+  getTimeLeftString(target: string) {
+    const now = new Date();
+    const targetDate = new Date(target);
+    const timeDiff = targetDate.getTime() - now.getTime();
+
+    if (timeDiff <= 0) {
+      return 'Time already passed';
+    }
+
+    // Convert time difference from milliseconds
+    const minutes = Math.floor((timeDiff / 1000 / 60) % 60);
+    const hours = Math.floor((timeDiff / (1000 * 60 * 60)) % 24);
+    const days = Math.floor(timeDiff / (1000 * 60 * 60 * 24));
+
+    let timeUntil = '';
+    if (days > 0) {
+      timeUntil += `${days}d `;
+    }
+    if (hours > 0) {
+      timeUntil += `${hours}h `;
+    }
+    if (minutes > 0) {
+      timeUntil += `${minutes}m `;
+    }
+
+    return timeUntil.trim();
+  }
 }

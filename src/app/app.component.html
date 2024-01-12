@@ -24,7 +24,7 @@
             clrDropdownItem
             *ngFor="let a of scheduledEvents | keyvalue"
             (click)="setAccessCode(a.key)"
-            >{{ a.value }}</a
+            >{{ a.value.name }}</a
           >
         </clr-dropdown-menu>
       </clr-dropdown>
