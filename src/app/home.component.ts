@@ -140,7 +140,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   }
 
   isTimeLeft() {
-    let target = this.ctx?.scheduledEvent?.end_timestamp;
+    const target = this.ctx?.scheduledEvent?.end_timestamp;
 
     if (target) {
       const now = new Date();
