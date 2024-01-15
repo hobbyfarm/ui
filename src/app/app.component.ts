@@ -306,6 +306,20 @@ export class AppComponent implements OnInit {
     return this.scheduledEvents?.get(ac)?.end_timestamp;
   }
 
+  public getTimestampColor(ac: string) {
+    const target = this.scheduledEvents?.get(ac)?.end_timestamp;
+    if (target) {
+      const now = new Date();
+      const targetDate = new Date(target);
+      const timeDiff = targetDate.getTime() - now.getTime();
+      if (timeDiff <= 0) {
+        return 'red';
+      }
+    }
+
+    return 'green';
+  }
+
   public saveAccessCode(activate = false) {
     const { access_code: a } = this.newAccessCodeForm.value;
     this.userService.addAccessCode(a).subscribe({

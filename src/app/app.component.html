@@ -241,7 +241,7 @@
               </ng-container>
               <span> {{ getScheduledEventNameForAccessCode(a) }}</span>
             </clr-dg-cell>
-            <clr-dg-cell>
+            <clr-dg-cell [class]="getTimestampColor(a)">
               <span> {{ getScheduledEventEndTimestampForAccessCode(a) }}</span>
             </clr-dg-cell>
           </clr-dg-row>

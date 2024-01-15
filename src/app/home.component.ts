@@ -139,6 +139,19 @@ export class HomeComponent implements OnInit, OnDestroy {
     this.progressSubscription.unsubscribe();
   }
 
+  isTimeLeft() {
+    let target = this.ctx?.scheduledEvent?.end_timestamp;
+
+    if (target) {
+      const now = new Date();
+      const targetDate = new Date(target);
+      const timeDiff = targetDate.getTime() - now.getTime();
+      return timeDiff > 0;
+    }
+
+    return false;
+  }
+
   getTimeLeftString(target: string) {
     const now = new Date();
     const targetDate = new Date(target);
