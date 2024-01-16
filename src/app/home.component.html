@@ -56,7 +56,11 @@
       </ng-container>
       <ng-container *ngIf="!isTimeLeft()">
         <cds-icon shape="clock"></cds-icon> Your time ran out at
-        {{ ctx.scheduledEvent.end_timestamp }}
+        {{ ctx.scheduledEvent.end_timestamp }}.
+        <p>
+          You will be able to finish any active sessions, but you are unable to
+          start any new scenario.
+        </p>
       </ng-container>
     </div>
   </div>
