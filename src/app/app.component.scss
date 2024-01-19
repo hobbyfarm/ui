@@ -160,3 +160,9 @@ clr-dg-cell.red {
   float: right;
   position: relative;
 }
+
+.dropdown
+  .dropdown-toggle.nav-text
+  > cds-icon[shape^='angle'].dropdown-selection-angle {
+  right: 0.5rem;
+}
