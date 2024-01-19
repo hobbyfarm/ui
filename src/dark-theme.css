@@ -209,7 +209,8 @@
   --clr-card-title-color: hsl(210, 16%, 93%);
   --clr-card-box-shadow: 0 0.15rem 0 0 var(--clr-card-border-color);
   --clr-card-divider-color: var(--clr-card-border-color);
-
+  --clr-card-header-title-color: hsl(210, 16%, 93%);
+  --clr-card-content-title-color: hsl(210, 16%, 93%);
   /**********
     * Datagrid
     */
