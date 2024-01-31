@@ -16,7 +16,7 @@
       <clr-dropdown *ngIf="ctx.valid">
         <button class="nav-text" clrDropdownToggle>
           <cds-icon shape="layers" solid></cds-icon>
-          {{ ctx.scheduledEventName }}
+          {{ ctx.scheduledEvent.name }}
           <cds-icon
             shape="angle"
             direction="down"
@@ -28,7 +28,7 @@
             clrDropdownItem
             *ngFor="let a of scheduledEvents | keyvalue"
             (click)="setAccessCode(a.key)"
-            >{{ a.value }}</a
+            >{{ a.value.name }}</a
           >
         </clr-dropdown-menu>
       </clr-dropdown>
@@ -124,7 +124,11 @@
     </div>
   </clr-modal>
 
-  <clr-modal #accesscodemodal [(clrModalOpen)]="accessCodeModalOpened">
+  <clr-modal
+    #accesscodemodal
+    [(clrModalOpen)]="accessCodeModalOpened"
+    [clrModalSize]="'lg'"
+  >
     <h3 class="modal-title">Manage Access Codes</h3>
     <div class="modal-body">
       <clr-alert
@@ -222,6 +226,7 @@
         >
           <clr-dg-column>Access Code</clr-dg-column>
           <clr-dg-column>Valid</clr-dg-column>
+          <clr-dg-column>Access until</clr-dg-column>
           <clr-dg-row *clrDgItems="let a of accesscodes" [clrDgItem]="a">
             <clr-dg-cell>{{ a }}</clr-dg-cell>
             <clr-dg-cell>
@@ -239,6 +244,9 @@
                 ></cds-icon>
               </ng-container>
               <span> {{ getScheduledEventNameForAccessCode(a) }}</span>
+            </clr-dg-cell>
+            <clr-dg-cell [class]="getTimestampColor(a)">
+              <span> {{ getScheduledEventEndTimestampForAccessCode(a) }}</span>
             </clr-dg-cell>
           </clr-dg-row>
         </clr-datagrid>

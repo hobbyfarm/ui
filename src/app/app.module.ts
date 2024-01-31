@@ -67,6 +67,7 @@ import {
   hostIcon,
   eyeIcon,
   eyeHideIcon,
+  clockIcon,
 } from '@cds/core/icon';
 
 ClarityIcons.addIcons(
@@ -95,6 +96,7 @@ ClarityIcons.addIcons(
   hostIcon,
   eyeIcon,
   eyeHideIcon,
+  clockIcon,
 );
 
 export function tokenGetter() {
