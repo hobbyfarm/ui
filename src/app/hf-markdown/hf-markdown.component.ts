@@ -4,7 +4,7 @@ import { CtrService } from '../scenario/ctr.service';
 import { VM } from '../VM';
 
 import Prism from 'prismjs';
-import mermaid from 'mermaid'
+import mermaid from 'mermaid';
 // Load desired languages
 // TODO: Import all available languages
 import 'prismjs/components/prism-css';
@@ -50,7 +50,7 @@ export class HfMarkdownComponent implements OnChanges {
     private ctrService: CtrService,
   ) {
     mermaid.initialize({
-      startOnLoad: false
+      startOnLoad: false,
     });
     this.markdownService.renderer.code = (code: string, language = '') => {
       const [tag, ...args] = language.split(':');
@@ -122,8 +122,7 @@ export class HfMarkdownComponent implements OnChanges {
       const filename = parts[parts.length - 1];
       const n = 5; //Length of randomized token
       // Using only EOF as a token can cause trouble when the token is inside the file content. Let's use EOL together with a random string
-      const token =
-        'EOF_' + this.uniqueString(n);
+      const token = 'EOF_' + this.uniqueString(n);
       const fileContent = `cat << ${token} > ${filepath}
 ${code}
 ${token}`;
@@ -157,21 +156,24 @@ ${token}`;
     const classAttr = `language-${language}`;
 
     if (Prism.languages[language]) {
-      code = Prism.highlight(code, Prism.languages[language], language)
+      code = Prism.highlight(code, Prism.languages[language], language);
     }
-   
+
     return `<pre>${fileNameTag}<code class=${classAttr}>${code}</code></pre>`;
   }
 
   private renderMermaidGraph(code: string, containerId: string) {
-    mermaid.render('svg-' + containerId, code).then((renderResult) => {
-      const container = document.getElementById(containerId);
-      if (container) {
-        container.innerHTML = renderResult.svg;
-      }
-    }).catch((error) => {
-      console.error('Mermaid rendering failed:', error);
-    });
+    mermaid
+      .render('svg-' + containerId, code)
+      .then((renderResult) => {
+        const container = document.getElementById(containerId);
+        if (container) {
+          container.innerHTML = renderResult.svg;
+        }
+      })
+      .catch((error) => {
+        console.error('Mermaid rendering failed:', error);
+      });
   }
 
   private renderNestedPlainCode(code: string) {
@@ -238,7 +240,7 @@ ${token}`;
     return content.replace(/\$\{session\}/g, this.context.session);
   }
 
-  private uniqueString(n : number) {
-    return `${(Math.random().toString(36) + '0000').slice(2, n + 2)}`
+  private uniqueString(n: number) {
+    return `${(Math.random().toString(36) + '0000').slice(2, n + 2)}`;
   }
 }
