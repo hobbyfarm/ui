@@ -81,6 +81,10 @@ export class TaskModalComponent implements OnInit, OnDestroy {
     });
   }
 
+  isOfReturnType(task: Task, returnTypes: string[]): boolean {
+    return returnTypes.includes(task.return_type);
+  }
+
   ngOnDestroy() {
     this.unsubscribe.next();
     this.unsubscribe.complete();

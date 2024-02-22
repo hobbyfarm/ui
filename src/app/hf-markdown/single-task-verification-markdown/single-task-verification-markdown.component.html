@@ -36,11 +36,23 @@
       <p>Description: {{ task.description }}</p>
       <p>Command: {{ task.command }}</p>
     </li>
-    <li class="list-group-item">
+    <li
+      class="list-group-item"
+      *ngIf="
+        isOfReturnType(task, [
+          'Return_Text',
+          'Return_Code_And_Text',
+          'Match_Regex'
+        ])
+      "
+    >
       <p>Expected Output: {{ task.expected_output_value }}</p>
       <p>Actual Output: {{ task.actual_output_value }}</p>
     </li>
-    <li class="list-group-item">
+    <li
+      class="list-group-item"
+      *ngIf="isOfReturnType(task, ['Return_Code', 'Return_Code_And_Text'])"
+    >
       <p>Expected Returncode: {{ task.expected_return_code }}</p>
       <p>Actual Returncode: {{ task.actual_return_code }}</p>
     </li>

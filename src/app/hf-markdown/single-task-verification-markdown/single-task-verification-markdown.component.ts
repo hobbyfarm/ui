@@ -45,6 +45,10 @@ export class SingleTaskVerificationMarkdownComponent implements OnInit {
     );
   }
 
+  isOfReturnType(task: Task, returnTypes: string[]): boolean {
+    return returnTypes.includes(task.return_type);
+  }
+
   elementClicked() {
     this.rotationState = 'rotating';
     setTimeout(() => {
