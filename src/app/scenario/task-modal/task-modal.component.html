@@ -1,5 +1,5 @@
 <ng-container>
-  <!-- *ngIf="commands.length > 0" -->
+  <!-- *ngIf="tasks.length > 0" -->
   <app-task-progress [vms]="vms" (click)="openTaskModal()"></app-task-progress>
   <!-- <div class="check-tasks-button" (click)="openTaskModal()">Check your Progress</div> -->
 </ng-container>
@@ -22,7 +22,7 @@
       clrAccordionMultiPanel="true"
       *ngIf="!loading; else loadingSpinner"
     >
-      <clr-accordion-panel *ngFor="let task of commands">
+      <clr-accordion-panel *ngFor="let task of tasks">
         <clr-accordion-title style="width: 100%">
           <div
             style="display: flex; justify-content: space-between; width: 100%"

@@ -1,7 +1,7 @@
 import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { VM } from 'src/app/VM';
 import { VerificationService } from 'src/app/services/verification.service';
-import { TaskCommand, TaskVerification } from '../taskVerification.type';
+import { Task, TaskVerification } from '../taskVerification.type';
 import { take, takeUntil } from 'rxjs/operators';
 import { Subject } from 'rxjs';
 
@@ -14,7 +14,7 @@ export class TaskModalComponent implements OnInit, OnDestroy {
   @Input()
   vms: Map<string, VM>;
 
-  commands: TaskCommand[] = [];
+  tasks: Task[] = [];
 
   modalOpen = false;
 
@@ -32,22 +32,22 @@ export class TaskModalComponent implements OnInit, OnDestroy {
     this.verificationService.currentVerifications
       .pipe(takeUntil(this.unsubscribe))
       .subscribe((currentVeriications: Map<string, TaskVerification>) => {
-        const commandOutput: TaskCommand[] = [];
-        currentVeriications.forEach((taskCommand) => {
-          taskCommand.task_command?.forEach((output) => {
-            commandOutput.push(output);
+        const updatedTasks: Task[] = [];
+        currentVeriications.forEach((taskVerification) => {
+          taskVerification.tasks?.forEach((task) => {
+            updatedTasks.push(task);
           });
         });
         if (
-          this.commands.length == 0 ||
+          this.tasks.length == 0 ||
           !this.modalOpen ||
           this.forceUpdateIfModalOpen
         ) {
-          this.commands = [...(commandOutput ?? [])];
+          this.tasks = [...(updatedTasks ?? [])];
           this.percentSuccessful =
             Math.round(
-              (this.commands.filter((task) => !!task.success).length /
-                this.commands.length) *
+              (this.tasks.filter((task) => !!task?.success).length /
+                this.tasks.length) *
                 100,
             ) ?? 0;
           this.forceUpdateIfModalOpen = false;

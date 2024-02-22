@@ -57,13 +57,13 @@ export class VerificationService {
     if (!taskVerification) {
       return;
     }
-    const command = taskVerification.task_command?.filter(
+    const tasks = taskVerification.tasks?.filter(
       (command) => command.name == taskName,
     );
-    if (!command) {
+    if (!tasks) {
       return;
     }
-    taskVerification.task_command = command;
+    taskVerification.tasks = tasks;
     const body = [taskVerification];
     const vm = this.vmService.cache.get(taskVerification.vm_id);
     if (!vm) {
@@ -106,16 +106,14 @@ export class VerificationService {
           newTaskVerification.vm_name,
         );
         if (existingVerification !== undefined) {
-          existingVerification.task_command?.forEach(
-            (taskCommand, index, array) => {
-              const newData = newTaskVerification.task_command_output?.find(
-                (command) => command.name == taskCommand.name,
-              );
-              if (newData) {
-                array[index] = newData; //Keep the Order of Tasks provided by setting the Verifications, since the Response does not retain the Order
-              }
-            },
-          );
+          existingVerification.tasks?.forEach((task, index, array) => {
+            const newData = newTaskVerification.task_outputs?.find(
+              (taskOutput) => taskOutput.task.name == task.name,
+            );
+            if (newData) {
+              array[index] = { ...newData.task, ...newData.task_output }; //Keep the Order of Tasks provided by setting the Verifications, since the Response does not retain the Order
+            }
+          });
         }
       },
     );

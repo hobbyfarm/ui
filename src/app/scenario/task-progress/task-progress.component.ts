@@ -8,7 +8,7 @@ import {
 } from '@angular/core';
 import { VM } from 'src/app/VM';
 import { VerificationService } from 'src/app/services/verification.service';
-import { TaskCommand, TaskVerification } from '../taskVerification.type';
+import { Task, TaskVerification } from '../taskVerification.type';
 import { Observable, Subject, forkJoin, timer } from 'rxjs';
 import { switchMap, take, takeUntil } from 'rxjs/operators';
 import { ServerResponse } from 'src/app/ServerResponse';
@@ -45,10 +45,9 @@ export class TaskProgressComponent implements AfterViewInit, OnDestroy {
   ngAfterViewInit() {
     this.verificationService.currentVerifications.subscribe(
       (currentVeriications: Map<string, TaskVerification>) => {
-        const taskList: TaskCommand[] = this.buildTaskList(currentVeriications);
+        const taskList: Task[] = this.buildTaskList(currentVeriications);
         this.tasks = taskList.length;
-        this.index =
-          taskList.filter((taskCommand) => !!taskCommand.success).length ?? 0;
+        this.index = taskList.filter((task) => !!task.success).length ?? 0;
 
         if (!this.percentages && this.tasks > 0) {
           this.buildPercentagesArray();
@@ -84,12 +83,10 @@ export class TaskProgressComponent implements AfterViewInit, OnDestroy {
     }
   }
 
-  buildTaskList(
-    currentVerifications: Map<string, TaskVerification>,
-  ): TaskCommand[] {
-    const tasks: TaskCommand[] = [];
-    currentVerifications.forEach((taskCommand) => {
-      taskCommand.task_command?.forEach((task) => {
+  buildTaskList(currentVerifications: Map<string, TaskVerification>): Task[] {
+    const tasks: Task[] = [];
+    currentVerifications.forEach((taskVerification) => {
+      taskVerification.tasks?.forEach((task) => {
         tasks.push(task);
       });
     });

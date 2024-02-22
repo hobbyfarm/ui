@@ -6,7 +6,7 @@ import {
   trigger,
 } from '@angular/animations';
 import { Component, Input, OnInit } from '@angular/core';
-import { TaskCommand } from 'src/app/scenario/taskVerification.type';
+import { Task } from 'src/app/scenario/taskVerification.type';
 import { VerificationService } from 'src/app/services/verification.service';
 
 @Component({
@@ -30,7 +30,7 @@ export class SingleTaskVerificationMarkdownComponent implements OnInit {
 
   rotationState = 'default';
 
-  task?: TaskCommand;
+  task?: Task;
 
   constructor(private verificationService: VerificationService) {}
 
@@ -38,8 +38,8 @@ export class SingleTaskVerificationMarkdownComponent implements OnInit {
     this.verificationService.currentVerifications.subscribe(
       (verificationMap) => {
         const temp = verificationMap.get(this.target);
-        this.task = temp?.task_command?.filter(
-          (taskCommand) => taskCommand.name == this.taskName,
+        this.task = temp?.tasks?.filter(
+          (task) => task.name == this.taskName,
         )[0];
       },
     );
