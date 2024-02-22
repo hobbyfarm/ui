@@ -1,6 +1,6 @@
 import { Component, OnInit, Input, EventEmitter, Output } from '@angular/core';
 import { Scenario } from './Scenario';
-import { catchError, concatMap, delay, tap } from 'rxjs/operators';
+import { catchError, concatMap, delay } from 'rxjs/operators';
 import { Session } from '../Session';
 import { from, of } from 'rxjs';
 import { ScenarioService } from '../services/scenario.service';
