@@ -172,6 +172,10 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
     return this.stepnumber + 1 === this.scenario.stepcount;
   }
 
+  get isContentOnly() {
+    return this.scenario.virtualmachines.length == 0;
+  }
+
   getProgress() {
     return Math.floor(((this.stepnumber + 1) / this.scenario.stepcount) * 100);
   }
@@ -377,6 +381,9 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   goClose() {
+    if (this.scenario.virtualmachines.length == 0) {
+      this.actuallyClose();
+    }
     this.closeOpen = true;
   }
 

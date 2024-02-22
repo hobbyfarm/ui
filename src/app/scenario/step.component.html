@@ -88,7 +88,7 @@
         </div>
       </div>
     </as-split-area>
-    <as-split-area [size]="60" class="split-area-2">
+    <as-split-area [size]="60" class="split-area-2" [visible]="!isContentOnly">
       <div id="terminal-column">
         <clr-tabs class="tab-container">
           <clr-tab *ngFor="let v of vms | keyvalue" #tab>
