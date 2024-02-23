@@ -53,6 +53,7 @@ export class GuacTerminalComponent implements OnChanges {
   public connectionState = states.IDLE;
   public errorMessage?: string;
   public arguments: any = {};
+  public retryCount = 0;
 
   constructor(
     public ctrService: CtrService,
@@ -109,6 +110,12 @@ export class GuacTerminalComponent implements OnChanges {
       console.error(`Tunnel failed ${JSON.stringify(status)}`);
       this.shellService.setStatus(this.vmname, 'Tunnel Error');
       this.connectionState = states.TUNNEL_ERROR;
+      if(this.retryCount < 4) {
+        ++this.retryCount
+        setTimeout(() => {
+          this.reloadConnection()
+        }, 250)
+      }
     };
     tunnel.onstatechange = (state: Tunnel.State) => {
       switch (state) {
@@ -146,6 +153,7 @@ export class GuacTerminalComponent implements OnChanges {
           this.shellService.setStatus(this.vmname, 'Waiting...');
           break;
         case 3:
+          this.retryCount = 0;
           this.connectionState = states.CONNECTED;
           this.shellService.setStatus(this.vmname, 'Connected');
           window.addEventListener('resize', () => {
