@@ -54,6 +54,7 @@ export class GuacTerminalComponent implements OnChanges {
   public errorMessage?: string;
   public arguments: any = {};
   public retryCount = 0;
+  public retryDelays: number[] = [0, 100, 1000, 5000];
 
   constructor(
     public ctrService: CtrService,
@@ -111,10 +112,10 @@ export class GuacTerminalComponent implements OnChanges {
       this.shellService.setStatus(this.vmname, 'Tunnel Error');
       this.connectionState = states.TUNNEL_ERROR;
       if(this.retryCount < 4) {
-        ++this.retryCount
         setTimeout(() => {
           this.reloadConnection()
-        }, 250)
+        }, this.retryDelays[this.retryCount])
+        ++this.retryCount
       }
     };
     tunnel.onstatechange = (state: Tunnel.State) => {
