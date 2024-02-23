@@ -111,11 +111,11 @@ export class GuacTerminalComponent implements OnChanges {
       console.error(`Tunnel failed ${JSON.stringify(status)}`);
       this.shellService.setStatus(this.vmname, 'Tunnel Error');
       this.connectionState = states.TUNNEL_ERROR;
-      if(this.retryCount < 4) {
+      if (this.retryCount < 4) {
         setTimeout(() => {
-          this.reloadConnection()
-        }, this.retryDelays[this.retryCount])
-        ++this.retryCount
+          this.reloadConnection();
+        }, this.retryDelays[this.retryCount]);
+        ++this.retryCount;
       }
     };
     tunnel.onstatechange = (state: Tunnel.State) => {
