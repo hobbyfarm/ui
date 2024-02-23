@@ -6,4 +6,5 @@ export class Course {
   // These are Scenario IDs
   scenarios: string[];
   keep_vm: boolean;
+  virtualmachines: Map<string, string>[];
 }

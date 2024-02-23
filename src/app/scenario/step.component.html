@@ -15,12 +15,13 @@
             [class.btn-success-outline]="!isLastStepActive"
             [class.btn-success]="isLastStepActive"
             (click)="goFinish()"
+            *ngIf="!isContentOnly"
           >
             <cds-icon shape="check"></cds-icon>
             Finish
           </button>
 
-          <ng-container *ngIf="scenario.pauseable">
+          <ng-container *ngIf="scenario.pauseable && !isContentOnly">
             <button class="btn btn-pause" (click)="pause()">
               <cds-icon shape="pause" solid></cds-icon> Pause
             </button>
@@ -235,7 +236,7 @@
 <clr-modal [(clrModalOpen)]="finishOpen">
   <h3 class="modal-title">Are you sure you want to finish?</h3>
   <div class="modal-body">
-    <p *ngIf="shouldKeepVmOnFinish; else no_course">
+    <p *ngIf="shouldKeepVmOnFinish && !isContentOnly; else no_course">
       Your virtual machines will be kept until they expire or the course is
       marked as "complete". Selecting "FORCE" will immediately deprovision and
       delete your resources.
@@ -246,7 +247,10 @@
   </div>
   <div class="modal-footer">
     <button class="btn btn-outline" (click)="finishOpen = false">Cancel</button>
-    <div *ngIf="shouldKeepVmOnFinish" style="display: inline-block">
+    <div
+      *ngIf="shouldKeepVmOnFinish && !isContentOnly"
+      style="display: inline-block"
+    >
       <button class="btn btn-danger-outline" (click)="actuallyFinish(true)">
         Force
       </button>
