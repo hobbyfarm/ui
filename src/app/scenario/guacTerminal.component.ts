@@ -366,9 +366,9 @@ export class GuacTerminalComponent implements OnChanges {
       // resize is being called on the hidden window
       return;
     }
-    const pixelDensity = window.devicePixelRatio || 1;
-    const width = elm.clientWidth * pixelDensity;
-    const height = elm.clientHeight * pixelDensity;
+    const pixelDensity = window.devicePixelRatio || 1; // window.devicePixelRatio is a floating number
+    const width = Math.floor(elm.clientWidth * pixelDensity);
+    const height = Math.floor(elm.clientHeight * pixelDensity);
 
     return { width: width, height: height };
   }
@@ -401,8 +401,8 @@ export class GuacTerminalComponent implements OnChanges {
     // setting timeout so display has time to get the correct size
     setTimeout(() => {
       const scale = Math.min(
-        elm.clientWidth / Math.max(this.display.getWidth(), 1),
-        elm.clientHeight / Math.max(this.display.getHeight(), 1),
+        Math.floor(elm.clientWidth / Math.max(this.display.getWidth(), 1)),
+        Math.floor(elm.clientHeight / Math.max(this.display.getHeight(), 1)),
       );
       this.display.scale(scale);
     }, 100);
