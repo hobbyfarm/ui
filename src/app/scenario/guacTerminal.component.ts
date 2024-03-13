@@ -53,8 +53,7 @@ export class GuacTerminalComponent implements OnChanges {
   public connectionState = states.IDLE;
   public errorMessage?: string;
   public arguments: any = {};
-  private tunnelRetryCount = 0;
-  private clientRetryCount = 0;
+  private retryCount = 0;
   private scalingDuration = 1000;
 
   constructor(
@@ -112,11 +111,11 @@ export class GuacTerminalComponent implements OnChanges {
       console.error(`Tunnel failed ${JSON.stringify(status)}`);
       this.shellService.setStatus(this.vmname, 'Tunnel Error');
       this.connectionState = states.TUNNEL_ERROR;
-      if (this.tunnelRetryCount < 7) {
-        ++this.tunnelRetryCount;
+      if (this.retryCount < 7) {
+        ++this.retryCount;
         setTimeout(() => {
           this.reloadConnection();
-        }, this.tunnelRetryCount * this.scalingDuration);
+        }, this.retryCount * this.scalingDuration);
       }
     };
     tunnel.onstatechange = (state: Tunnel.State) => {
@@ -155,8 +154,7 @@ export class GuacTerminalComponent implements OnChanges {
           this.shellService.setStatus(this.vmname, 'Waiting...');
           break;
         case 3:
-          this.tunnelRetryCount = 0;
-          this.clientRetryCount = 0;
+          this.retryCount = 0;
           this.connectionState = states.CONNECTED;
           this.shellService.setStatus(this.vmname, 'Connected');
           window.addEventListener('resize', () => {
@@ -184,13 +182,6 @@ export class GuacTerminalComponent implements OnChanges {
       this.shellService.setStatus(this.vmname, 'Client Error');
       this.errorMessage = error.message;
       this.connectionState = states.CLIENT_ERROR;
-      if (this.clientRetryCount < 7) {
-        ++this.clientRetryCount;
-        setTimeout(() => {
-          this.shellService.setStatus(this.vmname, 'Reconnecting');
-          this.connect();
-        }, this.clientRetryCount * this.scalingDuration);
-      }
     };
     this.client.onsync = null;
 
