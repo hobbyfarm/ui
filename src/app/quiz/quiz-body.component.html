@@ -1,0 +1,23 @@
+<ng-container>
+  <span class="clr-subtext" *ngIf="!isSubmitted">{{ helperText }}</span>
+  <clr-alert
+    [clrAlertType]="'danger'"
+    [clrAlertClosable]="false"
+    [clrAlertSizeSmall]="true"
+    *ngIf="validationEnabled && isSubmitted && !isValid"
+  >
+    <clr-alert-item>
+      <span class="alert-text"> Incorrect Answer! </span>
+    </clr-alert-item>
+  </clr-alert>
+  <clr-alert
+    [clrAlertType]="'success'"
+    [clrAlertClosable]="false"
+    [clrAlertSizeSmall]="true"
+    *ngIf="validationEnabled && isSubmitted && isValid"
+  >
+    <clr-alert-item>
+      <span class="alert-text"> Correct Answer! </span>
+    </clr-alert-item>
+  </clr-alert>
+</ng-container>

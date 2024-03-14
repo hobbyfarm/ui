@@ -104,6 +104,19 @@ export class HfMarkdownComponent implements OnChanges {
       `;
     },
 
+    quiz(
+      code: string,
+      quizTitle: string,
+    ) {
+      return `
+      <quiz
+        quizTitle="${quizTitle}"
+        questionsRaw="${code}"
+      >
+      </quiz>
+      `;
+    },
+
     note(code: string, type: string, message: string) {
       return `
         <div class="note ${type}">
