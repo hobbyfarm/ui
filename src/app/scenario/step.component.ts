@@ -46,6 +46,8 @@ import { GuacTerminalComponent } from './guacTerminal.component';
 import { JwtHelperService } from '@auth0/angular-jwt';
 import { SplitComponent } from 'angular-split';
 import { SettingsService } from '../services/settings.service';
+import { Course } from '../course/course';
+import { CourseService } from '../services/course.service';
 
 type Service = {
   name: string;
@@ -72,6 +74,7 @@ export type webinterfaceTabIdentifier = {
 })
 export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
   public scenario: Scenario = new Scenario();
+  public course: Course = new Course();
   public step: Step = new Step();
   public stepnumber = 0;
   public stepcontent = '';
@@ -121,6 +124,7 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
     private ctr: CtrService,
     private ssService: SessionService,
     private scenarioService: ScenarioService,
+    private courseService: CourseService,
     private stepService: StepService,
     private vmClaimService: VMClaimService,
     private vmService: VMService,
@@ -172,6 +176,17 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
     return this.stepnumber + 1 === this.scenario.stepcount;
   }
 
+  get isContentOnly() {
+    return (
+      (this.scenario &&
+        this.scenario.virtualmachines &&
+        this.scenario.virtualmachines.length == 0) ||
+      (this.session.course &&
+        this.course.virtualmachines &&
+        this.course.virtualmachines.length == 0)
+    );
+  }
+
   getProgress() {
     return Math.floor(((this.stepnumber + 1) / this.scenario.stepcount) * 100);
   }
@@ -191,6 +206,11 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
       .pipe(
         switchMap((s: Session) => {
           this.session = s;
+          if (this.session.course) {
+            this.courseService.get(s.course).subscribe((c: Course) => {
+              this.course = c;
+            });
+          }
           return this.scenarioService.get(s.scenario).pipe(first());
         }),
         tap((s: Scenario) => {
@@ -359,6 +379,10 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   public goFinish() {
+    if (this.isContentOnly) {
+      this.actuallyFinish(true);
+      return;
+    }
     this.finishOpen = true;
   }
 
@@ -377,6 +401,11 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   goClose() {
+    if (this.isContentOnly) {
+      this.closeOpen = false;
+      this.actuallyFinish(true);
+      return;
+    }
     this.closeOpen = true;
   }
 
