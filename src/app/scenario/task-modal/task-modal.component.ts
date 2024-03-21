@@ -72,11 +72,19 @@ export class TaskModalComponent implements OnInit, OnDestroy {
       this.verificationService
         .verify(vm, name)
         .pipe(take(1))
-        .subscribe(() => {
-          count++;
-          if (count == this.vms.size) {
-            this.loading = false;
-          }
+        .subscribe({
+          next: () => {
+            count++;
+            if (count == this.vms.size) {
+              this.loading = false;
+            }
+          },
+          error: () => {
+            count++;
+            if (count == this.vms.size) {
+              this.loading = false;
+            }
+          },
         });
     });
   }
