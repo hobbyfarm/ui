@@ -67,7 +67,6 @@ export class ScenarioComponent implements OnInit {
     if (this.courseid) {
       this.courseService.get(this.courseid).subscribe((c: Course) => {
         this.course = c;
-        console.log('retreived course');
       });
     }
 
