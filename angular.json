@@ -35,13 +35,7 @@
               "node_modules/@webcomponents/webcomponentsjs/custom-elements-es5-adapter.js",
               "node_modules/@webcomponents/webcomponentsjs/webcomponents-bundle.js",
               "node_modules/xterm/lib/xterm.js",
-              "node_modules/marked/marked.min.js",
-              "node_modules/prismjs/prism.js",
-              "node_modules/prismjs/components/prism-yaml.min.js",
-              "node_modules/prismjs/components/prism-python.min.js",
-              "node_modules/prismjs/components/prism-go.min.js",
-              "node_modules/prismjs/components/prism-docker.min.js",
-              "node_modules/prismjs/components/prism-json.min.js"
+              "node_modules/marked/marked.min.js"
             ],
             "allowedCommonJsDependencies": ["xterm"],
             "vendorChunk": true,

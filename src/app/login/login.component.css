@@ -11,3 +11,19 @@
 .login-wrapper .login {
   justify-content: center;
 }
+
+cds-icon.clr-input-group-icon-action {
+  position: absolute;
+  color: var(--clr-icon-costum);
+  transform: translateX(-150%);
+}
+
+.clr-control-container {
+  position: relative;
+}
+
+.imprint {
+  position: absolute;
+  left: 5px;
+  bottom: 5px;
+}

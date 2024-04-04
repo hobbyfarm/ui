@@ -16,6 +16,7 @@ import {
   TypedInput,
   TypedSettingsService,
 } from './services/typedSettings.service';
+import { ScheduledEvent } from 'src/data/ScheduledEvent';
 
 @Component({
   selector: 'app-root',
@@ -56,7 +57,7 @@ export class AppComponent implements OnInit {
 
   public accesscodes: string[] = [];
   public selectedAccesscodesForDeletion: string[] = [];
-  public scheduledEvents: Map<string, string> = new Map();
+  public scheduledEvents: Map<string, ScheduledEvent> = new Map();
   public ctx: Context = {} as Context;
 
   public email = '';
@@ -68,12 +69,12 @@ export class AppComponent implements OnInit {
   public aboutBody =
     this.Config.about?.body ||
     'HobbyFarm is lovingly crafted by the HobbyFarm team';
-  public buttons = this.Config.about?.buttons || [
-    {
-      title: 'Hobbyfarm Project',
-      url: 'https://github.com/hobbyfarm/hobbyfarm',
-    },
-  ];
+  public buttons = {
+    'Hobbyfarm Project': 'https://github.com/hobbyfarm/hobbyfarm',
+  };
+
+  public privacyPolicyLink = '';
+  public privacyPolicyLinkName = '';
 
   public themes = themes;
   public motd = '';
@@ -137,6 +138,11 @@ export class AppComponent implements OnInit {
       Validators.required,
     ]),
     ctr_enabled: new FormControl<boolean>(false),
+    divider_position: new FormControl<number | null>(null, [
+      Validators.required,
+      Validators.max(100),
+      Validators.min(0),
+    ]),
     theme: new FormControl<'light' | 'dark' | 'system' | null>(null, [
       Validators.required,
     ]),
@@ -172,7 +178,7 @@ export class AppComponent implements OnInit {
       this.ctx = c;
       this.userService
         .getScheduledEvents()
-        .subscribe((se: Map<string, string>) => {
+        .subscribe((se: Map<string, ScheduledEvent>) => {
           se = new Map(Object.entries(se));
           this.scheduledEvents = se;
         });
@@ -198,6 +204,22 @@ export class AppComponent implements OnInit {
       .get('public', 'motd-ui')
       .subscribe((typedInput: TypedInput) => {
         this.motd = typedInput?.value ?? '';
+      });
+
+    this.typedSettingsService
+      .get('user-ui', 'aboutmodal-buttons')
+      .subscribe((typedInput: TypedInput) => {
+        this.buttons = typedInput?.value ?? this.buttons;
+      });
+
+    this.typedSettingsService
+      .list('public')
+      .subscribe((typedInputs: Map<string, TypedInput>) => {
+        this.privacyPolicyLink =
+          typedInputs.get('registration-privacy-policy-link')?.value ?? '';
+        this.privacyPolicyLinkName =
+          typedInputs.get('registration-privacy-policy-linkname')?.value ??
+          'Privacy Policy';
       });
   }
 
@@ -257,12 +279,14 @@ export class AppComponent implements OnInit {
           terminal_fontSize = 16,
           ctr_enabled = true,
           theme = 'light',
+          divider_position = 40,
         }) => {
           this.settingsForm.setValue({
             terminal_theme,
             terminal_fontSize,
             ctr_enabled,
             theme,
+            divider_position,
           });
           this.fetchingSettings = false;
         },
@@ -275,7 +299,25 @@ export class AppComponent implements OnInit {
   }
 
   public getScheduledEventNameForAccessCode(ac: string) {
-    return this.scheduledEvents?.get(ac);
+    return this.scheduledEvents?.get(ac)?.name;
+  }
+
+  public getScheduledEventEndTimestampForAccessCode(ac: string) {
+    return this.scheduledEvents?.get(ac)?.end_timestamp;
+  }
+
+  public getTimestampColor(ac: string) {
+    const target = this.scheduledEvents?.get(ac)?.end_timestamp;
+    if (target) {
+      const now = new Date();
+      const targetDate = new Date(target);
+      const timeDiff = targetDate.getTime() - now.getTime();
+      if (timeDiff <= 0) {
+        return 'red';
+      }
+    }
+
+    return 'green';
   }
 
   public saveAccessCode(activate = false) {
@@ -309,20 +351,24 @@ export class AppComponent implements OnInit {
     this.accesscodes.splice(acIndex, 1);
   }
 
-  public deleteAccessCode(a: string) {
-    this.userService.deleteAccessCode(a).subscribe({
-      next: (s: ServerResponse) => {
-        this.accessCodeSuccessAlert = s.message + ' deleted.';
-        this.accessCodeSuccessClosed = false;
-        this._removeAccessCode(a);
-        setTimeout(() => (this.accessCodeSuccessClosed = true), 2000);
-      },
-      error: (s: ServerResponse) => {
-        // failure
-        this.accessCodeDangerAlert = s.message;
-        this.accessCodeDangerClosed = false;
-        setTimeout(() => (this.accessCodeDangerClosed = true), 2000);
-      },
+  public deleteAccessCode(a: string): Promise<ServerResponse> {
+    // Wrap the observable in a Promise
+    return new Promise((resolve, reject) => {
+      this.userService.deleteAccessCode(a).subscribe({
+        next: (s: ServerResponse) => {
+          this.accessCodeSuccessAlert = s.message + ' deleted.';
+          this.accessCodeSuccessClosed = false;
+          this._removeAccessCode(a);
+          setTimeout(() => (this.accessCodeSuccessClosed = true), 2000);
+          resolve(s); // Resolve the Promise with the success response
+        },
+        error: (s: ServerResponse) => {
+          this.accessCodeDangerAlert = s.message;
+          this.accessCodeDangerClosed = false;
+          setTimeout(() => (this.accessCodeDangerClosed = true), 2000);
+          reject(s); // Reject the Promise with the error response
+        },
+      });
     });
   }
 
@@ -385,12 +431,13 @@ export class AppComponent implements OnInit {
   public accessCodeSelectedForDeletion(a: string[]) {
     this.selectedAccesscodesForDeletion = a;
   }
-  public deleteAccessCodes() {
-    this.selectedAccesscodesForDeletion.forEach((element) =>
-      this.deleteAccessCode(element),
-    );
+  public async deleteAccessCodes() {
+    for (const element of this.selectedAccesscodesForDeletion) {
+      await this.deleteAccessCode(element);
+    }
     this.alertDeleteAccessCodeModal = false;
   }
+
   public enableDarkMode() {
     document.body.classList.add('darkmode');
   }

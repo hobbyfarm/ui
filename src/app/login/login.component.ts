@@ -16,18 +16,22 @@ import { FormControl, FormGroup, Validators } from '@angular/forms';
 export class LoginComponent {
   public error = '';
 
+  public showPassword = false;
   public registrationDisabled = false;
 
   public globalRegistrationDisabled = true;
   public privacyPolicyRequired = true;
   public privacyPolicyLink = '';
   public privacyPolicyLinkName = '';
+  public imprintGiven = false;
+  public imprintLink = '';
+  public imprintLinkName = '';
 
   private Config = this.config.getConfig();
   public logo;
   public background;
 
-  public loginactive = false;
+  public loginactive = true;
 
   public loginForm: FormGroup = new FormGroup({
     email: new FormControl<string | null>(null, [Validators.required]),
@@ -66,6 +70,11 @@ export class LoginComponent {
         this.privacyPolicyLinkName =
           typedInputs.get('registration-privacy-policy-linkname')?.value ??
           'Privacy Policy';
+        this.imprintLinkName =
+          typedInputs.get('imprint-linkname')?.value ?? 'Imprint';
+        this.imprintLink = typedInputs.get('imprint-link')?.value ?? '';
+        this.imprintGiven =
+          this.imprintLink != '' && this.imprintLinkName != '';
 
         if (this.privacyPolicyRequired) {
           this.loginForm.addControl(
@@ -73,6 +82,8 @@ export class LoginComponent {
             new FormControl<string | null>(null, [Validators.required]),
           );
         }
+
+        this.loginactive = false;
       });
   }
 
@@ -137,5 +148,17 @@ export class LoginComponent {
         this.touchAllControls(control);
       }
     });
+  }
+
+  passwordValidated(): boolean {
+    if (this.loginForm.controls['password'].errors?.required) {
+      return !this.loginForm.controls['password'].touched;
+    } else {
+      return true;
+    }
+  }
+
+  togglePasswordVisibility() {
+    this.showPassword = !this.showPassword;
   }
 }

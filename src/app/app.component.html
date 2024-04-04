@@ -16,15 +16,19 @@
       <clr-dropdown *ngIf="ctx.valid">
         <button class="nav-text" clrDropdownToggle>
           <cds-icon shape="layers" solid></cds-icon>
-          {{ ctx.scheduledEventName }}
-          <cds-icon shape="angle" direction="down"></cds-icon>
+          {{ ctx.scheduledEvent.name }}
+          <cds-icon
+            shape="angle"
+            direction="down"
+            class="dropdown-selection-angle"
+          ></cds-icon>
         </button>
         <clr-dropdown-menu *clrIfOpen clrPosition="bottom">
           <a
             clrDropdownItem
             *ngFor="let a of scheduledEvents | keyvalue"
             (click)="setAccessCode(a.key)"
-            >{{ a.value }}</a
+            >{{ a.value.name }}</a
           >
         </clr-dropdown-menu>
       </clr-dropdown>
@@ -49,6 +53,14 @@
           <a (click)="about()" clrDropdownItem
             ><cds-icon shape="help-info"></cds-icon> About</a
           >
+          <a
+            [href]="privacyPolicyLink"
+            *ngIf="privacyPolicyLink"
+            clrDropdownItem
+            target="_blank"
+          >
+            <cds-icon shape="pop-out"></cds-icon> {{ privacyPolicyLinkName }}
+          </a>
           <a (click)="logout()" clrDropdownItem
             ><cds-icon shape="logout"></cds-icon> Logout</a
           >
@@ -101,10 +113,10 @@
       <p class="about-body">
         {{ aboutBody }}
       </p>
-      <ng-container *ngFor="let button of buttons">
-        <a href="{{ button.url }}" target="_blank">
+      <ng-container *ngFor="let button of buttons | keyvalue">
+        <a href="{{ button.value }}" target="_blank">
           <button class="btn btn-sm btn-link">
-            {{ button.title }}
+            {{ button.key }}
             <cds-icon shape="pop-out"></cds-icon>
           </button>
         </a>
@@ -112,13 +124,16 @@
     </div>
   </clr-modal>
 
-  <clr-modal #accesscodemodal [(clrModalOpen)]="accessCodeModalOpened">
+  <clr-modal
+    #accesscodemodal
+    [(clrModalOpen)]="accessCodeModalOpened"
+    [clrModalSize]="'lg'"
+  >
     <h3 class="modal-title">Manage Access Codes</h3>
     <div class="modal-body">
       <clr-alert
         [clrAlertType]="'danger'"
         [(clrAlertClosed)]="accessCodeDangerClosed"
-        [clrAlertClosable]="false"
       >
         <clr-alert-item>
           <span class="alert-text">
@@ -129,7 +144,6 @@
       <clr-alert
         [clrAlertType]="'success'"
         [(clrAlertClosed)]="accessCodeSuccessClosed"
-        [clrAlertClosable]="false"
       >
         <clr-alert-item>
           <span class="alert-text">
@@ -212,6 +226,7 @@
         >
           <clr-dg-column>Access Code</clr-dg-column>
           <clr-dg-column>Valid</clr-dg-column>
+          <clr-dg-column>Access until</clr-dg-column>
           <clr-dg-row *clrDgItems="let a of accesscodes" [clrDgItem]="a">
             <clr-dg-cell>{{ a }}</clr-dg-cell>
             <clr-dg-cell>
@@ -229,6 +244,9 @@
                 ></cds-icon>
               </ng-container>
               <span> {{ getScheduledEventNameForAccessCode(a) }}</span>
+            </clr-dg-cell>
+            <clr-dg-cell [class]="getTimestampColor(a)">
+              <span> {{ getScheduledEventEndTimestampForAccessCode(a) }}</span>
             </clr-dg-cell>
           </clr-dg-row>
         </clr-datagrid>
@@ -278,6 +296,26 @@
                     />
                   </clr-checkbox-wrapper>
                 </clr-checkbox-container>
+                <clr-input-container>
+                  <label class="clr-col-md-4">Divider Position</label>
+                  <input
+                    class="clr-col-md-8"
+                    clrInput
+                    type="number"
+                    required
+                    name="divider_position"
+                    formControlName="divider_position"
+                  />
+                  <clr-control-error *clrIfError="'required'"
+                    >Divider Position required.</clr-control-error
+                  >
+                  <clr-control-error *clrIfError="'min'"
+                    >Divider Position minimum is 0.</clr-control-error
+                  >
+                  <clr-control-error *clrIfError="'max'"
+                    >Divider Position maximum is 100.</clr-control-error
+                  >
+                </clr-input-container>
               </clr-tab-content>
             </clr-tab>
             <clr-tab>
@@ -537,7 +575,6 @@
       <clr-alert
         [clrAlertType]="'danger'"
         [(clrAlertClosed)]="changePwDangerClosed"
-        [clrAlertClosable]="false"
       >
         <clr-alert-item>
           <span class="alert-text">

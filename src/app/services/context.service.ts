@@ -2,10 +2,11 @@ import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 import { SettingsService } from './settings.service';
 import { UserService } from './user.service';
+import { ScheduledEvent } from 'src/data/ScheduledEvent';
 
 export interface Context {
   accessCode: string;
-  scheduledEventName: string;
+  scheduledEvent: ScheduledEvent;
   valid: boolean;
 }
 
@@ -50,7 +51,7 @@ export class ContextService {
   refresh(force = false) {
     this.userService
       .getScheduledEvents(force)
-      .subscribe((se: Map<string, string>) => {
+      .subscribe((se: Map<string, ScheduledEvent>) => {
         se = new Map(Object.entries(se));
 
         if (se.size == 0) {
@@ -69,8 +70,9 @@ export class ContextService {
             ctxAccessCode = se.keys().next().value;
           }
           this.currentContext.accessCode = ctxAccessCode;
-          this.currentContext.scheduledEventName =
-            se.get(this.currentContext.accessCode) ?? 'None';
+          this.currentContext.scheduledEvent =
+            se.get(this.currentContext.accessCode) ??
+            ({ name: 'None' } as ScheduledEvent);
           this.currentContext.valid = true;
           this.updateContext(this.currentContext);
         });

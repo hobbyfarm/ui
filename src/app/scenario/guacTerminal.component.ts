@@ -53,6 +53,8 @@ export class GuacTerminalComponent implements OnChanges {
   public connectionState = states.IDLE;
   public errorMessage?: string;
   public arguments: any = {};
+  private retryCount = 0;
+  private scalingDuration = 1000;
 
   constructor(
     public ctrService: CtrService,
@@ -109,6 +111,12 @@ export class GuacTerminalComponent implements OnChanges {
       console.error(`Tunnel failed ${JSON.stringify(status)}`);
       this.shellService.setStatus(this.vmname, 'Tunnel Error');
       this.connectionState = states.TUNNEL_ERROR;
+      if (this.retryCount < 7) {
+        ++this.retryCount;
+        setTimeout(() => {
+          this.reloadConnection();
+        }, this.retryCount * this.scalingDuration);
+      }
     };
     tunnel.onstatechange = (state: Tunnel.State) => {
       switch (state) {
@@ -146,6 +154,7 @@ export class GuacTerminalComponent implements OnChanges {
           this.shellService.setStatus(this.vmname, 'Waiting...');
           break;
         case 3:
+          this.retryCount = 0;
           this.connectionState = states.CONNECTED;
           this.shellService.setStatus(this.vmname, 'Connected');
           window.addEventListener('resize', () => {
@@ -366,11 +375,17 @@ export class GuacTerminalComponent implements OnChanges {
       // resize is being called on the hidden window
       return;
     }
-    const pixelDensity = window.devicePixelRatio || 1;
-    const width = elm.clientWidth * pixelDensity;
-    const height = elm.clientHeight * pixelDensity;
+    const pixelDensity = window.devicePixelRatio || 1; // window.devicePixelRatio is a floating number
+    const width = Math.floor(elm.clientWidth * pixelDensity);
+    const height = Math.floor(elm.clientHeight * pixelDensity);
 
     return { width: width, height: height };
+  }
+
+  reloadConnection() {
+    this.shellService.setStatus(this.vmname, 'Reconnecting');
+    this.client.disconnect();
+    this.connect();
   }
 
   resize() {
@@ -395,8 +410,8 @@ export class GuacTerminalComponent implements OnChanges {
     // setting timeout so display has time to get the correct size
     setTimeout(() => {
       const scale = Math.min(
-        elm.clientWidth / Math.max(this.display.getWidth(), 1),
-        elm.clientHeight / Math.max(this.display.getHeight(), 1),
+        Math.floor(elm.clientWidth / Math.max(this.display.getWidth(), 1)),
+        Math.floor(elm.clientHeight / Math.max(this.display.getHeight(), 1)),
       );
       this.display.scale(scale);
     }, 100);

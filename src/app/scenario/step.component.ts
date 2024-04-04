@@ -46,6 +46,10 @@ import { GuacTerminalComponent } from './guacTerminal.component';
 import { JwtHelperService } from '@auth0/angular-jwt';
 import { VerificationService } from '../services/verification.service';
 import { addJwtAllowedDomain } from '../app.module';
+import { SplitComponent } from 'angular-split';
+import { SettingsService } from '../services/settings.service';
+import { Course } from '../course/course';
+import { CourseService } from '../services/course.service';
 
 type Service = {
   name: string;
@@ -72,6 +76,7 @@ export type webinterfaceTabIdentifier = {
 })
 export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
   public scenario: Scenario = new Scenario();
+  public course: Course = new Course();
   public step: Step = new Step();
   public stepnumber = 0;
   public stepcontent = '';
@@ -90,6 +95,7 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
   mdContext: HfMarkdownRenderContext = { vmInfo: {}, session: '' };
 
   maxInterfaceTabs = 2;
+  private activeWebinterface: Service;
 
   public pauseOpen = false;
 
@@ -101,6 +107,8 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
   public reloadTabObservable: Observable<webinterfaceTabIdentifier> =
     this.reloadTabSubject.asObservable();
 
+  private DEFAULT_DIVIDER_POSITION = 40;
+
   @ViewChildren('term') private terms: QueryList<TerminalComponent> =
     new QueryList();
   @ViewChildren('guacterm')
@@ -110,6 +118,7 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChildren('tab') private tabs: QueryList<ClrTab> = new QueryList();
   @ViewChild('pausemodal', { static: true }) private pauseModal: ClrModal;
   @ViewChild('contentdiv', { static: false }) private contentDiv: ElementRef;
+  @ViewChild('divider', { static: true }) divider: SplitComponent;
 
   constructor(
     private route: ActivatedRoute,
@@ -117,6 +126,7 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
     private ctr: CtrService,
     private ssService: SessionService,
     private scenarioService: ScenarioService,
+    private courseService: CourseService,
     private stepService: StepService,
     private vmClaimService: VMClaimService,
     private vmService: VMService,
@@ -124,17 +134,29 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
     private progressService: ProgressService,
     private jwtHelper: JwtHelperService,
     public verificationService: VerificationService,
+    private settingsService: SettingsService,
   ) {}
 
-  setTabActive(webinterface: Service) {
-    this.vms.forEach((vm) => {
-      vm.webinterfaces?.forEach((wi) => {
-        wi.active = false;
-        if (wi.name == webinterface.name) {
-          wi.active = true;
-        }
-      });
-    });
+  setTabActive(webinterface: Service, vmName: string) {
+    // Find our Webinterface and set it active, save currently active webinterface to set it unactive on change without having to iterate through all of them again.
+    const webi = this.vms
+      .get(vmName)
+      ?.webinterfaces?.find((wi) => wi.name == webinterface.name);
+    if (webi) {
+      if (this.activeWebinterface) {
+        this.activeWebinterface.active = false;
+      }
+      webi.active = true;
+      this.activeWebinterface = webi;
+    }
+    // Find the corresponding clrTab and call activate on that. Background discussion on why this workaround has to be used can be found here: https://github.com/vmware-archive/clarity/issues/2112
+    const tabLinkSelector = vmName + webinterface.name;
+    setTimeout(() => {
+      const tabLink = this.tabs
+        .map((x) => x.tabLink)
+        .find((x) => x.tabLinkId == tabLinkSelector);
+      if (tabLink) tabLink.activate();
+    }, 1);
   }
 
   handleStepContentClick(e: MouseEvent) {
@@ -157,6 +179,17 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
     return this.stepnumber + 1 === this.scenario.stepcount;
   }
 
+  get isContentOnly() {
+    return (
+      (this.scenario &&
+        this.scenario.virtualmachines &&
+        this.scenario.virtualmachines.length == 0) ||
+      (this.session.course &&
+        this.course.virtualmachines &&
+        this.course.virtualmachines.length == 0)
+    );
+  }
+
   getProgress() {
     return Math.floor(((this.stepnumber + 1) / this.scenario.stepcount) * 100);
   }
@@ -176,6 +209,11 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
       .pipe(
         switchMap((s: Session) => {
           this.session = s;
+          if (this.session.course) {
+            this.courseService.get(s.course).subscribe((c: Course) => {
+              this.course = c;
+            });
+          }
           return this.scenarioService.get(s.scenario).pipe(first());
         }),
         tap((s: Scenario) => {
@@ -284,6 +322,12 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
     this.shellService.watch().subscribe((ss: Map<string, string>) => {
       this.shellStatus = ss;
     });
+
+    this.settingsService.settings$.subscribe(
+      ({ divider_position = this.DEFAULT_DIVIDER_POSITION }) => {
+        this.setContentDividerPosition(divider_position);
+      },
+    );
   }
 
   ngAfterViewInit() {
@@ -344,6 +388,10 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   public goFinish() {
+    if (this.isContentOnly) {
+      this.actuallyFinish(true);
+      return;
+    }
     this.finishOpen = true;
   }
 
@@ -362,6 +410,11 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   goClose() {
+    if (this.isContentOnly) {
+      this.closeOpen = false;
+      this.actuallyFinish(true);
+      return;
+    }
     this.closeOpen = true;
   }
 
@@ -407,32 +460,19 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   public dragEnd() {
-    let numberOfGuacTabs = 0;
-    let numberOfTermTabs = 0;
-    const vmArray: VM[] = [...this.vms.values()];
-    // For each tab...
-    this.tabContents.forEach((t: ClrTabContent, i: number) => {
-      const isGuacTerminal: boolean = this.isGuacamoleTerminal(
-        vmArray[i].protocol,
-      );
-      const isActiveTab: boolean = t.ifActiveService.current === t.id;
-      if (isGuacTerminal) {
-        ++numberOfGuacTabs;
-        // If the active tab is the same as the currently scoped ...
-        // ... resize the terminal that corresponds to the index of the active tab.
-        // Subtract the number of terminal tabs over which it has already been iterated.
-        // e.g.:
-        // - Tab 0 could have been a (regular) terminal, so the index sits now at 1
-        // - But we need the guacamole terminal at index 0 to retrieve the first one from guacterms
-        // - Therefore calculate i (index) - numberOfTermTabs (iterated term tabs) ...
-        // ... to retrieve the current index of guacterms.toArray()
-        isActiveTab && this.guacterms.toArray()[i - numberOfTermTabs].resize();
-      } else {
-        ++numberOfTermTabs;
-        // see above
-        isActiveTab && this.terms.toArray()[i - numberOfGuacTabs].resize();
-      }
+    this.resizeTerminals();
+    this.saveContentDivider();
+  }
+
+  resizeTerminals() {
+    this.terms.forEach((t: TerminalComponent) => {
+      t.resize();
     });
+
+    this.guacterms.forEach((t: GuacTerminalComponent) => {
+      t.resize();
+    });
+
     this.calculateMaxInterfaceTabs();
   }
 
@@ -458,6 +498,19 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
       vmId: vmId,
       port: webinterface.port,
     } as webinterfaceTabIdentifier);
+  }
+
+  reloadTerminal(target: string) {
+    this.terms.forEach((t: TerminalComponent) => {
+      if (t.vmname == target) {
+        t.reloadSocket();
+      }
+    });
+    this.guacterms.forEach((t: GuacTerminalComponent) => {
+      if (t.vmname == target) {
+        t.reloadConnection();
+      }
+    });
   }
 
   calculateMaxInterfaceTabs(reduce: boolean = false) {
@@ -489,5 +542,24 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
         }, 10);
       }
     }
+  }
+
+  saveContentDivider() {
+    const dividerSize = this.divider.getVisibleAreaSizes()[0];
+    let dividerSizeNumber = this.DEFAULT_DIVIDER_POSITION; // Default is 40% content, 60% terminal
+    if (dividerSize != '*') {
+      dividerSizeNumber = dividerSize;
+    }
+    const dividerPosition = Math.round(dividerSizeNumber);
+
+    this.settingsService
+      .update({ divider_position: dividerPosition })
+      .subscribe();
+  }
+
+  setContentDividerPosition(percentage: number) {
+    const dividerPositions = [percentage, 100 - percentage];
+    this.divider.setVisibleAreaSizes(dividerPositions);
+    this.resizeTerminals();
   }
 }

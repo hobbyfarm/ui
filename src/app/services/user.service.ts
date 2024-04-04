@@ -6,6 +6,7 @@ import {
   extractResponseContent,
   GargantuaClientFactory,
 } from './gargantua.service';
+import { ScheduledEvent } from 'src/data/ScheduledEvent';
 
 @Injectable({
   providedIn: 'root',
@@ -17,11 +18,11 @@ export class UserService {
   private _acModified = new BehaviorSubject(false);
 
   private fetchedSEs = false;
-  private scheduledEvents$: Observable<Map<string, string>> | null = null;
-  private cachedScheduledEventsList: Map<string, string> = new Map();
-  private bh: BehaviorSubject<Map<string, string>> = new BehaviorSubject(
-    this.cachedScheduledEventsList,
-  );
+  private scheduledEvents$: Observable<Map<string, ScheduledEvent>> | null =
+    null;
+  private cachedScheduledEventsList: Map<string, ScheduledEvent> = new Map();
+  private bh: BehaviorSubject<Map<string, ScheduledEvent>> =
+    new BehaviorSubject(this.cachedScheduledEventsList);
 
   public getModifiedObservable() {
     return this._acModified.asObservable();
@@ -65,7 +66,9 @@ export class UserService {
     );
   }
 
-  public getScheduledEvents(force = false): Observable<Map<string, string>> {
+  public getScheduledEvents(
+    force = false,
+  ): Observable<Map<string, ScheduledEvent>> {
     if (!force && this.fetchedSEs) {
       return of(this.cachedScheduledEventsList);
     } else if (this.scheduledEvents$) {
@@ -73,8 +76,10 @@ export class UserService {
       return this.scheduledEvents$;
     } else {
       this.scheduledEvents$ = this.garg.get('/scheduledevents').pipe(
-        map<any, Map<string, string>>(extractResponseContent),
-        tap((p: Map<string, string>) => this.setScheduledEventsCache(p)),
+        map<any, Map<string, ScheduledEvent>>(extractResponseContent),
+        tap((p: Map<string, ScheduledEvent>) =>
+          this.setScheduledEventsCache(p),
+        ),
         // Use shareReplay to multicast and replay the last emitted value to new subscribers
         shareReplay(1),
         // On complete or error, set the inflight observable to null
@@ -84,7 +89,7 @@ export class UserService {
       return this.scheduledEvents$;
     }
   }
-  public setScheduledEventsCache(list: Map<string, string>) {
+  public setScheduledEventsCache(list: Map<string, ScheduledEvent>) {
     this.cachedScheduledEventsList = list;
     this.fetchedSEs = true;
     this.bh.next(list);

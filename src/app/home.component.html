@@ -43,20 +43,37 @@
     </div>
   </div>
 
-  <div class="clr-row" *ngIf="ctx.valid">
-    <div class="clr-col">
-      <h1>{{ ctx.scheduledEventName }}</h1>
-      <h3>Select a scenario</h3>
-    </div>
-  </div>
-
-  <div class="clr-row">
-    <div class="clr-col-12" *ngIf="!ctx.valid">
+  <div class="clr-row" *ngIf="!ctx.valid">
+    <div class="clr-col-12">
       <h1>Add AccessCode</h1>
       Add AccessCodes to your account by clicking on your username on the top
       right.
     </div>
+  </div>
 
+  <div class="clr-row" *ngIf="ctx.valid">
+    <div class="clr-col">
+      <h1>{{ ctx.scheduledEvent.name }}</h1>
+      <ng-container *ngIf="isTimeLeft()">
+        <div>
+          <cds-icon shape="clock"></cds-icon>
+          {{ getTimeLeftString(ctx.scheduledEvent.end_timestamp) }} left
+        </div>
+        <p>{{ ctx.scheduledEvent.description }}</p>
+        <h3>Select a scenario</h3>
+      </ng-container>
+      <ng-container *ngIf="!isTimeLeft()">
+        <cds-icon shape="clock"></cds-icon> Your time ran out at
+        {{ ctx.scheduledEvent.end_timestamp }}.
+        <p>
+          You will be able to finish any active sessions, but you are unable to
+          start any new scenario.
+        </p>
+      </ng-container>
+    </div>
+  </div>
+
+  <div class="clr-row" *ngIf="ctx.valid && isTimeLeft()">
     <div class="clr-col-12">
       <div
         *ngIf="
@@ -86,38 +103,38 @@
         ></app-scenario-card>
       </div>
     </ng-container>
-  </div>
 
-  <div class="clr-row" *ngIf="courses.length > 0 && ctx.valid">
-    <div class="clr-col-12">
-      <ng-container *ngFor="let c of courses">
-        <h3 class="course-header">{{ c.name | atob }}</h3>
-        <hr />
-        <p class="course-description">{{ c.description | atob }}</p>
+    <div class="clr-row" *ngIf="courses.length > 0 && ctx.valid">
+      <div class="clr-col-12">
+        <ng-container *ngFor="let c of courses">
+          <h3 class="course-header">{{ c.name | atob }}</h3>
+          <hr />
+          <p class="course-description">{{ c.description | atob }}</p>
 
-        <div class="clr-row">
-          <ng-container *ngIf="c.scenarios.length > 0; else no_scenarios">
-            <div
-              class="clr-col-12 clr-col-sm-6 clr-col-md-4 clr-col-lg-3"
-              *ngFor="let sId of c?.scenarios"
-            >
-              <app-scenario-card
-                [scenarioid]="sId"
-                [activeSession]="
-                  (!!activeSession && c.id !== activeSession.course) ||
-                  (!c.keep_vm && !!activeSession)
-                "
-                (scenarioModal)="toggleScenarioModal(sId, c.id)"
-              ></app-scenario-card>
-            </div>
-          </ng-container>
-          <ng-template #no_scenarios>
-            <div class="clr-col-12">
-              <p>No scenarios found.</p>
-            </div>
-          </ng-template>
-        </div>
-      </ng-container>
+          <div class="clr-row">
+            <ng-container *ngIf="c.scenarios.length > 0; else no_scenarios">
+              <div
+                class="clr-col-12 clr-col-sm-6 clr-col-md-4 clr-col-lg-3"
+                *ngFor="let sId of c?.scenarios"
+              >
+                <app-scenario-card
+                  [scenarioid]="sId"
+                  [activeSession]="
+                    (!!activeSession && c.id !== activeSession.course) ||
+                    (!c.keep_vm && !!activeSession)
+                  "
+                  (scenarioModal)="toggleScenarioModal(sId, c.id)"
+                ></app-scenario-card>
+              </div>
+            </ng-container>
+            <ng-template #no_scenarios>
+              <div class="clr-col-12">
+                <p>No scenarios found.</p>
+              </div>
+            </ng-template>
+          </div>
+        </ng-container>
+      </div>
     </div>
   </div>
 </div>

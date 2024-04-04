@@ -3,6 +3,22 @@ import { MarkdownService } from 'ngx-markdown';
 import { CtrService } from '../scenario/ctr.service';
 import { VM } from '../VM';
 
+import Prism from 'prismjs';
+import mermaid from 'mermaid';
+// Load desired languages
+// TODO: Import all available languages
+import 'prismjs/components/prism-css';
+import 'prismjs/components/prism-javascript';
+import 'prismjs/components/prism-java';
+import 'prismjs/components/prism-markup';
+import 'prismjs/components/prism-typescript';
+import 'prismjs/components/prism-sass';
+import 'prismjs/components/prism-scss';
+import 'prismjs/components/prism-go';
+import 'prismjs/components/prism-docker';
+import 'prismjs/components/prism-python';
+import 'prismjs/components/prism-yaml';
+
 // Replacement for lodash's escape
 const escape = (s: string) =>
   s.replace(/[&<>"']/g, (c) => `&#${c.charCodeAt(0)};`);
@@ -33,6 +49,9 @@ export class HfMarkdownComponent implements OnChanges {
     public markdownService: MarkdownService,
     private ctrService: CtrService,
   ) {
+    mermaid.initialize({
+      startOnLoad: false,
+    });
     this.markdownService.renderer.code = (code: string, language = '') => {
       const [tag, ...args] = language.split(':');
       if (tag in this.taggedCodeRenderers) {
@@ -103,8 +122,7 @@ export class HfMarkdownComponent implements OnChanges {
       const filename = parts[parts.length - 1];
       const n = 5; //Length of randomized token
       // Using only EOF as a token can cause trouble when the token is inside the file content. Let's use EOL together with a random string
-      const token =
-        'EOF_' + (Math.random().toString(36) + '0000').slice(2, n + 2);
+      const token = 'EOF_' + this.uniqueString(n);
       const fileContent = `cat << ${token} > ${filepath}
 ${code}
 ${token}`;
@@ -124,6 +142,16 @@ ${token}`;
         taskName="${taskName}"
         ></app-single-task-verification-markdown>`;
     },
+
+    mermaid(code: string) {
+      const n = 5;
+      const containerId = `mermaid-${this.uniqueString(n)}`;
+      // Start the async rendering process
+      setTimeout(() => this.renderMermaidGraph(code, containerId), 0);
+      // Return a placeholder with the unique ID
+      return `<div id="${containerId}">Loading mermaid graph...</div>`;
+    },
+
   };
 
   private renderHighlightedCode(
@@ -134,9 +162,27 @@ ${token}`;
     const fileNameTag = fileName
       ? `<p class="filename" (click)=createFile(code,node)>${fileName}</p>`
       : `<p class="language">${language}</p>`;
-    const classAttr = `class="language-${language}"`;
-    const codeNode = `<code ${classAttr}>${escape(code)}</code>`;
-    return `<pre ${classAttr}>${fileNameTag}${codeNode}</pre>`;
+    const classAttr = `language-${language}`;
+
+    if (Prism.languages[language]) {
+      code = Prism.highlight(code, Prism.languages[language], language);
+    }
+
+    return `<pre>${fileNameTag}<code class=${classAttr}>${code}</code></pre>`;
+  }
+
+  private renderMermaidGraph(code: string, containerId: string) {
+    mermaid
+      .render('svg-' + containerId, code)
+      .then((renderResult) => {
+        const container = document.getElementById(containerId);
+        if (container) {
+          container.innerHTML = renderResult.svg;
+        }
+      })
+      .catch((error) => {
+        console.error('Mermaid rendering failed:', error);
+      });
   }
 
   private renderNestedPlainCode(code: string) {
@@ -201,5 +247,9 @@ ${token}`;
 
   private replaceSessionToken(content: string) {
     return content.replace(/\$\{session\}/g, this.context.session);
+  }
+
+  private uniqueString(n: number) {
+    return `${(Math.random().toString(36) + '0000').slice(2, n + 2)}`;
   }
 }

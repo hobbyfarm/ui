@@ -128,6 +128,10 @@
   color: var(--clr-color-success-500, green);
 }
 
+clr-dg-cell.red {
+  color: var(--clr-color-danger-500, red);
+}
+
 .header-actions {
   clr-dropdown-menu {
     a {
@@ -155,4 +159,10 @@
 .motd-close {
   float: right;
   position: relative;
+}
+
+.dropdown
+  .dropdown-toggle.nav-text
+  > cds-icon[shape^='angle'].dropdown-selection-angle {
+  right: 0.5rem;
 }

@@ -119,3 +119,9 @@ table {
   padding: 10px;
   text-align: center;
 }
+
+img:hover {
+  cursor: zoom-out;
+  cursor: -moz-zoom-out;
+  cursor: -webkit-zoom-out;
+}
