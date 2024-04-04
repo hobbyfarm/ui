@@ -562,6 +562,10 @@ cds-icon {
   color: white;
 }
 
+cds-icon.clr-accordion-angle {
+  fill: var(--clr-icon-color-inverse);
+}
+
 cds-icon {
   &[status='success'] {
     fill: var(--clr-icon-color-success);

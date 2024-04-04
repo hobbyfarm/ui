@@ -151,7 +151,6 @@ ${token}`;
       // Return a placeholder with the unique ID
       return `<div id="${containerId}">Loading mermaid graph...</div>`;
     },
-
   };
 
   private renderHighlightedCode(
