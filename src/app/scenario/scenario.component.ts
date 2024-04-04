@@ -7,6 +7,9 @@ import { ScenarioService } from '../services/scenario.service';
 import { SessionService } from '../services/session.service';
 import { VMClaimService } from '../services/vmclaim.service';
 import { VMClaim } from '../VMClaim';
+import { Router } from '@angular/router';
+import { CourseService } from '../services/course.service';
+import { Course } from '../course/course';
 
 @Component({
   selector: 'app-scenario',
@@ -25,14 +28,17 @@ export class ScenarioComponent implements OnInit {
   public scenarioModal = new EventEmitter();
 
   public scenario: Scenario = new Scenario();
+  public course: Course = new Course();
   public session: Session = new Session();
   public vmclaims: VMClaim[] = [];
   public error = false;
 
   constructor(
     private scenarioService: ScenarioService,
+    private courseService: CourseService,
     private ssService: SessionService,
     private vmClaimService: VMClaimService,
+    private router: Router,
   ) {}
 
   onReady(vmc: VMClaim) {
@@ -57,6 +63,26 @@ export class ScenarioComponent implements OnInit {
     this.scenarioService.get(this.scenarioid).subscribe((s: Scenario) => {
       this.scenario = s;
     });
+
+    if (this.courseid) {
+      this.courseService.get(this.courseid).subscribe((c: Course) => {
+        this.course = c;
+      });
+    }
+
+    // Cotent-only scenario or courses do not require VMclaims to be fetched and we can navigate directly to the content
+    if (
+      this.scenario.virtualmachines.length == 0 ||
+      (this.courseid && this.course.virtualmachines.length == 0)
+    ) {
+      this.showScenarioModal = false;
+      this.ssService
+        .new(this.scenarioid, this.courseid, this.accessCode)
+        .subscribe((s: Session) => {
+          this.router.navigateByUrl('/app/session/' + s.id + '/steps/0');
+        });
+      return;
+    }
 
     this.ssService
       .new(this.scenarioid, this.courseid, this.accessCode)
