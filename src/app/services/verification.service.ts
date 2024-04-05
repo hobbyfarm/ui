@@ -41,7 +41,7 @@ export class VerificationService {
     let client = this.shellClients.get(endpoint);
     if (!client) {
       const newClient = this.gcf.scopedShellClient(
-        'http://' + endpoint,
+        'https://' + endpoint,
         this.pathPrefix,
       );
       this.shellClients.set(endpoint, newClient);
