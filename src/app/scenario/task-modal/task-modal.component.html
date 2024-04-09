@@ -40,20 +40,34 @@
           <ul class="list-group">
             <li class="list-group-item">
               <p>Description: {{ task.description }}</p>
-              <p>Command: {{ task.command }}</p>
+              <p>
+                Command:<code>{{ task.command }}</code>
+              </p>
+            </li>
+            <li
+              class="list-group-item"
+              *ngIf="isOfReturnType(task, ['Match_Regex'])"
+            >
+              <p>
+                Regular Expression:
+                <code>{{ task.expected_output_value }}</code>
+              </p>
+              <p>
+                Actual Output: <code>{{ task.actual_output_value }}</code>
+              </p>
             </li>
             <li
               class="list-group-item"
               *ngIf="
-                isOfReturnType(task, [
-                  'Return_Text',
-                  'Return_Code_And_Text',
-                  'Match_Regex'
-                ])
+                isOfReturnType(task, ['Return_Text', 'Return_Code_And_Text'])
               "
             >
-              <p>Expected Output: {{ task.expected_output_value }}</p>
-              <p>Actual Output: {{ task.actual_output_value }}</p>
+              <p>
+                Expected Output: <code>{{ task.expected_output_value }}</code>
+              </p>
+              <p>
+                Actual Output: <code>{{ task.actual_output_value }}</code>
+              </p>
             </li>
             <li
               class="list-group-item"
@@ -61,11 +75,50 @@
                 isOfReturnType(task, ['Return_Code', 'Return_Code_And_Text'])
               "
             >
-              <p>Expected Returncode: {{ task.expected_return_code }}</p>
-              <p>Actual Returncode: {{ task.actual_return_code }}</p>
+              <p>
+                Expected Returncode:
+                <code>{{ task.expected_return_code }}</code>
+              </p>
+              <p>
+                Actual Returncode: <code>{{ task.actual_return_code }}</code>
+              </p>
             </li>
             <li class="list-group-item">
-              <p>Success: {{ task.success }}</p>
+              <ng-container *ngIf="isOfReturnType(task, ['Match_Regex'])">
+                <span *ngIf="task.success"
+                  >The Regex matches the output string.</span
+                >
+                <span *ngIf="!task.success"
+                  >The Regex does not match the output string.</span
+                >
+              </ng-container>
+              <ng-container *ngIf="isOfReturnType(task, ['Return_Code'])">
+                <span *ngIf="task.success"
+                  >Returned Code matches the expected Code</span
+                >
+                <span *ngIf="!task.success">
+                  Returned Code does not match the expected Code
+                </span>
+              </ng-container>
+              <ng-container *ngIf="isOfReturnType(task, ['Return_Text'])">
+                <span *ngIf="task.success"
+                  >Returned Text matches the expected Text</span
+                >
+                <span *ngIf="!task.success">
+                  Returned Text does not match the expected Text
+                </span>
+              </ng-container>
+              <ng-container
+                *ngIf="isOfReturnType(task, ['Return_Code_And_Text'])"
+              >
+                <span *ngIf="task.success">
+                  Returned Text and Code match the expected Text and Code
+                </span>
+                <span *ngIf="!task.success">
+                  Either returned Text, Returned Code or both do not match the
+                  expected Text and Code
+                </span>
+              </ng-container>
             </li>
           </ul>
         </clr-accordion-content>

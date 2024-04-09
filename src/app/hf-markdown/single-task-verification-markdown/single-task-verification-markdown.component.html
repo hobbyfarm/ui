@@ -73,6 +73,18 @@
       </p>
     </li>
     <li class="list-group-item" *ngIf="taskUnset()">
+      <button
+        id="refreshButton"
+        (click)="elementClicked()"
+        class="label label-info"
+        label="Revalidate"
+      >
+        <cds-icon
+          [@rotatedState]="rotationState"
+          shape="sync"
+          inverse
+        ></cds-icon>
+      </button>
       Run the validation checks once to see the result.
     </li>
     <li class="list-group-item" *ngIf="!taskUnset()">
