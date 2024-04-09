@@ -55,6 +55,18 @@ export class TaskProgressComponent implements AfterViewInit, OnDestroy {
         if (this.percentages) {
           this.setProgress(this.percentages[this.index]);
         }
+
+        if (this.tasks == this.index) {
+          this.circle.nativeElement.style.stroke =
+            'var(--clr-label-success-border-color, hsl(93, 100%, 21%))'; // Success color
+          this.circle.nativeElement.style.fill =
+            'var(--clr-label-success-bg-color, hsl(93, 52%, 88%))'; // Success BG color
+        } else {
+          this.circle.nativeElement.style.stroke =
+            'var(--clr-nav-active-box-shadow-color, #54cbf2)'; // Normal task color
+          this.circle.nativeElement.style.fill =
+            'var(--clr-global-hover-bg-color, #f6f6f6)'; // Task BG color
+        }
       },
     );
     const radius = this.circle.nativeElement.r.baseVal.value;
@@ -68,10 +80,6 @@ export class TaskProgressComponent implements AfterViewInit, OnDestroy {
         switchMap(() => this.verifyAll()),
       )
       .subscribe();
-  }
-
-  allTasksSuccessful(): boolean {
-    return this.tasks != 0 && this.index == this.tasks;
   }
 
   onClickVerify() {
