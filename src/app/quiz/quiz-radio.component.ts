@@ -5,7 +5,6 @@ import {
   FormControl,
   FormGroup,
   ValidatorFn,
-  Validators,
 } from '@angular/forms';
 import { ClrForm } from '@clr/angular';
 
@@ -67,7 +66,7 @@ export class QuizRadioComponent implements OnInit {
   private validateRadio(correctIndex: number): ValidatorFn {
     return (control: AbstractControl) => {
       const formGroup = control as FormGroup;
-      let validationRegex = new RegExp(`^${correctIndex}$`);
+      const validationRegex = new RegExp(`^${correctIndex}$`);
       if (
         !formGroup.controls.quiz.value ||
         (this.validationEnabled &&
