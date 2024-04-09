@@ -70,6 +70,10 @@ export class TaskProgressComponent implements AfterViewInit, OnDestroy {
       .subscribe();
   }
 
+  allTasksSuccessful(): boolean {
+    return this.tasks != 0 && this.index == this.tasks;
+  }
+
   onClickVerify() {
     this.verifyAll().subscribe();
   }

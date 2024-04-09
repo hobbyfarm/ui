@@ -1,18 +1,26 @@
 <div class="flex-container task-container">
-  <div class="flex-element" (click)="onClickVerify()">
-    <svg class="progress-ring" height="30" width="30">
-      <circle
-        #circle
-        class="circle"
-        stroke="var(--clr-nav-active-box-shadow-color, #54cbf2)"
-        stroke-width="3"
-        fill="var(--clr-global-hover-bg-color, #f6f6f6)"
-        r="10"
-        cx="15"
-        cy="15"
-      />
-    </svg>
-  </div>
+  <ng-container *ngIf="!allTasksSuccessful()">
+    <div class="flex-element" (click)="onClickVerify()">
+      <svg class="progress-ring" height="30" width="30">
+        <circle
+          #circle
+          class="circle"
+          stroke="var(--clr-nav-active-box-shadow-color, #54cbf2)"
+          stroke-width="3"
+          fill="var(--clr-global-hover-bg-color, #f6f6f6)"
+          r="10"
+          cx="15"
+          cy="15"
+        />
+      </svg>
+    </div>
+  </ng-container>
+  <ng-container *ngIf="allTasksSuccessful()">
+    <span class="label label-success label-task">
+      <cds-icon shape="check" height="30" width="30" inverse></cds-icon>
+    </span>
+  </ng-container>
+
   <div class="flex-element text-box">
     <div class="info-text">{{ index }} of {{ tasks }} Tasks</div>
     <div class="info-text-hover">Show more</div>
