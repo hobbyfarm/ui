@@ -7,6 +7,7 @@ import {
   ValidatorFn,
 } from '@angular/forms';
 import { ClrForm } from '@clr/angular';
+import { QuizRadioFormGroup } from './QuizFormGroup';
 
 @Component({
   // eslint-disable-next-line @angular-eslint/component-selector
@@ -27,7 +28,7 @@ export class QuizRadioComponent implements OnInit {
   @ViewChild(ClrForm, { static: true })
   clrForm: ClrForm;
 
-  public quizForm: FormGroup;
+  public quizForm: QuizRadioFormGroup;
   public optionTitles: string[] = [];
   public requiredValues: boolean[] = [];
   public isSubmitted = false;
@@ -57,7 +58,6 @@ export class QuizRadioComponent implements OnInit {
     if (this.quizForm.invalid) {
       this.clrForm.markAsTouched();
     } else {
-      // console.log(this.optionTitles[this.quizForm.controls.quiz.value]);
       this.validSubmission = true;
     }
     this.quizForm.disable();
@@ -65,12 +65,11 @@ export class QuizRadioComponent implements OnInit {
 
   private validateRadio(correctIndex: number): ValidatorFn {
     return (control: AbstractControl) => {
-      const formGroup = control as FormGroup;
-      const validationRegex = new RegExp(`^${correctIndex}$`);
+      const formGroup = control as QuizRadioFormGroup;
       if (
         !formGroup.controls.quiz.value ||
         (this.validationEnabled &&
-          !validationRegex.test(formGroup.controls.quiz.value))
+          formGroup.controls.quiz.value == correctIndex)
       ) {
         return {
           quiz: correctIndex,
@@ -83,7 +82,7 @@ export class QuizRadioComponent implements OnInit {
   private createQuizForm(correctIndex: number) {
     this.quizForm = this.fb.group(
       {
-        quiz: new FormControl(null),
+        quiz: new FormControl<number | null>(null),
       },
       {
         validators: this.validateRadio(correctIndex),
