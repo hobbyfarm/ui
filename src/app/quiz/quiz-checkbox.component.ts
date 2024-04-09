@@ -54,12 +54,6 @@ export class QuizCheckboxComponent implements OnInit {
     if (this.quizForm.invalid) {
       this.clrForm.markAsTouched();
     } else {
-      // const selectedOptions = this.quizForm.value.quiz
-      //   .map((checked: boolean, i: number) =>
-      //     checked ? this.optionTitles[i] : null,
-      //   )
-      //   .filter((v: string) => v !== null);
-      // console.log(selectedOptions);
       this.validSubmission = true;
     }
     this.quizForm.disable();
