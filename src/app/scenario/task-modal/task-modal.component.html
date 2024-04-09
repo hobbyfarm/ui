@@ -27,8 +27,13 @@
           >
             <div>
               <b>{{ task.name }}</b>
+              <span *ngIf="task.success" class="label label-success">
+                <cds-icon shape="check" inverse></cds-icon>
+              </span>
+              <span *ngIf="!task.success" class="label label-danger">
+                <cds-icon shape="times" inverse></cds-icon>
+              </span>
             </div>
-            <div><clr-icon shape="check" *ngIf="task.success"></clr-icon></div>
           </div>
         </clr-accordion-title>
         <clr-accordion-content *clrIfExpanded>

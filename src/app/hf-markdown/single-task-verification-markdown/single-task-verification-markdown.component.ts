@@ -58,4 +58,8 @@ export class SingleTaskVerificationMarkdownComponent implements OnInit {
       .verifyTask(this.target, this.taskName)
       ?.subscribe();
   }
+
+  taskUnset(): boolean {
+    return this.task == undefined || this.task.success == undefined;
+  }
 }
