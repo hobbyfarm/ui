@@ -11,17 +11,10 @@ export class VMService extends ResourceClient<VM> {
     super(gcf.scopedClient('/vm'));
   }
 
-  get(id: string) {
-    // Do not use cached responses
-    this.cache.clear();
-
-    return super.get(id);
-  }
-
   getWebinterfaces(id: string) {
     return this.garg.get('/getwebinterfaces/' + id).pipe(
       catchError((e: HttpErrorResponse) => {
-        return throwError(e.error);
+        return throwError(() => e.error);
       }),
     );
   }

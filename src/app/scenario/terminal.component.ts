@@ -20,6 +20,7 @@ import { HostListener } from '@angular/core';
 import { interval, Subscription, timer } from 'rxjs';
 import { themes } from './terminal-themes/themes';
 import { SettingsService } from '../services/settings.service';
+import { CanvasAddon } from 'xterm-addon-canvas';
 
 const WS_CODE_NORMAL_CLOSURE = 1000;
 
@@ -63,12 +64,14 @@ export class TerminalComponent implements OnChanges, AfterViewInit, OnDestroy {
 
   @HostListener('window:resize')
   public resize() {
+    const newDimensions = this.fitAddon.proposeDimensions();
     if (
       this.isVisible &&
       this.socket &&
-      this.socket.readyState == WebSocket.OPEN
+      this.socket.readyState == WebSocket.OPEN &&
+      newDimensions
     ) {
-      this.dimensions = this.fitAddon.proposeDimensions();
+      this.dimensions = newDimensions;
       const height = this.dimensions.rows;
       const width = this.dimensions.cols;
       this.socket.send(`\u001b[8;${height};${width}t`);
@@ -87,12 +90,11 @@ export class TerminalComponent implements OnChanges, AfterViewInit, OnDestroy {
         this.endpoint = 'ws://' + this.endpoint;
       }
     }
+    // we always load our token synchronously from local storage
+    // for symplicity we are using type assertion to string here, avoiding to handle promises we're not expecting
+    const token = this.jwtHelper.tokenGetter() as string;
     this.socket = new WebSocket(
-      this.endpoint +
-        '/shell/' +
-        this.vmid +
-        '/connect?auth=' +
-        this.jwtHelper.tokenGetter(),
+      this.endpoint + '/shell/' + this.vmid + '/connect?auth=' + token,
     );
 
     // Check if current browser is firefox by useragent and use "duck-typing" as a fallback.
@@ -104,8 +106,12 @@ export class TerminalComponent implements OnChanges, AfterViewInit, OnDestroy {
       fontFamily: 'monospace',
       fontSize: this.DEFAULT_FONT_SIZE,
       letterSpacing: 1.1,
-      rendererType: isFirefox ? 'dom' : 'canvas',
     });
+    if (!isFirefox) {
+      // The default renderer is the dom renderer
+      // Use the more performant canvas renderer if the current browser is not Firefox
+      this.term.loadAddon(new CanvasAddon());
+    }
     this.settingsService.settings$.subscribe(
       ({ terminal_theme = this.DEFAULT_TERMINAL_THEME }) => {
         this.setTerminalTheme(terminal_theme);
@@ -167,6 +173,17 @@ export class TerminalComponent implements OnChanges, AfterViewInit, OnDestroy {
   private closeSocket() {
     if (!this.socket) return;
     this.socket.close(WS_CODE_NORMAL_CLOSURE);
+  }
+
+  reloadSocket() {
+    // Override the socket.onclose function that was defined in the buildSocket function
+    // to ensure we reconnect after the old socket has been closed and the terminal is disposed properly
+    this.socket.onclose = () => {
+      this.term.dispose(); // destroy the terminal on the page to avoid bad display
+      this.shellService.setStatus(this.vmname, 'Reconnecting');
+      this.buildSocket();
+    };
+    this.closeSocket();
   }
 
   ngOnChanges() {
@@ -267,12 +284,12 @@ export class TerminalComponent implements OnChanges, AfterViewInit, OnDestroy {
   private setTerminalTheme(themeId: string) {
     if (!this.term) return;
     const theme = themes.find((t) => t.id === themeId) || themes[0];
-    this.term.setOption('theme', theme.styles);
+    this.term.options.theme = theme.styles;
   }
 
   private setFontSize(size: number) {
     if (!this.term) return;
-    this.term.setOption('fontSize', size ?? this.DEFAULT_FONT_SIZE);
+    this.term.options.fontSize = size ?? this.DEFAULT_FONT_SIZE;
     this.resize();
   }
 }

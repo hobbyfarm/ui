@@ -1,5 +1,6 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
-import { ClarityIcons } from '@clr/icons';
+import '@cds/core/icon/register.js';
+import { ClarityIcons } from '@cds/core/icon';
 import { JwtHelperService } from '@auth0/angular-jwt';
 import { ClrModal } from '@clr/angular';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -15,6 +16,7 @@ import {
   TypedInput,
   TypedSettingsService,
 } from './services/typedSettings.service';
+import { ScheduledEvent } from 'src/data/ScheduledEvent';
 
 @Component({
   selector: 'app-root',
@@ -55,7 +57,7 @@ export class AppComponent implements OnInit {
 
   public accesscodes: string[] = [];
   public selectedAccesscodesForDeletion: string[] = [];
-  public scheduledEvents: Map<string, string> = new Map();
+  public scheduledEvents: Map<string, ScheduledEvent> = new Map();
   public ctx: Context = {} as Context;
 
   public email = '';
@@ -67,12 +69,12 @@ export class AppComponent implements OnInit {
   public aboutBody =
     this.Config.about?.body ||
     'HobbyFarm is lovingly crafted by the HobbyFarm team';
-  public buttons = this.Config.about?.buttons || [
-    {
-      title: 'Hobbyfarm Project',
-      url: 'https://github.com/hobbyfarm/hobbyfarm',
-    },
-  ];
+  public buttons = {
+    'Hobbyfarm Project': 'https://github.com/hobbyfarm/hobbyfarm',
+  };
+
+  public privacyPolicyLink = '';
+  public privacyPolicyLinkName = '';
 
   public themes = themes;
   public motd = '';
@@ -88,9 +90,7 @@ export class AppComponent implements OnInit {
     private typedSettingsService: TypedSettingsService,
   ) {
     this.config.getLogo(this.logo).then((obj: string) => {
-      ClarityIcons.add({
-        logo: obj,
-      });
+      ClarityIcons.addIcons(['logo', obj]);
     });
 
     if (this.Config.favicon) {
@@ -108,9 +108,13 @@ export class AppComponent implements OnInit {
 
   public passwordChangeForm: FormGroup = new FormGroup(
     {
-      old_password: new FormControl(null, [Validators.required]),
-      new_password1: new FormControl(null, [Validators.required]),
-      new_password2: new FormControl(null, [Validators.required]),
+      old_password: new FormControl<string | null>(null, [Validators.required]),
+      new_password1: new FormControl<string | null>(null, [
+        Validators.required,
+      ]),
+      new_password2: new FormControl<string | null>(null, [
+        Validators.required,
+      ]),
     },
     {
       validators: ({ value: { new_password1: pw1, new_password1: pw2 } }) =>
@@ -119,47 +123,62 @@ export class AppComponent implements OnInit {
   );
 
   public newAccessCodeForm: FormGroup = new FormGroup({
-    access_code: new FormControl(null, [
+    access_code: new FormControl<string | null>(null, [
       Validators.required,
-      Validators.minLength(4),
+      Validators.minLength(5),
+      Validators.pattern(/^[a-z0-9][a-z0-9.-]{3,}[a-z0-9]$/),
     ]),
   });
 
   public settingsForm: FormGroup = new FormGroup({
-    terminal_theme: new FormControl(null, [Validators.required]),
-    terminal_fontSize: new FormControl(null, [Validators.required]),
-    ctr_enabled: new FormControl(false),
-    theme: new FormControl(null, [Validators.required]),
+    terminal_theme: new FormControl<typeof themes[number]['id'] | null>(null, [
+      Validators.required,
+    ]),
+    terminal_fontSize: new FormControl<number | null>(null, [
+      Validators.required,
+    ]),
+    ctr_enabled: new FormControl<boolean>(false),
+    divider_position: new FormControl<number | null>(null, [
+      Validators.required,
+      Validators.max(100),
+      Validators.min(0),
+    ]),
+    theme: new FormControl<'light' | 'dark' | 'system' | null>(null, [
+      Validators.required,
+    ]),
   });
 
   ngOnInit() {
-    const tok = this.helper.decodeToken(this.helper.tokenGetter());
-    this.email = tok.email;
-
-    // Automatically logout the user after token expiration
-    const timeout = tok.exp * 1000 - Date.now();
-    setTimeout(() => this.doLogout(), timeout);
+    // we always expect our token to be a string since we load it syncronously from local storage
+    const token = this.helper.tokenGetter();
+    if (typeof token === 'string') {
+      this.processToken(token);
+    } else {
+      // ... however if for some reason it is not the case, this means that the token could not be loaded from local storage
+      // hence we automatically logout the user
+      this.doLogout();
+    }
 
     const addAccessCode = this.route.snapshot.params['accesscode'];
     if (addAccessCode) {
-      this.userService.addAccessCode(addAccessCode).subscribe(
-        (s: ServerResponse) => {
+      this.userService.addAccessCode(addAccessCode).subscribe({
+        next: (_s: ServerResponse) => {
           this.accesscodes.push(addAccessCode);
           this.setAccessCode(addAccessCode);
           this.doHomeAccessCode(addAccessCode);
         },
-        (s: ServerResponse) => {
+        error: (_s: ServerResponse) => {
           // failure
           this.doHomeAccessCodeError(addAccessCode);
         },
-      );
+      });
     }
     //react to changes on users accesscodess
     this.contextService.watch().subscribe((c: Context) => {
       this.ctx = c;
       this.userService
         .getScheduledEvents()
-        .subscribe((se: Map<string, string>) => {
+        .subscribe((se: Map<string, ScheduledEvent>) => {
           se = new Map(Object.entries(se));
           this.scheduledEvents = se;
         });
@@ -186,6 +205,31 @@ export class AppComponent implements OnInit {
       .subscribe((typedInput: TypedInput) => {
         this.motd = typedInput?.value ?? '';
       });
+
+    this.typedSettingsService
+      .get('user-ui', 'aboutmodal-buttons')
+      .subscribe((typedInput: TypedInput) => {
+        this.buttons = typedInput?.value ?? this.buttons;
+      });
+
+    this.typedSettingsService
+      .list('public')
+      .subscribe((typedInputs: Map<string, TypedInput>) => {
+        this.privacyPolicyLink =
+          typedInputs.get('registration-privacy-policy-link')?.value ?? '';
+        this.privacyPolicyLinkName =
+          typedInputs.get('registration-privacy-policy-linkname')?.value ??
+          'Privacy Policy';
+      });
+  }
+
+  private processToken(token: string) {
+    const tok = this.helper.decodeToken(token);
+    this.email = tok.email;
+
+    // Automatically logout the user after token expiration
+    const timeout = tok.exp * 1000 - Date.now();
+    setTimeout(() => this.doLogout(), timeout);
   }
 
   public logout() {
@@ -210,17 +254,17 @@ export class AppComponent implements OnInit {
   public openAccessCodes() {
     this.newAccessCodeForm.reset();
     this.fetchingAccessCodes = true;
-    this.userService.getAccessCodes().subscribe(
-      (a: string[]) => {
+    this.userService.getAccessCodes().subscribe({
+      next: (a: string[]) => {
         this.accesscodes = a;
         this.fetchingAccessCodes = false;
       },
-      (s: ServerResponse) => {
+      error: (s: ServerResponse) => {
         this.accessCodeDangerClosed = false;
         this.accessCodeDangerAlert = s.message;
         this.fetchingAccessCodes = false;
       },
-    );
+    });
     this.accessCodeModal.open();
   }
 
@@ -235,12 +279,14 @@ export class AppComponent implements OnInit {
           terminal_fontSize = 16,
           ctr_enabled = true,
           theme = 'light',
+          divider_position = 40,
         }) => {
           this.settingsForm.setValue({
             terminal_theme,
             terminal_fontSize,
             ctr_enabled,
             theme,
+            divider_position,
           });
           this.fetchingSettings = false;
         },
@@ -253,13 +299,31 @@ export class AppComponent implements OnInit {
   }
 
   public getScheduledEventNameForAccessCode(ac: string) {
-    return this.scheduledEvents?.get(ac);
+    return this.scheduledEvents?.get(ac)?.name;
+  }
+
+  public getScheduledEventEndTimestampForAccessCode(ac: string) {
+    return this.scheduledEvents?.get(ac)?.end_timestamp;
+  }
+
+  public getTimestampColor(ac: string) {
+    const target = this.scheduledEvents?.get(ac)?.end_timestamp;
+    if (target) {
+      const now = new Date();
+      const targetDate = new Date(target);
+      const timeDiff = targetDate.getTime() - now.getTime();
+      if (timeDiff <= 0) {
+        return 'red';
+      }
+    }
+
+    return 'green';
   }
 
   public saveAccessCode(activate = false) {
     const { access_code: a } = this.newAccessCodeForm.value;
-    this.userService.addAccessCode(a).subscribe(
-      (s: ServerResponse) => {
+    this.userService.addAccessCode(a).subscribe({
+      next: (s: ServerResponse) => {
         // success
         this.accessCodeSuccessAlert = s.message + ' added.';
         this.accessCodeSuccessClosed = false;
@@ -271,13 +335,13 @@ export class AppComponent implements OnInit {
         }
         setTimeout(() => (this.accessCodeSuccessClosed = true), 2000);
       },
-      (s: ServerResponse) => {
+      error: (s: ServerResponse) => {
         // failure
         this.accessCodeDangerAlert = s.message;
         this.accessCodeDangerClosed = false;
         setTimeout(() => (this.accessCodeDangerClosed = true), 2000);
       },
-    );
+    });
   }
 
   private _removeAccessCode(a: string) {
@@ -287,25 +351,30 @@ export class AppComponent implements OnInit {
     this.accesscodes.splice(acIndex, 1);
   }
 
-  public deleteAccessCode(a: string) {
-    this.userService.deleteAccessCode(a).subscribe(
-      (s: ServerResponse) => {
-        this.accessCodeSuccessAlert = s.message + ' deleted.';
-        this.accessCodeSuccessClosed = false;
-        this._removeAccessCode(a);
-        setTimeout(() => (this.accessCodeSuccessClosed = true), 2000);
-      },
-      (s: ServerResponse) => {
-        this.accessCodeDangerAlert = s.message;
-        this.accessCodeDangerClosed = false;
-        setTimeout(() => (this.accessCodeDangerClosed = true), 2000);
-      },
-    );
+  public deleteAccessCode(a: string): Promise<ServerResponse> {
+    // Wrap the observable in a Promise
+    return new Promise((resolve, reject) => {
+      this.userService.deleteAccessCode(a).subscribe({
+        next: (s: ServerResponse) => {
+          this.accessCodeSuccessAlert = s.message + ' deleted.';
+          this.accessCodeSuccessClosed = false;
+          this._removeAccessCode(a);
+          setTimeout(() => (this.accessCodeSuccessClosed = true), 2000);
+          resolve(s); // Resolve the Promise with the success response
+        },
+        error: (s: ServerResponse) => {
+          this.accessCodeDangerAlert = s.message;
+          this.accessCodeDangerClosed = false;
+          setTimeout(() => (this.accessCodeDangerClosed = true), 2000);
+          reject(s); // Reject the Promise with the error response
+        },
+      });
+    });
   }
 
   public doSaveSettings() {
-    this.settingsService.update(this.settingsForm.value).subscribe(
-      () => {
+    this.settingsService.update(this.settingsForm.value).subscribe({
+      next: (_s: ServerResponse) => {
         this.settingsModalOpened = false;
         const theme: 'light' | 'dark' | 'system' =
           this.settingsForm.controls['theme'].value;
@@ -319,29 +388,31 @@ export class AppComponent implements OnInit {
             window.matchMedia('(prefers-color-scheme: dark)').matches
           ) {
             this.enableDarkMode();
-          } else this.disableDarkMode();
+          } else {
+            this.disableDarkMode();
+          }
         }
       },
-      () => {
+      error: (_s: ServerResponse) => {
         setTimeout(() => (this.settingsModalOpened = false), 2000);
       },
-    );
+    });
   }
 
   public doChangePassword() {
     const { old_password, new_password1 } = this.passwordChangeForm.value;
-    this.userService.changepassword(old_password, new_password1).subscribe(
-      (s: ServerResponse) => {
+    this.userService.changepassword(old_password, new_password1).subscribe({
+      next: (s: ServerResponse) => {
         this.changePwSuccessAlert = s.message + '. Logging you out...';
         this.changePwSuccessClosed = false;
         setTimeout(() => this.doLogout(), 2000);
       },
-      (s: ServerResponse) => {
+      error: (s: ServerResponse) => {
         this.changePwDangerAlert = s.message;
         this.changePwDangerClosed = false;
         setTimeout(() => (this.changePwDangerClosed = true), 2000);
       },
-    );
+    });
   }
 
   public doLogout() {
@@ -360,12 +431,13 @@ export class AppComponent implements OnInit {
   public accessCodeSelectedForDeletion(a: string[]) {
     this.selectedAccesscodesForDeletion = a;
   }
-  public deleteAccessCodes() {
-    this.selectedAccesscodesForDeletion.forEach((element) =>
-      this.deleteAccessCode(element),
-    );
+  public async deleteAccessCodes() {
+    for (const element of this.selectedAccesscodesForDeletion) {
+      await this.deleteAccessCode(element);
+    }
     this.alertDeleteAccessCodeModal = false;
   }
+
   public enableDarkMode() {
     document.body.classList.add('darkmode');
   }

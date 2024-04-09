@@ -1,5 +1,5 @@
 <div class="login-wrapper" [style.background-image]="background">
-  <form class="login">
+  <form class="login" [formGroup]="loginForm">
     <section class="title">
       <img [src]="logo" id="login-logo" />
     </section>
@@ -15,20 +15,54 @@
                   type="text"
                   name="email"
                   clrInput
-                  [(ngModel)]="email"
+                  formControlName="email"
                   placeholder="Email Address"
                 />
+                <clr-control-error *clrIfError="'required'"
+                  >Email Address is required</clr-control-error
+                >
               </clr-input-container>
-              <clr-input-container>
-                <input
-                  type="password"
-                  name="password"
-                  clrInput
-                  [(ngModel)]="password"
-                  placeholder="Password"
-                />
-              </clr-input-container>
-              <div class="error" [class.active]="error.length > 0">
+              <div class="clr-form-control">
+                <div
+                  class="clr-control-container"
+                  [class.clr-error]="!passwordValidated()"
+                >
+                  <div class="clr-input-wrapper">
+                    <input
+                      type="{{ showPassword ? 'text' : 'password' }}"
+                      name="password"
+                      class="clr-input"
+                      formControlName="password"
+                      placeholder="Password"
+                    />
+                    <cds-icon
+                      *ngIf="!showPassword"
+                      (click)="togglePasswordVisibility()"
+                      class="clr-input-group-icon-action"
+                      aria-label="toggle password visibility"
+                      shape="eye-hide"
+                      title="Show password"
+                    ></cds-icon>
+                    <cds-icon
+                      *ngIf="showPassword"
+                      (click)="togglePasswordVisibility()"
+                      class="clr-input-group-icon-action"
+                      aria-label="toggle password visibility"
+                      shape="eye"
+                      title="Hide password"
+                    ></cds-icon>
+                    <cds-icon
+                      class="clr-validate-icon"
+                      shape="exclamation-circle"
+                      status="info"
+                    ></cds-icon>
+                  </div>
+                  <span *ngIf="!passwordValidated()" class="clr-subtext"
+                    >Password is required</span
+                  >
+                </div>
+              </div>
+              <div class="error" [class.active]="error && error.length > 0">
                 {{ error }}
               </div>
               <button type="submit" class="btn btn-primary" (click)="login()">
@@ -47,29 +81,94 @@
                 type="text"
                 name="email"
                 clrInput
-                [(ngModel)]="email"
+                formControlName="email"
                 placeholder="Email Address"
               />
+              <clr-control-error *clrIfError="'required'"
+                >Email Address is required</clr-control-error
+              >
             </clr-input-container>
             <clr-input-container>
               <input
                 type="text"
                 name="accesscode"
                 clrInput
-                [(ngModel)]="accesscode"
+                formControlName="accesscode"
                 placeholder="Access Code"
               />
+              <clr-control-error *clrIfError="'required'"
+                >Access code is required</clr-control-error
+              >
+              <clr-control-error *clrIfError="'minlength'"
+                >Access code must be longer than 5 characters</clr-control-error
+              >
+              <clr-control-error *clrIfError="'pattern'"
+                >Access code must
+                <ul>
+                  <li>
+                    contain only lowercase alphanumeric characters, '-', or '.'
+                  </li>
+                  <li>start and end with an alphanumeric character</li>
+                </ul>
+              </clr-control-error>
             </clr-input-container>
-            <clr-input-container>
-              <input
-                type="password"
-                name="password"
-                clrInput
-                [(ngModel)]="password"
-                placeholder="Password"
-              />
-            </clr-input-container>
-            <div class="error" [class.active]="error.length > 0">
+            <div class="clr-form-control">
+              <div
+                class="clr-control-container"
+                [class.clr-error]="!passwordValidated()"
+              >
+                <div class="clr-input-wrapper">
+                  <input
+                    type="{{ showPassword ? 'text' : 'password' }}"
+                    name="password"
+                    class="clr-input"
+                    formControlName="password"
+                    placeholder="Password"
+                  />
+                  <cds-icon
+                    *ngIf="!showPassword"
+                    (click)="togglePasswordVisibility()"
+                    class="clr-input-group-icon-action"
+                    aria-label="toggle password visibility"
+                    shape="eye-hide"
+                  ></cds-icon>
+                  <cds-icon
+                    *ngIf="showPassword"
+                    (click)="togglePasswordVisibility()"
+                    class="clr-input-group-icon-action"
+                    aria-label="toggle password visibility"
+                    shape="eye"
+                  ></cds-icon>
+                  <cds-icon
+                    class="clr-validate-icon"
+                    shape="exclamation-circle"
+                    status="info"
+                  ></cds-icon>
+                </div>
+                <span *ngIf="!passwordValidated()" class="clr-subtext"
+                  >Password is required</span
+                >
+              </div>
+            </div>
+            <clr-checkbox-container *ngIf="privacyPolicyRequired">
+              <clr-checkbox-wrapper>
+                <input
+                  type="checkbox"
+                  clrCheckbox
+                  name="privacyPolicy"
+                  formControlName="privacyPolicy"
+                  required
+                />
+                <label>
+                  I accept the
+                  <a [href]="privacyPolicyLink">{{ privacyPolicyLinkName }}</a>
+                </label>
+              </clr-checkbox-wrapper>
+              <clr-control-error *clrIfError="'required'"
+                >Accepting the privacy policy is required</clr-control-error
+              >
+            </clr-checkbox-container>
+            <div class="error" [class.active]="error && error.length > 0">
               {{ error }}
             </div>
             <button
@@ -84,5 +183,11 @@
         </clr-tab-content>
       </clr-tab>
     </clr-tabs>
+    <a [href]="imprintLink" *ngIf="imprintGiven" class="imprint">
+      {{ imprintLinkName }}
+    </a>
+    <a [href]="privacyPolicyLink" *ngIf="privacyPolicyLink" class="imprint">
+      {{ privacyPolicyLinkName }}
+    </a>
   </form>
 </div>

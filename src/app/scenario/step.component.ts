@@ -15,19 +15,19 @@ import {
   switchMap,
   concatMap,
   first,
-  repeatWhen,
-  delay,
-  retryWhen,
   tap,
   map,
   toArray,
+  mergeMap,
+  catchError,
+  repeat,
 } from 'rxjs/operators';
 import { TerminalComponent } from './terminal.component';
 import { ClrTabContent, ClrTab, ClrModal } from '@clr/angular';
 import { ServerResponse } from '../ServerResponse';
 import { Scenario } from './Scenario';
 import { Session } from '../Session';
-import { from, of, throwError, iif, Subject, Observable } from 'rxjs';
+import { from, of, throwError, Subject, Observable, forkJoin } from 'rxjs';
 import { VMClaim } from '../VMClaim';
 import { VMClaimVM } from '../VMClaimVM';
 import { VM } from '../VM';
@@ -44,6 +44,8 @@ import { ProgressService } from '../services/progress.service';
 import { HfMarkdownRenderContext } from '../hf-markdown/hf-markdown.component';
 import { GuacTerminalComponent } from './guacTerminal.component';
 import { JwtHelperService } from '@auth0/angular-jwt';
+import { SplitComponent } from 'angular-split';
+import { SettingsService } from '../services/settings.service';
 
 type Service = {
   name: string;
@@ -88,6 +90,7 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
   mdContext: HfMarkdownRenderContext = { vmInfo: {}, session: '' };
 
   maxInterfaceTabs = 2;
+  private activeWebinterface: Service;
 
   public pauseOpen = false;
 
@@ -99,6 +102,8 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
   public reloadTabObservable: Observable<webinterfaceTabIdentifier> =
     this.reloadTabSubject.asObservable();
 
+  private DEFAULT_DIVIDER_POSITION = 40;
+
   @ViewChildren('term') private terms: QueryList<TerminalComponent> =
     new QueryList();
   @ViewChildren('guacterm')
@@ -108,6 +113,7 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChildren('tab') private tabs: QueryList<ClrTab> = new QueryList();
   @ViewChild('pausemodal', { static: true }) private pauseModal: ClrModal;
   @ViewChild('contentdiv', { static: false }) private contentDiv: ElementRef;
+  @ViewChild('divider', { static: true }) divider: SplitComponent;
 
   constructor(
     private route: ActivatedRoute,
@@ -121,17 +127,29 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
     private shellService: ShellService,
     private progressService: ProgressService,
     private jwtHelper: JwtHelperService,
+    private settingsService: SettingsService,
   ) {}
 
-  setTabActive(webinterface: Service) {
-    this.vms.forEach((vm) => {
-      vm.webinterfaces?.forEach((wi) => {
-        wi.active = false;
-        if (wi.name == webinterface.name) {
-          wi.active = true;
-        }
-      });
-    });
+  setTabActive(webinterface: Service, vmName: string) {
+    // Find our Webinterface and set it active, save currently active webinterface to set it unactive on change without having to iterate through all of them again.
+    const webi = this.vms
+      .get(vmName)
+      ?.webinterfaces?.find((wi) => wi.name == webinterface.name);
+    if (webi) {
+      if (this.activeWebinterface) {
+        this.activeWebinterface.active = false;
+      }
+      webi.active = true;
+      this.activeWebinterface = webi;
+    }
+    // Find the corresponding clrTab and call activate on that. Background discussion on why this workaround has to be used can be found here: https://github.com/vmware-archive/clarity/issues/2112
+    const tabLinkSelector = vmName + webinterface.name;
+    setTimeout(() => {
+      const tabLink = this.tabs
+        .map((x) => x.tabLink)
+        .find((x) => x.tabLinkId == tabLinkSelector);
+      if (tabLink) tabLink.activate();
+    }, 1);
   }
 
   handleStepContentClick(e: MouseEvent) {
@@ -160,97 +178,93 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
 
   ngOnInit() {
     const { paramMap } = this.route.snapshot;
-    const sessionId = paramMap.get('session')!;
+    const sessionId = paramMap.get('session');
     this.stepnumber = Number(paramMap.get('step') ?? 0);
 
+    if (!sessionId) {
+      // Something went wrong ... the route snapshot should always contain the sessionId
+      return;
+    }
+
     this.ssService
-      .get(sessionId)
+      .get(sessionId, true)
       .pipe(
         switchMap((s: Session) => {
           this.session = s;
-          return this.scenarioService.get(s.scenario);
+          return this.scenarioService.get(s.scenario).pipe(first());
         }),
         tap((s: Scenario) => {
           this.scenario = s;
           this._loadStep();
         }),
-        switchMap(() => {
-          return from(this.session.vm_claim);
-        }),
-        concatMap((v: string) => {
-          return this.vmClaimService.get(v);
-        }),
-        concatMap((v: VMClaim) => {
-          return from(v.vm);
-        }),
-        concatMap(([k, v]: [string, VMClaimVM]) => {
-          return this.vmService
-            .get(v.vm_id)
-            .pipe(map((vm) => [k, vm] as const));
-        }),
+        switchMap(() => from(this.session.vm_claim)),
+        concatMap((v: string) => this.vmClaimService.get(v).pipe(first())),
+        concatMap((v: VMClaim) => from(v.vm)),
+        concatMap(([k, v]: [string, VMClaimVM]) =>
+          this.vmService.get(v.vm_id, true).pipe(
+            first(),
+            map((vm) => [k, vm] as const),
+          ),
+        ),
         toArray(),
-      )
-      .subscribe((entries) => {
-        this.vms = new Map(entries);
-        this.sendProgressUpdate();
-        this.vms.forEach((vm) => {
-          this.vmService.getWebinterfaces(vm.id).subscribe(
-            (res) => {
-              const stringContent: string = atou(res.content);
-              const services = JSON.parse(JSON.parse(stringContent)); //TODO: See if we can skip one stringify somwhere, so we dont have to parse twice
-              services.forEach((service: Service) => {
-                if (service.hasWebinterface) {
-                  const webinterface = {
-                    name: service.name ?? 'Service',
-                    port: service.port ?? 80,
-                    path: service.path ?? '/',
-                    hasOwnTab: !!service.hasOwnTab,
-                    hasWebinterface: true,
-                    disallowIFrame: !!service.disallowIFrame,
-                    active: false,
-                  };
-                  vm.webinterfaces
-                    ? vm.webinterfaces.push(webinterface)
-                    : (vm.webinterfaces = [webinterface]);
-                }
-              });
-            },
-            () => {
-              vm.webinterfaces = [];
-            },
+        tap((entries: (readonly [string, VM])[]) => {
+          this.vms = new Map(entries);
+          this.sendProgressUpdate();
+          const vmInfo: HfMarkdownRenderContext['vmInfo'] = {};
+          for (const [k, v] of this.vms) {
+            vmInfo[k.toLowerCase()] = v;
+          }
+          this.mdContext = { vmInfo: vmInfo, session: this.session.id };
+        }),
+        // Using mergeMap here to handle async "getWebinterfaces(...)" operations concurrently
+        // This allows multiple observables to be active and processed in parallel
+        // The order in which these observables are processed is not important
+        mergeMap(() => {
+          const vmObservables = Array.from<stepVM>(this.vms.values()).map(
+            (vm) =>
+              this.vmService.getWebinterfaces(vm.id).pipe(
+                map((res) => {
+                  const stringContent: string = atou(res.content);
+                  const services = JSON.parse(JSON.parse(stringContent)); // Consider revising double parse if possible
+                  services.forEach((service: Service) => {
+                    if (service.hasWebinterface) {
+                      const webinterface = {
+                        name: service.name ?? 'Service',
+                        port: service.port ?? 80,
+                        path: service.path ?? '/',
+                        hasOwnTab: !!service.hasOwnTab,
+                        hasWebinterface: true,
+                        disallowIFrame: !!service.disallowIFrame,
+                        active: false,
+                      };
+                      vm.webinterfaces
+                        ? vm.webinterfaces.push(webinterface)
+                        : (vm.webinterfaces = [webinterface]);
+                    }
+                  });
+                  return vm;
+                }),
+                catchError(() => {
+                  vm.webinterfaces = [];
+                  return of(vm);
+                }),
+              ),
           );
-        });
-
-        const vmInfo: HfMarkdownRenderContext['vmInfo'] = {};
-        for (const [k, v] of this.vms) {
-          vmInfo[k.toLowerCase()] = v;
-        }
-        this.mdContext = { vmInfo: vmInfo, session: this.session.id };
-      });
+          // Using forkJoin to ensure that all inner observables complete, before we return their combined output
+          return forkJoin(vmObservables);
+        }),
+      )
+      .subscribe();
 
     // setup keepalive
     this.ssService
       .keepalive(sessionId)
       .pipe(
-        repeatWhen((obs) => {
-          return obs.pipe(delay(60000));
+        repeat({ delay: 60000 }),
+        catchError((e: HttpErrorResponse) => {
+          this.sessionExpired = true;
+          return throwError(() => e);
         }),
-        retryWhen((errors) =>
-          errors.pipe(
-            concatMap((e: HttpErrorResponse) =>
-              iif(
-                () => {
-                  if (e.status != 202) {
-                    this.sessionExpired = true;
-                  }
-                  return e.status > 0;
-                },
-                throwError(e),
-                of(e).pipe(delay(10000)),
-              ),
-            ),
-          ),
-        ),
       )
       .subscribe((s: ServerResponse) => {
         if (s.type == 'paused') {
@@ -279,6 +293,12 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
     this.shellService.watch().subscribe((ss: Map<string, string>) => {
       this.shellStatus = ss;
     });
+
+    this.settingsService.settings$.subscribe(
+      ({ divider_position = this.DEFAULT_DIVIDER_POSITION }) => {
+        this.setContentDividerPosition(divider_position);
+      },
+    );
   }
 
   ngAfterViewInit() {
@@ -377,66 +397,56 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
           return this.ssService.keepalive(this.session.id);
         }),
       )
-      .subscribe(
-        (s: ServerResponse) => {
+      .subscribe({
+        next: (s: ServerResponse) => {
           // all should have been successful, so just update time and open modal.
           this._updatePauseRemaining(s.message);
           this.pauseModal.open();
         },
-        () => {
+        error: () => {
           // failure! what now?
         },
-      );
+      });
   }
 
   public resume() {
-    this.ssService.resume(this.session.id).subscribe(
-      () => {
+    this.ssService.resume(this.session.id).subscribe({
+      next: () => {
         // successful means we're resumed
         this.pauseOpen = false;
       },
-      () => {
+      error: () => {
         // something went wrong
       },
-    );
+    });
   }
 
   public dragEnd() {
-    let numberOfGuacTabs = 0;
-    let numberOfTermTabs = 0;
-    const vmArray: VM[] = [...this.vms.values()];
-    // For each tab...
-    this.tabContents.forEach((t: ClrTabContent, i: number) => {
-      const isGuacTerminal: boolean = this.isGuacamoleTerminal(
-        vmArray[i].protocol,
-      );
-      const isActiveTab: boolean = t.ifActiveService.current === t.id;
-      if (isGuacTerminal) {
-        ++numberOfGuacTabs;
-        // If the active tab is the same as the currently scoped ...
-        // ... resize the terminal that corresponds to the index of the active tab.
-        // Subtract the number of terminal tabs over which it has already been iterated.
-        // e.g.:
-        // - Tab 0 could have been a (regular) terminal, so the index sits now at 1
-        // - But we need the guacamole terminal at index 0 to retrieve the first one from guacterms
-        // - Therefore calculate i (index) - numberOfTermTabs (iterated term tabs) ...
-        // ... to retrieve the current index of guacterms.toArray()
-        isActiveTab && this.guacterms.toArray()[i - numberOfTermTabs].resize();
-      } else {
-        ++numberOfTermTabs;
-        // see above
-        isActiveTab && this.terms.toArray()[i - numberOfGuacTabs].resize();
-      }
+    this.resizeTerminals();
+    this.saveContentDivider();
+  }
+
+  resizeTerminals() {
+    this.terms.forEach((t: TerminalComponent) => {
+      t.resize();
     });
+
+    this.guacterms.forEach((t: GuacTerminalComponent) => {
+      t.resize();
+    });
+
     this.calculateMaxInterfaceTabs();
   }
 
   openWebinterfaceInNewTab(vm: stepVM, wi: Service) {
+    // we always load our token synchronously from local storage
+    // for symplicity we are using type assertion to string here, avoiding to handle promises we're not expecting
+    const token = this.jwtHelper.tokenGetter() as string;
     const url: string =
       'https://' +
       vm.ws_endpoint +
       '/auth/' +
-      this.jwtHelper.tokenGetter() +
+      token +
       '/p/' +
       vm.id +
       '/' +
@@ -450,6 +460,19 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
       vmId: vmId,
       port: webinterface.port,
     } as webinterfaceTabIdentifier);
+  }
+
+  reloadTerminal(target: string) {
+    this.terms.forEach((t: TerminalComponent) => {
+      if (t.vmname == target) {
+        t.reloadSocket();
+      }
+    });
+    this.guacterms.forEach((t: GuacTerminalComponent) => {
+      if (t.vmname == target) {
+        t.reloadConnection();
+      }
+    });
   }
 
   calculateMaxInterfaceTabs(reduce: boolean = false) {
@@ -481,5 +504,24 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
         }, 10);
       }
     }
+  }
+
+  saveContentDivider() {
+    const dividerSize = this.divider.getVisibleAreaSizes()[0];
+    let dividerSizeNumber = this.DEFAULT_DIVIDER_POSITION; // Default is 40% content, 60% terminal
+    if (dividerSize != '*') {
+      dividerSizeNumber = dividerSize;
+    }
+    const dividerPosition = Math.round(dividerSizeNumber);
+
+    this.settingsService
+      .update({ divider_position: dividerPosition })
+      .subscribe();
+  }
+
+  setContentDividerPosition(percentage: number) {
+    const dividerPositions = [percentage, 100 - percentage];
+    this.divider.setVisibleAreaSizes(dividerPositions);
+    this.resizeTerminals();
   }
 }

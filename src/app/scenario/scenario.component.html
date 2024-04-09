@@ -4,11 +4,11 @@
   [clrModalSize]="'lg'"
 >
   <h3 class="modal-title">
-    <clr-icon shape="list" size="32"></clr-icon> {{ scenario?.name | atob }}
+    <cds-icon shape="list" size="32"></cds-icon> {{ scenario.name | atob }}
   </h3>
   <div class="modal-body">
     <h5>
-      {{ scenario?.description | atob }}
+      {{ scenario.description | atob }}
     </h5>
     <div class="clr-row" *ngIf="vmclaims.length === 0 && !error">
       <div class="clr-col">

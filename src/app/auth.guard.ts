@@ -1,19 +1,19 @@
 import { Injectable } from '@angular/core';
 import {
   Router,
-  CanActivate,
   RouterStateSnapshot,
   ActivatedRouteSnapshot,
 } from '@angular/router';
 import { JwtHelperService } from '@auth0/angular-jwt';
 
 @Injectable()
-export class AuthGuard implements CanActivate {
+export class AuthGuard {
   constructor(private router: Router, private helper: JwtHelperService) {}
 
   canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot) {
+    const token = this.helper.tokenGetter();
     const hasValidToken =
-      this.helper.tokenGetter() && !this.helper.isTokenExpired();
+      typeof token === 'string' && token && !this.helper.isTokenExpired(token);
     return (
       hasValidToken ||
       this.router.createUrlTree(['/login'], {

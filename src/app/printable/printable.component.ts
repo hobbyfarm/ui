@@ -11,6 +11,8 @@ import { ScenarioService } from '../services/scenario.service';
 })
 export class PrintableComponent implements OnInit, AfterViewChecked {
   public scenario = '';
+  public errorMsg = '';
+  public err = false;
 
   constructor(
     public route: ActivatedRoute,
@@ -40,18 +42,25 @@ export class PrintableComponent implements OnInit, AfterViewChecked {
 
   ngOnInit(): void {
     const { paramMap } = this.route.snapshot;
-    const scenarioId = paramMap.get('scenario')!;
+    const scenarioId = paramMap.get('scenario');
 
-    this.scenarioService.printable(scenarioId).subscribe(
-      (content: any) => {
+    if (!scenarioId) {
+      this.err = true;
+      this.errorMsg =
+        'Unable to load scenario. Failed to retrieve scenario id.';
+      return;
+    }
+    this.scenarioService.printable(scenarioId).subscribe({
+      next: (content: string) => {
         this.scenario = content;
       },
-      (error: HttpErrorResponse) => {
-        this.scenario =
+      error: (error: HttpErrorResponse) => {
+        this.err = true;
+        this.errorMsg =
           'There was an error rendering printable scenario content: ' +
           error.message;
       },
-    );
+    });
   }
 
   printPdf() {

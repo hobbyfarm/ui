@@ -5,12 +5,8 @@
     "downlevelIteration": true,
     "outDir": "./dist/out-tsc",
     "forceConsistentCasingInFileNames": true,
-
-    // begin strict mode WIP
     "strict": true,
     "strictPropertyInitialization": false,
-    // end strict mode WIP
-
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,
     "sourceMap": true,
@@ -21,9 +17,10 @@
     "importHelpers": true,
     "resolveJsonModule": true,
     "esModuleInterop": true,
-    "target": "es2017",
+    "target": "ES2022",
     "typeRoots": ["node_modules/@types"],
-    "lib": ["es2018", "dom"]
+    "lib": ["es2018", "dom"],
+    "useDefineForClassFields": false
   },
   "angularCompilerOptions": {
     "enableI18nLegacyMessageIdFormat": false,

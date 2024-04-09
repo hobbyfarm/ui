@@ -7,7 +7,7 @@
         class="nav-link nav-text"
         [routerLink]="['/app/home']"
       >
-        <clr-icon shape="logo"></clr-icon>
+        <cds-icon shape="logo"></cds-icon>
         <span class="title">{{ title }}</span>
       </a>
     </div>
@@ -15,16 +15,20 @@
     <div class="settings">
       <clr-dropdown *ngIf="ctx.valid">
         <button class="nav-text" clrDropdownToggle>
-          <clr-icon shape="layers" class="is-solid"></clr-icon>
-          {{ ctx.scheduledEventName }}
-          <clr-icon shape="caret down"></clr-icon>
+          <cds-icon shape="layers" solid></cds-icon>
+          {{ ctx.scheduledEvent.name }}
+          <cds-icon
+            shape="angle"
+            direction="down"
+            class="dropdown-selection-angle"
+          ></cds-icon>
         </button>
         <clr-dropdown-menu *clrIfOpen clrPosition="bottom">
           <a
             clrDropdownItem
             *ngFor="let a of scheduledEvents | keyvalue"
             (click)="setAccessCode(a.key)"
-            >{{ a.value }}</a
+            >{{ a.value.name }}</a
           >
         </clr-dropdown-menu>
       </clr-dropdown>
@@ -33,24 +37,32 @@
     <div class="header-actions">
       <clr-dropdown>
         <button class="nav-text" clrDropdownToggle>
-          <clr-icon shape="user" class="is-solid"></clr-icon> {{ email }}
-          <clr-icon shape="caret down"></clr-icon>
+          <cds-icon shape="user" solid></cds-icon> {{ email }}
+          <cds-icon shape="angle" direction="down"></cds-icon>
         </button>
         <clr-dropdown-menu *clrIfOpen clrPosition="bottom-right">
           <a (click)="openAccessCodes()" clrDropdownItem
-            ><clr-icon shape="tags"></clr-icon> Manage Access Codes</a
+            ><cds-icon shape="tags"></cds-icon> Manage Access Codes</a
           >
           <a (click)="openSettings()" clrDropdownItem
-            ><clr-icon shape="cog"></clr-icon> Settings</a
+            ><cds-icon shape="cog"></cds-icon> Settings</a
           >
           <a (click)="changePassword()" clrDropdownItem
-            ><clr-icon shape="key"></clr-icon> Change Password</a
+            ><cds-icon shape="key"></cds-icon> Change Password</a
           >
           <a (click)="about()" clrDropdownItem
-            ><clr-icon shape="help-info"></clr-icon> About</a
+            ><cds-icon shape="help-info"></cds-icon> About</a
           >
+          <a
+            [href]="privacyPolicyLink"
+            *ngIf="privacyPolicyLink"
+            clrDropdownItem
+            target="_blank"
+          >
+            <cds-icon shape="pop-out"></cds-icon> {{ privacyPolicyLinkName }}
+          </a>
           <a (click)="logout()" clrDropdownItem
-            ><clr-icon shape="logout"></clr-icon> Logout</a
+            ><cds-icon shape="logout"></cds-icon> Logout</a
           >
         </clr-dropdown-menu>
       </clr-dropdown>
@@ -101,24 +113,27 @@
       <p class="about-body">
         {{ aboutBody }}
       </p>
-      <ng-container *ngFor="let button of buttons">
-        <a href="{{ button.url }}" target="_blank">
+      <ng-container *ngFor="let button of buttons | keyvalue">
+        <a href="{{ button.value }}" target="_blank">
           <button class="btn btn-sm btn-link">
-            {{ button.title }}
-            <clr-icon shape="pop-out"></clr-icon>
+            {{ button.key }}
+            <cds-icon shape="pop-out"></cds-icon>
           </button>
         </a>
       </ng-container>
     </div>
   </clr-modal>
 
-  <clr-modal #accesscodemodal [(clrModalOpen)]="accessCodeModalOpened">
+  <clr-modal
+    #accesscodemodal
+    [(clrModalOpen)]="accessCodeModalOpened"
+    [clrModalSize]="'lg'"
+  >
     <h3 class="modal-title">Manage Access Codes</h3>
     <div class="modal-body">
       <clr-alert
         [clrAlertType]="'danger'"
         [(clrAlertClosed)]="accessCodeDangerClosed"
-        [clrAlertClosable]="false"
       >
         <clr-alert-item>
           <span class="alert-text">
@@ -129,7 +144,6 @@
       <clr-alert
         [clrAlertType]="'success'"
         [(clrAlertClosed)]="accessCodeSuccessClosed"
-        [clrAlertClosable]="false"
       >
         <clr-alert-item>
           <span class="alert-text">
@@ -142,7 +156,7 @@
         class="btn btn-success-outline btn-sm"
         (click)="newAccessCode = true"
       >
-        <clr-icon shape="plus"></clr-icon> Add Access Code
+        <cds-icon shape="plus"></cds-icon> Add Access Code
       </button>
 
       <button
@@ -150,7 +164,7 @@
         (click)="alertDeleteAccessCodeModal = true"
         *ngIf="selectedAccesscodesForDeletion.length > 0"
       >
-        <clr-icon shape="trash"></clr-icon> Delete Access Code
+        <cds-icon shape="trash"></cds-icon> Delete Access Code
       </button>
 
       <ng-container *ngIf="newAccessCode">
@@ -170,6 +184,15 @@
             >
             <clr-control-error *clrIfError="'minLength'"
               >Access code must be longer than 4 characters
+            </clr-control-error>
+            <clr-control-error *clrIfError="'pattern'"
+              >Access code must
+              <ul>
+                <li>
+                  contain only lowercase alphanumeric characters, '-', or '.'
+                </li>
+                <li>start and end with an alphanumeric character</li>
+              </ul>
             </clr-control-error>
           </clr-input-container>
           <div class="col-md-2">
@@ -203,23 +226,27 @@
         >
           <clr-dg-column>Access Code</clr-dg-column>
           <clr-dg-column>Valid</clr-dg-column>
+          <clr-dg-column>Access until</clr-dg-column>
           <clr-dg-row *clrDgItems="let a of accesscodes" [clrDgItem]="a">
             <clr-dg-cell>{{ a }}</clr-dg-cell>
             <clr-dg-cell>
               <ng-container *ngIf="!isValidAccessCode(a)">
-                <clr-icon
+                <cds-icon
                   class="invalid-access-code"
                   shape="warning-standard"
-                ></clr-icon>
+                ></cds-icon>
                 <span> No associated event</span>
               </ng-container>
               <ng-container *ngIf="isValidAccessCode(a)">
-                <clr-icon
+                <cds-icon
                   class="valid-access-code"
                   shape="success-standard"
-                ></clr-icon>
+                ></cds-icon>
               </ng-container>
               <span> {{ getScheduledEventNameForAccessCode(a) }}</span>
+            </clr-dg-cell>
+            <clr-dg-cell [class]="getTimestampColor(a)">
+              <span> {{ getScheduledEventEndTimestampForAccessCode(a) }}</span>
             </clr-dg-cell>
           </clr-dg-row>
         </clr-datagrid>
@@ -269,6 +296,26 @@
                     />
                   </clr-checkbox-wrapper>
                 </clr-checkbox-container>
+                <clr-input-container>
+                  <label class="clr-col-md-4">Divider Position</label>
+                  <input
+                    class="clr-col-md-8"
+                    clrInput
+                    type="number"
+                    required
+                    name="divider_position"
+                    formControlName="divider_position"
+                  />
+                  <clr-control-error *clrIfError="'required'"
+                    >Divider Position required.</clr-control-error
+                  >
+                  <clr-control-error *clrIfError="'min'"
+                    >Divider Position minimum is 0.</clr-control-error
+                  >
+                  <clr-control-error *clrIfError="'max'"
+                    >Divider Position maximum is 100.</clr-control-error
+                  >
+                </clr-input-container>
               </clr-tab-content>
             </clr-tab>
             <clr-tab>
@@ -528,7 +575,6 @@
       <clr-alert
         [clrAlertType]="'danger'"
         [(clrAlertClosed)]="changePwDangerClosed"
-        [clrAlertClosable]="false"
       >
         <clr-alert-item>
           <span class="alert-text">

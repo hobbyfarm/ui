@@ -1,5 +1,10 @@
 <div class="split-container">
-  <as-split unit="percent" direction="horizontal" (dragEnd)="dragEnd()">
+  <as-split
+    unit="percent"
+    direction="horizontal"
+    (dragEnd)="dragEnd()"
+    #divider
+  >
     <as-split-area [size]="40" class="split-area-1">
       <div class="card" id="sidebar">
         <div class="card-header">
@@ -11,18 +16,18 @@
             [class.btn-success]="isLastStepActive"
             (click)="goFinish()"
           >
-            <clr-icon shape="check"></clr-icon>
+            <cds-icon shape="check"></cds-icon>
             Finish
           </button>
 
           <ng-container *ngIf="scenario.pauseable">
             <button class="btn btn-pause" (click)="pause()">
-              <clr-icon shape="pause" class="is-solid"></clr-icon> Pause
+              <cds-icon shape="pause" solid></cds-icon> Pause
             </button>
             <clr-signpost class="signpost-after" style="z-index: 100000">
               <clr-signpost-content [clrPosition]="'bottom-right'" *clrIfOpen>
-                Pausing your scenario prevents removal of your VMs in case of
-                network disconnection, timeout, etc.
+                Pausing your scenario prevents removal of your resources in case
+                of network disconnection, timeout, etc.
               </clr-signpost-content>
             </clr-signpost>
           </ng-container>
@@ -32,7 +37,7 @@
             [class.btn-outline]="!isLastStepActive"
             (click)="goClose()"
           >
-            <clr-icon shape="window-close"></clr-icon>Close
+            <cds-icon shape="window-close"></cds-icon>Close
           </button>
         </div>
 
@@ -60,7 +65,7 @@
               (click)="goPrevious()"
               [disabled]="this.stepnumber < 1"
             >
-              <clr-icon shape="arrow" dir="left"></clr-icon> Prev
+              <cds-icon shape="arrow" direction="left"></cds-icon> Prev
             </button>
             <span id="step-counter">
               {{ this.stepnumber + 1 }}/{{ this.scenario.stepcount }}
@@ -70,14 +75,14 @@
               *ngIf="!isLastStepActive"
               (click)="goNext()"
             >
-              Next <clr-icon shape="arrow" dir="right"></clr-icon>
+              Next <cds-icon shape="arrow" direction="right"></cds-icon>
             </button>
             <button
               class="btn btn-success btn-next"
               (click)="goFinish()"
               *ngIf="isLastStepActive"
             >
-              <clr-icon shape="check"></clr-icon> Finish
+              <cds-icon shape="check"></cds-icon> Finish
             </button>
           </div>
         </div>
@@ -88,7 +93,7 @@
         <clr-tabs class="tab-container">
           <clr-tab *ngFor="let v of vms | keyvalue" #tab>
             <button clrTabLink [id]="v.key">
-              <clr-icon size="24" shape="host"></clr-icon> {{ v.key }}
+              <cds-icon size="24" shape="host"></cds-icon> {{ v.key }}
             </button>
             <clr-tab-content #tabcontent>
               <table class="table compact">
@@ -97,6 +102,15 @@
                   <td><b>Private IP:</b> {{ v.value.private_ip }}</td>
                   <td><b>Hostname:</b> {{ v.value.hostname }}</td>
                   <td><b>Shell Status:</b> {{ getShellStatus(v.key) }}</td>
+                  <td style="padding: 0">
+                    <button
+                      class="btn btn-icon btn-primary btn-sm"
+                      title="Reload Terminal"
+                      (click)="reloadTerminal(v.key)"
+                    >
+                      <cds-icon shape="refresh"></cds-icon>
+                    </button>
+                  </td>
                 </tr>
               </table>
               <app-terminal
@@ -126,59 +140,57 @@
                   (webinterface.hasOwnTab && i < maxInterfaceTabs) ||
                   webinterface.active
                 "
+                #tab
               >
                 <button
                   clrTabLink
+                  [id]="v.key + webinterface.name"
                   [clrTabLinkInOverflow]="false"
-                  (click)="setTabActive(webinterface)"
+                  (click)="setTabActive(webinterface, v.key)"
                 >
                   {{ v.key }} - {{ webinterface.name }}
                 </button>
-                <ng-template [(clrIfActive)]="webinterface.active">
-                  <clr-tab-content>
-                    <table class="table compact">
-                      <tr>
-                        <td><b>Webinterface:</b> {{ webinterface.name }}</td>
-                        <td><b>Node:</b> {{ v.key }}</td>
-                        <td><b>Port:</b> {{ webinterface.port }}</td>
-                        <td><b>Path:</b> {{ webinterface.path }}</td>
-                        <td style="padding: 0">
-                          <button
-                            class="btn btn-icon btn-primary btn-sm"
-                            title="Reload Tab"
-                            (click)="
-                              reloadWebinterface(v.value.id, webinterface)
-                            "
-                          >
-                            <clr-icon shape="refresh"></clr-icon>
-                          </button>
-                          <button
-                            class="btn btn-icon btn-primary btn-sm"
-                            title="Open in a new Tab"
-                            (click)="
-                              openWebinterfaceInNewTab(v.value, webinterface)
-                            "
-                          >
-                            <clr-icon shape="pop-out"></clr-icon>
-                          </button>
-                        </td>
-                      </tr>
-                    </table>
-                    <app-ide-window
-                      *ngIf="!isGuacamoleTerminal(v.value.protocol)"
-                      [vmid]="v.value.id"
-                      [endpoint]="v.value.ws_endpoint"
-                      [port]="webinterface.port"
-                      [path]="webinterface.path"
-                      [disallowIFrame]="webinterface.disallowIFrame"
-                      (openWebinterfaceFn)="
-                        openWebinterfaceInNewTab(v.value, webinterface)
-                      "
-                      [reloadEvent]="reloadTabObservable"
-                    >
-                    </app-ide-window>
-                  </clr-tab-content>
-                </ng-template>
+                <clr-tab-content>
+                  <table class="table compact">
+                    <tr>
+                      <td><b>Webinterface:</b> {{ webinterface.name }}</td>
+                      <td><b>Node:</b> {{ v.key }}</td>
+                      <td><b>Port:</b> {{ webinterface.port }}</td>
+                      <td><b>Path:</b> {{ webinterface.path }}</td>
+                      <td style="padding: 0">
+                        <button
+                          class="btn btn-icon btn-primary btn-sm"
+                          title="Reload Tab"
+                          (click)="reloadWebinterface(v.value.id, webinterface)"
+                        >
+                          <cds-icon shape="refresh"></cds-icon>
+                        </button>
+                        <button
+                          class="btn btn-icon btn-primary btn-sm"
+                          title="Open in a new Tab"
+                          (click)="
+                            openWebinterfaceInNewTab(v.value, webinterface)
+                          "
+                        >
+                          <cds-icon shape="pop-out"></cds-icon>
+                        </button>
+                      </td>
+                    </tr>
+                  </table>
+                  <app-ide-window
+                    *ngIf="!isGuacamoleTerminal(v.value.protocol)"
+                    [vmid]="v.value.id"
+                    [endpoint]="v.value.ws_endpoint"
+                    [port]="webinterface.port"
+                    [path]="webinterface.path"
+                    [disallowIFrame]="webinterface.disallowIFrame"
+                    (openWebinterfaceFn)="
+                      openWebinterfaceInNewTab(v.value, webinterface)
+                    "
+                    [reloadEvent]="reloadTabObservable"
+                  >
+                  </app-ide-window>
+                </clr-tab-content>
               </clr-tab>
 
               <clr-tab
@@ -187,12 +199,11 @@
                     (webinterface.hasOwnTab && i >= maxInterfaceTabs)) &&
                   !webinterface.active
                 "
-                #tab
               >
                 <button
                   clrTabLink
                   [clrTabLinkInOverflow]="true"
-                  (click)="setTabActive(webinterface)"
+                  (click)="setTabActive(webinterface, v.key)"
                 >
                   {{ v.key }} - {{ webinterface.name }}
                 </button>
@@ -209,8 +220,8 @@
   <h3 class="modal-title">Are you sure you want to close this scenario?</h3>
   <div class="modal-body">
     <p>
-      Closing a scenario will retain your existing VMs. You may choose another
-      scenario or return to this one.
+      Closing a scenario will retain your existing resources. You may choose
+      another scenario or return to this scenario.
     </p>
   </div>
   <div class="modal-footer">
@@ -225,15 +236,12 @@
   <h3 class="modal-title">Are you sure you want to finish?</h3>
   <div class="modal-body">
     <p *ngIf="shouldKeepVmOnFinish; else no_course">
-      Your VMs will be kept until they expire or the course is marked as
-      "complete".
-      <br />
-      Forcing the finish will immediately de-provision your resources. Any VMs
-      that you are using will be wiped.
+      Your virtual machines will be kept until they expire or the course is
+      marked as "complete". Selecting "FORCE" will immediately deprovision and
+      delete your resources.
     </p>
     <ng-template #no_course>
-      Finishing a scenario will immediately de-provision your resources. Any VMs
-      that you are using will be wiped.
+      Selecting "FINISH" will immediately deprovision and delete your resources.
     </ng-template>
   </div>
   <div class="modal-footer">
@@ -243,7 +251,7 @@
         Force
       </button>
     </div>
-    <button class="btn btn-danger-outline" (click)="actuallyFinish()">
+    <button class="btn btn-next btn-success-outline" (click)="actuallyFinish()">
       Finish
     </button>
   </div>
@@ -253,9 +261,9 @@
   <h3 class="modal-title">Scenario Paused</h3>
   <div class="modal-body">
     <p>
-      This scenario has been paused. If you do nothing, the scenario will
-      automatically resume in
-      {{ pauseRemainingString }}
+      This scenario has been paused successfully. If you do not take any
+      actions, the scenario will automatically resume in
+      {{ pauseRemainingString }}.
     </p>
     <p>
       <span class="clr-subtext"
@@ -266,7 +274,7 @@
   </div>
   <div class="modal-footer">
     <button class="btn" (click)="resume()">
-      <clr-icon shape="play" class="is-solid"></clr-icon> Resume Scenario
+      <cds-icon shape="play" solid></cds-icon> Resume Scenario
     </button>
   </div>
 </clr-modal>

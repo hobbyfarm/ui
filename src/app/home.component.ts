@@ -9,6 +9,7 @@ import { Progress } from './Progress';
 import { Context, ContextService } from './services/context.service';
 import { ActivatedRoute } from '@angular/router';
 import { Location } from '@angular/common';
+import { Subscription, catchError, merge, mergeMap, tap } from 'rxjs';
 
 @Component({
   selector: 'app-home',
@@ -28,6 +29,8 @@ export class HomeComponent implements OnInit, OnDestroy {
   public accessCodeLinkSuccessAlert = '';
   public accessCodeLinkErrorClosed = true;
   public accessCodeLinkErrorAlert = '';
+  public contextSubscription: Subscription;
+  public progressSubscription: Subscription;
 
   private callDelay = 10;
   private interval;
@@ -43,36 +46,51 @@ export class HomeComponent implements OnInit, OnDestroy {
     private route: ActivatedRoute,
     private location: Location,
   ) {
-    this.progressService.watch().subscribe((p: Progress[]) => {
-      this.activeSession = undefined;
-      p.forEach((progress) => {
-        if (!progress.finished) {
-          this.activeSession = progress;
-        }
+    this.progressSubscription = this.progressService
+      .watch()
+      .subscribe((p: Progress[]) => {
+        this.activeSession = undefined;
+        p.forEach((progress) => {
+          if (!progress.finished) {
+            this.activeSession = progress;
+          }
+        });
       });
-    });
-    this.contextService.watch().subscribe((c: Context) => {
-      this.ctx = c;
 
-      this.courseService.fetch(this.ctx.accessCode).subscribe(
-        (c: Course[]) => {
-          this.courses = c ?? [];
-          this.loadedCourses = true;
-        },
-        () => {
-          this.loadedCourses = false;
-        },
-      );
-      this.scenarioService.fetch(this.ctx.accessCode).subscribe(
-        (s: Scenario[]) => {
-          this.scenarios = s ?? [];
-          this.loadedScenarios = true;
-        },
-        () => {
-          this.loadedScenarios = false;
-        },
-      );
-    });
+    this.contextSubscription = this.contextService
+      .watch()
+      .pipe(
+        tap((c: Context) => (this.ctx = c)),
+        mergeMap((c: Context) => {
+          const courseList = this.courseService.list(c.accessCode, true).pipe(
+            tap((courses: Course[]) => {
+              this.courses = courses ?? [];
+              this.loadedCourses = true;
+            }),
+            catchError(() => {
+              this.loadedCourses = false;
+              return [];
+            }),
+          );
+
+          const scenarioList = this.scenarioService
+            .list(c.accessCode, true)
+            .pipe(
+              tap((scenarios: Scenario[]) => {
+                this.scenarios = scenarios ?? [];
+                this.loadedScenarios = true;
+              }),
+              catchError(() => {
+                this.loadedScenarios = false;
+                return [];
+              }),
+            );
+
+          return merge(courseList, scenarioList);
+        }),
+      )
+      .subscribe();
+
     this.progressService.list(true).subscribe(); //fill cache
     this.interval = setInterval(() => {
       this.progressService.list(true).subscribe();
@@ -117,5 +135,48 @@ export class HomeComponent implements OnInit, OnDestroy {
     if (this.interval) {
       clearInterval(this.interval);
     }
+    this.contextSubscription.unsubscribe();
+    this.progressSubscription.unsubscribe();
+  }
+
+  isTimeLeft() {
+    const target = this.ctx?.scheduledEvent?.end_timestamp;
+
+    if (target) {
+      const now = new Date();
+      const targetDate = new Date(target);
+      const timeDiff = targetDate.getTime() - now.getTime();
+      return timeDiff > 0;
+    }
+
+    return false;
+  }
+
+  getTimeLeftString(target: string) {
+    const now = new Date();
+    const targetDate = new Date(target);
+    const timeDiff = targetDate.getTime() - now.getTime();
+
+    if (timeDiff <= 0) {
+      return 'Time already passed';
+    }
+
+    // Convert time difference from milliseconds
+    const minutes = Math.floor((timeDiff / 1000 / 60) % 60);
+    const hours = Math.floor((timeDiff / (1000 * 60 * 60)) % 24);
+    const days = Math.floor(timeDiff / (1000 * 60 * 60 * 24));
+
+    let timeUntil = '';
+    if (days > 0) {
+      timeUntil += `${days}d `;
+    }
+    if (hours > 0) {
+      timeUntil += `${hours}h `;
+    }
+    if (minutes > 0) {
+      timeUntil += `${minutes}m `;
+    }
+
+    return timeUntil.trim();
   }
 }

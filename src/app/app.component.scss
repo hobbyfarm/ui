@@ -114,7 +114,7 @@
     font-size: 20px;
   }
 
-  clr-icon {
+  cds-icon {
     font-size: 20px;
     width: 1rem;
     height: 1rem;
@@ -128,10 +128,14 @@
   color: var(--clr-color-success-500, green);
 }
 
+clr-dg-cell.red {
+  color: var(--clr-color-danger-500, red);
+}
+
 .header-actions {
   clr-dropdown-menu {
     a {
-      clr-icon {
+      cds-icon {
         color: var(--clr-icon-dropdown);
       }
     }
@@ -155,4 +159,10 @@
 .motd-close {
   float: right;
   position: relative;
+}
+
+.dropdown
+  .dropdown-toggle.nav-text
+  > cds-icon[shape^='angle'].dropdown-selection-angle {
+  right: 0.5rem;
 }

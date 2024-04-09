@@ -64,10 +64,13 @@ export class GuacTerminalComponent implements OnChanges {
   @ViewChild('viewport', { static: true }) viewport: ElementRef;
 
   queryObj() {
+    // we always load our token synchronously from local storage
+    // for symplicity we are using type assertion to string here, avoiding to handle promises we're not expecting
+    const token = this.jwtHelper.tokenGetter() as string;
     return {
       width: this.optimalWidth,
       height: this.optimalHeight,
-      auth: this.jwtHelper.tokenGetter(),
+      auth: token,
     };
   }
 
@@ -368,6 +371,12 @@ export class GuacTerminalComponent implements OnChanges {
     const height = elm.clientHeight * pixelDensity;
 
     return { width: width, height: height };
+  }
+
+  reloadConnection() {
+    this.shellService.setStatus(this.vmname, 'Reconnecting');
+    this.client.disconnect();
+    this.connect();
   }
 
   resize() {

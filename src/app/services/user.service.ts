@@ -1,11 +1,12 @@
 import { Injectable } from '@angular/core';
 import { HttpParams, HttpErrorResponse } from '@angular/common/http';
-import { catchError, map, tap } from 'rxjs/operators';
-import { throwError, BehaviorSubject, of } from 'rxjs';
+import { catchError, finalize, map, shareReplay, tap } from 'rxjs/operators';
+import { throwError, BehaviorSubject, of, Observable } from 'rxjs';
 import {
   extractResponseContent,
   GargantuaClientFactory,
 } from './gargantua.service';
+import { ScheduledEvent } from 'src/data/ScheduledEvent';
 
 @Injectable({
   providedIn: 'root',
@@ -17,23 +18,27 @@ export class UserService {
   private _acModified = new BehaviorSubject(false);
 
   private fetchedSEs = false;
-  private cachedScheduledEventsList: Map<string, string> = new Map();
-  private bh: BehaviorSubject<Map<string, string>> = new BehaviorSubject(
-    this.cachedScheduledEventsList,
-  );
+  private scheduledEvents$: Observable<Map<string, ScheduledEvent>> | null =
+    null;
+  private cachedScheduledEventsList: Map<string, ScheduledEvent> = new Map();
+  private bh: BehaviorSubject<Map<string, ScheduledEvent>> =
+    new BehaviorSubject(this.cachedScheduledEventsList);
 
   public getModifiedObservable() {
     return this._acModified.asObservable();
   }
 
   public register(
-    params: Record<'email' | 'password' | 'access_code', string>,
+    params: Record<
+      'email' | 'password' | 'access_code' | 'privacy_policy',
+      string
+    >,
   ) {
     const body = new HttpParams({ fromObject: params });
 
     return this.garg.post('/registerwithaccesscode', body).pipe(
       catchError(({ error }) => {
-        return throwError(error.message ?? error.error);
+        return throwError(() => error.message ?? error.error);
       }),
     );
   }
@@ -44,7 +49,7 @@ export class UserService {
     return this.garg.post('/authenticate', body).pipe(
       map((s) => s.message), // not b64 from authenticate
       catchError(({ error }) => {
-        return throwError(error.message ?? error.error);
+        return throwError(() => error.message ?? error.error);
       }),
     );
   }
@@ -56,24 +61,35 @@ export class UserService {
 
     return this.garg.post('/changepassword', params).pipe(
       catchError((e: HttpErrorResponse) => {
-        return throwError(e.error);
+        return throwError(() => e.error);
       }),
     );
   }
 
-  public getScheduledEvents(force = false) {
+  public getScheduledEvents(
+    force = false,
+  ): Observable<Map<string, ScheduledEvent>> {
     if (!force && this.fetchedSEs) {
       return of(this.cachedScheduledEventsList);
+    } else if (this.scheduledEvents$) {
+      // If request is in-flight, return the ongoing Observable
+      return this.scheduledEvents$;
     } else {
-      return this.garg.get('/scheduledevents').pipe(
-        map<any, Map<string, string>>(extractResponseContent),
-        tap((p: Map<string, string>) => {
-          this.setScheduledEventsCache(p);
-        }),
+      this.scheduledEvents$ = this.garg.get('/scheduledevents').pipe(
+        map<any, Map<string, ScheduledEvent>>(extractResponseContent),
+        tap((p: Map<string, ScheduledEvent>) =>
+          this.setScheduledEventsCache(p),
+        ),
+        // Use shareReplay to multicast and replay the last emitted value to new subscribers
+        shareReplay(1),
+        // On complete or error, set the inflight observable to null
+        finalize(() => (this.scheduledEvents$ = null)),
       );
+
+      return this.scheduledEvents$;
     }
   }
-  public setScheduledEventsCache(list: Map<string, string>) {
+  public setScheduledEventsCache(list: Map<string, ScheduledEvent>) {
     this.cachedScheduledEventsList = list;
     this.fetchedSEs = true;
     this.bh.next(list);
@@ -83,7 +99,7 @@ export class UserService {
     return this.garg.get('/accesscode').pipe(
       map<any, string[]>(extractResponseContent),
       catchError((e: HttpErrorResponse) => {
-        return throwError(e.error);
+        return throwError(() => e.error);
       }),
     );
   }
@@ -92,7 +108,7 @@ export class UserService {
     const params = new HttpParams().set('access_code', a);
     return this.garg.post('/accesscode', params).pipe(
       catchError((e: HttpErrorResponse) => {
-        return throwError(e.error);
+        return throwError(() => e.error);
       }),
       tap(() => this._acModified.next(true)),
     );
@@ -101,7 +117,7 @@ export class UserService {
   public deleteAccessCode(a: string) {
     return this.garg.delete('/accesscode/' + a).pipe(
       catchError((e: HttpErrorResponse) => {
-        return throwError(e.error);
+        return throwError(() => e.error);
       }),
       tap(() => this._acModified.next(true)),
     );

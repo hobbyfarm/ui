@@ -21,6 +21,7 @@ export interface Settings {
   ctr_enabled: boolean;
   ctxAccessCode: string;
   theme: 'light' | 'dark' | 'system';
+  divider_position: number;
 }
 
 @Injectable()
@@ -43,6 +44,7 @@ export class SettingsService {
               ctr_enabled: true,
               ctxAccessCode: '',
               theme: 'light',
+              divider_position: 40,
             } as Settings),
       ),
       tap((s: Settings) => {
@@ -56,7 +58,7 @@ export class SettingsService {
     const params = new HttpParams({ fromObject: newSettings });
     return this.garg.post('/settings', params).pipe(
       catchError((e: HttpErrorResponse) => {
-        return throwError(e.error);
+        return throwError(() => e.error);
       }),
       tap(() => this.subject.next(newSettings)),
     );
