@@ -3,6 +3,6 @@ export interface QuestionParams {
   helperText: string;
   questionType: string;
   validation: string;
-  successMsg?: string;
-  errorMsg?: string;
+  successMsg: string;
+  errorMsg: string;
 }

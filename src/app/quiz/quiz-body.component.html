@@ -7,7 +7,7 @@
     *ngIf="validationEnabled && isSubmitted && !isValid"
   >
     <clr-alert-item>
-      <span class="alert-text"> Incorrect Answer! </span>
+      <span class="alert-text">{{ errMsg }}</span>
     </clr-alert-item>
   </clr-alert>
   <clr-alert
@@ -17,7 +17,7 @@
     *ngIf="validationEnabled && isSubmitted && isValid"
   >
     <clr-alert-item>
-      <span class="alert-text"> Correct Answer! </span>
+      <span class="alert-text">{{ successMsg }}</span>
     </clr-alert-item>
   </clr-alert>
 </ng-container>

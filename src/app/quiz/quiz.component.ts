@@ -68,8 +68,8 @@ export class QuizComponent implements OnInit {
     let helperText: string;
     let questionType: string;
     let validation: string;
-    let successMsg: string | undefined;
-    let errorMsg: string | undefined;
+    let successMsg: string;
+    let errorMsg: string;
     if (/-\$1-:\s/.test(question)) {
       questionTitle =
         question
@@ -112,6 +112,8 @@ export class QuizComponent implements OnInit {
           .split('-$5-: ')
           .pop()
           ?.split(/(\n-\$\d-:\s)|(\n-\s)/)[0] ?? '';
+    } else {
+      successMsg = "Correct Answer!"
     }
     if (/-\$6-:\s/.test(question)) {
       errorMsg =
@@ -119,6 +121,8 @@ export class QuizComponent implements OnInit {
           .split('-$6-: ')
           .pop()
           ?.split(/(\n-\$\d-:\s)|(\n-\s)/)[0] ?? '';
+    } else {
+      errorMsg = "Incorrect Answer!"
     }
 
     return {

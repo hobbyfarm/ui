@@ -24,6 +24,10 @@ export class QuizRadioComponent implements OnInit {
   public title: string;
   @Input()
   public validation: string;
+  @Input()
+  public errMsg: string;
+  @Input()
+  public successMsg: string;
 
   @ViewChild(ClrForm, { static: true })
   clrForm: ClrForm;
