@@ -42,7 +42,7 @@ export class QuizCheckboxComponent implements OnInit {
   constructor(private fb: NonNullableFormBuilder) {}
 
   public ngOnInit() {
-    this.validationEnabled = this.validation.toLowerCase() !== 'validationOff';
+    this.validationEnabled = this.validation.toLowerCase() !== 'validationoff';
     this.options.split('\n- ').forEach((option: string) => {
       this.optionTitles.push(option.split(':(')[0]);
       const requiredValue = option.split(':(')[1].toLowerCase() === 'x)';
