@@ -60,7 +60,7 @@ export class QuizCheckboxComponent implements OnInit {
   }
 
   private addCheckboxes() {
-    this.fb.control(false)
+    this.fb.control(false);
     this.optionTitles.forEach(() =>
       this.optionsFormArray.push(this.fb.control(false)),
     );
@@ -74,10 +74,12 @@ export class QuizCheckboxComponent implements OnInit {
     return (control: AbstractControl) => {
       const formArray = control as FormArray<FormControl<boolean>>;
       let validatedCheckboxes = true;
-      formArray.controls.forEach((control: FormControl<boolean>, index: number) => {
-        validatedCheckboxes =
-          validatedCheckboxes && control.value === this.requiredValues[index];
-      });
+      formArray.controls.forEach(
+        (control: FormControl<boolean>, index: number) => {
+          validatedCheckboxes =
+            validatedCheckboxes && control.value === this.requiredValues[index];
+        },
+      );
       if (!validatedCheckboxes) {
         return {
           checkboxesValidated: true,
@@ -91,7 +93,10 @@ export class QuizCheckboxComponent implements OnInit {
     if (this.validationEnabled) {
       this.quizForm = this.fb.group(
         {
-          quiz: new FormArray<FormControl<boolean>>([], this.validateCheckboxes()),
+          quiz: new FormArray<FormControl<boolean>>(
+            [],
+            this.validateCheckboxes(),
+          ),
         },
         { updateOn: 'change' },
       );
