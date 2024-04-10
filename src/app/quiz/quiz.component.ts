@@ -1,4 +1,10 @@
-import { Component, Input, OnInit, QueryList, ViewChildren } from '@angular/core';
+import {
+  Component,
+  Input,
+  OnInit,
+  QueryList,
+  ViewChildren,
+} from '@angular/core';
 import { QuestionParams } from './QuestionParams';
 import { QuizCheckboxComponent } from './quiz-checkbox.component';
 import { QuizRadioComponent } from './quiz-radio.component';
@@ -15,8 +21,8 @@ export class QuizComponent implements OnInit {
   @Input()
   public questionsRaw: string;
 
-  @ViewChildren('quizCheckbox') private quizCheckbox: QueryList<QuizCheckboxComponent> =
-    new QueryList();
+  @ViewChildren('quizCheckbox')
+  private quizCheckbox: QueryList<QuizCheckboxComponent> = new QueryList();
   @ViewChildren('quizRadio') private quizRadio: QueryList<QuizRadioComponent> =
     new QueryList();
 
@@ -24,32 +30,37 @@ export class QuizComponent implements OnInit {
   public questions: string[];
 
   public ngOnInit() {
-      this.questions = this.questionsRaw.split("\n---\n");
-      this.questions.forEach((question: string) => {
-        this.questionParams.push(this.getQuizQuestionParams(question));
-      })
+    this.questions = this.questionsRaw.split('\n---\n');
+    this.questions.forEach((question: string) => {
+      this.questionParams.push(this.getQuizQuestionParams(question));
+    });
   }
 
-  public getQuestionType(question: string, questionType: string): "checkbox" | "radio" {
+  public getQuestionType(
+    question: string,
+    questionType: string,
+  ): 'checkbox' | 'radio' {
     const correctAnswers: number = (question.match(/:\(x\)/g) || []).length;
-    return questionType.toLowerCase() === 'radio' && correctAnswers === 1 ? 'radio' : 'checkbox';
+    return questionType.toLowerCase() === 'radio' && correctAnswers === 1
+      ? 'radio'
+      : 'checkbox';
   }
 
   public getOptions(question: string): string {
-      return question.split(/\n- (.*)/s)[1];
+    return question.split(/\n- (.*)/s)[1];
   }
 
   public submit() {
     this.quizCheckbox.forEach((checkbox: QuizCheckboxComponent) => {
-      if(checkbox.quizForm.enabled) {
+      if (checkbox.quizForm.enabled) {
         checkbox.submit();
       }
-    })
+    });
     this.quizRadio.forEach((radio: QuizRadioComponent) => {
-      if(radio.quizForm.enabled) {
+      if (radio.quizForm.enabled) {
         radio.submit();
       }
-    })
+    });
   }
 
   private getQuizQuestionParams(question: string): QuestionParams {
@@ -60,30 +71,54 @@ export class QuizComponent implements OnInit {
     let successMsg: string | undefined;
     let errorMsg: string | undefined;
     if (/-\$1-:\s/.test(question)) {
-      questionTitle = question.split('-$1-: ').pop()?.split(/(\n-\$\d-:\s)|(\n-\s)/)[0] ?? "";
+      questionTitle =
+        question
+          .split('-$1-: ')
+          .pop()
+          ?.split(/(\n-\$\d-:\s)|(\n-\s)/)[0] ?? '';
     } else {
-      questionTitle = "";
+      questionTitle = '';
     }
     if (/-\$2-:\s/.test(question)) {
-      helperText = question.split('-$2-: ').pop()?.split(/(\n-\$\d-:\s)|(\n-\s)/)[0] ?? "";
+      helperText =
+        question
+          .split('-$2-: ')
+          .pop()
+          ?.split(/(\n-\$\d-:\s)|(\n-\s)/)[0] ?? '';
     } else {
-      helperText = "";
+      helperText = '';
     }
     if (/-\$3-:\s/.test(question)) {
-      questionType = question.split('-$3-: ').pop()?.split(/(\n-\$\d-:\s)|(\n-\s)/)[0] ?? "checkbox";
+      questionType =
+        question
+          .split('-$3-: ')
+          .pop()
+          ?.split(/(\n-\$\d-:\s)|(\n-\s)/)[0] ?? 'checkbox';
     } else {
-      questionType = "checkbox";
+      questionType = 'checkbox';
     }
     if (/-\$4-:\s/.test(question)) {
-      validation = question.split('-$4-: ').pop()?.split(/(\n-\$\d-:\s)|(\n-\s)/)[0] ?? "validationOn";
+      validation =
+        question
+          .split('-$4-: ')
+          .pop()
+          ?.split(/(\n-\$\d-:\s)|(\n-\s)/)[0] ?? 'validationOn';
     } else {
-      validation = "validationOn";
+      validation = 'validationOn';
     }
     if (/-\$5-:\s/.test(question)) {
-      successMsg = question.split('-$5-: ').pop()?.split(/(\n-\$\d-:\s)|(\n-\s)/)[0] ?? "";
+      successMsg =
+        question
+          .split('-$5-: ')
+          .pop()
+          ?.split(/(\n-\$\d-:\s)|(\n-\s)/)[0] ?? '';
     }
     if (/-\$6-:\s/.test(question)) {
-      errorMsg = question.split('-$6-: ').pop()?.split(/(\n-\$\d-:\s)|(\n-\s)/)[0] ?? "";
+      errorMsg =
+        question
+          .split('-$6-: ')
+          .pop()
+          ?.split(/(\n-\$\d-:\s)|(\n-\s)/)[0] ?? '';
     }
 
     return {
@@ -93,6 +128,6 @@ export class QuizComponent implements OnInit {
       validation: validation,
       successMsg: successMsg,
       errorMsg: errorMsg,
-    }
+    };
   }
 }
