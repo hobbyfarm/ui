@@ -73,7 +73,7 @@ export class QuizRadioComponent implements OnInit {
       if (
         !formGroup.controls.quiz.value ||
         (this.validationEnabled &&
-          formGroup.controls.quiz.value == correctIndex)
+          formGroup.controls.quiz.value != correctIndex)
       ) {
         return {
           quiz: correctIndex,
