@@ -16,7 +16,7 @@ export class QuizBodyComponent {
   @Input()
   public validationEnabled: boolean;
   @Input()
-  public errMsg: string = 'Incorrect Answer!';
+  public errMsg = 'Incorrect Answer!';
   @Input()
-  public successMsg: string = 'Correct Answer!';
+  public successMsg = 'Correct Answer!';
 }
