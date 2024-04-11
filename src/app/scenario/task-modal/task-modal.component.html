@@ -3,8 +3,8 @@
 </ng-container>
 
 <ng-template #loadingSpinner>
-  <div style="width: 100%; min-height: 20vh">
-    <clr-spinner style="position: absolute; left: 45%; top: 40%"></clr-spinner>
+  <div class="spinner-container">
+    <clr-spinner class="spinner"></clr-spinner>
   </div>
 </ng-template>
 
@@ -21,19 +21,22 @@
       *ngIf="!loading; else loadingSpinner"
     >
       <clr-accordion-panel *ngFor="let task of tasks">
-        <clr-accordion-title style="width: 100%" inverse>
-          <div
-            style="display: flex; justify-content: space-between; width: 100%"
-          >
+        <clr-accordion-title class="accordion-title" inverse>
+          <div class="accordion-flex-title">
             <div>
               <b>{{ task.name }}</b>
-              <span *ngIf="task.success" class="label label-success">
-                <cds-icon shape="check" inverse></cds-icon>
-              </span>
-              <span *ngIf="!task.success" class="label label-danger">
-                <cds-icon shape="times" inverse></cds-icon>
-              </span>
             </div>
+            <span *ngIf="task.success" class="label label-success">
+              <cds-icon shape="check" inverse></cds-icon>
+            </span>
+            <span *ngIf="!task.success" class="label label-danger">
+              <cds-icon shape="times" inverse></cds-icon>
+            </span>
+          </div>
+          <div>
+            <sub
+              ><i> on {{ task.vm_name }}</i></sub
+            >
           </div>
         </clr-accordion-title>
         <clr-accordion-content *clrIfExpanded>

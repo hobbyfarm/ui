@@ -10,7 +10,27 @@ cds-icon.clr-accordion-angle {
   fill: var(--clr-icon-color-inverse);
 }
 
-.label {
+.accordion-flex-title {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.spinner-container {
+  width: 100%;
+  min-height: 20vh;
+}
+
+.spinner {
   position: absolute;
-  right: 25px;
+  left: 45%;
+  top: 40%;
+}
+
+.accordion-title {
+  width: 100%;
+}
+
+.label {
+  transform: translateY(0.7rem);
 }

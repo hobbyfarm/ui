@@ -5,6 +5,9 @@ import { Task, TaskVerification } from '../taskVerification.type';
 import { take, takeUntil } from 'rxjs/operators';
 import { Subject } from 'rxjs';
 
+interface TaskWithNodeName extends Task {
+  vm_name?: string;
+}
 @Component({
   selector: 'app-task-modal',
   templateUrl: './task-modal.component.html',
@@ -14,7 +17,7 @@ export class TaskModalComponent implements OnInit, OnDestroy {
   @Input()
   vms: Map<string, VM>;
 
-  tasks: Task[] = [];
+  tasks: TaskWithNodeName[] = [];
 
   modalOpen = false;
 
@@ -32,10 +35,10 @@ export class TaskModalComponent implements OnInit, OnDestroy {
     this.verificationService.currentVerifications
       .pipe(takeUntil(this.unsubscribe))
       .subscribe((currentVeriications: Map<string, TaskVerification>) => {
-        const updatedTasks: Task[] = [];
+        const updatedTasks: TaskWithNodeName[] = [];
         currentVeriications.forEach((taskVerification) => {
           taskVerification.tasks?.forEach((task) => {
-            updatedTasks.push(task);
+            updatedTasks.push({ ...task, vm_name: taskVerification.vm_name });
           });
         });
         if (
