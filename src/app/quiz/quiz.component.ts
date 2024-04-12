@@ -125,7 +125,7 @@ export class QuizComponent implements OnInit {
           .pop()
           ?.split(/(\n-\$\d-:\s)|(\n-\s)/)[0] ?? '';
     } else {
-      successMsg = "Correct Answer!"
+      successMsg = 'Correct Answer!';
     }
     if (/-\$6-:\s/.test(question)) {
       errorMsg =
@@ -134,7 +134,7 @@ export class QuizComponent implements OnInit {
           .pop()
           ?.split(/(\n-\$\d-:\s)|(\n-\s)/)[0] ?? '';
     } else {
-      errorMsg = "Incorrect Answer!"
+      errorMsg = 'Incorrect Answer!';
     }
 
     return {
