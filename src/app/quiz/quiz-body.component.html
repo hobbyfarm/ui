@@ -1,10 +1,10 @@
 <ng-container>
-  <span class="clr-subtext" *ngIf="!isSubmitted && helperText != ''">{{ helperText }}</span>
+  <span class="clr-subtext" *ngIf="!isSubmitted && helperText !== ''">{{ helperText }}</span>
   <clr-alert
     [clrAlertType]="'danger'"
     [clrAlertClosable]="false"
     [clrAlertSizeSmall]="true"
-    *ngIf="validationEnabled && isSubmitted && !isValid && errMsg != ''"
+    *ngIf="validationEnabled && isSubmitted && !isValid && errMsg !== ''"
   >
     <clr-alert-item>
       <span class="alert-text">{{ errMsg }}</span>
@@ -14,7 +14,7 @@
     [clrAlertType]="'success'"
     [clrAlertClosable]="false"
     [clrAlertSizeSmall]="true"
-    *ngIf="validationEnabled && isSubmitted && isValid && successMsg != ''"
+    *ngIf="validationEnabled && isSubmitted && isValid && successMsg !== ''"
   >
     <clr-alert-item>
       <span class="alert-text">{{ successMsg }}</span>
