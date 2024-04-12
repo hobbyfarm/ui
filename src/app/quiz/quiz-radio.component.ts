@@ -38,23 +38,24 @@ export class QuizRadioComponent implements OnInit {
   public isSubmitted = false;
   public validationEnabled: boolean;
   public validSubmission = false;
+  public correctIndex: number;
 
   constructor(private fb: FormBuilder) {}
 
   public ngOnInit() {
     this.validationEnabled = this.validation != 'none';
-    let correctIndex = 0;
+    this.correctIndex = 0;
 
     this.options.split('\n- ').forEach((option: string, index: number) => {
       this.optionTitles.push(option.split(':(')[0]);
       const requiredValue = option.split(':(')[1].toLowerCase() === 'x)';
       this.requiredValues.push(requiredValue);
       if (requiredValue) {
-        correctIndex = index;
+        this.correctIndex = index;
       }
     });
 
-    this.createQuizForm(correctIndex);
+    this.createQuizForm();
   }
 
   public submit() {
@@ -74,31 +75,51 @@ export class QuizRadioComponent implements OnInit {
     this.quizForm.enable();
   }
 
-  private validateRadio(correctIndex: number): ValidatorFn {
+  private validateRadio(): ValidatorFn {
     return (control: AbstractControl) => {
       const formGroup = control as QuizRadioFormGroup;
       if (
         !formGroup.controls.quiz.value ||
         (this.validationEnabled &&
-          formGroup.controls.quiz.value != correctIndex)
+          formGroup.controls.quiz.value != this.correctIndex)
       ) {
         return {
-          quiz: correctIndex,
+          quiz: this.correctIndex,
         };
       }
       return null;
     };
   }
 
-  private createQuizForm(correctIndex: number) {
+  private createQuizForm() {
     this.quizForm = this.fb.group(
       {
         quiz: new FormControl<number | null>(null),
       },
       {
-        validators: this.validateRadio(correctIndex),
+        validators: this.validateRadio(),
         updateOn: 'change',
       },
+    );
+  }
+
+  // funtion for a label to determine if it should be styled as correctly selected option
+  public hasCorrectOptionClass(index: number): boolean {
+    return (
+      this.validation == 'detailed' &&
+      this.isSubmitted &&
+      index == this.correctIndex
+    );
+  }
+
+  // funtion for a label to determine if it should be styled as incorrectly selected option
+  public hasIncorrectOptionClass(index: number): boolean {
+    return (
+      this.validation == 'detailed' &&
+      this.isSubmitted &&
+      !this.validSubmission &&
+      this.quizForm.controls.quiz.value == index &&
+      index != this.correctIndex
     );
   }
 }
