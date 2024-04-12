@@ -1,5 +1,7 @@
 <ng-container>
-  <span class="clr-subtext" *ngIf="!isSubmitted && helperText !== ''">{{ helperText }}</span>
+  <span class="clr-subtext" *ngIf="!isSubmitted && helperText !== ''">{{
+    helperText
+  }}</span>
   <clr-alert
     [clrAlertType]="'danger'"
     [clrAlertClosable]="false"
