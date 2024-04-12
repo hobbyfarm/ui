@@ -8,7 +8,7 @@ import { Component, Input } from '@angular/core';
 })
 export class QuizBodyComponent {
   @Input()
-  public helperText: string;
+  public helperText = '';
   @Input()
   public isValid: boolean;
   @Input()
@@ -16,7 +16,7 @@ export class QuizBodyComponent {
   @Input()
   public validationEnabled: boolean;
   @Input()
-  public errMsg = 'Incorrect Answer!';
+  public errMsg = '';
   @Input()
-  public successMsg = 'Correct Answer!';
+  public successMsg = '';
 }
