@@ -21,7 +21,7 @@ export class QuizComponent implements OnInit {
   @Input()
   public questionsRaw: string;
   @Input()
-  public allowedAtts: number = 1;
+  public allowedAtts = 1;
 
   @ViewChildren('quizCheckbox')
   private quizCheckbox: QueryList<QuizCheckboxComponent> = new QueryList();
