@@ -18,11 +18,22 @@
             [successMsg]="questionParams[i].successMsg"
         ></quiz-radio>
     </ng-container>
-    <button
-        class="btn btn-primary submit-button"
-        type="submit"
-        (click)="submit()"
-    >
-    Submit
-    </button>
+    <div class="button-container">
+        <button
+            [disabled]="allowedAtts < 1"
+            class="btn btn-success-outline submit-button"
+            type="submit"
+            (click)="submit()"
+        >
+        Submit
+        </button>
+        <button
+            [disabled]="allowedAtts < 1"
+            class="btn btn-outline reset-button"
+            (click)="reset()"
+        >
+        Reset
+        </button>
+    </div>
+    <span class="clr-subtext">Allowed attempts left: {{ allowedAtts }}</span>
 </pre>

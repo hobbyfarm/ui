@@ -8,6 +8,15 @@
   font-weight: bold;
 }
 
+.button-container {
+  display: flex;
+  width: 100%;
+  flex-direction: row;
+}
+
 .submit-button {
   align-self: flex-start;
+}
+.reset-button {
+  margin-left: var(--clr-btn-horizontal-margin, 0.6rem);
 }

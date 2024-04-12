@@ -63,6 +63,13 @@ export class QuizCheckboxComponent implements OnInit {
     this.quizForm.disable();
   }
 
+  public reset() {
+    this.isSubmitted = false;
+    this.validSubmission = false;
+    this.quizForm.reset();
+    this.quizForm.enable();
+  }
+
   private addCheckboxes() {
     this.optionTitles.forEach(() =>
       this.optionsFormArray.push(this.fb.control(false)),

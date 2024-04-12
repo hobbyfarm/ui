@@ -66,6 +66,13 @@ export class QuizRadioComponent implements OnInit {
     this.quizForm.disable();
   }
 
+  public reset() {
+    this.isSubmitted = false;
+    this.validSubmission = false;
+    this.quizForm.reset();
+    this.quizForm.enable();
+  }
+
   private validateRadio(correctIndex: number): ValidatorFn {
     return (control: AbstractControl) => {
       const formGroup = control as QuizRadioFormGroup;

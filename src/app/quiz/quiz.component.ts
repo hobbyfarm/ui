@@ -20,6 +20,8 @@ export class QuizComponent implements OnInit {
   public quizTitle: string;
   @Input()
   public questionsRaw: string;
+  @Input()
+  public allowedAtts: number = 1;
 
   @ViewChildren('quizCheckbox')
   private quizCheckbox: QueryList<QuizCheckboxComponent> = new QueryList();
@@ -60,6 +62,16 @@ export class QuizComponent implements OnInit {
       if (radio.quizForm.enabled) {
         radio.submit();
       }
+    });
+    --this.allowedAtts;
+  }
+
+  public reset() {
+    this.quizCheckbox.forEach((checkbox: QuizCheckboxComponent) => {
+      checkbox.reset();
+    });
+    this.quizRadio.forEach((radio: QuizRadioComponent) => {
+      radio.reset();
     });
   }
 
