@@ -5,9 +5,11 @@ import {
   QueryList,
   ViewChildren,
 } from '@angular/core';
-import { QuestionParams } from './QuestionParams';
+import { QuestionParam, QuestionParams } from './QuestionParams';
 import { QuizCheckboxComponent } from './quiz-checkbox.component';
 import { QuizRadioComponent } from './quiz-radio.component';
+import { QuestionType, isQuestionType } from './QuestionType';
+import { isValidation } from './Validation';
 
 @Component({
   // eslint-disable-next-line @angular-eslint/component-selector
@@ -38,10 +40,7 @@ export class QuizComponent implements OnInit {
     });
   }
 
-  public getQuestionType(
-    question: string,
-    questionType: string,
-  ): 'checkbox' | 'radio' {
+  public getQuestionType(question: string, questionType: string): QuestionType {
     const correctAnswers: number = (question.match(/:\(x\)/g) || []).length;
     return questionType.toLowerCase() === 'radio' && correctAnswers === 1
       ? 'radio'
@@ -76,67 +75,23 @@ export class QuizComponent implements OnInit {
   }
 
   private getQuizQuestionParams(question: string): QuestionParams {
-    let questionTitle: string;
-    let helperText: string;
-    let questionType: string;
-    let validation: string;
-    let successMsg: string;
-    let errorMsg: string;
-    if (/-\$1-:\s/.test(question)) {
-      questionTitle =
-        question
-          .split('-$1-: ')
-          .pop()
-          ?.split(/(\n-\$\d-:\s)|(\n-\s)/)[0] ?? '';
-    } else {
-      questionTitle = '';
-    }
-    if (/-\$2-:\s/.test(question)) {
-      helperText =
-        question
-          .split('-$2-: ')
-          .pop()
-          ?.split(/(\n-\$\d-:\s)|(\n-\s)/)[0] ?? '';
-    } else {
-      helperText = '';
-    }
-    if (/-\$3-:\s/.test(question)) {
-      questionType =
-        question
-          .split('-$3-: ')
-          .pop()
-          ?.split(/(\n-\$\d-:\s)|(\n-\s)/)[0] ?? 'checkbox';
-    } else {
-      questionType = 'checkbox';
-    }
-    if (/-\$4-:\s/.test(question)) {
-      validation =
-        question
-          .split('-$4-: ')
-          .pop()
-          ?.split(/(\n-\$\d-:\s)|(\n-\s)/)[0] ?? 'validationOn';
-    } else {
-      validation = 'validationOn';
-    }
-    if (/-\$5-:\s/.test(question)) {
-      successMsg =
-        question
-          .split('-$5-: ')
-          .pop()
-          ?.split(/(\n-\$\d-:\s)|(\n-\s)/)[0] ?? '';
-    } else {
-      successMsg = 'Correct Answer!';
-    }
-    if (/-\$6-:\s/.test(question)) {
-      errorMsg =
-        question
-          .split('-$6-: ')
-          .pop()
-          ?.split(/(\n-\$\d-:\s)|(\n-\s)/)[0] ?? '';
-    } else {
-      errorMsg = 'Incorrect Answer!';
-    }
-
+    const questionTitle = this.getRawQuizQuestionParam(question, 'title') ?? '';
+    const helperText = this.getRawQuizQuestionParam(question, 'info') ?? '';
+    const questionType = this.getQuizQuestionParam(
+      question,
+      'type',
+      'checkbox',
+      isQuestionType,
+    );
+    const validation = this.getQuizQuestionParam(
+      question,
+      'validation',
+      'standard',
+      isValidation,
+    );
+    const successMsg =
+      this.getRawQuizQuestionParam(question, 'successMsg') ?? '';
+    const errorMsg = this.getRawQuizQuestionParam(question, 'errorMsg') ?? '';
     return {
       questionTitle: questionTitle,
       helperText: helperText,
@@ -145,5 +100,39 @@ export class QuizComponent implements OnInit {
       successMsg: successMsg,
       errorMsg: errorMsg,
     };
+  }
+
+  private getRawQuizQuestionParam(
+    question: string,
+    questionParam: QuestionParam,
+  ) {
+    const regexPattern = `-\\$${questionParam}-:\\s`;
+    const regex = new RegExp(regexPattern);
+    let rawQuestionParamValue: string | undefined;
+    if (regex.test(question)) {
+      rawQuestionParamValue = question
+        .split(`-$${questionParam}-: `)
+        .pop()
+        ?.split(
+          /(\n-\$(title|info|type|validation|successMsg|errorMsg)-:\s)|(\n-\s)/,
+        )[0];
+    }
+    return rawQuestionParamValue;
+  }
+
+  private getQuizQuestionParam<T extends string>(
+    question: string,
+    questionParam: QuestionParam,
+    defaultVal: T,
+    validate: (value: string) => value is T,
+  ): T {
+    const rawQuestionParamValue = this.getRawQuizQuestionParam(
+      question,
+      questionParam,
+    );
+    if (rawQuestionParamValue && validate(rawQuestionParamValue)) {
+      return rawQuestionParamValue;
+    }
+    return defaultVal;
   }
 }

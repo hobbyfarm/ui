@@ -8,6 +8,7 @@ import {
 } from '@angular/forms';
 import { ClrForm } from '@clr/angular';
 import { QuizCheckboxFormGroup } from './QuizFormGroup';
+import { Validation } from './Validation';
 
 @Component({
   // eslint-disable-next-line @angular-eslint/component-selector
@@ -23,7 +24,7 @@ export class QuizCheckboxComponent implements OnInit {
   @Input()
   public title: string;
   @Input()
-  public validation: string;
+  public validation: Validation;
   @Input()
   public errMsg: string;
   @Input()
@@ -42,7 +43,7 @@ export class QuizCheckboxComponent implements OnInit {
   constructor(private fb: NonNullableFormBuilder) {}
 
   public ngOnInit() {
-    this.validationEnabled = this.validation.toLowerCase() !== 'validationoff';
+    this.validationEnabled = this.validation != 'none';
     this.options.split('\n- ').forEach((option: string) => {
       this.optionTitles.push(option.split(':(')[0]);
       const requiredValue = option.split(':(')[1].toLowerCase() === 'x)';
@@ -118,5 +119,25 @@ export class QuizCheckboxComponent implements OnInit {
         { updateOn: 'change' },
       );
     }
+  }
+
+  // funtion for a label to determine if it should be styled as correctly selected option
+  public hasCorrectOptionClass(index: number): boolean {
+    return (
+      this.validation == 'detailed' &&
+      this.isSubmitted &&
+      this.requiredValues[index]
+    );
+  }
+
+  // funtion for a label to determine if it should be styled as incorrectly selected option
+  public hasIncorrectOptionClass(index: number): boolean {
+    return (
+      this.validation == 'detailed' &&
+      this.isSubmitted &&
+      !this.validSubmission &&
+      this.quizForm.controls.quiz.at(index).value &&
+      !this.requiredValues[index]
+    );
   }
 }

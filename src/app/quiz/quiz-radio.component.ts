@@ -7,6 +7,7 @@ import {
 } from '@angular/forms';
 import { ClrForm } from '@clr/angular';
 import { QuizRadioFormGroup } from './QuizFormGroup';
+import { Validation } from './Validation';
 
 @Component({
   // eslint-disable-next-line @angular-eslint/component-selector
@@ -22,7 +23,7 @@ export class QuizRadioComponent implements OnInit {
   @Input()
   public title: string;
   @Input()
-  public validation: string;
+  public validation: Validation;
   @Input()
   public errMsg: string;
   @Input()
@@ -41,7 +42,7 @@ export class QuizRadioComponent implements OnInit {
   constructor(private fb: FormBuilder) {}
 
   public ngOnInit() {
-    this.validationEnabled = this.validation.toLowerCase() !== 'validationoff';
+    this.validationEnabled = this.validation != 'none';
     let correctIndex = 0;
 
     this.options.split('\n- ').forEach((option: string, index: number) => {

@@ -561,24 +561,3 @@
 cds-icon {
   color: white;
 }
-
-cds-icon {
-  &[status='success'] {
-    fill: var(--clr-icon-color-success);
-  }
-  &[status='danger'] {
-    fill: var(--clr-icon-color-error);
-  }
-  &[status='warning'] {
-    fill: var(--clr-icon-color-warning);
-  }
-  &[status='info'] {
-    fill: var(--clr-icon-color-info);
-  }
-  &[inverse] {
-    fill: var(--clr-icon-color-inverse);
-  }
-  &[status='highlight'] {
-    fill: var(--clr-icon-color-highlight);
-  }
-}

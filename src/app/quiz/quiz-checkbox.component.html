@@ -1,4 +1,4 @@
-<form clrForm [formGroup]="quizForm">
+<form class="quiz-form" clrForm [formGroup]="quizForm">
   <clr-checkbox-container [class.clr-error]="quizForm.invalid && isSubmitted">
     <label>{{ title }}</label>
     <clr-checkbox-wrapper
@@ -6,7 +6,27 @@
       *ngFor="let optionTitle of optionTitles; let i = index"
     >
       <input type="checkbox" clrCheckbox [formControlName]="i" />
-      <label>{{ optionTitle }}</label>
+      <label>
+        <span
+          [ngClass]="{
+            'correct-option': hasCorrectOptionClass(i),
+            'incorrect-option': hasIncorrectOptionClass(i),
+          }"
+          >{{ optionTitle }}</span
+        >
+        <cds-icon
+          *ngIf="hasCorrectOptionClass(i)"
+          shape="success-standard"
+          status="success"
+          solid="true"
+        ></cds-icon
+        ><cds-icon
+          *ngIf="hasIncorrectOptionClass(i)"
+          shape="exclamation-circle"
+          status="danger"
+          solid="true"
+        ></cds-icon>
+      </label>
     </clr-checkbox-wrapper>
   </clr-checkbox-container>
   <quiz-body
