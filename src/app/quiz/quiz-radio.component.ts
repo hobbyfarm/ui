@@ -1,13 +1,11 @@
-import { Component, Input, OnInit, ViewChild } from '@angular/core';
+import { Component } from '@angular/core';
 import {
   AbstractControl,
   FormBuilder,
   FormControl,
   ValidatorFn,
 } from '@angular/forms';
-import { ClrForm } from '@clr/angular';
 import { QuizRadioFormGroup } from './QuizFormGroup';
-import { Validation } from './Validation';
 import { QuizBaseComponent } from './quiz-base.component';
 
 @Component({
