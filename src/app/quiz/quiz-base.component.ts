@@ -29,8 +29,6 @@ export abstract class QuizBaseComponent implements OnInit {
   public validSubmission = false;
   public validationEnabled: boolean;
 
-  constructor() {}
-
   ngOnInit(): void {
     this.validationEnabled = this.validation != 'none';
     this.extractQuizOptions();
