@@ -104,6 +104,19 @@ export class HfMarkdownComponent implements OnChanges {
       `;
     },
 
+    quiz(code: string, quizTitle: string, allowedAttempts?: string) {
+      const tempAtts = Number(allowedAttempts);
+      const allowedAtts = isNaN(tempAtts) || tempAtts < 1 ? 1 : tempAtts;
+      return `
+      <quiz
+        quizTitle="${quizTitle}"
+        questionsRaw="${code}"
+        [allowedAtts]="${allowedAtts}"
+      >
+      </quiz>
+      `;
+    },
+
     note(code: string, type: string, message: string) {
       return `
         <div class="note ${type}">

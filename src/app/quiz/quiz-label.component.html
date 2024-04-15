@@ -1,0 +1,19 @@
+<span
+  [ngClass]="{
+      'correct-option': hasCorrectOptionClass,
+      'incorrect-option': hasIncorrectOptionClass,
+    }"
+  >{{ optionTitle }}</span
+>
+<cds-icon
+  *ngIf="hasCorrectOptionClass"
+  shape="success-standard"
+  status="success"
+  solid="true"
+></cds-icon
+><cds-icon
+  *ngIf="hasIncorrectOptionClass"
+  shape="exclamation-circle"
+  status="danger"
+  solid="true"
+></cds-icon>
