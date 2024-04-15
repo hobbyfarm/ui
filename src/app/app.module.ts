@@ -35,6 +35,10 @@ import { AngularSplitModule } from 'angular-split';
 import { HfMarkdownComponent } from './hf-markdown/hf-markdown.component';
 import { PrintableComponent } from './printable/printable.component';
 import { GargantuaClientFactory } from './services/gargantua.service';
+import { QuizCheckboxComponent } from './quiz/quiz-checkbox.component';
+import { QuizRadioComponent } from './quiz/quiz-radio.component';
+import { QuizBodyComponent } from './quiz/quiz-body.component';
+import { QuizComponent } from './quiz/quiz.component';
 import { GuacTerminalComponent } from './scenario/guacTerminal.component';
 import { IdeWindowComponent } from './scenario/ideWindow.component';
 import { ContextService } from './services/context.service';
@@ -74,6 +78,7 @@ import {
   eyeHideIcon,
   clockIcon,
 } from '@cds/core/icon';
+import { QuizLabelComponent } from './quiz/quiz-label.component';
 
 ClarityIcons.addIcons(
   layersIcon,
@@ -149,6 +154,11 @@ export function jwtOptionsFactory() {
     ScenarioCardComponent,
     StepComponent,
     CtrComponent,
+    QuizCheckboxComponent,
+    QuizRadioComponent,
+    QuizBodyComponent,
+    QuizComponent,
+    QuizLabelComponent,
     VMClaimComponent,
     AtobPipe,
     HfMarkdownComponent,
@@ -178,6 +188,7 @@ export function jwtOptionsFactory() {
       globalParsers: [
         { component: CtrComponent },
         { component: SingleTaskVerificationMarkdownComponent },
+        { component: QuizComponent },
       ],
     }),
     JwtModule.forRoot({
