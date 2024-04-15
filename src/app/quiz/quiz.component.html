@@ -20,7 +20,7 @@
     </ng-container>
     <div class="button-container">
         <button
-            [disabled]="allowedAtts < 1"
+            [disabled]="allowedAtts < 1 || isSubmitted"
             class="btn btn-success-outline submit-button"
             type="submit"
             (click)="submit()"

@@ -32,6 +32,7 @@ export class QuizComponent implements OnInit {
 
   public questionParams: QuestionParams[] = [];
   public questions: string[];
+  public isSubmitted = false;
 
   public ngOnInit() {
     this.questions = this.questionsRaw.split('\n---\n');
@@ -63,6 +64,7 @@ export class QuizComponent implements OnInit {
       }
     });
     --this.allowedAtts;
+    this.isSubmitted = true;
   }
 
   public reset() {
@@ -72,6 +74,7 @@ export class QuizComponent implements OnInit {
     this.quizRadio.forEach((radio: QuizRadioComponent) => {
       radio.reset();
     });
+    this.isSubmitted = false;
   }
 
   private getQuizQuestionParams(question: string): QuestionParams {
