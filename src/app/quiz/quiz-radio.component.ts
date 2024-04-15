@@ -49,9 +49,8 @@ export class QuizRadioComponent extends QuizBaseComponent {
     return (control: AbstractControl) => {
       const formGroup = control as QuizRadioFormGroup;
       if (
-        !formGroup.controls.quiz.value ||
-        (this.validationEnabled &&
-          formGroup.controls.quiz.value != this.correctIndex)
+        this.validationEnabled &&
+        formGroup.controls.quiz.value != this.correctIndex
       ) {
         return {
           quiz: this.correctIndex,
