@@ -78,6 +78,8 @@ export class QuizComponent implements OnInit {
   }
 
   private getQuizQuestionParams(question: string): QuestionParams {
+    let defaultErrorMsg = '';
+    let defaultSuccessMsg = '';
     const questionTitle = this.getRawQuizQuestionParam(question, 'title') ?? '';
     const helperText = this.getRawQuizQuestionParam(question, 'info') ?? '';
     const questionType = this.getQuizQuestionParam(
@@ -92,9 +94,18 @@ export class QuizComponent implements OnInit {
       'standard',
       isValidation,
     );
+    // In validation mode 'none', success/error alerts are not shown. Hence, the default for success/error message is ''.
+    // In validation mode 'detailed', correctly/incorrectly selected answers are highlighted. Hence, success/error message is optional.
+    // In validation mode 'standard', a success/error alert must be displayed to the user.
+    // Hence, we fall back to the following default values:
+    if (validation == 'standard') {
+      defaultSuccessMsg = 'Correct!';
+      defaultErrorMsg = 'Incorrect!';
+    }
     const successMsg =
-      this.getRawQuizQuestionParam(question, 'successMsg') ?? '';
-    const errorMsg = this.getRawQuizQuestionParam(question, 'errorMsg') ?? '';
+      this.getRawQuizQuestionParam(question, 'successMsg') ?? defaultSuccessMsg;
+    const errorMsg =
+      this.getRawQuizQuestionParam(question, 'errorMsg') ?? defaultErrorMsg;
     return {
       questionTitle: questionTitle,
       helperText: helperText,
