@@ -10,25 +10,11 @@
         formControlName="quiz"
       />
       <label>
-        <span
-          [ngClass]="{
-            'correct-option': hasCorrectOptionClass(i),
-            'incorrect-option': hasIncorrectOptionClass(i),
-          }"
-          >{{ optionTitle }}</span
-        >
-        <cds-icon
-          *ngIf="hasCorrectOptionClass(i)"
-          shape="success-standard"
-          status="success"
-          solid="true"
-        ></cds-icon
-        ><cds-icon
-          *ngIf="hasIncorrectOptionClass(i)"
-          shape="exclamation-circle"
-          status="danger"
-          solid="true"
-        ></cds-icon>
+        <quiz-label
+          [optionTitle]="optionTitle"
+          [hasCorrectOptionClass]="hasCorrectOptionClass(i)"
+          [hasIncorrectOptionClass]="hasIncorrectOptionClass(i)"
+        ></quiz-label>
       </label>
     </clr-radio-wrapper>
   </clr-radio-container>

@@ -10,14 +10,3 @@ clr-radio-container {
   flex-direction: column !important;
   margin-top: 0;
 }
-
-label span.correct-option {
-  color: var(--clr-alert-success-font-color, hsl(198, 0%, 40%));
-  background-color: var(--clr-alert-success-bg-color, hsl(93, 52%, 88%));
-  font-weight: bold;
-}
-
-label span.incorrect-option {
-  color: var(--clr-alert-danger-font-color, hsl(198, 0%, 40%));
-  background-color: var(--clr-alert-danger-bg-color, hsl(9, 95%, 92%));
-}

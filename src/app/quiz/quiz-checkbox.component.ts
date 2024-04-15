@@ -6,9 +6,8 @@ import {
   FormControl,
   ValidatorFn,
 } from '@angular/forms';
-import { ClrForm } from '@clr/angular';
 import { QuizCheckboxFormGroup } from './QuizFormGroup';
-import { Validation } from './Validation';
+import { QuizBaseComponent } from './quiz-base.component';
 
 @Component({
   // eslint-disable-next-line @angular-eslint/component-selector
@@ -16,59 +15,42 @@ import { Validation } from './Validation';
   templateUrl: 'quiz-checkbox.component.html',
   styleUrls: ['quiz-checkbox.component.scss'],
 })
-export class QuizCheckboxComponent implements OnInit {
-  @Input()
-  public options: string;
-  @Input()
-  public helperText: string;
-  @Input()
-  public title: string;
-  @Input()
-  public validation: Validation;
-  @Input()
-  public errMsg: string;
-  @Input()
-  public successMsg: string;
-
-  @ViewChild(ClrForm, { static: true })
-  clrForm: ClrForm;
-
-  public quizForm: QuizCheckboxFormGroup;
-  public optionTitles: string[] = [];
+export class QuizCheckboxComponent extends QuizBaseComponent {
+  public override quizForm: QuizCheckboxFormGroup;
   public requiredValues: boolean[] = [];
-  public isSubmitted = false;
-  public validationEnabled: boolean;
-  public validSubmission = false;
 
-  constructor(private fb: NonNullableFormBuilder) {}
+  constructor(private fb: NonNullableFormBuilder) {
+    super();
+  }
 
-  public ngOnInit() {
-    this.validationEnabled = this.validation != 'none';
+  protected override extractQuizOptions() {
     this.options.split('\n- ').forEach((option: string) => {
       this.optionTitles.push(option.split(':(')[0]);
       const requiredValue = option.split(':(')[1].toLowerCase() === 'x)';
       this.requiredValues.push(requiredValue);
     });
-
-    this.createQuizForm();
-    this.addCheckboxes();
   }
 
-  public submit() {
-    this.isSubmitted = true;
-    if (this.quizForm.invalid) {
-      this.clrForm.markAsTouched();
+  protected override createQuizForm() {
+    if (this.validationEnabled) {
+      this.quizForm = this.fb.group(
+        {
+          quiz: new FormArray<FormControl<boolean>>(
+            [],
+            this.validateCheckboxes(),
+          ),
+        },
+        { updateOn: 'change' },
+      );
     } else {
-      this.validSubmission = true;
+      this.quizForm = this.fb.group(
+        {
+          quiz: new FormArray<FormControl<boolean>>([]),
+        },
+        { updateOn: 'change' },
+      );
     }
-    this.quizForm.disable();
-  }
-
-  public reset() {
-    this.isSubmitted = false;
-    this.validSubmission = false;
-    this.quizForm.reset();
-    this.quizForm.enable();
+    this.addCheckboxes();
   }
 
   private addCheckboxes() {
@@ -77,7 +59,7 @@ export class QuizCheckboxComponent implements OnInit {
     );
   }
 
-  get optionsFormArray(): FormArray<FormControl<boolean>> {
+  private get optionsFormArray(): FormArray<FormControl<boolean>> {
     return this.quizForm.controls.quiz;
   }
 
@@ -100,44 +82,11 @@ export class QuizCheckboxComponent implements OnInit {
     };
   }
 
-  private createQuizForm() {
-    if (this.validationEnabled) {
-      this.quizForm = this.fb.group(
-        {
-          quiz: new FormArray<FormControl<boolean>>(
-            [],
-            this.validateCheckboxes(),
-          ),
-        },
-        { updateOn: 'change' },
-      );
-    } else {
-      this.quizForm = this.fb.group(
-        {
-          quiz: new FormArray<FormControl<boolean>>([]),
-        },
-        { updateOn: 'change' },
-      );
-    }
+  protected override isSelectedOption(index: number): boolean {
+    return this.optionsFormArray.at(index).value;
   }
 
-  // funtion for a label to determine if it should be styled as correctly selected option
-  public hasCorrectOptionClass(index: number): boolean {
-    return (
-      this.validation == 'detailed' &&
-      this.isSubmitted &&
-      this.requiredValues[index]
-    );
-  }
-
-  // funtion for a label to determine if it should be styled as incorrectly selected option
-  public hasIncorrectOptionClass(index: number): boolean {
-    return (
-      this.validation == 'detailed' &&
-      this.isSubmitted &&
-      !this.validSubmission &&
-      this.quizForm.controls.quiz.at(index).value &&
-      !this.requiredValues[index]
-    );
+  protected override isCorrectOption(index: number): boolean {
+    return this.requiredValues[index];
   }
 }

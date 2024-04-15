@@ -73,6 +73,7 @@ import {
   eyeHideIcon,
   clockIcon,
 } from '@cds/core/icon';
+import { QuizLabelComponent } from './quiz/quiz-label.component';
 
 ClarityIcons.addIcons(
   layersIcon,
@@ -140,6 +141,7 @@ export function jwtOptionsFactory() {
     QuizRadioComponent,
     QuizBodyComponent,
     QuizComponent,
+    QuizLabelComponent,
     VMClaimComponent,
     AtobPipe,
     HfMarkdownComponent,
