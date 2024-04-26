@@ -136,6 +136,8 @@ export class TerminalComponent implements OnChanges, AfterViewInit, OnDestroy {
         );
         // we're going to try and rebuild things
         // but only after waiting an appropriate mourning period...
+        this.subscription.unsubscribe();
+        this.subscription = new Subscription();
         this.subscription.add(timer(5000).subscribe(() => this.buildSocket()));
       }
     };
@@ -172,6 +174,9 @@ export class TerminalComponent implements OnChanges, AfterViewInit, OnDestroy {
 
   private closeSocket() {
     if (!this.socket) return;
+    if (this.subscription) {
+      this.subscription.unsubscribe();
+    }
     this.socket.close(WS_CODE_NORMAL_CLOSURE);
   }
 
