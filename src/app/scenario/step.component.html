@@ -8,7 +8,14 @@
     <as-split-area [size]="40" class="split-area-1">
       <div class="card" id="sidebar">
         <div class="card-header">
-          <h3 id="scenario-name">{{ scenario.name | atob }}</h3>
+          <h3 id="scenario-name" class="grid-container">
+            <div></div>
+            <div>{{ scenario.name | atob }}</div>
+            <app-task-modal
+              *ngIf="!!(verificationService.currentVerifications | async)?.size"
+              [vms]="vms"
+            ></app-task-modal>
+          </h3>
 
           <button
             class="btn btn-next"

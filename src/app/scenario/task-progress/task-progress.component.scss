@@ -1,0 +1,85 @@
+.task-container {
+  border-radius: 20px;
+  border: 1px solid lightgrey;
+}
+
+.circle {
+  transition: stroke-dashoffset 0.35s;
+  transform: rotate(-90deg);
+  transform-origin: 50% 50%;
+}
+
+.flex-container {
+  cursor: pointer;
+  display: flex;
+  flex-flow: row nowrap;
+  justify-content: space-evenly;
+}
+
+.flex-element {
+  height: 30px;
+  align-items: center;
+  margin-left: 0.25rem;
+  margin-right: 0.25rem;
+}
+
+.text-box {
+  width: 4vw;
+  white-space: nowrap;
+}
+
+.text-box .info-text-hover {
+  display: none;
+}
+
+.text-box:hover .info-text {
+  display: none;
+}
+
+.text-box:hover .info-text-hover {
+  display: flex;
+}
+
+.info-text {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  width: fit-content;
+  color: var(--clr-btn-default-outline-hover-color, #3bb1d8);
+  font-size: var(--clr-btn-appearance-form-font-size, 0.6rem);
+  font-weight: var(--clr-btn-appearance-form-font-weight, 500);
+  font-family: Montserrat, Avenir Next, Arial, sans-serif;
+  animation: fade 0.7s linear;
+}
+
+.info-text-hover {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  width: fit-content;
+  color: var(--clr-btn-default-outline-hover-color, #3bb1d8);
+  font-size: var(--clr-btn-appearance-form-font-size, 0.6rem);
+  font-weight: var(--clr-btn-appearance-form-font-weight, 500);
+  font-family: Montserrat, Avenir Next, Arial, sans-serif;
+  animation: fade 0.7s linear;
+}
+
+@keyframes fade {
+  0% {
+    color: transparent;
+  }
+
+  100% {
+    color: var(--clr-btn-default-outline-hover-color, #3bb1d8);
+  }
+}
+
+.label-task {
+  width: 25px;
+  height: 25px;
+  left: 2px;
+  margin-left: 5px;
+  margin-top: 2px;
+}

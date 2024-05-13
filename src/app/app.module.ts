@@ -43,6 +43,10 @@ import { GuacTerminalComponent } from './scenario/guacTerminal.component';
 import { IdeWindowComponent } from './scenario/ideWindow.component';
 import { ContextService } from './services/context.service';
 import { TypedSettingsService } from './services/typedSettings.service';
+import { VerificationService } from './services/verification.service';
+import { TaskProgressComponent } from './scenario/task-progress/task-progress.component';
+import { TaskModalComponent } from './scenario/task-modal/task-modal.component';
+import { SingleTaskVerificationMarkdownComponent } from './hf-markdown/single-task-verification-markdown/single-task-verification-markdown.component';
 import '@cds/core/icon/register.js';
 import {
   ClarityIcons,
@@ -69,6 +73,7 @@ import {
   windowCloseIcon,
   arrowIcon,
   hostIcon,
+  syncIcon,
   eyeIcon,
   eyeHideIcon,
   clockIcon,
@@ -99,6 +104,7 @@ ClarityIcons.addIcons(
   windowCloseIcon,
   arrowIcon,
   hostIcon,
+  syncIcon,
   eyeIcon,
   eyeHideIcon,
   clockIcon,
@@ -114,10 +120,21 @@ const appInitializerFn = (appConfig: AppConfigService) => {
   };
 };
 
+export const jwtAllowedDomains = [
+  environment.server.replace(/(^\w+:|^)\/\//, ''),
+];
+
+export function addJwtAllowedDomain(domain: string) {
+  const newDomain = domain.replace(/(^\w+:|^)\/\//, '');
+  if (!jwtAllowedDomains.includes(newDomain)) {
+    jwtAllowedDomains.push(newDomain);
+  }
+}
+
 export function jwtOptionsFactory() {
   return {
     tokenGetter: tokenGetter,
-    allowedDomains: [environment.server.replace(/(^\w+:|^)\/\//, '')],
+    allowedDomains: jwtAllowedDomains,
     disallowedRoutes: [
       environment.server.replace(/(^\w+:|^)\/\//, '') + '/auth/authenticate',
     ],
@@ -147,6 +164,9 @@ export function jwtOptionsFactory() {
     HfMarkdownComponent,
     PrintableComponent,
     IdeWindowComponent,
+    TaskProgressComponent,
+    TaskModalComponent,
+    SingleTaskVerificationMarkdownComponent,
   ],
   imports: [
     BrowserModule,
@@ -167,6 +187,7 @@ export function jwtOptionsFactory() {
       },
       globalParsers: [
         { component: CtrComponent },
+        { component: SingleTaskVerificationMarkdownComponent },
         { component: QuizComponent },
       ],
     }),
@@ -193,6 +214,7 @@ export function jwtOptionsFactory() {
     ProgressService,
     ContextService,
     TypedSettingsService,
+    VerificationService,
     {
       provide: APP_INITIALIZER,
       useFactory: appInitializerFn,

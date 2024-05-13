@@ -148,6 +148,14 @@ ${token}`;
       >${this.renderHighlightedCode(code, language, filename)}</ctr>`;
     },
 
+    verifyTask(code: string, target: string, taskName: string) {
+      return `<app-single-task-verification-markdown
+        target="${target}" 
+        message="${code}" 
+        taskName="${taskName}"
+        ></app-single-task-verification-markdown>`;
+    },
+
     mermaid(code: string) {
       const n = 5;
       const containerId = `mermaid-${this.uniqueString(n)}`;

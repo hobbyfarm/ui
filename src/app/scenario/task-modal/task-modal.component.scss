@@ -1,0 +1,36 @@
+.check-tasks-button {
+  cursor: pointer;
+  color: var(--clr-btn-default-outline-hover-color, #3bb1d8);
+  font-size: var(--clr-btn-appearance-form-font-size, 0.6rem);
+  font-weight: var(--clr-btn-appearance-form-font-weight, 500);
+  font-family: Montserrat, Avenir Next, Arial, sans-serif;
+}
+
+cds-icon.clr-accordion-angle {
+  fill: var(--clr-icon-color-inverse);
+}
+
+.accordion-flex-title {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.spinner-container {
+  width: 100%;
+  min-height: 20vh;
+}
+
+.spinner {
+  position: absolute;
+  left: 45%;
+  top: 40%;
+}
+
+.accordion-title {
+  width: 100%;
+}
+
+.label {
+  transform: translateY(0.7rem);
+}

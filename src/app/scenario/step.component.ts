@@ -44,6 +44,8 @@ import { ProgressService } from '../services/progress.service';
 import { HfMarkdownRenderContext } from '../hf-markdown/hf-markdown.component';
 import { GuacTerminalComponent } from './guacTerminal.component';
 import { JwtHelperService } from '@auth0/angular-jwt';
+import { VerificationService } from '../services/verification.service';
+import { addJwtAllowedDomain } from '../app.module';
 import { SplitComponent } from 'angular-split';
 import { SettingsService } from '../services/settings.service';
 import { Course } from '../course/course';
@@ -131,6 +133,7 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
     private shellService: ShellService,
     private progressService: ProgressService,
     private jwtHelper: JwtHelperService,
+    public verificationService: VerificationService,
     private settingsService: SettingsService,
   ) {}
 
@@ -223,12 +226,18 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
         concatMap(([k, v]: [string, VMClaimVM]) =>
           this.vmService.get(v.vm_id, true).pipe(
             first(),
+            tap((vm) => addJwtAllowedDomain(vm.ws_endpoint)), //Allow JwtModule to intercept and add the JWT on shell-server requests
             map((vm) => [k, vm] as const),
           ),
         ),
         toArray(),
         tap((entries: (readonly [string, VM])[]) => {
+          const verificationTasks = this.scenario.vm_tasks ?? [];
           this.vms = new Map(entries);
+          verificationTasks.forEach((task) => {
+            task.vm_id = this.vms.get(task.vm_name)?.id ?? '';
+          });
+          this.verificationService.verifications = verificationTasks;
           this.sendProgressUpdate();
           const vmInfo: HfMarkdownRenderContext['vmInfo'] = {};
           for (const [k, v] of this.vms) {

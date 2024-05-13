@@ -113,6 +113,13 @@ table {
   width: 100%;
 }
 
+.grid-container {
+  display: grid;
+  grid-template-columns: 0.5fr 2fr 0.5fr;
+  padding: 10px;
+  text-align: center;
+}
+
 img:hover {
   cursor: zoom-out;
   cursor: -moz-zoom-out;
