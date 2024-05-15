@@ -24,6 +24,10 @@ export class CtrService {
     this.ctrstream.next(exec);
   }
 
+  public getCodeById(id: string) {
+    return this.ctrCodes.get(id) ?? '';
+  }
+
   public sendCode(ctr: CodeExec) {
     if (!ctr) return;
     this.ctrstream.next(ctr);
