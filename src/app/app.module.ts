@@ -33,6 +33,7 @@ import { environment } from 'src/environments/environment';
 import { AppConfigService } from './app-config.service';
 import { AngularSplitModule } from 'angular-split';
 import { HfMarkdownComponent } from './hf-markdown/hf-markdown.component';
+import { CopyToClipboardComponent } from './hf-markdown/copy-to-clipboard/copy-to-clipboard.component';
 import { PrintableComponent } from './printable/printable.component';
 import { GargantuaClientFactory } from './services/gargantua.service';
 import { QuizCheckboxComponent } from './quiz/quiz-checkbox.component';
@@ -77,6 +78,7 @@ import {
   eyeIcon,
   eyeHideIcon,
   clockIcon,
+  copyIcon,
 } from '@cds/core/icon';
 import { QuizLabelComponent } from './quiz/quiz-label.component';
 
@@ -108,6 +110,7 @@ ClarityIcons.addIcons(
   eyeIcon,
   eyeHideIcon,
   clockIcon,
+  copyIcon,
 );
 
 export function tokenGetter() {
@@ -162,6 +165,7 @@ export function jwtOptionsFactory() {
     VMClaimComponent,
     AtobPipe,
     HfMarkdownComponent,
+    CopyToClipboardComponent,
     PrintableComponent,
     IdeWindowComponent,
     TaskProgressComponent,
@@ -189,6 +193,7 @@ export function jwtOptionsFactory() {
         { component: CtrComponent },
         { component: SingleTaskVerificationMarkdownComponent },
         { component: QuizComponent },
+        { component: CopyToClipboardComponent },
       ],
     }),
     JwtModule.forRoot({
