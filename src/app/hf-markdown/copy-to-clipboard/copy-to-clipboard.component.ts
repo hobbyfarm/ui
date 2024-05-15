@@ -2,14 +2,14 @@ import { Component, Input } from '@angular/core';
 import { CtrService } from 'src/app/scenario/ctr.service';
 
 @Component({
-  selector: 'copy-to-clipboard',
+  selector: 'app-copy-to-clipboard',
   templateUrl: './copy-to-clipboard.component.html',
   styleUrls: ['./copy-to-clipboard.component.scss'],
 })
 export class CopyToClipboardComponent {
   @Input() ctrId: string;
 
-  wasClicked: boolean = false;
+  wasClicked = false;
 
   constructor(private ctrService: CtrService) {}
 

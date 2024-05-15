@@ -175,10 +175,10 @@ ${token}`;
     let copyCodeDiv = '';
     if (copyCode) {
       const id = this.ctrService.registerCode(code);
-      copyCodeDiv = `<copy-to-clipboard ctrId='${id}'></copy-to-clipboard>`;
+      copyCodeDiv = `<app-copy-to-clipboard ctrId='${id}'></app-copy-to-clipboard>`;
     }
 
-    let fileNameTag = fileName
+    const fileNameTag = fileName
       ? `<p class="filename">${fileName} ${copyCodeDiv}</p>`
       : `<p class="language">${language} ${copyCodeDiv}</p>`;
     const classAttr = `language-${language}`;
