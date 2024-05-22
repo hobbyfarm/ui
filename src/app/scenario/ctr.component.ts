@@ -67,7 +67,8 @@ export class CtrComponent implements OnInit, AfterViewInit {
   }
 
   public ctr() {
-    if (this.count > 0 && this.enabled) {
+    // Only execute if we have executions left AND we have a Click-To-File (this.filename is given) or CTR is enabled
+    if (this.count > 0 && (this.enabled || this.filename)) {
       this.ctrService.sendCodeById(this.ctrId, this.target);
       this.executed = true;
       this.shape = 'success-standard';
