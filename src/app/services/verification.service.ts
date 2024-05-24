@@ -98,7 +98,7 @@ export class VerificationService {
 
   private publishNewVerificationResults(response: ServerResponse) {
     const newVerificationList = JSON.parse(
-      atob(response.content),
+      decodeResponse(response.content),
     ) as unknown as TaskVerificationResponse[];
     newVerificationList.forEach(
       (newTaskVerification: TaskVerificationResponse) => {
@@ -119,4 +119,15 @@ export class VerificationService {
     );
     this._verifications.next(this._verifications.value);
   }
+}
+
+function decodeResponse(responseContent: string) {
+  const text = atob(responseContent);
+  const length = text.length;
+  const bytes = new Uint8Array(length);
+  for (let i = 0; i < length; i++) {
+    bytes[i] = text.charCodeAt(i);
+  }
+  const decoder = new TextDecoder(); // default is utf-8
+  return decoder.decode(bytes);
 }
