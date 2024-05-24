@@ -6,95 +6,105 @@
     #divider
   >
     <as-split-area [size]="40" class="split-area-1">
-      <div class="card" id="sidebar">
-        <div class="card-header">
-          <h3 id="scenario-name" class="grid-container">
-            <div></div>
-            <div>{{ scenario.name | atob }}</div>
-            <app-task-modal
-              *ngIf="!!(verificationService.currentVerifications | async)?.size"
-              [vms]="vms"
-            ></app-task-modal>
-          </h3>
+      <ng-container *ngIf="!isBrawlSelected">
+        <div class="card" id="sidebar">
+          <div class="card-header">
+            <h3 id="scenario-name" class="grid-container">
+              <div></div>
+              <div>{{ scenario.name | atob }}</div>
+              <app-task-modal
+                *ngIf="
+                  !!(verificationService.currentVerifications | async)?.size
+                "
+                [vms]="vms"
+              ></app-task-modal>
+            </h3>
 
-          <button
-            class="btn btn-next"
-            [class.btn-success-outline]="!isLastStepActive"
-            [class.btn-success]="isLastStepActive"
-            (click)="goFinish()"
-            *ngIf="!isContentOnly"
-          >
-            <cds-icon shape="check"></cds-icon>
-            Finish
-          </button>
-
-          <ng-container *ngIf="scenario.pauseable && !isContentOnly">
-            <button class="btn btn-pause" (click)="pause()">
-              <cds-icon shape="pause" solid></cds-icon> Pause
-            </button>
-            <clr-signpost class="signpost-after" style="z-index: 100000">
-              <clr-signpost-content [clrPosition]="'bottom-right'" *clrIfOpen>
-                Pausing your scenario prevents removal of your resources in case
-                of network disconnection, timeout, etc.
-              </clr-signpost-content>
-            </clr-signpost>
-          </ng-container>
-
-          <button
-            class="btn"
-            [class.btn-outline]="!isLastStepActive"
-            (click)="goClose()"
-          >
-            <cds-icon shape="window-close"></cds-icon>Close
-          </button>
-        </div>
-
-        <div class="card-block" #contentdiv>
-          <h4 class="card-title">
-            {{ this.stepnumber + 1 }}. {{ step.title | atob }}
-          </h4>
-          <div class="card-text">
-            <app-hf-markdown
-              [content]="stepcontent"
-              [context]="mdContext"
-              (click)="handleStepContentClick($event)"
-            ></app-hf-markdown>
-          </div>
-        </div>
-
-        <div class="card-footer">
-          <div class="progress">
-            <!-- <div class="progress-meter" data-value="getProgress()"></div> -->
-            <progress [value]="getProgress() || 0" max="100"></progress>
-          </div>
-          <div id="step-navigator">
-            <button
-              class="btn btn-outline btn-previous"
-              (click)="goPrevious()"
-              [disabled]="this.stepnumber < 1"
-            >
-              <cds-icon shape="arrow" direction="left"></cds-icon> Prev
-            </button>
-            <span id="step-counter">
-              {{ this.stepnumber + 1 }}/{{ this.scenario.stepcount }}
-            </span>
             <button
               class="btn btn-next"
-              *ngIf="!isLastStepActive"
-              (click)="goNext()"
-            >
-              Next <cds-icon shape="arrow" direction="right"></cds-icon>
-            </button>
-            <button
-              class="btn btn-success btn-next"
+              [class.btn-success-outline]="!isLastStepActive"
+              [class.btn-success]="isLastStepActive"
               (click)="goFinish()"
-              *ngIf="isLastStepActive"
+              *ngIf="!isContentOnly"
             >
-              <cds-icon shape="check"></cds-icon> Finish
+              <cds-icon shape="check"></cds-icon>
+              Finish
+            </button>
+
+            <ng-container *ngIf="scenario.pauseable && !isContentOnly">
+              <button class="btn btn-pause" (click)="pause()">
+                <cds-icon shape="pause" solid></cds-icon> Pause
+              </button>
+              <clr-signpost class="signpost-after" style="z-index: 100000">
+                <clr-signpost-content [clrPosition]="'bottom-right'" *clrIfOpen>
+                  Pausing your scenario prevents removal of your resources in
+                  case of network disconnection, timeout, etc.
+                </clr-signpost-content>
+              </clr-signpost>
+            </ng-container>
+
+            <button
+              class="btn"
+              [class.btn-outline]="!isLastStepActive"
+              (click)="goClose()"
+            >
+              <cds-icon shape="window-close"></cds-icon>Close
             </button>
           </div>
+
+          <div class="card-block" #contentdiv>
+            <h4 class="card-title">
+              {{ this.stepnumber + 1 }}. {{ step.title | atob }}
+            </h4>
+            <div class="card-text">
+              <app-hf-markdown
+                [content]="stepcontent"
+                [context]="mdContext"
+                (click)="handleStepContentClick($event)"
+              ></app-hf-markdown>
+            </div>
+          </div>
+
+          <div class="card-footer">
+            <div class="progress">
+              <!-- <div class="progress-meter" data-value="getProgress()"></div> -->
+              <progress [value]="getProgress() || 0" max="100"></progress>
+            </div>
+            <div id="step-navigator">
+              <button
+                class="btn btn-outline btn-previous"
+                (click)="goPrevious()"
+                [disabled]="this.stepnumber < 1"
+              >
+                <cds-icon shape="arrow" direction="left"></cds-icon> Prev
+              </button>
+              <span id="step-counter">
+                {{ this.stepnumber + 1 }}/{{ this.scenario.stepcount }}
+              </span>
+              <button
+                class="btn btn-next"
+                *ngIf="!isLastStepActive"
+                (click)="goNext()"
+              >
+                Next <cds-icon shape="arrow" direction="right"></cds-icon>
+              </button>
+              <button
+                class="btn btn-success btn-next"
+                (click)="goFinish()"
+                *ngIf="isLastStepActive"
+              >
+                <cds-icon shape="check"></cds-icon> Finish
+              </button>
+            </div>
+          </div>
         </div>
-      </div>
+      </ng-container>
+      <ng-container *ngIf="isBrawlSelected">
+        <div class="brawl-instructions">
+          <img src="/assets/bashbrawl/bashbrowl_text.png" />
+          <div class="text">Type <i>play</i> to enter the arena.</div>
+        </div>
+      </ng-container>
     </as-split-area>
     <as-split-area [size]="60" class="split-area-2" [visible]="!isContentOnly">
       <div id="terminal-column">
@@ -217,6 +227,23 @@
                 </button>
               </clr-tab>
             </ng-container>
+          </ng-container>
+          <ng-container *ngIf="bashbrawl_active">
+            <clr-tab #tab>
+              <button clrTabLink id="bashbrawl">
+                <cds-icon size="24" shape="terminal"></cds-icon> BashBrawl
+              </button>
+              <clr-tab-content #tabcontent>
+                <table class="table compact">
+                  <tr>
+                    <td>
+                      <b>BashBrawl</b>: type <i>play</i> to enter the arena.
+                    </td>
+                  </tr>
+                </table>
+                <app-bashbrawl-terminal #term> </app-bashbrawl-terminal>
+              </clr-tab-content>
+            </clr-tab>
           </ng-container>
         </clr-tabs>
       </div>

@@ -108,6 +108,7 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
     this.reloadTabSubject.asObservable();
 
   private DEFAULT_DIVIDER_POSITION = 40;
+  public bashbrawl_active = false;
 
   @ViewChildren('term') private terms: QueryList<TerminalComponent> =
     new QueryList();
@@ -324,8 +325,15 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
     });
 
     this.settingsService.settings$.subscribe(
-      ({ divider_position = this.DEFAULT_DIVIDER_POSITION }) => {
+      ({
+        divider_position = this.DEFAULT_DIVIDER_POSITION,
+        bashbrawl_enabled = false,
+      }) => {
         this.setContentDividerPosition(divider_position);
+        // Ensure that any other tab is created before the bashbrawl tab
+        setTimeout(() => {
+          this.bashbrawl_active = bashbrawl_enabled;
+        }, 1000);
       },
     );
   }
@@ -561,5 +569,18 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
     const dividerPositions = [percentage, 100 - percentage];
     this.divider.setVisibleAreaSizes(dividerPositions);
     this.resizeTerminals();
+  }
+
+  get isBrawlSelected() {
+    let exists = false;
+    this.tabs.forEach((i: ClrTab) => {
+      if (
+        i.ifActiveService.current == i.id &&
+        'bashbrawl' == i.tabLink.tabLinkId.toLowerCase()
+      ) {
+        exists = true;
+      }
+    });
+    return exists;
   }
 }

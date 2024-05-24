@@ -22,6 +22,7 @@ export interface Settings {
   ctxAccessCode: string;
   theme: 'light' | 'dark' | 'system';
   divider_position: number;
+  bashbrawl_enabled: boolean;
 }
 
 @Injectable()
@@ -45,10 +46,12 @@ export class SettingsService {
               ctxAccessCode: '',
               theme: 'light',
               divider_position: 40,
+              bashbrawl_enabled: false,
             } as Settings),
       ),
       tap((s: Settings) => {
         s.ctr_enabled = JSON.parse(String(s.ctr_enabled ?? true));
+        s.bashbrawl_enabled = JSON.parse(String(s.bashbrawl_enabled ?? true));
         this.subject.next(s);
       }),
     );

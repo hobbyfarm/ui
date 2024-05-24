@@ -125,3 +125,20 @@ img:hover {
   cursor: -moz-zoom-out;
   cursor: -webkit-zoom-out;
 }
+
+.as-hidden{
+  opacity: 0;
+}
+
+.brawl-instructions{
+  background-color: #01162a;
+  color: white;
+  margin: 0px 0px 24px 0;
+  height: 100%;
+  display: flex;
+  flex-flow: column;
+  .text {
+    width: 100%;
+    margin: 20px;
+  }
+}
