@@ -16,6 +16,7 @@ import { SettingsService } from '../../services/settings.service';
 import { CanvasAddon } from 'xterm-addon-canvas';
 import { Keycodes } from './keycodes';
 import { sleep } from '@cds/core/internal';
+import { LanguageCommandService } from './languages/language-command.service';
 
 @Component({
   selector: 'app-bashbrawl-terminal',
@@ -48,18 +49,26 @@ export class BashbrawlterminalComponent implements OnInit, AfterViewInit {
   private TERMINAL_WHITESPACE_DELAY = 2;
 
   // Game related
-  private DEFAULT_GAME_TIME = 60; // TODO this is temporary for testing
-  private gameMode: 'easy' | 'medium' | 'hard' = 'easy';
+  private DEFAULT_GAME_TIME = 5; // TODO this is temporary for testing
+  private gameLanguage: string;
   private gameRunning = false;
-  private commandsEntered = [];
+  private commandsEntered: string[] = [];
+  private commandsEnteredAtTimepoint: number[] = [];
+  private streak = 0;
+  private highestStreak = 0;
   private gameTime = 0;
   private score = 0;
+
+  // Leaderboards maps a list of score entries to the language they competed in.
+  private leaderboard: Map<string, { name: string; score: number }[]> =
+    new Map();
 
   @ViewChild('terminal', { static: true }) terminalDiv: ElementRef;
 
   constructor(
     private jwtHelper: JwtHelperService,
     private settingsService: SettingsService,
+    private languageCommandService: LanguageCommandService,
   ) {}
 
   @HostListener('window:resize')
@@ -103,7 +112,6 @@ export class BashbrawlterminalComponent implements OnInit, AfterViewInit {
 
     this.term.focus();
     this.resize();
-    //this.term.write('welcome to Xterm.js Demo');
 
     this.handleCommand('brawl welcome');
 
@@ -132,31 +140,29 @@ export class BashbrawlterminalComponent implements OnInit, AfterViewInit {
           ); // Move cursor back, erase character, move cursor back again
           this.command = beforeChar + afterChar;
           // Remove last character from command buffer
-          console.log(this.command);
           this.cursorPosition -= 1;
         }
       } else if (e === Keycodes.DELETE) {
         if (this.command.length > 0) {
+          if (this.cursorPosition >= this.command.length) {
+            //We are one position behind the command, we can not delete something
+            return;
+          }
           const beforeChar = this.command.slice(0, this.cursorPosition);
           const afterChar = this.command.slice(this.cursorPosition + 1);
           this.term.write(afterChar + ' \b' + '\b'.repeat(afterChar.length)); // Move cursor back, erase character, move cursor back again
           this.command = beforeChar + afterChar;
-          // Remove last character from command buffer
-          console.log(this.command);
-          this.cursorPosition -= 1;
         }
       } else if (e === Keycodes.LEFT_ARROW) {
         if (this.cursorPosition > 0) {
           this.cursorPosition -= 1;
           this.term.write(Keycodes.LEFT_ARROW);
         }
-        console.log('LEFT');
       } else if (e === Keycodes.RIGHT_ARROW) {
         if (this.cursorPosition < this.command.length) {
           this.cursorPosition += 1;
           this.term.write(Keycodes.RIGHT_ARROW);
         }
-        console.log('RIGHT');
       } else if (e === Keycodes.UP_ARROW) {
         // TODO implement some weird logic here
         console.log('UP');
@@ -189,15 +195,14 @@ export class BashbrawlterminalComponent implements OnInit, AfterViewInit {
     await this.term.writeln(
       'Start the game with one of the following option modes:',
     );
-    await this.writeList([
-      ['easy', 'All languages'],
-      ['medium', 'Select your language'],
-      ['hard', 'A random language will be chosen'],
-    ]);
 
     await this.term.writeln('\nUsage:');
-    await this.writeList([
-      ['brawl play [mode]', 'Enter the arena and compete'],
+    await this.writeMatrix([
+      ['brawl play', 'Commands from all languages are accepted'],
+      [
+        'brawl play [language]',
+        'Enter the arena and compete with a single language',
+      ],
       ['brawl list', 'View all available languages'],
       ['brawl top', 'View the leaderboard'],
     ]);
@@ -211,19 +216,22 @@ export class BashbrawlterminalComponent implements OnInit, AfterViewInit {
     }
   }
 
-  async selectLanguage() {}
-
-  async beginGame(gameMode: string) {
+  async beginGame(language: string) {
     // set language array here;
     this.score = 0;
+    this.streak = 0;
+    this.highestStreak = 0;
+    this.commandsEntered = [];
+    this.commandsEnteredAtTimepoint = [];
     this.gameTime = this.DEFAULT_GAME_TIME;
+    this.gameLanguage = language;
 
     this.term.clear();
     await this.writeScore();
 
     this.terminalSymbol = 'brawl#';
     await this.moveToInputLine();
-    await this.writeDelayed('Make yourself ready ... ', false);
+    await this.writeDelayed('Prepare yourself ... ', false);
     await sleep(1000);
     this.term.write('3 ');
     await sleep(1000);
@@ -276,6 +284,10 @@ export class BashbrawlterminalComponent implements OnInit, AfterViewInit {
     // Write the new scoreboard text
     this.term.write(' SCORE: ' + scoreFormatted);
     this.term.write(' TIME LEFT: ' + this.gameTime);
+    this.term.write(
+      ' LANGUAGE: ' +
+        this.languageCommandService.getLanguageNameById(this.gameLanguage),
+    );
 
     // write empty line below score line and clear the row
     this.term.write('\x1b[2;1H\x1b[2K');
@@ -288,33 +300,161 @@ export class BashbrawlterminalComponent implements OnInit, AfterViewInit {
     this.term.write('\r\n');
     await this.writeDelayed('Time is up!');
     await sleep(2000);
-    this.term.clear();
+    await this.writeDelayed('You scored ' + this.score + '!');
+    await this.writeDelayed(
+      'Your highest Streak was ' + this.highestStreak + '.',
+    );
+    // TODO print new highscrore
 
-    await this.displayLeaderboard();
+    await this.writeDelayed('Truly incredible. Enter your name:');
+
+    this.commandFn = this.enterNameForLeaderboard;
+    this.input_blocked = false;
+
+    await this.moveToInputLine();
+    this.terminalSymbol = ' Name: ';
+  }
+
+  async enterNameForLeaderboard(name: string, args: string) {
+    if (!name || name == '') {
+      await this.writeDelayed('Please enter your Name:');
+      return;
+    }
+
+    let fullName = name;
+    if (args) {
+      fullName += ' ' + args;
+    }
+    this.input_blocked = true;
+
+    const score = { name: fullName, score: this.score };
+    if (this.leaderboard.has(this.gameLanguage)) {
+      this.leaderboard.get(this.gameLanguage)?.push(score);
+    } else {
+      // first score for this language
+
+      this.leaderboard.set(this.gameLanguage, [score]);
+    }
+
+    // TODO store leaderboard here
+
+    await this.writeDelayed(`Thank you for playing, ${fullName}!`);
+    await this.writeDelayed(`Let's view the Leaderboard.`);
+
+    await this.displayLeaderboard(this.gameLanguage);
     this.resetToDefaultShell();
   }
 
-  async displayLeaderboard() {
+  async displayLeaderboard(language: string) {
+    if (!language || language == '') {
+      language = 'all';
+    }
+    if (!this.leaderboard.has(language)) {
+      await this.writeDelayed(`No Leaderboard for this language present.`);
+      return;
+    }
+
     await this.writeDelayed('Leaderboard');
-    const scores = [
-      ['Jan', '12000'],
-      ['steve', '120'],
-      ['tester', '10'],
-    ];
+
+    const scores = this.getTopPlayersByLanguage(this.leaderboard, language);
+
     const longestScore = scores[0][1]?.length ?? 0;
     scores.forEach((scoreEntry, index) => {
       const pad = longestScore - scoreEntry[1].length;
       scores[index][1] = ' '.repeat(pad) + scoreEntry[1];
     });
 
-    await this.writeList(scores, true);
+    await this.writeMatrix(scores, true);
+  }
+
+  getTopPlayersByLanguage(
+    leaderboard: Map<string, { name: string; score: number }[]>,
+    language: string,
+  ): string[][] {
+    // Retrieve the list of players for the specified language
+    const entries = leaderboard.get(language);
+
+    if (!entries) {
+      console.log('No entries found for this language.');
+      return [];
+    }
+
+    // Sort the entries by score in descending order
+    const sortedEntries = entries.sort((a, b) => b.score - a.score);
+
+    // Take the top 10 players
+    const topPlayers = sortedEntries.slice(0, 10);
+
+    // Convert to a two-dimensional array format: [name, score]
+    return topPlayers.map((player) => [player.name, player.score.toString()]);
+  }
+
+  async displayAvailableLanguages() {
+    const languages = this.languageCommandService
+      .getLanguageKeys()
+      .sort((a, b) => {
+        return a.toLowerCase() > b.toLowerCase() ? 1 : -1;
+      });
+
+    const matrix = this.convertToMatrix(languages, 7);
+    await this.writeMatrix(matrix, false);
+    //await this.writeMatrix(this.convertToMatrix(newLang, 4), false);
   }
 
   async gameCommand(cmd: string, args: string) {
-    // TODO Game logic to calculate score and if it is correct
-    let commandScore = 100;
-    commandScore += 10;
-    this.score += commandScore;
+    const r = this.languageCommandService.find(cmd, this.gameLanguage);
+
+    let score: {
+      base: number;
+      fire: number;
+      streak: number;
+      streakPoints: number;
+      total: number;
+    } = {
+      base: 0,
+      fire: 0,
+      streak: 0,
+      streakPoints: 0,
+      total: 0,
+    };
+    let outputString;
+
+    const timePassed = this.DEFAULT_GAME_TIME - this.gameTime;
+
+    if (r.found && !this.commandsEntered.includes(r.cmd)) {
+      this.commandsEntered.push(r.cmd);
+      this.streak += 1;
+      this.highestStreak = Math.max(this.highestStreak, this.streak);
+
+      if (this.commandsEnteredAtTimepoint[timePassed]) {
+        this.commandsEnteredAtTimepoint[timePassed] += 1;
+      } else {
+        this.commandsEnteredAtTimepoint[timePassed] = 1;
+      }
+
+      score = this.getCommandScore();
+      this.score += score.total;
+
+      outputString = ' ✔ ' + r.cmd;
+
+      if (this.gameLanguage == 'all') {
+        outputString += ' | (' + r.lang.join(', ') + ')';
+      }
+
+      outputString += ' | + ' + score.total;
+
+      if (score.fire > 0) {
+        outputString += ' 🔥x' + score.fire;
+      }
+    } else if (this.commandsEntered.includes(r.cmd)) {
+      this.commandsEnteredAtTimepoint = []; // Reset so the streak gets lost
+      this.streak = 0;
+      outputString = ' ✘ ' + cmd + '  | Duplicate to "' + r.cmd + '"';
+    } else {
+      this.commandsEnteredAtTimepoint = []; // Reset so the streak gets lost
+      this.streak = 0;
+      outputString = ' ✘ ' + cmd;
+    }
 
     const totalRows = this.term.rows; // Total number of rows in the terminal
     const commandsAreaEnd = totalRows - 2; // The last line before the fixed input line
@@ -322,8 +462,7 @@ export class BashbrawlterminalComponent implements OnInit, AfterViewInit {
     // Write new command in the line just above the fixed input area
     this.term.write(`\x1b[${commandsAreaEnd};1H`); // Moves cursor and clears the line
 
-    // TODO formatting
-    this.term.writeln(' ✔ ' + cmd + '  | + ' + commandScore); // Write the new command
+    this.term.writeln(outputString); // Write the new command
     //this.term.writeln(''); // Write the new command
     // Update the scoreboard or perform other updates
     await this.writeScore();
@@ -331,6 +470,61 @@ export class BashbrawlterminalComponent implements OnInit, AfterViewInit {
     // Ensure the fixed input line is clean and the cursor is placed correctly
     this.term.write(`\x1b[${totalRows - 1};1H\x1b[2K`); // Optionally clear the input line
     await this.moveToInputLine();
+  }
+
+  // Calculate score based on the average count of commands over the last 5 seconds.
+  getCommandScore() {
+    const result: {
+      base: number;
+      fire: number;
+      streak: number;
+      streakPoints: number;
+      total: number;
+    } = {
+      base: 128,
+      fire: 0,
+      streak: 0,
+      streakPoints: 0,
+      total: 0,
+    };
+
+    const timeSinceStart = this.DEFAULT_GAME_TIME - this.gameTime;
+    const commandsInLastSeconds =
+      this.commandsInLastSeconds(
+        this.commandsEnteredAtTimepoint,
+        timeSinceStart,
+        7,
+      ) - 3;
+
+    const growthFactor = 2;
+    let fireMultiplier = 1;
+    if (commandsInLastSeconds >= 0) {
+      fireMultiplier = Math.pow(growthFactor, commandsInLastSeconds + 1);
+      result.fire = fireMultiplier;
+    }
+
+    result.streak = this.streak;
+    result.streakPoints = result.base * (this.streak - 1);
+    result.total = (result.base + result.streakPoints) * fireMultiplier;
+
+    return result;
+  }
+
+  commandsInLastSeconds(
+    commandsArray: number[],
+    currentTimeIndex: number,
+    seconds: number,
+  ): number {
+    let sum = 0;
+    // Start from the current time index, go back up to 5 seconds if available
+    for (
+      let i = currentTimeIndex;
+      i > currentTimeIndex - seconds && i >= 0;
+      i--
+    ) {
+      sum += commandsArray[i] ?? 0;
+    }
+    return sum;
   }
 
   async moveToInputLine() {
@@ -342,8 +536,12 @@ export class BashbrawlterminalComponent implements OnInit, AfterViewInit {
     this.term.write('\x1b[2K'); // Clear the line again to ensure it's clean for new input
   }
 
-  async selectGameOption(mode: string, args: string) {
-    switch (mode) {
+  async selectGameOption(input: string, _args: string) {
+    const args = input.split(' ');
+    const command = args[0];
+    const params = args.slice(1).join(' ');
+
+    switch (command) {
       case 'welcome':
         await this.welcome();
         break;
@@ -351,35 +549,33 @@ export class BashbrawlterminalComponent implements OnInit, AfterViewInit {
         await this.helpGame();
         break;
       case 'play':
-        await this.selectGameMode(args, '');
+        await this.selectLanguage(params, '');
         break;
       case 'list':
-        await this.term.writeln('Not yet implemented: List languages');
+        await this.displayAvailableLanguages();
         break;
       case 'leaderboard':
       case 'top':
-        await this.displayLeaderboard();
+        await this.displayLeaderboard(params);
         break;
       default:
-        await this.term.writeln('Invalid Option: ' + mode);
+        await this.term.writeln('Invalid Option: ' + input);
         await this.helpGame();
     }
   }
 
-  async selectGameMode(mode: string, args: string) {
-    switch (mode) {
-      case 'easy':
-      case 'hard':
-      case 'medium':
-        await this.beginGame(mode);
-        break;
-      case '':
-        await this.beginGame('medium');
-        break;
-      default:
-        await this.term.writeln(
-          'Invalid option. Available options are: easy, medium and hard.',
-        );
+  async selectLanguage(language: string, args: string) {
+    let languages = this.languageCommandService.getLanguageKeys();
+    languages = languages.map((el) => {
+      return el.toLowerCase();
+    });
+    if (languages.includes(language.toLowerCase())) {
+      await this.beginGame(language.toLowerCase());
+    } else if (language == '') {
+      await this.beginGame('all');
+    } else {
+      await this.term.writeln('Invalid language. Available languages are: ');
+      await this.displayAvailableLanguages();
     }
   }
 
@@ -438,23 +634,47 @@ export class BashbrawlterminalComponent implements OnInit, AfterViewInit {
     // none
   }
 
-  async writeList(text: string[][], writeDelayed: boolean = false) {
-    let longestFirstLine = 0;
-    text.forEach((data) => {
-      longestFirstLine = Math.max(data[0]?.length, longestFirstLine);
+  async writeMatrix(text: string[][], writeDelayed: boolean = false) {
+    const maxColumns = text.reduce((max, row) => Math.max(max, row.length), 0);
+    // Calculate the longest string in each column
+    const maxLengths: number[] = Array(maxColumns).fill(0);
+    text.forEach((row) => {
+      row.forEach((item, index) => {
+        if (index < maxColumns) {
+          // Ensure we don't exceed the number of columns
+          maxLengths[index] = Math.max(maxLengths[index], item.length);
+        }
+      });
     });
 
-    for (const data of text) {
-      const paddingLength = longestFirstLine - data[0]?.length;
-      const strToPrint = `  ${data[0]}${' '.repeat(paddingLength)}   ${
-        data[1]
-      }`;
+    // Generate and write each row of the matrix
+    for (const row of text) {
+      let rowString = '';
+      row.forEach((item, index) => {
+        if (index < maxColumns) {
+          // Ensure we don't exceed the number of columns
+          const paddingLength = maxLengths[index] - item.length;
+          rowString += `${item}${' '.repeat(paddingLength + 2)}`; // 2 spaces as gutter
+        }
+      });
+
+      // Write the formatted row to the terminal
       if (writeDelayed) {
-        await this.writeDelayed(strToPrint);
+        await this.writeDelayed(rowString);
       } else {
-        this.term.writeln(strToPrint);
+        this.term.writeln(rowString);
       }
     }
+  }
+
+  // Simply convert a flat list to a matrix with numColumns
+  // for advanced matrixes view convertToMatrixWithTerminalWidth
+  convertToMatrix<T>(list: T[], numColumns: number): T[][] {
+    const matrix: T[][] = [];
+    for (let i = 0; i < list.length; i += numColumns) {
+      matrix.push(list.slice(i, i + numColumns));
+    }
+    return matrix;
   }
 
   async writeDelayed(
@@ -483,6 +703,12 @@ export class BashbrawlterminalComponent implements OnInit, AfterViewInit {
 
   ngOnInit() {
     this.buildTerminal();
+
+    const storedLeaderboard = localStorage.getItem('leaderboard');
+    if (storedLeaderboard) {
+      // Load leaderboard
+      this.leaderboard = JSON.parse(storedLeaderboard);
+    }
   }
 
   ngAfterViewInit(): void {

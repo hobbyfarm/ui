@@ -133,12 +133,38 @@ img:hover {
 .brawl-instructions{
   background-color: #01162a;
   color: white;
-  margin: 0px 0px 24px 0;
+  padding: 0px 0px 24px 0;
   height: 100%;
   display: flex;
   flex-flow: column;
+  font-family: monospace;
+  img {
+    max-width: 400px;
+    margin-left: calc(50% - 200px);
+  }
+
   .text {
     width: 100%;
-    margin: 20px;
+    padding: 20px;
+    p {
+      color: white;
+    }
+    &.centered{
+      text-align: center;
+    }
+
+    .brawl-color{
+      color: #74e2cd;
+    }
+  }
+
+  .brawl-language{
+    color: #74e2cd;
+    font-size: 20px;
+    font-weight: bold;
+  }
+
+  .cta {
+    font-size: 24px;
   }
 }

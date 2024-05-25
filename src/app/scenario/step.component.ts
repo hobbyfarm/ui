@@ -50,6 +50,7 @@ import { SplitComponent } from 'angular-split';
 import { SettingsService } from '../services/settings.service';
 import { Course } from '../course/course';
 import { CourseService } from '../services/course.service';
+import { LanguageCommandService } from './bashbrawl/languages/language-command.service';
 
 type Service = {
   name: string;
@@ -136,6 +137,7 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
     private jwtHelper: JwtHelperService,
     public verificationService: VerificationService,
     private settingsService: SettingsService,
+    private languageCommandService: LanguageCommandService,
   ) {}
 
   setTabActive(webinterface: Service, vmName: string) {
@@ -582,5 +584,9 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
       }
     });
     return exists;
+  }
+
+  getBrawlLanguages() {
+    return this.languageCommandService.getLanguageNames();
   }
 }
