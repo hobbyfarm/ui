@@ -48,9 +48,11 @@ export class BashbrawlterminalComponent implements OnInit, AfterViewInit {
   private TERMINAL_WHITESPACE_DELAY = 2;
 
   // Game related
-  private DEFAULT_GAME_TIME = 10;
+  private DEFAULT_GAME_TIME = 10; // TODO this is temporary for testing
   private gameMode: 'easy' | 'medium' | 'hard' = 'easy';
   private gameRunning = false;
+  private commandsEntered = [];
+  private score = 0;
 
   @ViewChild('terminal', { static: true }) terminalDiv: ElementRef;
 
@@ -102,11 +104,14 @@ export class BashbrawlterminalComponent implements OnInit, AfterViewInit {
     this.resize();
     //this.term.write('welcome to Xterm.js Demo');
 
-    this.handleCommand('help');
+    this.handleCommand('brawl welcome');
 
     this.term.onData((e) => {
       if (e === Keycodes.CTR_C) {
-        console.log('interrupted');
+        if (this.gameRunning) {
+          return;
+        }
+
         this.resetToDefaultShell();
         this.interrupted = true;
 
@@ -173,47 +178,102 @@ export class BashbrawlterminalComponent implements OnInit, AfterViewInit {
     });
   }
 
-  async startGame() {
-    this.terminalSymbol = 'brawl#';
+  async welcome() {
+    return; // TODO remove
 
-    this.commandFn = this.selectGameMode;
-    await this.writeDelayed('Select the game mode');
-    await this.writeDelayed('-easy');
-    await this.writeDelayed('-medium (default)');
-    await this.writeDelayed('-hard');
+    await this.writeDelayed(
+      'Welcome to the bashbrawl arena! Compete against the mighty and glory',
+    );
+    await this.writeDelayed(
+      "Make a fast entry into the arena by typing 'brawl play' or view 'brawl help' for all options",
+    );
+  }
+  async helpGame() {
+    await this.term.writeln(
+      'Start the game with one of the following option modes:',
+    );
+    await this.term.writeln('  easy           All languages');
+    await this.term.writeln('  medium         Select your language');
+    await this.term.writeln(
+      '  hard           A random language will be chosen',
+    );
+
+    await this.term.writeln('\nUsage:');
+    await this.term.writeln(
+      '  brawl play [mode]     Enter the arena and compete in the selected mode',
+    );
+    await this.term.writeln(
+      '  brawl list             View all available languages',
+    );
+    await this.term.writeln('  brawl leaderboard      View the leaderboard');
+  }
+  async startGame(option: string) {
+    if (option && option != '') {
+      await this.selectGameOption(option, '');
+      return;
+    } else {
+      await this.helpGame();
+    }
   }
 
   async selectLanguage() {}
 
-  async beginGame() {
+  async beginGame(gameMode: string) {
+    // set language array here;
+    this.score = 0;
+
+    this.terminalSymbol = 'brawl#';
     await this.writeDelayed('Make yourself ready ... ', false);
     await sleep(1000);
     this.term.write('3 ');
     await sleep(1000);
     this.term.write('2 ');
     await sleep(1000);
-    this.term.write('1');
+    this.term.write('1\r\n');
     await sleep(1000);
-    this.term.write('\r\n');
 
     this.gameRunning = true;
-    this.inputFn = this.handleCommand;
+    //this.inputFn = this.handleCommand;
     this.commandFn = this.gameCommand;
     this.input_blocked = false;
+    this.term.clear();
+
+    await this.writeScore();
+    await this.moveToInputLine();
+
     this.term.write(` ${this.terminalSymbol} `);
+
     await sleep(this.DEFAULT_GAME_TIME * 1000);
 
     this.gameRunning = false;
     this.input_blocked = true;
-    this.inputFn = this.handleCommandWithNewline;
+    //this.inputFn = this.handleCommandWithNewline;
     this.commandFn = this.noop;
     await this.endGame();
+  }
+
+  async writeScore() {
+    // Move to the first line of the viewport
+    this.term.write('\x1b[1;1H'); // CSI H moves the cursor to the specified position (1;1 is top left)
+
+    // Clear the first line
+    this.term.write('\x1b[2K'); // CSI K clears part of the line. '2' clears the entire line.
+
+    // TODO FOrmat score to align with the same length
+
+    // Write the new scoreboard text
+    this.term.write(' SCORE: ' + this.score);
+
+    // write empty line below score line and clear the row
+    this.term.write('\x1b[2;1H\x1b[2K');
   }
 
   async endGame() {
     this.term.write('\r\n');
     await this.writeDelayed('Time is up!');
-    await sleep(1000);
+    await sleep(2000);
+    this.term.clear();
+
     await this.displayLeaderboard();
     this.resetToDefaultShell();
   }
@@ -226,29 +286,72 @@ export class BashbrawlterminalComponent implements OnInit, AfterViewInit {
   }
 
   async gameCommand(cmd: string, args: string) {
-    // TODO Game logic
-    this.term.write(' ✔ (' + cmd + ')');
-    this.term.write('\r\n');
+    // TODO Game logic to calculate score and if it is correct
+    let commandScore = 100;
+    commandScore += 10;
+    this.score += commandScore;
+
+    const totalRows = this.term.rows; // Total number of rows in the terminal
+    const commandsAreaEnd = totalRows - 2; // The last line before the fixed input line
+
+    // Write new command in the line just above the fixed input area
+    this.term.write(`\x1b[${commandsAreaEnd};1H`); // Moves cursor and clears the line
+
+    // TODO formatting
+    this.term.writeln(' ✔ ' + cmd + '  | + ' + commandScore); // Write the new command
+    //this.term.writeln(''); // Write the new command
+    // Update the scoreboard or perform other updates
+    await this.writeScore();
+
+    // Ensure the fixed input line is clean and the cursor is placed correctly
+    this.term.write(`\x1b[${totalRows - 1};1H\x1b[2K`); // Optionally clear the input line
+    this.moveToInputLine();
+  }
+
+  async moveToInputLine() {
+    // Calculate the position for the new command line, which should be one line above the current input line
+    const inputLinePosition =
+      this.term.rows + this.term.buffer.active.viewportY - 1; // Position of the input line
+    // Move back to the input line position
+    this.term.write(`\x1b[${inputLinePosition + 1};1H`);
+    this.term.write('\x1b[2K'); // Clear the line again to ensure it's clean for new input
+  }
+
+  async selectGameOption(mode: string, args: string) {
+    switch (mode) {
+      case 'welcome':
+        await this.welcome();
+        break;
+      case 'help':
+        await this.helpGame();
+        break;
+      case 'play':
+        await this.selectGameMode(args, '');
+        break;
+      case 'list':
+        await this.term.writeln('Not yet implemented: List languages');
+        break;
+      case 'leaderboard':
+        await this.displayLeaderboard();
+        break;
+      default:
+        await this.term.writeln('Invalid Option: ' + mode);
+        await this.helpGame();
+    }
   }
 
   async selectGameMode(mode: string, args: string) {
     switch (mode) {
       case 'easy':
-        this.gameMode = 'easy';
-        await this.beginGame();
+      case 'hard':
+      case 'medium':
+        await this.beginGame(mode);
         break;
       case '':
-      case 'medium':
-        this.gameMode = 'medium';
-        this.commandFn = this.selectLanguage;
-        this.term.writeln('medium it is');
-        break;
-      case 'hard':
-        this.gameMode = 'hard';
-        this.term.writeln('hard it is');
+        await this.beginGame('medium');
         break;
       default:
-        await this.writeDelayed(
+        await this.term.writeln(
           'Invalid option. Available options are: easy, medium and hard.',
         );
     }
@@ -264,17 +367,8 @@ export class BashbrawlterminalComponent implements OnInit, AfterViewInit {
       case 'clear':
         this.term.clear();
         break;
-      case 'play':
-        await this.startGame();
-        break;
-      case 'leaderboard':
-        await this.displayLeaderboard();
-        break;
-      case 'help':
-        await this.writeDelayed(
-          'Welcome to the arena! Type "play" to start the brawl!',
-          true,
-        );
+      case 'brawl':
+        await this.startGame(args);
         break;
       default:
         this.term.writeln(`Command not found: ${command}`);
@@ -310,6 +404,7 @@ export class BashbrawlterminalComponent implements OnInit, AfterViewInit {
       this.term.write(`\r\n ${this.terminalSymbol} `);
     }
     this.input_blocked = false;
+    this.inputFn = this.handleCommandWithNewline;
     this.commandFn = this.menuCommandsFn;
   }
 
