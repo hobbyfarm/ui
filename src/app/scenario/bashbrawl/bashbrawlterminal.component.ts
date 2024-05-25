@@ -48,10 +48,11 @@ export class BashbrawlterminalComponent implements OnInit, AfterViewInit {
   private TERMINAL_WHITESPACE_DELAY = 2;
 
   // Game related
-  private DEFAULT_GAME_TIME = 10; // TODO this is temporary for testing
+  private DEFAULT_GAME_TIME = 60; // TODO this is temporary for testing
   private gameMode: 'easy' | 'medium' | 'hard' = 'easy';
   private gameRunning = false;
   private commandsEntered = [];
+  private gameTime = 0;
   private score = 0;
 
   @ViewChild('terminal', { static: true }) terminalDiv: ElementRef;
@@ -108,10 +109,6 @@ export class BashbrawlterminalComponent implements OnInit, AfterViewInit {
 
     this.term.onData((e) => {
       if (e === Keycodes.CTR_C) {
-        if (this.gameRunning) {
-          return;
-        }
-
         this.resetToDefaultShell();
         this.interrupted = true;
 
@@ -192,20 +189,18 @@ export class BashbrawlterminalComponent implements OnInit, AfterViewInit {
     await this.term.writeln(
       'Start the game with one of the following option modes:',
     );
-    await this.term.writeln('  easy           All languages');
-    await this.term.writeln('  medium         Select your language');
-    await this.term.writeln(
-      '  hard           A random language will be chosen',
-    );
+    await this.writeList([
+      ['easy', 'All languages'],
+      ['medium', 'Select your language'],
+      ['hard', 'A random language will be chosen'],
+    ]);
 
     await this.term.writeln('\nUsage:');
-    await this.term.writeln(
-      '  brawl play [mode]     Enter the arena and compete in the selected mode',
-    );
-    await this.term.writeln(
-      '  brawl list             View all available languages',
-    );
-    await this.term.writeln('  brawl leaderboard      View the leaderboard');
+    await this.writeList([
+      ['brawl play [mode]', 'Enter the arena and compete'],
+      ['brawl list', 'View all available languages'],
+      ['brawl top', 'View the leaderboard'],
+    ]);
   }
   async startGame(option: string) {
     if (option && option != '') {
@@ -221,29 +216,39 @@ export class BashbrawlterminalComponent implements OnInit, AfterViewInit {
   async beginGame(gameMode: string) {
     // set language array here;
     this.score = 0;
+    this.gameTime = this.DEFAULT_GAME_TIME;
+
+    this.term.clear();
+    await this.writeScore();
 
     this.terminalSymbol = 'brawl#';
+    await this.moveToInputLine();
     await this.writeDelayed('Make yourself ready ... ', false);
     await sleep(1000);
     this.term.write('3 ');
     await sleep(1000);
     this.term.write('2 ');
     await sleep(1000);
-    this.term.write('1\r\n');
+    this.term.write('1');
     await sleep(1000);
 
     this.gameRunning = true;
     //this.inputFn = this.handleCommand;
     this.commandFn = this.gameCommand;
     this.input_blocked = false;
-    this.term.clear();
 
-    await this.writeScore();
     await this.moveToInputLine();
 
     this.term.write(` ${this.terminalSymbol} `);
 
-    await sleep(this.DEFAULT_GAME_TIME * 1000);
+    while (this.gameTime > 0) {
+      if (this.interrupted) {
+        return;
+      }
+      await sleep(1000);
+      this.gameTime -= 1;
+      await this.writeScore();
+    }
 
     this.gameRunning = false;
     this.input_blocked = true;
@@ -253,19 +258,30 @@ export class BashbrawlterminalComponent implements OnInit, AfterViewInit {
   }
 
   async writeScore() {
+    // Save the current cursor position before making any changes
+    this.term.write('\x1b[s');
+
     // Move to the first line of the viewport
     this.term.write('\x1b[1;1H'); // CSI H moves the cursor to the specified position (1;1 is top left)
 
     // Clear the first line
     this.term.write('\x1b[2K'); // CSI K clears part of the line. '2' clears the entire line.
 
-    // TODO FOrmat score to align with the same length
+    const strScore = '' + this.score;
+    let scoreFormatted = strScore;
+    if (strScore.length < 8) {
+      scoreFormatted = ' '.repeat(8 - strScore.length) + strScore;
+    }
 
     // Write the new scoreboard text
-    this.term.write(' SCORE: ' + this.score);
+    this.term.write(' SCORE: ' + scoreFormatted);
+    this.term.write(' TIME LEFT: ' + this.gameTime);
 
     // write empty line below score line and clear the row
     this.term.write('\x1b[2;1H\x1b[2K');
+
+    // Restore the previously saved cursor position
+    this.term.write('\x1b[u');
   }
 
   async endGame() {
@@ -280,9 +296,18 @@ export class BashbrawlterminalComponent implements OnInit, AfterViewInit {
 
   async displayLeaderboard() {
     await this.writeDelayed('Leaderboard');
-    await this.writeDelayed('1. Jan');
-    await this.writeDelayed('2. Jan');
-    await this.writeDelayed('3. Jan');
+    const scores = [
+      ['Jan', '12000'],
+      ['steve', '120'],
+      ['tester', '10'],
+    ];
+    const longestScore = scores[0][1]?.length ?? 0;
+    scores.forEach((scoreEntry, index) => {
+      const pad = longestScore - scoreEntry[1].length;
+      scores[index][1] = ' '.repeat(pad) + scoreEntry[1];
+    });
+
+    await this.writeList(scores, true);
   }
 
   async gameCommand(cmd: string, args: string) {
@@ -305,7 +330,7 @@ export class BashbrawlterminalComponent implements OnInit, AfterViewInit {
 
     // Ensure the fixed input line is clean and the cursor is placed correctly
     this.term.write(`\x1b[${totalRows - 1};1H\x1b[2K`); // Optionally clear the input line
-    this.moveToInputLine();
+    await this.moveToInputLine();
   }
 
   async moveToInputLine() {
@@ -332,6 +357,7 @@ export class BashbrawlterminalComponent implements OnInit, AfterViewInit {
         await this.term.writeln('Not yet implemented: List languages');
         break;
       case 'leaderboard':
+      case 'top':
         await this.displayLeaderboard();
         break;
       default:
@@ -410,6 +436,25 @@ export class BashbrawlterminalComponent implements OnInit, AfterViewInit {
 
   async noop(command: string, args: string) {
     // none
+  }
+
+  async writeList(text: string[][], writeDelayed: boolean = false) {
+    let longestFirstLine = 0;
+    text.forEach((data) => {
+      longestFirstLine = Math.max(data[0]?.length, longestFirstLine);
+    });
+
+    for (const data of text) {
+      const paddingLength = longestFirstLine - data[0]?.length;
+      const strToPrint = `  ${data[0]}${' '.repeat(paddingLength)}   ${
+        data[1]
+      }`;
+      if (writeDelayed) {
+        await this.writeDelayed(strToPrint);
+      } else {
+        this.term.writeln(strToPrint);
+      }
+    }
   }
 
   async writeDelayed(
