@@ -33,20 +33,24 @@ export class BashbrawlterminalComponent implements OnInit, AfterViewInit {
   public mutationObserver: MutationObserver;
 
   private command = '';
+  private commandFn: (command: string, params: string) => void =
+    this.menuCommandsFn;
+  private inputFn: (command: string) => void = this.handleCommandWithNewline;
   private cursorPosition = 0;
   private DEFAULT_FONT_SIZE = 16;
   private DEFAULT_TERMINAL_THEME = 'default';
+  private DEFAULT_TERMINAL_SYMBOL = '#';
 
-  private TERMINAL_SYMBOL = '#';
+  private terminalSymbol = '#';
   private input_blocked = true;
   private interrupted = false;
-  private inside_subprogram = false;
   private TERMINAL_CHAR_DELAY = 40;
   private TERMINAL_WHITESPACE_DELAY = 2;
-  private CTX_HANDLE_COMMAND = this.handleCommand;
 
   // Game related
+  private DEFAULT_GAME_TIME = 10;
   private gameMode: 'easy' | 'medium' | 'hard' = 'easy';
+  private gameRunning = false;
 
   @ViewChild('terminal', { static: true }) terminalDiv: ElementRef;
 
@@ -98,16 +102,14 @@ export class BashbrawlterminalComponent implements OnInit, AfterViewInit {
     this.resize();
     //this.term.write('welcome to Xterm.js Demo');
 
-    this.handleCommand('help', true);
+    this.handleCommand('help');
 
     this.term.onData((e) => {
       if (e === Keycodes.CTR_C) {
-        if (!this.inside_subprogram) {
-          return;
-        }
-        this.interrupted = true;
-        this.input_blocked = false;
+        console.log('interrupted');
         this.resetToDefaultShell();
+        this.interrupted = true;
+
         return;
       }
 
@@ -117,7 +119,7 @@ export class BashbrawlterminalComponent implements OnInit, AfterViewInit {
 
       if (e === Keycodes.ENTER) {
         this.cursorPosition = 0;
-        this.CTX_HANDLE_COMMAND(this.command.trim());
+        this.inputFn(this.command.trim());
         this.command = ''; // Reset command buffer
       } else if (e === Keycodes.BACKSPACE) {
         if (this.command.length > 0) {
@@ -172,23 +174,73 @@ export class BashbrawlterminalComponent implements OnInit, AfterViewInit {
   }
 
   async startGame() {
-    this.TERMINAL_SYMBOL = '>>>';
+    this.terminalSymbol = 'brawl#';
 
-    this.CTX_HANDLE_COMMAND = this.selectGameMode;
+    this.commandFn = this.selectGameMode;
     await this.writeDelayed('Select the game mode');
-    await this.writeDelayed('XY the game mode');
     await this.writeDelayed('-easy');
+    await this.writeDelayed('-medium (default)');
+    await this.writeDelayed('-hard');
   }
 
-  async selectGameMode(mode: string) {
+  async selectLanguage() {}
+
+  async beginGame() {
+    await this.writeDelayed('Make yourself ready ... ', false);
+    await sleep(1000);
+    this.term.write('3 ');
+    await sleep(1000);
+    this.term.write('2 ');
+    await sleep(1000);
+    this.term.write('1');
+    await sleep(1000);
     this.term.write('\r\n');
+
+    this.gameRunning = true;
+    this.inputFn = this.handleCommand;
+    this.commandFn = this.gameCommand;
+    this.input_blocked = false;
+    this.term.write(` ${this.terminalSymbol} `);
+    await sleep(this.DEFAULT_GAME_TIME * 1000);
+
+    this.gameRunning = false;
+    this.input_blocked = true;
+    this.inputFn = this.handleCommandWithNewline;
+    this.commandFn = this.noop;
+    await this.endGame();
+  }
+
+  async endGame() {
+    this.term.write('\r\n');
+    await this.writeDelayed('Time is up!');
+    await sleep(1000);
+    await this.displayLeaderboard();
+    this.resetToDefaultShell();
+  }
+
+  async displayLeaderboard() {
+    await this.writeDelayed('Leaderboard');
+    await this.writeDelayed('1. Jan');
+    await this.writeDelayed('2. Jan');
+    await this.writeDelayed('3. Jan');
+  }
+
+  async gameCommand(cmd: string, args: string) {
+    // TODO Game logic
+    this.term.write(' ✔ (' + cmd + ')');
+    this.term.write('\r\n');
+  }
+
+  async selectGameMode(mode: string, args: string) {
     switch (mode) {
       case 'easy':
         this.gameMode = 'easy';
-        this.term.writeln('easy it is');
+        await this.beginGame();
         break;
+      case '':
       case 'medium':
         this.gameMode = 'medium';
+        this.commandFn = this.selectLanguage;
         this.term.writeln('medium it is');
         break;
       case 'hard':
@@ -200,33 +252,23 @@ export class BashbrawlterminalComponent implements OnInit, AfterViewInit {
           'Invalid option. Available options are: easy, medium and hard.',
         );
     }
-    this.term.write(` ${this.TERMINAL_SYMBOL} `);
   }
 
-  async handleCommand(input: string, withoutNewline = false) {
-    const args = input.split(' ');
-    const command = args[0];
-    const params = args.slice(1).join(' ');
-
-    this.input_blocked = true;
-    this.interrupted = false;
-    this.inside_subprogram = true;
-    /// Give output in newline
-    if (!withoutNewline) {
-      this.term.write('\r\n');
-    }
-
+  async menuCommandsFn(command: string, args: string) {
     switch (command) {
       case '':
         break;
       case 'echo':
-        this.term.writeln(params);
+        this.term.writeln(args);
         break;
       case 'clear':
         this.term.clear();
         break;
       case 'play':
         await this.startGame();
+        break;
+      case 'leaderboard':
+        await this.displayLeaderboard();
         break;
       case 'help':
         await this.writeDelayed(
@@ -237,18 +279,42 @@ export class BashbrawlterminalComponent implements OnInit, AfterViewInit {
       default:
         this.term.writeln(`Command not found: ${command}`);
     }
+  }
+  async handleCommand(input: string) {
+    const args = input.split(' ');
+    const command = args[0];
+    const params = args.slice(1).join(' ');
 
-    // New Shell symbol
-    this.term.write(` ${this.TERMINAL_SYMBOL} `);
-    this.inside_subprogram = false;
+    this.input_blocked = true;
+    this.interrupted = false;
+
+    await this.commandFn(command, params);
+
+    this.term.write(` ${this.terminalSymbol} `);
     this.interrupted = false;
     this.input_blocked = false;
   }
 
+  async handleCommandWithNewline(input: string) {
+    this.term.write('\r\n');
+    await this.handleCommand(input);
+  }
+
   resetToDefaultShell() {
-    this.TERMINAL_SYMBOL = '#';
+    this.command = '';
+    this.terminalSymbol = this.DEFAULT_TERMINAL_SYMBOL;
     this.cursorPosition = 0;
-    this.CTX_HANDLE_COMMAND = this.handleCommand;
+
+    if (!this.input_blocked) {
+      // We are inside a shell. Abort
+      this.term.write(`\r\n ${this.terminalSymbol} `);
+    }
+    this.input_blocked = false;
+    this.commandFn = this.menuCommandsFn;
+  }
+
+  async noop(command: string, args: string) {
+    // none
   }
 
   async writeDelayed(
