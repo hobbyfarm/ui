@@ -185,7 +185,6 @@ export class BashbrawlterminalComponent implements OnInit, AfterViewInit {
         // TODO implement some weird logic here
         console.log('DOWN');
       } else {
-        console.log(e);
         const beforeChar = this.command.slice(0, this.cursorPosition);
         const afterChar = this.command.slice(this.cursorPosition);
         this.term.write(e + afterChar + '\b'.repeat(afterChar.length));
@@ -439,7 +438,6 @@ export class BashbrawlterminalComponent implements OnInit, AfterViewInit {
     const entries = this.leaderboard.scores;
 
     if (!entries) {
-      console.log('No entries found for this language.');
       return [];
     }
 
@@ -664,8 +662,7 @@ export class BashbrawlterminalComponent implements OnInit, AfterViewInit {
       case '':
         break;
       case 'ls':
-        // TODO add color like it is an executable
-        await this.writeMatrix([['brawl']]);
+        await this.writeMatrix([['\x1b[1;32mbrawl\x1b[0m']]);
         break;
       case 'echo':
         this.term.writeln(args);
@@ -719,8 +716,6 @@ export class BashbrawlterminalComponent implements OnInit, AfterViewInit {
   }
 
   async writeMatrix(text: string[][], writeDelayed: boolean = false) {
-    // eslint-disable-next-line no-control-rege
-
     const maxColumns = text.reduce((max, row) => Math.max(max, row.length), 0);
     // Calculate the longest string in each column
     const maxLengths: number[] = Array(maxColumns).fill(0);
@@ -793,11 +788,6 @@ export class BashbrawlterminalComponent implements OnInit, AfterViewInit {
 
   ngOnInit() {
     this.buildTerminal();
-
-    //const storedLeaderboard = localStorage.getItem('leaderboard');
-    //if (storedLeaderboard) {
-    //  this.leaderboard = JSON.parse(storedLeaderboard, this.reviver);
-    //}
   }
 
   ngAfterViewInit(): void {
