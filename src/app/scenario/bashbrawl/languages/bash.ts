@@ -3570,5 +3570,6 @@ export const bashConfig: LanguageConfig = {
     ['{'],
     ['}'],
     ['vim'],
+    ['htop'],
   ],
 };

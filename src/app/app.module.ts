@@ -46,6 +46,7 @@ import { IdeWindowComponent } from './scenario/ideWindow.component';
 import { ContextService } from './services/context.service';
 import { TypedSettingsService } from './services/typedSettings.service';
 import { LanguageCommandService } from './scenario/bashbrawl/languages/language-command.service';
+import { ScoreService } from './services/score.service';
 import { VerificationService } from './services/verification.service';
 import { TaskProgressComponent } from './scenario/task-progress/task-progress.component';
 import { TaskModalComponent } from './scenario/task-modal/task-modal.component';
@@ -226,6 +227,7 @@ export function jwtOptionsFactory() {
     TypedSettingsService,
     VerificationService,
     LanguageCommandService,
+    ScoreService,
     {
       provide: APP_INITIALIZER,
       useFactory: appInitializerFn,
