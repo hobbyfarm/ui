@@ -336,7 +336,7 @@ export class BashbrawlterminalComponent implements OnInit, AfterViewInit {
 
   async enterNameForLeaderboard(name: string, args: string) {
     name = stripAnsi(name);
-    args = stripAnsi(name);
+    args = stripAnsi(args);
 
     if (!name || name == '') {
       await this.writeDelayed('Please enter your Name:');
@@ -350,6 +350,7 @@ export class BashbrawlterminalComponent implements OnInit, AfterViewInit {
 
     if (fullName.length > 20) {
       await this.writeDelayed('Maximum length is 20 chars: Enter again:');
+      return;
     }
 
     this.input_blocked = true;
@@ -396,7 +397,7 @@ export class BashbrawlterminalComponent implements OnInit, AfterViewInit {
       this.leaderboard.language == '' ||
       this.leaderboard.scores.length == 0
     ) {
-      await this.writeDelayed(`No Leaderboard for this language present.`);
+      await this.term.writeln(`No Leaderboard for this language present.`);
       return;
     }
 
