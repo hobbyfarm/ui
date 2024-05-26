@@ -201,9 +201,9 @@ export class BashbrawlterminalComponent implements OnInit, AfterViewInit {
       ['brawl play', 'Commands from all languages are accepted'],
       [
         'brawl play [language]',
-        'Enter the arena and compete with a single language',
+        'Only commands from the selected language are accepted',
       ],
-      ['brawl list', 'View all available languages'],
+      ['brawl lang', 'View all available languages'],
       ['brawl top', 'View the leaderboard'],
     ]);
   }
@@ -260,6 +260,8 @@ export class BashbrawlterminalComponent implements OnInit, AfterViewInit {
 
     this.gameRunning = false;
     this.input_blocked = true;
+    this.command = '';
+    this.cursorPosition = 0;
     //this.inputFn = this.handleCommandWithNewline;
     this.commandFn = this.noop;
     await this.endGame();
@@ -301,12 +303,23 @@ export class BashbrawlterminalComponent implements OnInit, AfterViewInit {
     await this.writeDelayed('Time is up!');
     await sleep(2000);
     await this.writeDelayed('You scored ' + this.score + '!');
+
+    const placement =
+      this.leaderboard
+        .get(this.gameLanguage)
+        ?.filter((s) => s.score > this.score).length ?? 0;
+
+    if (placement < 10 && placement > 0) {
+      await this.writeDelayed(`TOP SCORE!`);
+    } else if (placement == 0) {
+      await this.writeDelayed(`🔥 HIGHSCORE🔥`);
+    }
+
     await this.writeDelayed(
       'Your highest Streak was ' + this.highestStreak + '.',
     );
-    // TODO print new highscrore
 
-    await this.writeDelayed('Truly incredible. Enter your name:');
+    await this.writeDelayed('Enter your name:');
 
     this.commandFn = this.enterNameForLeaderboard;
     this.input_blocked = false;
@@ -325,6 +338,11 @@ export class BashbrawlterminalComponent implements OnInit, AfterViewInit {
     if (args) {
       fullName += ' ' + args;
     }
+
+    if (fullName.length > 20) {
+      await this.writeDelayed('Maximum length is 20 chars: Enter again:');
+    }
+
     this.input_blocked = true;
 
     const score = { name: fullName, score: this.score };
@@ -336,16 +354,34 @@ export class BashbrawlterminalComponent implements OnInit, AfterViewInit {
       this.leaderboard.set(this.gameLanguage, [score]);
     }
 
-    // TODO store leaderboard here
+    // TODO store entry in hobbyfarm service here
+
+    const jsonLeaderboard = JSON.stringify(this.leaderboard, this.replacer);
+    localStorage.setItem('leaderboard', jsonLeaderboard);
+
+    const placement =
+      this.leaderboard
+        .get(this.gameLanguage)
+        ?.filter((s) => s.score > score.score).length ?? 0;
+
+    const scoreWithPlacement: {
+      name: string;
+      score: number;
+      placement: number;
+    } = { name: score.name, score: score.score, placement: placement };
 
     await this.writeDelayed(`Thank you for playing, ${fullName}!`);
     await this.writeDelayed(`Let's view the Leaderboard.`);
 
-    await this.displayLeaderboard(this.gameLanguage);
+    await this.displayLeaderboard(this.gameLanguage, scoreWithPlacement);
+
     this.resetToDefaultShell();
   }
 
-  async displayLeaderboard(language: string) {
+  async displayLeaderboard(
+    language: string,
+    score: { name: string; score: number; placement: number },
+  ) {
     if (!language || language == '') {
       language = 'all';
     }
@@ -354,22 +390,54 @@ export class BashbrawlterminalComponent implements OnInit, AfterViewInit {
       return;
     }
 
-    await this.writeDelayed('Leaderboard');
+    const langName = this.languageCommandService.getLanguageNameById(language);
 
-    const scores = this.getTopPlayersByLanguage(this.leaderboard, language);
+    await this.writeDelayed(
+      '-------------' + '-'.repeat(langName.length) + '-',
+    );
+    await this.writeDelayed('LEADERBOARD (' + langName + ')');
+    await this.writeDelayed(
+      '-------------' + '-'.repeat(langName.length) + '-',
+    );
 
-    const longestScore = scores[0][1]?.length ?? 0;
+    const topPlayerScores = this.getTopPlayersByLanguage(
+      this.leaderboard,
+      language,
+    );
+
+    if (topPlayerScores.length == 0) {
+      await this.writeDelayed('No entries yet.');
+      return;
+    }
+
+    let scores = [['', 'NAME', 'SCORE']]; // Table heading for scoreboard
+    scores = scores.concat(topPlayerScores);
+
+    if (score && score.placement > 10) {
+      scores.push(['...', '...', '...']);
+      const localScores = this.getPlayersByLanguageWithRange(
+        this.leaderboard,
+        language,
+        Math.max(score.placement - 3, 10),
+        5,
+      );
+      scores = scores.concat(localScores);
+    }
+
+    const longestScore = topPlayerScores[0][2]?.length ?? 0; // First score entry has the highest score so it is the longest,
     scores.forEach((scoreEntry, index) => {
-      const pad = longestScore - scoreEntry[1].length;
-      scores[index][1] = ' '.repeat(pad) + scoreEntry[1];
+      const pad = Math.max(longestScore - scoreEntry[2].length, 0);
+      scores[index][2] = ' '.repeat(pad) + scoreEntry[2];
     });
 
     await this.writeMatrix(scores, true);
   }
 
-  getTopPlayersByLanguage(
+  getPlayersByLanguageWithRange(
     leaderboard: Map<string, { name: string; score: number }[]>,
     language: string,
+    offset: number = 0,
+    limit = 10,
   ): string[][] {
     // Retrieve the list of players for the specified language
     const entries = leaderboard.get(language);
@@ -382,19 +450,33 @@ export class BashbrawlterminalComponent implements OnInit, AfterViewInit {
     // Sort the entries by score in descending order
     const sortedEntries = entries.sort((a, b) => b.score - a.score);
 
-    // Take the top 10 players
-    const topPlayers = sortedEntries.slice(0, 10);
+    // Take the selected players by range
+    const playerRange = sortedEntries.slice(offset, offset + limit);
 
     // Convert to a two-dimensional array format: [name, score]
-    return topPlayers.map((player) => [player.name, player.score.toString()]);
+    return playerRange.map((player, index) => [
+      '' + (index + 1 + offset) + '.',
+      player.name,
+      player.score.toString(),
+    ]);
+  }
+
+  getTopPlayersByLanguage(
+    leaderboard: Map<string, { name: string; score: number }[]>,
+    language: string,
+  ): string[][] {
+    // Retrieve the list of players for the specified language
+    return this.getPlayersByLanguageWithRange(leaderboard, language, 0, 10);
   }
 
   async displayAvailableLanguages() {
-    const languages = this.languageCommandService
+    let languages = this.languageCommandService
       .getLanguageKeys()
       .sort((a, b) => {
         return a.toLowerCase() > b.toLowerCase() ? 1 : -1;
       });
+
+    languages = ['all'].concat(languages);
 
     const matrix = this.convertToMatrix(languages, 7);
     await this.writeMatrix(matrix, false);
@@ -551,12 +633,17 @@ export class BashbrawlterminalComponent implements OnInit, AfterViewInit {
       case 'play':
         await this.selectLanguage(params, '');
         break;
-      case 'list':
+      case 'lang':
+      case 'languages':
         await this.displayAvailableLanguages();
         break;
       case 'leaderboard':
       case 'top':
-        await this.displayLeaderboard(params);
+        await this.displayLeaderboard(params, {
+          placement: 0,
+          name: '',
+          score: 0,
+        });
         break;
       default:
         await this.term.writeln('Invalid Option: ' + input);
@@ -706,8 +793,7 @@ export class BashbrawlterminalComponent implements OnInit, AfterViewInit {
 
     const storedLeaderboard = localStorage.getItem('leaderboard');
     if (storedLeaderboard) {
-      // Load leaderboard
-      this.leaderboard = JSON.parse(storedLeaderboard);
+      this.leaderboard = JSON.parse(storedLeaderboard, this.reviver);
     }
   }
 
@@ -802,5 +888,25 @@ export class BashbrawlterminalComponent implements OnInit, AfterViewInit {
     if (!this.term) return;
     this.term.options.fontSize = size ?? this.DEFAULT_FONT_SIZE;
     this.resize();
+  }
+
+  replacer(key: any, value: any) {
+    if (value instanceof Map) {
+      return {
+        dataType: 'Map',
+        value: Array.from(value.entries()), // or with spread: value: [...value]
+      };
+    } else {
+      return value;
+    }
+  }
+
+  reviver(key: any, value: any) {
+    if (typeof value === 'object' && value !== null) {
+      if (value.dataType === 'Map') {
+        return new Map(value.value);
+      }
+    }
+    return value;
   }
 }

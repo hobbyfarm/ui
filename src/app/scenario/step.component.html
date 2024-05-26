@@ -245,7 +245,7 @@
               </clr-tab>
             </ng-container>
           </ng-container>
-          <ng-container *ngIf="bashbrawl_active">
+          <ng-container *ngIf="bashbrawl_active && !isContentOnly">
             <clr-tab #tab>
               <button clrTabLink id="bashbrawl" [clrTabLinkInOverflow]="true">
                 <cds-icon size="24" shape="terminal"></cds-icon> Arcade
