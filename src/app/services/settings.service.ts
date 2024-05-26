@@ -51,7 +51,7 @@ export class SettingsService {
       ),
       tap((s: Settings) => {
         s.ctr_enabled = JSON.parse(String(s.ctr_enabled ?? true));
-        s.bashbrawl_enabled = JSON.parse(String(s.bashbrawl_enabled ?? true));
+        s.bashbrawl_enabled = JSON.parse(String(s.bashbrawl_enabled ?? false));
         this.subject.next(s);
       }),
     );
