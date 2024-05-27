@@ -7,9 +7,7 @@ import {
   OnInit,
 } from '@angular/core';
 import { Terminal } from 'xterm';
-import { AttachAddon } from 'xterm-addon-attach';
 import { FitAddon, ITerminalDimensions } from 'xterm-addon-fit';
-import { JwtHelperService } from '@auth0/angular-jwt';
 import { HostListener } from '@angular/core';
 import { themes } from '../terminal-themes/themes';
 import { SettingsService } from '../../services/settings.service';
@@ -79,7 +77,6 @@ export class BashbrawlterminalComponent implements OnInit, AfterViewInit {
   @ViewChild('terminal', { static: true }) terminalDiv: ElementRef;
 
   constructor(
-    private jwtHelper: JwtHelperService,
     private settingsService: SettingsService,
     private languageCommandService: LanguageCommandService,
     private scoreService: ScoreService,
