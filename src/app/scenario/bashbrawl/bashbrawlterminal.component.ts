@@ -362,9 +362,6 @@ export class BashbrawlterminalComponent implements OnInit, AfterViewInit {
     score.name = '>>\x1b[1;31m ' + score.name + ' \x1b[0m<<'; // \x1b[1;31m makes the text bold (1) and red (31), \x1b[0m clears all effects
     this.leaderboard.scores.push(score);
 
-    const jsonLeaderboard = JSON.stringify(this.leaderboard, this.replacer);
-    localStorage.setItem('leaderboard', jsonLeaderboard);
-
     const placement =
       this.leaderboard.scores.filter((s) => s.score > score.score).length ?? 0;
 
@@ -879,25 +876,5 @@ export class BashbrawlterminalComponent implements OnInit, AfterViewInit {
     if (!this.term) return;
     this.term.options.fontSize = size ?? this.DEFAULT_FONT_SIZE;
     this.resize();
-  }
-
-  replacer(key: any, value: any) {
-    if (value instanceof Map) {
-      return {
-        dataType: 'Map',
-        value: Array.from(value.entries()), // or with spread: value: [...value]
-      };
-    } else {
-      return value;
-    }
-  }
-
-  reviver(key: any, value: any) {
-    if (typeof value === 'object' && value !== null) {
-      if (value.dataType === 'Map') {
-        return new Map(value.value);
-      }
-    }
-    return value;
   }
 }
