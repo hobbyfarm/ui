@@ -40,13 +40,12 @@ const stripAnsi = (str: string) => str.replace(/\x1b\[[0-9;]*m/g, '');
   encapsulation: ViewEncapsulation.None,
 })
 export class BashbrawlterminalComponent implements OnInit, AfterViewInit {
-
   @Output()
   gameEnded = new EventEmitter();
 
   @Output()
   gameStarted = new EventEmitter();
-  
+
   private term: Terminal;
   private fitAddon: FitAddon = new FitAddon();
   private firstTabChange = true;
@@ -138,10 +137,10 @@ export class BashbrawlterminalComponent implements OnInit, AfterViewInit {
       if (e === Keycodes.CTR_C) {
         this.resetToDefaultShell();
         this.interrupted = true;
-        if(this.gameRunning){
+        if (this.gameRunning) {
           this.gameEnded.emit();
         }
-      
+
         return;
       }
 
@@ -209,11 +208,8 @@ export class BashbrawlterminalComponent implements OnInit, AfterViewInit {
 
     await this.term.writeln('\nUsage:');
     await this.writeMatrix([
-      ['brawl play', 'Commands from all languages are accepted'],
-      [
-        'brawl play [language]',
-        'Only commands from the selected language are accepted',
-      ],
+      ['brawl play', 'Play with all languages'],
+      ['brawl play [language]', 'Play selected language'],
       ['brawl lang', 'View all available languages'],
       ['brawl top', 'View the leaderboard'],
     ]);
@@ -229,23 +225,34 @@ export class BashbrawlterminalComponent implements OnInit, AfterViewInit {
 
   async confirmBeginGame(language: string) {
     this.gameStarted.emit();
-    if(language == "all"){
-      await this.writeDelayed('You have ' + this.DEFAULT_GAME_TIME + ' seconds to input commands from:', true);
+    if (language == 'all') {
+      await this.writeDelayed(
+        'You have ' +
+          this.DEFAULT_GAME_TIME +
+          ' seconds to input commands from:',
+        true,
+      );
       await this.displayAvailableLanguages(false);
-    }else {
-      await this.writeDelayed('You have ' + this.DEFAULT_GAME_TIME + ' seconds to input commands from ' + this.languageCommandService.getLanguageNameById(language), true);
+    } else {
+      await this.writeDelayed(
+        'You have ' +
+          this.DEFAULT_GAME_TIME +
+          ' seconds to input commands from ' +
+          this.languageCommandService.getLanguageNameById(language),
+        true,
+      );
     }
 
-    this.gameLanguage = language
+    this.gameLanguage = language;
 
     this.input_blocked = false;
     this.terminalSymbol = `Press Enter to start!`;
-    this.commandFn = this.confirmBeginGameFn
+    this.commandFn = this.confirmBeginGameFn;
   }
 
   async confirmBeginGameFn() {
     this.input_blocked = true;
-    this.beginGame()
+    this.beginGame();
   }
 
   async beginGame() {
@@ -310,7 +317,7 @@ export class BashbrawlterminalComponent implements OnInit, AfterViewInit {
   }
 
   async writeScore() {
-    if(this.interrupted){
+    if (this.interrupted) {
       return;
     }
     // Save the current cursor position before making any changes
@@ -420,10 +427,10 @@ export class BashbrawlterminalComponent implements OnInit, AfterViewInit {
 
     this.terminalSymbol = `Press Enter to continue!`;
 
-    this.commandFn = this.endGame
+    this.commandFn = this.endGame;
   }
 
-  async endGame(command: string, params: string){
+  async endGame(command: string, params: string) {
     this.input_blocked = true;
     this.resetToDefaultShell();
     this.gameEnded.emit();
@@ -512,10 +519,9 @@ export class BashbrawlterminalComponent implements OnInit, AfterViewInit {
         return a.toLowerCase() > b.toLowerCase() ? 1 : -1;
       });
 
-     if(incluedAll){
+    if (incluedAll) {
       languages = ['all'].concat(languages);
-     }
-
+    }
 
     const matrix = this.convertToMatrix(languages, 7);
     await this.writeMatrix(matrix, false);
@@ -748,7 +754,6 @@ export class BashbrawlterminalComponent implements OnInit, AfterViewInit {
   resetToDefaultShell() {
     this.terminalSymbol = this.DEFAULT_TERMINAL_SYMBOL;
 
-
     if (!this.input_blocked) {
       // We are inside a shell. Abort
       this.term.write(`\r\n ${this.terminalSymbol} `);
@@ -795,9 +800,9 @@ export class BashbrawlterminalComponent implements OnInit, AfterViewInit {
 
       // Write the formatted row to the terminal
       if (writeDelayed) {
-        await this.writeDelayed(" " + rowString);
+        await this.writeDelayed(' ' + rowString);
       } else {
-        this.term.writeln(" " + rowString);
+        this.term.writeln(' ' + rowString);
       }
     }
   }
@@ -933,7 +938,7 @@ export class BashbrawlterminalComponent implements OnInit, AfterViewInit {
     this.resize();
   }
 
-  public clearTerminal(){
+  public clearTerminal() {
     this.term.clear();
   }
 }
