@@ -126,11 +126,11 @@ img:hover {
   cursor: -webkit-zoom-out;
 }
 
-.as-hidden{
+.as-hidden {
   opacity: 0;
 }
 
-.brawl-instructions{
+.brawl-instructions {
   background-color: #01162a;
   color: white;
   padding: 0px 0px 24px 0;
@@ -149,16 +149,16 @@ img:hover {
     p {
       color: white;
     }
-    &.centered{
+    &.centered {
       text-align: center;
     }
 
-    .brawl-color{
+    .brawl-color {
       color: #74e2cd;
     }
   }
 
-  .brawl-language{
+  .brawl-language {
     color: #74e2cd;
     font-size: 20px;
     font-weight: bold;
