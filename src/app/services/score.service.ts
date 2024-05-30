@@ -31,6 +31,8 @@ export class ScoreService {
       'Content-Type': 'application/json',
     });
 
-    return this.garg.post('/add/' + language, score, { headers });
+    return this.garg
+      .post('/add/' + language, score, { headers })
+      .pipe(map(extractResponseContent));
   }
 }
