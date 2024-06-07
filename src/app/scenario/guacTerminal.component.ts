@@ -410,8 +410,8 @@ export class GuacTerminalComponent implements OnChanges {
     // setting timeout so display has time to get the correct size
     setTimeout(() => {
       const scale = Math.min(
-        Math.floor(elm.clientWidth / Math.max(this.display.getWidth(), 1)),
-        Math.floor(elm.clientHeight / Math.max(this.display.getHeight(), 1)),
+        elm.clientWidth / Math.max(this.display.getWidth(), 1),
+        elm.clientHeight / Math.max(this.display.getHeight(), 1),
       );
       this.display.scale(scale);
     }, 100);
