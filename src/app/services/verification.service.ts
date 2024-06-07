@@ -10,6 +10,7 @@ import { BehaviorSubject, throwError } from 'rxjs';
 import { catchError, tap } from 'rxjs/operators';
 import { HttpErrorResponse } from '@angular/common/http';
 import { VMService } from './vm.service';
+import { atou } from '../unicode';
 
 @Injectable()
 export class VerificationService {
@@ -98,7 +99,7 @@ export class VerificationService {
 
   private publishNewVerificationResults(response: ServerResponse) {
     const newVerificationList = JSON.parse(
-      decodeResponse(response.content),
+      atou(response.content),
     ) as unknown as TaskVerificationResponse[];
     newVerificationList.forEach(
       (newTaskVerification: TaskVerificationResponse) => {
@@ -119,15 +120,4 @@ export class VerificationService {
     );
     this._verifications.next(this._verifications.value);
   }
-}
-
-function decodeResponse(responseContent: string) {
-  const text = atob(responseContent);
-  const length = text.length;
-  const bytes = new Uint8Array(length);
-  for (let i = 0; i < length; i++) {
-    bytes[i] = text.charCodeAt(i);
-  }
-  const decoder = new TextDecoder(); // default is utf-8
-  return decoder.decode(bytes);
 }
