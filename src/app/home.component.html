@@ -104,7 +104,10 @@
       </div>
     </ng-container>
 
-    <div class="clr-row" *ngIf="courses.length > 0 && ctx.valid">
+    <div
+      class="clr-row course-container"
+      *ngIf="courses.length > 0 && ctx.valid"
+    >
       <div class="clr-col-12">
         <ng-container *ngFor="let c of courses">
           <h3 class="course-header">{{ c.name | atob }}</h3>
