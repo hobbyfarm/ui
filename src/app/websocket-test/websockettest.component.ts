@@ -10,9 +10,9 @@ import { ActivatedRoute } from '@angular/router';
 export class WebsocketTestComponent implements OnInit {
   wsEndpoint: string;
   endpoint: string;
-  inProgress: boolean = false;
+  inProgress = false;
   success: boolean;
-  socketInProgress: boolean = false;
+  socketInProgress = false;
   socketSuccess: boolean;
 
   constructor(private route: ActivatedRoute, private http: HttpClient) {}
@@ -34,7 +34,7 @@ export class WebsocketTestComponent implements OnInit {
   }
 
   testWSConnection() {
-    var socket = new WebSocket(this.wsEndpoint);
+    const socket = new WebSocket(this.wsEndpoint);
     socket.onmessage = (event) => {
       if (event.data == 'pong') {
         this.socketSuccess = true;
