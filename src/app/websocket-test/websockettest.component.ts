@@ -44,14 +44,5 @@ export class WebsocketTestComponent implements OnInit {
     socket.onopen = () => {
       socket.send('ping');
     };
-
-    socket.onerror = () => {
-      this.socketInProgress = true;
-    };
-
-    socket.onerror = () => {
-      this.socketInProgress = false;
-      this.socketSuccess = false;
-    };
   }
 }
