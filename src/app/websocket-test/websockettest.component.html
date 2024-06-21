@@ -1,0 +1,6 @@
+<div *ngIf="!success">Healthcheck failed</div>
+<div *ngIf="success">Healthcheck Success</div>
+<div *ngIf="!socketInProgress && !socketSuccess">
+  Websocket connection was not established
+</div>
+<div *ngIf="socketSuccess">Websocket connection established.</div>

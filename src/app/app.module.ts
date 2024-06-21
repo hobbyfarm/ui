@@ -48,6 +48,7 @@ import { VerificationService } from './services/verification.service';
 import { TaskProgressComponent } from './scenario/task-progress/task-progress.component';
 import { TaskModalComponent } from './scenario/task-modal/task-modal.component';
 import { SingleTaskVerificationMarkdownComponent } from './hf-markdown/single-task-verification-markdown/single-task-verification-markdown.component';
+import { WebsocketTestComponent } from './websocket-test/websockettest.component';
 import '@cds/core/icon/register.js';
 import {
   ClarityIcons,
@@ -171,6 +172,7 @@ export function jwtOptionsFactory() {
     TaskProgressComponent,
     TaskModalComponent,
     SingleTaskVerificationMarkdownComponent,
+    WebsocketTestComponent,
   ],
   imports: [
     BrowserModule,
