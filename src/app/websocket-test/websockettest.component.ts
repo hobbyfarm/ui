@@ -2,6 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { HfMarkdownRenderContext } from '../hf-markdown/hf-markdown.component';
+import { AppConfigService } from '../app-config.service';
 
 @Component({
   selector: 'app-websockettest',
@@ -19,7 +20,14 @@ export class WebsocketTestComponent implements OnInit {
   markdownString = '';
   mdContext: HfMarkdownRenderContext = { vmInfo: {}, session: '' };
 
-  constructor(private route: ActivatedRoute, private http: HttpClient) {}
+  private Config = this.config.getConfig();
+  public title = this.Config.title || "Rancher's Hobby Farm";
+
+  constructor(
+    private config: AppConfigService,
+    private route: ActivatedRoute,
+    private http: HttpClient,
+  ) {}
   ngOnInit(): void {
     this.target = this.route.snapshot.params['url'];
     this.endpoint = 'https://' + this.target + '/shell/healthz';
