@@ -9,10 +9,12 @@ import { AuthGuard } from './auth.guard';
 import { StepComponent } from './scenario/step.component';
 import { PrintableComponent } from './printable/printable.component';
 import { GuacTerminalComponent } from './scenario/guacTerminal.component';
+import { WebsocketTestComponent } from './websocket-test/websockettest.component';
 
 const routes: Routes = [
   { path: '', redirectTo: '/app/home', pathMatch: 'full' },
   { path: 'login', component: LoginComponent },
+  { path: 'test/:url', component: WebsocketTestComponent },
   {
     path: 'add/:accesscode',
     component: AppComponent,

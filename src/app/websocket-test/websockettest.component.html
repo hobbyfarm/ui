@@ -1,0 +1,43 @@
+<div class="main-container">
+  <header class="header header-4">
+    <div class="branding">
+      <a>
+        <cds-icon shape="logo"></cds-icon>
+        <span class="title">{{ title }}</span>
+      </a>
+    </div>
+  </header>
+
+  <as-split unit="percent" direction="horizontal">
+    <as-split-area [size]="50" class="split-area-1">
+      <h1>Websocket Tester</h1>
+      This page is dedicated to test if the websocket for the shell proxy is
+      reachable. If it is reachable you should be able to see
+      <ol>
+        <li>/healthz endpoint responding with 200</li>
+        <li>Websocket being opened</li>
+        <li>Client sending a ping</li>
+        <li>Websocket responding with pong</li>
+      </ol>
+      <h2>Troubleshooting</h2>
+      If the /healthz endopoint is not responding you should check if the shell
+      proxy is up and running. Also verify that {{ endpoint }} is the correct
+      URL to the proxy. If the endpoint responds with 200 but the websocket is
+      not being opened, you should verify that no firewall is in place that
+      disallows the usage of websockets for {{ endpoint }}
+    </as-split-area>
+
+    <as-split-area [size]="50" class="split-area-2">
+      <h1>Testing {{ target }}:</h1>
+      <app-hf-markdown
+        [content]="markdownString"
+        [context]="mdContext"
+      ></app-hf-markdown>
+
+      <div *ngIf="completed">
+        Check successfully completed and websocket reachable.
+        <cds-icon shape="success-standard" inverse class="success"></cds-icon>
+      </div>
+    </as-split-area>
+  </as-split>
+</div>
