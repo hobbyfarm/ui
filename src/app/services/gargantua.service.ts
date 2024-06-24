@@ -9,6 +9,7 @@ import { environment } from 'src/environments/environment';
 type GargantuaClientDefaults = {
   get<T = ServerResponse>(path: string): Observable<T>;
   post<T = ServerResponse>(path: string, body: any): Observable<T>;
+  post<T = ServerResponse>(path: string, body: any, header: any): Observable<T>;
   put<T = ServerResponse>(path: string, body: any): Observable<T>;
   delete<T = ServerResponse>(path: string): Observable<T>;
 };

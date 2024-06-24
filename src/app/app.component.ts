@@ -146,6 +146,7 @@ export class AppComponent implements OnInit {
     theme: new FormControl<'light' | 'dark' | 'system' | null>(null, [
       Validators.required,
     ]),
+    bashbrawl_enabled: new FormControl<boolean>(false),
   });
 
   ngOnInit() {
@@ -280,6 +281,7 @@ export class AppComponent implements OnInit {
           ctr_enabled = true,
           theme = 'light',
           divider_position = 40,
+          bashbrawl_enabled = false,
         }) => {
           this.settingsForm.setValue({
             terminal_theme,
@@ -287,6 +289,7 @@ export class AppComponent implements OnInit {
             ctr_enabled,
             theme,
             divider_position,
+            bashbrawl_enabled,
           });
           this.fetchingSettings = false;
         },

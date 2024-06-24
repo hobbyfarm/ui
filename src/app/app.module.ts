@@ -8,6 +8,7 @@ import { RootComponent } from './root.component';
 import { HomeComponent } from './home.component';
 import { ScenarioComponent } from './scenario/scenario.component';
 import { TerminalComponent } from './scenario/terminal.component';
+import { BashbrawlterminalComponent } from './scenario/bashbrawl/bashbrawlterminal.component';
 import { JwtModule, JWT_OPTIONS } from '@auth0/angular-jwt';
 import { HttpClientModule } from '@angular/common/http';
 import { LoginComponent } from './login/login.component';
@@ -44,6 +45,8 @@ import { GuacTerminalComponent } from './scenario/guacTerminal.component';
 import { IdeWindowComponent } from './scenario/ideWindow.component';
 import { ContextService } from './services/context.service';
 import { TypedSettingsService } from './services/typedSettings.service';
+import { LanguageCommandService } from './scenario/bashbrawl/languages/language-command.service';
+import { ScoreService } from './services/score.service';
 import { VerificationService } from './services/verification.service';
 import { TaskProgressComponent } from './scenario/task-progress/task-progress.component';
 import { TaskModalComponent } from './scenario/task-modal/task-modal.component';
@@ -80,6 +83,7 @@ import {
   eyeHideIcon,
   clockIcon,
   copyIcon,
+  terminalIcon,
 } from '@cds/core/icon';
 import { QuizLabelComponent } from './quiz/quiz-label.component';
 
@@ -112,6 +116,7 @@ ClarityIcons.addIcons(
   eyeHideIcon,
   clockIcon,
   copyIcon,
+  terminalIcon,
 );
 
 export function tokenGetter() {
@@ -153,6 +158,7 @@ export function jwtOptionsFactory() {
     HomeComponent,
     ScenarioComponent,
     TerminalComponent,
+    BashbrawlterminalComponent,
     GuacTerminalComponent,
     LoginComponent,
     ScenarioCardComponent,
@@ -222,6 +228,8 @@ export function jwtOptionsFactory() {
     ContextService,
     TypedSettingsService,
     VerificationService,
+    LanguageCommandService,
+    ScoreService,
     {
       provide: APP_INITIALIZER,
       useFactory: appInitializerFn,
