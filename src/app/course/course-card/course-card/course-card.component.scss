@@ -1,0 +1,10 @@
+.course-card {
+  min-width: 30vw;
+}
+
+.course-description {
+  min-height: 2.5rem;
+  max-height: 2.5rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}

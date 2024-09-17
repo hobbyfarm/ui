@@ -66,6 +66,7 @@ export class HomeComponent implements OnInit, OnDestroy {
             tap((courses: Course[]) => {
               this.courses = courses ?? [];
               this.loadedCourses = true;
+              console.log(courses);
             }),
             catchError(() => {
               this.loadedCourses = false;

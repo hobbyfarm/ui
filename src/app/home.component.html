@@ -3,7 +3,7 @@
     [clrAlertType]="'success'"
     [(clrAlertClosed)]="accessCodeLinkSuccessClosed"
     [clrAlertClosable]="false"
-    class="alert-home"
+    class="full-width"
   >
     <clr-alert-item>
       <span>
@@ -16,7 +16,7 @@
     [clrAlertType]="'danger'"
     [(clrAlertClosed)]="accessCodeLinkErrorClosed"
     [clrAlertClosable]="false"
-    class="alert-home"
+    class="full-width"
   >
     <clr-alert-item>
       <span>
@@ -26,123 +26,85 @@
   </clr-alert>
 
   @if (activeSession) {
-    <div>
-      <div class="clr-row">
-        <div class="clr-col">
-          <h1>Active session</h1>
-        </div>
-      </div>
-
-      <div class="clr-row">
-        <div class="clr-col-12 clr-col-sm-6 clr-col-md-4 clr-col-lg-3">
-          <app-scenario-card
-            [scenarioid]="activeSession.scenario"
-            [progress]="activeSession"
-            (scenarioModal)="toggleScenarioModal(activeSession.scenario)"
-          ></app-scenario-card>
-        </div>
-      </div>
-    </div>
-  }
-
-  @if (!ctx.valid) {
-    <div class="clr-row">
-      <div class="clr-col-12">
-        <h1>Add AccessCode</h1>
-        Add AccessCodes to your account by clicking on your username on the top
-        right.
-      </div>
-    </div>
-  } @else {
+  <div>
     <div class="clr-row">
       <div class="clr-col">
-        <h1>{{ ctx.scheduledEvent.name }}</h1>
-        @if (isTimeLeft()) {
-          <div>
-            <cds-icon shape="clock"></cds-icon>
-            {{ getTimeLeftString(ctx.scheduledEvent.end_timestamp) }} left
-          </div>
-          <p>{{ ctx.scheduledEvent.description }}</p>
-          <h3>Select a scenario</h3>
-        } @else {
-          <cds-icon shape="clock"></cds-icon> Your time ran out at
-          {{ ctx.scheduledEvent.end_timestamp }}.
-          <p>
-            You will be able to finish any active sessions, but you are unable
-            to start any new scenario.
-          </p>
-        }
+        <h1>Active session</h1>
       </div>
     </div>
-  }
 
-  @if (ctx.valid && isTimeLeft()) {
     <div class="clr-row">
-      <div class="clr-col-12">
-        @if (
-          !courses.length &&
-          !scenarios.length &&
-          loadedScenarios &&
-          loadedCourses &&
-          ctx.valid
-        ) {
-          <div>No scenarios or courses found.</div>
-        } @else if (!loadedScenarios && !loadedCourses && ctx.valid) {
-          <div>Loading scenarios...</div>
-        }
+      <div class="clr-col-12 clr-col-sm-6 clr-col-md-4 clr-col-lg-3">
+        <app-scenario-card
+          [scenarioid]="activeSession.scenario"
+          [progress]="activeSession"
+          (scenarioModal)="toggleScenarioModal(activeSession.scenario)"
+        ></app-scenario-card>
       </div>
-
-      @if (scenarios.length > 0 && ctx.valid) {
-        @for (s of scenarios; track s) {
-          <div class="clr-col-12 clr-col-sm-6 clr-col-md-4 clr-col-lg-3">
-            <app-scenario-card
-              [scenarioid]="s.id"
-              [activeSession]="!!activeSession"
-              (scenarioModal)="toggleScenarioModal(s.id)"
-            ></app-scenario-card>
-          </div>
-        }
-      }
-
-      @if (courses.length > 0 && ctx.valid) {
-        <div class="clr-row course-container">
-          <div class="clr-col-12">
-            @for (c of courses; track c) {
-              <h3 class="course-header">{{ c.name | atob }}</h3>
-              <hr />
-              <p class="course-description">{{ c.description | atob }}</p>
-
-              <div class="clr-row">
-                @if (c.scenarios.length > 0) {
-                  @for (sId of c?.scenarios; track sId) {
-                    <div
-                      class="clr-col-12 clr-col-sm-6 clr-col-md-4 clr-col-lg-3"
-                    >
-                      <app-scenario-card
-                        [scenarioid]="sId"
-                        [activeSession]="
-                          (!!activeSession && c.id !== activeSession.course) ||
-                          (!c.keep_vm && !!activeSession)
-                        "
-                        (scenarioModal)="toggleScenarioModal(sId, c.id)"
-                      ></app-scenario-card>
-                    </div>
-                  }
-                } @else {
-                  <div class="clr-col-12">
-                    <p>No scenarios found.</p>
-                  </div>
-                }
-              </div>
-            }
-          </div>
-        </div>
+    </div>
+  </div>
+  } @if (!ctx.valid) {
+  <div class="clr-row">
+    <div class="clr-col-12">
+      <h1>Add AccessCode</h1>
+      Add AccessCodes to your account by clicking on your username on the top
+      right.
+    </div>
+  </div>
+  } @else {
+  <div class="clr-row">
+    <div class="clr-col">
+      <h1>{{ ctx.scheduledEvent.name }}</h1>
+      @if (isTimeLeft()) {
+      <div>
+        <cds-icon shape="clock"></cds-icon>
+        {{ getTimeLeftString(ctx.scheduledEvent.end_timestamp) }} left
+      </div>
+      <p>{{ ctx.scheduledEvent.description }}</p>
+      <h3>Select a scenario</h3>
+      } @else {
+      <cds-icon shape="clock"></cds-icon> Your time ran out at
+      {{ ctx.scheduledEvent.end_timestamp }}.
+      <p>
+        You will be able to finish any active sessions, but you are unable to
+        start any new scenario.
+      </p>
       }
     </div>
-  }
-</div>
+  </div>
+  } @if (ctx.valid && isTimeLeft()) {
+  <div class="clr-row">
+    <div class="clr-col-12">
+      @if ( !courses.length && !scenarios.length && loadedScenarios &&
+      loadedCourses && ctx.valid ) {
+      <div>No scenarios or courses found.</div>
+      } @else if (!loadedScenarios && !loadedCourses && ctx.valid) {
+      <div>Loading scenarios...</div>
+      }
+    </div>
 
-@if (scenarioid) {
+    @if (scenarios.length > 0 && ctx.valid) { @for (s of scenarios; track s) {
+    <div class="clr-col-12 clr-col-sm-6 clr-col-md-4 clr-col-lg-3">
+      <app-scenario-card
+        [scenarioid]="s.id"
+        [activeSession]="!!activeSession"
+        (scenarioModal)="toggleScenarioModal(s.id)"
+      ></app-scenario-card>
+    </div>
+    } }
+
+    <div class="clr-row full-width" *ngIf="courses.length > 0 && ctx.valid">
+      <h3 class="full-width">Select a Course</h3>
+      <ng-container *ngFor="let c of courses">
+        <div class="clr-col-lg-3">
+          <app-course-card [course]="c"></app-course-card>
+        </div>
+      </ng-container>
+    </div>
+    }
+  </div>
+
+  @if (scenarioid) {
   <app-scenario
     [scenarioid]="scenarioid"
     [courseid]="courseid"
@@ -150,4 +112,5 @@
     [showScenarioModal]="showScenarioModal"
     (scenarioModal)="toggleScenarioModal()"
   ></app-scenario>
-}
+  }
+</div>
