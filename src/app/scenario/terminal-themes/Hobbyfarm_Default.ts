@@ -2,6 +2,7 @@ export default {
   background: '#292b2e',
   foreground: '#ffffff',
   cursor: '#ffffff',
+  cursorAccent: '#505459',
 
   black: '#2e3436',
   brightBlack: '#555753',
