@@ -51,6 +51,7 @@ import { SettingsService } from '../services/settings.service';
 import { Course } from '../course/course';
 import { CourseService } from '../services/course.service';
 import { LanguageCommandService } from './bashbrawl/languages/language-command.service';
+import { ContextService } from '../services/context.service';
 
 type Service = {
   name: string;
@@ -63,6 +64,7 @@ type Service = {
 };
 interface stepVM extends VM {
   webinterfaces?: Service[];
+  name?: string;
 }
 
 export type webinterfaceTabIdentifier = {
@@ -111,6 +113,8 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
   private DEFAULT_DIVIDER_POSITION = 40;
   public bashbrawl_active = false;
 
+  public sharedVMs: stepVM[] = [];
+
   @ViewChildren('term') private terms: QueryList<TerminalComponent> =
     new QueryList();
   @ViewChildren('guacterm')
@@ -138,6 +142,7 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
     public verificationService: VerificationService,
     private settingsService: SettingsService,
     private languageCommandService: LanguageCommandService,
+    private ctxService: ContextService,
   ) {}
 
   setTabActive(webinterface: Service, vmName: string) {
@@ -207,6 +212,21 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
       return;
     }
 
+    // Get the shared VMs for this Event
+    this.ctxService.watch().subscribe((ctx) => {
+      this.sharedVMs = [];
+      this.vmService.getSharedVMs(ctx.accessCode).subscribe((res: stepVM[]) => {
+        this.sharedVMs = res;
+        // Get the names for the shared VMs from the Scheduled Event
+        this.sharedVMs.forEach((vm) => {
+          vm.name =
+            ctx.scheduledEvent.shared_vms.find(
+              (sharedVM) => sharedVM.vm_id == vm.id,
+            )?.name ?? '';
+        });
+      });
+    });
+
     this.ssService
       .get(sessionId, true)
       .pipe(
@@ -252,6 +272,17 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
         // This allows multiple observables to be active and processed in parallel
         // The order in which these observables are processed is not important
         mergeMap(() => {
+          // Adding shared VMs to the vms map in order to render Tabs for their Webinterfaces.
+          this.sharedVMs.forEach((svm) => {
+            if (svm.name) {
+              if (!this.vms.has(svm.name)) {
+                this.vms.set(svm.name, svm);
+              } else {
+                this.vms.set('shared-' + svm.name, svm);
+              }
+            }
+          });
+
           const vmObservables = Array.from<stepVM>(this.vms.values()).map(
             (vm) =>
               this.vmService.getWebinterfaces(vm.id).pipe(
