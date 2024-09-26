@@ -586,6 +586,14 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
     return exists;
   }
 
+  isPauseable(): boolean {
+    if (this.isContentOnly !== '' && this.isContentOnly) return false;
+    if (this.course) {
+      return this.course.pauseable;
+    }
+    return this.scenario.pauseable;
+  }
+
   getBrawlLanguages() {
     return this.languageCommandService.getLanguageNames();
   }
