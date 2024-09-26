@@ -31,7 +31,7 @@
               Finish
             </button>
 
-            <ng-container *ngIf="scenario.pauseable && !isContentOnly">
+            <ng-container *ngIf="isPauseable()">
               <button class="btn btn-pause" (click)="pause()">
                 <cds-icon shape="pause" solid></cds-icon> Pause
               </button>
