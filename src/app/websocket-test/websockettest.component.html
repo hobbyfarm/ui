@@ -20,11 +20,11 @@
         <li>Websocket responding with pong</li>
       </ol>
       <h2>Troubleshooting</h2>
-      If the /healthz endopoint is not responding you should check if the shell
-      proxy is up and running. Also verify that {{ endpoint }} is the correct
-      URL to the proxy. If the endpoint responds with 200 but the websocket is
-      not being opened, you should verify that no firewall is in place that
-      disallows the usage of websockets for {{ endpoint }}
+      If the /healthz endpoint is not responding you should check if the shell
+      proxy is up and running. Also verify that {{ target }} is the correct URL
+      to the proxy. If the endpoint responds with 200 but the websocket is not
+      being opened, you should verify that no firewall is in place that
+      disallows the usage of websockets for {{ target }}
     </as-split-area>
 
     <as-split-area [size]="50" class="split-area-2">
@@ -37,6 +37,11 @@
       <div *ngIf="completed">
         Check successfully completed and websocket reachable.
         <cds-icon shape="success-standard" inverse class="success"></cds-icon>
+      </div>
+
+      <div *ngIf="error">
+        {{ error }}
+        <cds-icon shape="error-standard" inverse class="error"></cds-icon>
       </div>
     </as-split-area>
   </as-split>

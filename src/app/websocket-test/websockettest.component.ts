@@ -15,6 +15,7 @@ export class WebsocketTestComponent implements OnInit {
   endpoint: string;
 
   completed: boolean;
+  error: string;
 
   mermaidString = 'sequenceDiagram';
   markdownString = '';
@@ -44,25 +45,40 @@ export class WebsocketTestComponent implements OnInit {
       },
       error: (msg) => {
         console.log(msg);
+        this.error = 'The Health Endpoint delivered a status other than 200.';
         this.addMermaidString(this.target, 'you', msg.code);
       },
     });
   }
 
   testWSConnection() {
-    this.addMermaidString('you', this.target, 'open websocket', '+');
     const socket = new WebSocket(this.wsEndpoint);
+
+    socket.onerror = () => {
+      this.error = 'The Websocket could not be opened.';
+      this.addMermaidString(
+        'you',
+        this.target,
+        'opening websocket failed',
+        '',
+        'x',
+      );
+    };
+
     socket.onmessage = (event) => {
       if (event.data == 'pong') {
         this.addMermaidString(this.target, 'you', 'pong', '-');
-        this.completed = true;
       }
     };
 
     socket.onopen = () => {
-      this.addMermaidString(this.target, 'you', 'websocket opened');
+      this.addMermaidString('you', this.target, 'open websocket', '+');
       socket.send('ping');
       this.addMermaidString('you', this.target, 'ping');
+    };
+
+    socket.onclose = (event) => {
+      this.completed = true;
     };
   }
 
@@ -71,8 +87,10 @@ export class WebsocketTestComponent implements OnInit {
     to: string,
     content: string,
     opChar: string = '',
+    arrowChar: string = '>>',
   ) {
-    this.mermaidString += '\n  ' + from + '->>' + opChar + to + ': ' + content;
+    this.mermaidString +=
+      '\n  ' + from + '-' + arrowChar + opChar + to + ': ' + content;
     this.markdownString = '```mermaid\n' + this.mermaidString + '\n```';
   }
 }
