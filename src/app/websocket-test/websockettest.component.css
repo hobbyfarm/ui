@@ -4,5 +4,12 @@ as-split-area {
 
 .success {
   color: green;
+  fill: green;
+  font-weight: bold;
+}
+
+.error {
+  color: red;
+  fill: red;
   font-weight: bold;
 }
