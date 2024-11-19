@@ -93,6 +93,7 @@ import {
   copyIcon,
   terminalIcon,
 } from '@cds/core/icon';
+import { SafeSvgPipe } from './pipes/safe-svg.pipe';
 
 ClarityIcons.addIcons(
   layersIcon,
@@ -190,6 +191,7 @@ export function jwtOptionsFactory() {
     GlossaryMdComponent,
     MermaidMdComponent,
     NoteMdComponent,
+    SafeSvgPipe,
     TooltipDirective,
     TooltipComponent,
   ],
