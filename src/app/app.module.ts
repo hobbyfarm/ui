@@ -94,6 +94,7 @@ import {
   terminalIcon,
 } from '@cds/core/icon';
 import { SafeSvgPipe } from './pipes/safe-svg.pipe';
+import { ThemeService } from './services/theme.service';
 
 ClarityIcons.addIcons(
   layersIcon,
@@ -250,6 +251,7 @@ export function jwtOptionsFactory() {
     VerificationService,
     LanguageCommandService,
     ScoreService,
+    ThemeService,
     {
       provide: APP_INITIALIZER,
       useFactory: appInitializerFn,

@@ -28,7 +28,6 @@
             "styles": [
               "node_modules/xterm/css/xterm.css",
               "src/styles.scss",
-              "src/dark-theme.css",
               "node_modules/prismjs/themes/prism.css",
               "node_modules/@cds/core/global.min.css",
               "node_modules/@cds/core/styles/theme.dark.min.css",
