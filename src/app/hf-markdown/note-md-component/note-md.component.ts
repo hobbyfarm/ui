@@ -1,6 +1,6 @@
-import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
+import { Component, Input, OnChanges } from '@angular/core';
 import { MarkdownService } from 'ngx-markdown';
-import { NoteType } from 'src/app/data/notetype';
+import { NoteType } from 'src/app/notetype';
 
 @Component({
   selector: 'app-note-md',
