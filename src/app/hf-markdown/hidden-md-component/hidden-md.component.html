@@ -1,0 +1,9 @@
+<details>
+  <summary>{{ summary }}</summary>
+  @if(parsedContent | async; as content) {
+    <div [innerHTML]="content"></div>
+  }
+  @else {
+    <div>Loading...</div>
+  }
+</details>

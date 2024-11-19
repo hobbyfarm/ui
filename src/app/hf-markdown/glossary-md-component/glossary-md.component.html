@@ -1,0 +1,7 @@
+@if (parsedContent | async; as content) {
+  <div class="glossary" [appTooltip]="content">
+    {{ term }}
+  </div>
+} @else {
+  <div>Loading...</div>
+}

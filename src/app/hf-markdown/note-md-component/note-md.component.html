@@ -1,0 +1,8 @@
+<div class="note {{ noteType }}">
+  <ng-container class="note-title">
+    {{ message || noteType.toUpperCase() }}:
+  </ng-container>
+  @if(parsedContent | async; as content) {
+    <div class="note-content" [innerHTML]="content"></div>
+  }
+</div>

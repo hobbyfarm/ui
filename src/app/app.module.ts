@@ -52,6 +52,14 @@ import { TaskProgressComponent } from './scenario/task-progress/task-progress.co
 import { TaskModalComponent } from './scenario/task-modal/task-modal.component';
 import { SingleTaskVerificationMarkdownComponent } from './hf-markdown/single-task-verification-markdown/single-task-verification-markdown.component';
 import { WebsocketTestComponent } from './websocket-test/websockettest.component';
+import { ScrollingModule } from '@angular/cdk/scrolling';
+import { QuizLabelComponent } from './quiz/quiz-label.component';
+import { HiddenMdComponent } from './hf-markdown/hidden-md-component/hidden-md.component';
+import { GlossaryMdComponent } from './hf-markdown/glossary-md-component/glossary-md.component';
+import { MermaidMdComponent } from './hf-markdown/mermaid-md-component/mermaid-md.component';
+import { NoteMdComponent } from './hf-markdown/note-md-component/note-md.component';
+import { TooltipDirective } from './directives/tooltip.directive';
+import { TooltipComponent } from './tooltip/tooltip.component';
 import '@cds/core/icon/register.js';
 import {
   ClarityIcons,
@@ -85,7 +93,6 @@ import {
   copyIcon,
   terminalIcon,
 } from '@cds/core/icon';
-import { QuizLabelComponent } from './quiz/quiz-label.component';
 
 ClarityIcons.addIcons(
   layersIcon,
@@ -179,6 +186,12 @@ export function jwtOptionsFactory() {
     TaskModalComponent,
     SingleTaskVerificationMarkdownComponent,
     WebsocketTestComponent,
+    HiddenMdComponent,
+    GlossaryMdComponent,
+    MermaidMdComponent,
+    NoteMdComponent,
+    TooltipDirective,
+    TooltipComponent,
   ],
   imports: [
     BrowserModule,
@@ -189,6 +202,7 @@ export function jwtOptionsFactory() {
     BrowserAnimationsModule,
     HttpClientModule,
     AngularSplitModule,
+    ScrollingModule,
     MarkdownModule.forRoot({
       sanitize: SecurityContext.NONE,
     }),
@@ -202,6 +216,10 @@ export function jwtOptionsFactory() {
         { component: SingleTaskVerificationMarkdownComponent },
         { component: QuizComponent },
         { component: CopyToClipboardComponent },
+        { component: GlossaryMdComponent },
+        { component: MermaidMdComponent },
+        { component: HiddenMdComponent },
+        { component: NoteMdComponent },
       ],
     }),
     JwtModule.forRoot({

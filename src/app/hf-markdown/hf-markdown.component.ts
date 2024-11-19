@@ -1,7 +1,8 @@
-import { Component, Input, OnChanges } from '@angular/core';
+import { Component, Input, OnChanges, OnInit } from '@angular/core';
 import { MarkdownService } from 'ngx-markdown';
 import { CtrService } from '../scenario/ctr.service';
 import { VM } from '../VM';
+import { escape, uniqueString } from '../utils';
 
 import Prism from 'prismjs';
 import mermaid from 'mermaid';
@@ -18,10 +19,7 @@ import 'prismjs/components/prism-go';
 import 'prismjs/components/prism-docker';
 import 'prismjs/components/prism-python';
 import 'prismjs/components/prism-yaml';
-
-// Replacement for lodash's escape
-const escape = (s: string) =>
-  s.replace(/[&<>"']/g, (c) => `&#${c.charCodeAt(0)};`);
+import { isNoteType, NoteType } from '../notetype';
 
 export interface HfMarkdownRenderContext {
   vmInfo: { [vmName: string]: VM };
@@ -31,24 +29,28 @@ export interface HfMarkdownRenderContext {
 @Component({
   selector: 'app-hf-markdown',
   template: `
-    <ngx-dynamic-hooks
-      class="hf-md-content"
-      [content]="processedContent"
-      [context]="context"
-    ></ngx-dynamic-hooks>
+    @if (processedContent | async; as content) {
+      <ngx-dynamic-hooks
+        class="hf-md-content"
+        [content]="content"
+        [context]="context"
+      ></ngx-dynamic-hooks>
+    }
   `,
   styleUrls: ['./hf-markdown.component.scss'],
 })
-export class HfMarkdownComponent implements OnChanges {
+export class HfMarkdownComponent implements OnChanges, OnInit {
   @Input() content: string;
   @Input() context: HfMarkdownRenderContext = { vmInfo: {}, session: '' };
 
-  processedContent: string;
+  processedContent: Promise<string>;
 
   constructor(
     public markdownService: MarkdownService,
     private ctrService: CtrService,
-  ) {
+  ) {}
+
+  ngOnInit(): void {
     mermaid.initialize({
       startOnLoad: false,
     });
@@ -85,49 +87,19 @@ export class HfMarkdownComponent implements OnChanges {
     },
 
     hidden(code: string, summary: string) {
-      return `
-        <details>
-          <summary>${summary}</summary>
-          ${this.markdownService.parse(code)}
-        </details>
-      `;
+      return `<app-hidden-md [summary]="'${summary}'" [code]="'${code}'"></app-hidden-md>`;
     },
 
     glossary(code: string, term: string) {
-      return `
-        <div class="glossary">
-          ${term}
-          <span class='glossary-content'>
-            ${this.markdownService.parse(code)}
-          </span>
-        </div>
-      `;
-    },
-
-    quiz(code: string, quizTitle: string, allowedAttempts?: string) {
-      const tempAtts = Number(allowedAttempts);
-      const allowedAtts = isNaN(tempAtts) || tempAtts < 1 ? 1 : tempAtts;
-      return `
-      <quiz
-        quizTitle="${quizTitle}"
-        questionsRaw="${code}"
-        [allowedAtts]="${allowedAtts}"
-      >
-      </quiz>
-      `;
+      return `<app-glossary-md [term]="'${term}'" [code]="'${code}'"></app-glossary-md>`;
     },
 
     note(code: string, type: string, message: string) {
-      return `
-        <div class="note ${type}">
-          <ng-container class='note-title'>
-          ${message ?? type.toUpperCase()}:
-          </ng-container>
-          <div class='note-content'>
-            ${this.markdownService.parse(code)}
-          </div>
-        </div>
-      `;
+      let noteType: NoteType = 'info';
+      if(isNoteType(type)) {
+        noteType = type;
+      }
+      return `<app-note-md [noteType]="'${noteType}'" [message]="'${message}'" [code]="'${code}'"></app-note-md>`;
     },
 
     file(code: string, language: string, filepath: string, target: string) {
@@ -135,7 +107,7 @@ export class HfMarkdownComponent implements OnChanges {
       const filename = parts[parts.length - 1];
       const n = 5; //Length of randomized token
       // Using only EOF as a token can cause trouble when the token is inside the file content. Let's use EOL together with a random string
-      const token = 'EOF_' + this.uniqueString(n);
+      const token = 'EOF_' + uniqueString(n);
       const fileContent = `cat << ${token} > ${filepath}
 ${code}
 ${token}`;
@@ -145,7 +117,11 @@ ${token}`;
         ctrId="${id}"
         filename="${filepath}"
         title="Click to create ${filepath} on ${target}"
-      >${this.renderHighlightedCode(code, language, filename, false)}</ctr>`;
+      >${this.renderHighlightedCode(code, language, filename)}</ctr>`;
+    },
+
+    mermaid(code: string) {
+      return `<app-mermaid-md [code]="'${escape(code)}'"></app-mermaid-md>`;
     },
 
     verifyTask(code: string, target: string, taskName: string) {
@@ -155,53 +131,22 @@ ${token}`;
         taskName="${taskName}"
         ></app-single-task-verification-markdown>`;
     },
-
-    mermaid(code: string) {
-      const n = 5;
-      const containerId = `mermaid-${this.uniqueString(n)}`;
-      // Start the async rendering process
-      setTimeout(() => this.renderMermaidGraph(code, containerId), 0);
-      // Return a placeholder with the unique ID
-      return `<div id="${containerId}">Loading mermaid graph...</div>`;
-    },
   };
 
   private renderHighlightedCode(
     code: string,
     language: string,
     fileName?: string,
-    copyCode: boolean = true,
   ) {
-    let copyCodeDiv = '';
-    if (copyCode) {
-      const id = this.ctrService.registerCode(code);
-      copyCodeDiv = `<app-copy-to-clipboard ctrId='${id}'></app-copy-to-clipboard>`;
-    }
-
     const fileNameTag = fileName
-      ? `<p class="filename">${fileName} ${copyCodeDiv}</p>`
-      : `<p class="language">${language} ${copyCodeDiv}</p>`;
+      ? `<p class="filename" (click)=createFile(code,node)>${fileName}</p>`
+      : `<p class="language">${language}</p>`;
     const classAttr = `language-${language}`;
 
     if (Prism.languages[language]) {
       code = Prism.highlight(code, Prism.languages[language], language);
     }
-
     return `<pre>${fileNameTag}<code class=${classAttr}>${code}</code></pre>`;
-  }
-
-  private renderMermaidGraph(code: string, containerId: string) {
-    mermaid
-      .render('svg-' + containerId, code)
-      .then((renderResult) => {
-        const container = document.getElementById(containerId);
-        if (container) {
-          container.innerHTML = renderResult.svg;
-        }
-      })
-      .catch((error) => {
-        console.error('Mermaid rendering failed:', error);
-      });
   }
 
   private renderNestedPlainCode(code: string) {
@@ -223,7 +168,21 @@ ${token}`;
 
         // This case occurs inside nested blocks
       } else if (codePart) {
-        content += this.markdownService.parse('~~~' + codePart + '~~~');
+        const [infoString, ...codeParts] = codePart.split('\n');
+        const processedCodePart = codeParts.join('\n');
+        if (infoString.trim().length > 0) {
+          content += this.markdownService.renderer.code(
+            processedCodePart,
+            infoString,
+            false,
+          );
+        } else {
+          content += this.markdownService.renderer.code(
+            processedCodePart,
+            undefined,
+            false,
+          );
+        }
       } else {
         content += '~~~~~~';
       }
@@ -245,13 +204,26 @@ ${token}`;
   }
 
   ngOnChanges() {
+    if (!this.content) {
+      return;
+    }
+
     const contentWithReplacedTokens = this.replaceSessionToken(
       this.replaceVmInfoTokens(this.content),
     );
     // the parse method internally uses the Angular Dom Sanitizer and is therefore safe to use
-    this.processedContent = this.markdownService.parse(
-      contentWithReplacedTokens,
-    );
+    const parsedContent = this.markdownService.parse(contentWithReplacedTokens);
+
+    if (typeof parsedContent === 'string') {
+      this.processedContent = Promise.resolve(parsedContent);
+    } else {
+      this.processedContent = parsedContent
+        .then((processed) => processed)
+        .catch((err) => {
+          console.error('Failed to parse Markdown content: ', err);
+          return 'Failed to parse Markdown content';
+        });
+    }
   }
 
   private replaceVmInfoTokens(content: string) {
@@ -266,9 +238,5 @@ ${token}`;
 
   private replaceSessionToken(content: string) {
     return content.replace(/\$\{session\}/g, this.context.session);
-  }
-
-  private uniqueString(n: number) {
-    return `${(Math.random().toString(36) + '0000').slice(2, n + 2)}`;
   }
 }
