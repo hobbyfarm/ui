@@ -35,31 +35,32 @@
                       formControlName="password"
                       placeholder="Password"
                     />
-                    <cds-icon
-                      *ngIf="!showPassword"
-                      (click)="togglePasswordVisibility()"
-                      class="clr-input-group-icon-action"
-                      aria-label="toggle password visibility"
-                      shape="eye-hide"
-                      title="Show password"
-                    ></cds-icon>
-                    <cds-icon
-                      *ngIf="showPassword"
-                      (click)="togglePasswordVisibility()"
-                      class="clr-input-group-icon-action"
-                      aria-label="toggle password visibility"
-                      shape="eye"
-                      title="Hide password"
-                    ></cds-icon>
+                    @if (!showPassword) {
+                      <cds-icon
+                        (click)="togglePasswordVisibility()"
+                        class="clr-input-group-icon-action"
+                        aria-label="toggle password visibility"
+                        shape="eye-hide"
+                        title="Show password"
+                      ></cds-icon>
+                    } @else {
+                      <cds-icon
+                        (click)="togglePasswordVisibility()"
+                        class="clr-input-group-icon-action"
+                        aria-label="toggle password visibility"
+                        shape="eye"
+                        title="Hide password"
+                      ></cds-icon>
+                    }
                     <cds-icon
                       class="clr-validate-icon"
                       shape="exclamation-circle"
                       status="info"
                     ></cds-icon>
                   </div>
-                  <span *ngIf="!passwordValidated()" class="clr-subtext"
-                    >Password is required</span
-                  >
+                  @if (!passwordValidated()) {
+                    <span class="clr-subtext">Password is required</span>
+                  }
                 </div>
               </div>
               <div class="error" [class.active]="error && error.length > 0">
@@ -72,122 +73,135 @@
           </clr-tab-content>
         </ng-template>
       </clr-tab>
-      <clr-tab *ngIf="!globalRegistrationDisabled">
-        <button clrTabLink id="register">Register</button>
-        <clr-tab-content id="register-content" *clrIfActive>
-          <div class="login-group">
-            <clr-input-container>
-              <input
-                type="text"
-                name="email"
-                clrInput
-                formControlName="email"
-                placeholder="Email Address"
-              />
-              <clr-control-error *clrIfError="'required'"
-                >Email Address is required</clr-control-error
-              >
-            </clr-input-container>
-            <clr-input-container>
-              <input
-                type="text"
-                name="accesscode"
-                clrInput
-                formControlName="accesscode"
-                placeholder="Access Code"
-              />
-              <clr-control-error *clrIfError="'required'"
-                >Access code is required</clr-control-error
-              >
-              <clr-control-error *clrIfError="'minlength'"
-                >Access code must be longer than 5 characters</clr-control-error
-              >
-              <clr-control-error *clrIfError="'pattern'"
-                >Access code must
-                <ul>
-                  <li>
-                    contain only lowercase alphanumeric characters, '-', or '.'
-                  </li>
-                  <li>start and end with an alphanumeric character</li>
-                </ul>
-              </clr-control-error>
-            </clr-input-container>
-            <div class="clr-form-control">
-              <div
-                class="clr-control-container"
-                [class.clr-error]="!passwordValidated()"
-              >
-                <div class="clr-input-wrapper">
-                  <input
-                    type="{{ showPassword ? 'text' : 'password' }}"
-                    name="password"
-                    class="clr-input"
-                    formControlName="password"
-                    placeholder="Password"
-                  />
-                  <cds-icon
-                    *ngIf="!showPassword"
-                    (click)="togglePasswordVisibility()"
-                    class="clr-input-group-icon-action"
-                    aria-label="toggle password visibility"
-                    shape="eye-hide"
-                  ></cds-icon>
-                  <cds-icon
-                    *ngIf="showPassword"
-                    (click)="togglePasswordVisibility()"
-                    class="clr-input-group-icon-action"
-                    aria-label="toggle password visibility"
-                    shape="eye"
-                  ></cds-icon>
-                  <cds-icon
-                    class="clr-validate-icon"
-                    shape="exclamation-circle"
-                    status="info"
-                  ></cds-icon>
-                </div>
-                <span *ngIf="!passwordValidated()" class="clr-subtext"
-                  >Password is required</span
-                >
-              </div>
-            </div>
-            <clr-checkbox-container *ngIf="privacyPolicyRequired">
-              <clr-checkbox-wrapper>
+      @if (!globalRegistrationDisabled) {
+        <clr-tab>
+          <button clrTabLink id="register">Register</button>
+          <clr-tab-content id="register-content" *clrIfActive>
+            <div class="login-group">
+              <clr-input-container>
                 <input
-                  type="checkbox"
-                  clrCheckbox
-                  name="privacyPolicy"
-                  formControlName="privacyPolicy"
-                  required
+                  type="text"
+                  name="email"
+                  clrInput
+                  formControlName="email"
+                  placeholder="Email Address"
                 />
-                <label>
-                  I accept the
-                  <a [href]="privacyPolicyLink">{{ privacyPolicyLinkName }}</a>
-                </label>
-              </clr-checkbox-wrapper>
-              <clr-control-error *clrIfError="'required'"
-                >Accepting the privacy policy is required</clr-control-error
+                <clr-control-error *clrIfError="'required'"
+                  >Email Address is required</clr-control-error
+                >
+              </clr-input-container>
+              <clr-input-container>
+                <input
+                  type="text"
+                  name="accesscode"
+                  clrInput
+                  formControlName="accesscode"
+                  placeholder="Access Code"
+                />
+                <clr-control-error *clrIfError="'required'"
+                  >Access code is required</clr-control-error
+                >
+                <clr-control-error *clrIfError="'minlength'"
+                  >Access code must be longer than 5
+                  characters</clr-control-error
+                >
+                <clr-control-error *clrIfError="'pattern'"
+                  >Access code must
+                  <ul>
+                    <li>
+                      contain only lowercase alphanumeric characters, '-', or
+                      '.'
+                    </li>
+                    <li>start and end with an alphanumeric character</li>
+                  </ul>
+                </clr-control-error>
+              </clr-input-container>
+              <div class="clr-form-control">
+                <div
+                  class="clr-control-container"
+                  [class.clr-error]="!passwordValidated()"
+                >
+                  <div class="clr-input-wrapper">
+                    <input
+                      type="{{ showPassword ? 'text' : 'password' }}"
+                      name="password"
+                      class="clr-input"
+                      formControlName="password"
+                      placeholder="Password"
+                    />
+                    @if (!showPassword) {
+                      <cds-icon
+                        (click)="togglePasswordVisibility()"
+                        class="clr-input-group-icon-action"
+                        aria-label="toggle password visibility"
+                        shape="eye-hide"
+                      ></cds-icon>
+                    } @else {
+                      <cds-icon
+                        (click)="togglePasswordVisibility()"
+                        class="clr-input-group-icon-action"
+                        aria-label="toggle password visibility"
+                        shape="eye"
+                      ></cds-icon>
+                    }
+                    <cds-icon
+                      class="clr-validate-icon"
+                      shape="exclamation-circle"
+                      status="info"
+                    ></cds-icon>
+                  </div>
+                  @if (!passwordValidated()) {
+                    <span class="clr-subtext">Password is required</span>
+                  }
+                </div>
+              </div>
+              @if (privacyPolicyRequired) {
+                <clr-checkbox-container>
+                  <clr-checkbox-wrapper>
+                    <input
+                      type="checkbox"
+                      clrCheckbox
+                      name="privacyPolicy"
+                      formControlName="privacyPolicy"
+                      required
+                    />
+                    <label>
+                      I accept the
+                      <a [href]="privacyPolicyLink">{{
+                        privacyPolicyLinkName
+                      }}</a>
+                    </label>
+                  </clr-checkbox-wrapper>
+                  <clr-control-error *clrIfError="'required'"
+                    >Accepting the privacy policy is required</clr-control-error
+                  >
+                </clr-checkbox-container>
+              }
+              <div class="error" [class.active]="error && error.length > 0">
+                {{ error }}
+              </div>
+              <button
+                [disabled]="registrationDisabled"
+                type="submit"
+                class="btn btn-primary"
+                (click)="register()"
               >
-            </clr-checkbox-container>
-            <div class="error" [class.active]="error && error.length > 0">
-              {{ error }}
+                REGISTER
+              </button>
             </div>
-            <button
-              [disabled]="registrationDisabled"
-              type="submit"
-              class="btn btn-primary"
-              (click)="register()"
-            >
-              REGISTER
-            </button>
-          </div>
-        </clr-tab-content>
-      </clr-tab>
+          </clr-tab-content>
+        </clr-tab>
+      }
     </clr-tabs>
-    <a [href]="imprintLink" *ngIf="imprintGiven" class="imprint">
-      {{ imprintLinkName }}
-    </a>
-    <a [href]="privacyPolicyLink" *ngIf="privacyPolicyLink" class="imprint">
-      {{ privacyPolicyLinkName }}
-    </a>
+    @if (imprintGiven) {
+      <a [href]="imprintLink" class="imprint">
+        {{ imprintLinkName }}
+      </a>
+    }
+    @if (privacyPolicyLink) {
+      <a [href]="privacyPolicyLink" class="imprint">
+        {{ privacyPolicyLinkName }}
+      </a>
+    }
   </form>
 </div>

@@ -13,25 +13,26 @@
     </div>
 
     <div class="settings">
-      <clr-dropdown *ngIf="ctx.valid">
-        <button class="nav-text" clrDropdownToggle>
-          <cds-icon shape="layers" solid></cds-icon>
-          {{ ctx.scheduledEvent.name }}
-          <cds-icon
-            shape="angle"
-            direction="down"
-            class="dropdown-selection-angle"
-          ></cds-icon>
-        </button>
-        <clr-dropdown-menu *clrIfOpen clrPosition="bottom">
-          <a
-            clrDropdownItem
-            *ngFor="let a of scheduledEvents | keyvalue"
-            (click)="setAccessCode(a.key)"
-            >{{ a.value.name }}</a
-          >
-        </clr-dropdown-menu>
-      </clr-dropdown>
+      @if (ctx.valid) {
+        <clr-dropdown>
+          <button class="nav-text" clrDropdownToggle>
+            <cds-icon shape="layers" solid></cds-icon>
+            {{ ctx.scheduledEvent.name }}
+            <cds-icon
+              shape="angle"
+              direction="down"
+              class="dropdown-selection-angle"
+            ></cds-icon>
+          </button>
+          <clr-dropdown-menu *clrIfOpen clrPosition="bottom">
+            @for (a of scheduledEvents | keyvalue; track a) {
+              <a clrDropdownItem (click)="setAccessCode(a.key)">{{
+                a.value.name
+              }}</a>
+            }
+          </clr-dropdown-menu>
+        </clr-dropdown>
+      }
     </div>
 
     <div class="header-actions">
@@ -53,14 +54,11 @@
           <a (click)="about()" clrDropdownItem
             ><cds-icon shape="help-info"></cds-icon> About</a
           >
-          <a
-            [href]="privacyPolicyLink"
-            *ngIf="privacyPolicyLink"
-            clrDropdownItem
-            target="_blank"
-          >
-            <cds-icon shape="pop-out"></cds-icon> {{ privacyPolicyLinkName }}
-          </a>
+          @if (privacyPolicyLink) {
+            <a [href]="privacyPolicyLink" clrDropdownItem target="_blank">
+              <cds-icon shape="pop-out"></cds-icon> {{ privacyPolicyLinkName }}
+            </a>
+          }
           <a (click)="logout()" clrDropdownItem
             ><cds-icon shape="logout"></cds-icon> Logout</a
           >
@@ -69,14 +67,11 @@
     </div>
   </header>
 
-  <div
-    class="motd-container"
-    *ngIf="motd"
-    title="Click to close"
-    (click)="closeMotd()"
-  >
-    <p class="motd">{{ motd }}</p>
-  </div>
+  @if (motd) {
+    <div class="motd-container" title="Click to close" (click)="closeMotd()">
+      <p class="motd">{{ motd }}</p>
+    </div>
+  }
 
   <div class="content-container">
     <div class="content-area">
@@ -113,14 +108,14 @@
       <p class="about-body">
         {{ aboutBody }}
       </p>
-      <ng-container *ngFor="let button of buttons | keyvalue">
+      @for (button of buttons | keyvalue; track button) {
         <a href="{{ button.value }}" target="_blank">
           <button class="btn btn-sm btn-link">
             {{ button.key }}
             <cds-icon shape="pop-out"></cds-icon>
           </button>
         </a>
-      </ng-container>
+      }
     </div>
   </clr-modal>
 
@@ -159,15 +154,16 @@
         <cds-icon shape="plus"></cds-icon> Add Access Code
       </button>
 
-      <button
-        class="btn btn-danger-outline btn-sm"
-        (click)="alertDeleteAccessCodeModal = true"
-        *ngIf="selectedAccesscodesForDeletion.length > 0"
-      >
-        <cds-icon shape="trash"></cds-icon> Delete Access Code
-      </button>
+      @if (selectedAccesscodesForDeletion.length > 0) {
+        <button
+          class="btn btn-danger-outline btn-sm"
+          (click)="alertDeleteAccessCodeModal = true"
+        >
+          <cds-icon shape="trash"></cds-icon> Delete Access Code
+        </button>
+      }
 
-      <ng-container *ngIf="newAccessCode">
+      @if (newAccessCode) {
         <form clrForm [formGroup]="newAccessCodeForm">
           <clr-input-container>
             <label class="clr-col-md-4">Access Code</label>
@@ -212,13 +208,12 @@
             </button>
           </div>
         </form>
-      </ng-container>
+      }
 
-      <ng-container *ngIf="fetchingAccessCodes">
+      @if (fetchingAccessCodes) {
         <span class="spinner spinner-inline"> Loading... </span>
         <span> Loading... </span>
-      </ng-container>
-      <ng-container *ngIf="!fetchingAccessCodes">
+      } @else {
         <clr-datagrid
           class="datagrid-compact"
           [clrDgSelected]="selectedAccesscodesForDeletion"
@@ -230,19 +225,19 @@
           <clr-dg-row *clrDgItems="let a of accesscodes" [clrDgItem]="a">
             <clr-dg-cell>{{ a }}</clr-dg-cell>
             <clr-dg-cell>
-              <ng-container *ngIf="!isValidAccessCode(a)">
+              @if (!isValidAccessCode(a)) {
                 <cds-icon
                   class="invalid-access-code"
                   shape="warning-standard"
                 ></cds-icon>
                 <span> No associated event</span>
-              </ng-container>
-              <ng-container *ngIf="isValidAccessCode(a)">
+              }
+              @if (isValidAccessCode(a)) {
                 <cds-icon
                   class="valid-access-code"
                   shape="success-standard"
                 ></cds-icon>
-              </ng-container>
+              }
               <span> {{ getScheduledEventNameForAccessCode(a) }}</span>
             </clr-dg-cell>
             <clr-dg-cell [class]="getTimestampColor(a)">
@@ -250,7 +245,7 @@
             </clr-dg-cell>
           </clr-dg-row>
         </clr-datagrid>
-      </ng-container>
+      }
     </div>
     <div class="modal-footer">
       <button class="btn" (click)="accessCodeModalOpened = false">Close</button>
@@ -260,11 +255,10 @@
   <clr-modal #settingsmodal [(clrModalOpen)]="settingsModalOpened">
     <h3 class="modal-title">Settings</h3>
     <div class="modal-body">
-      <ng-container *ngIf="fetchingSettings">
+      @if (fetchingSettings) {
         <span class="spinner spinner-inline"> Loading... </span>
         <span> Loading... </span>
-      </ng-container>
-      <ng-container *ngIf="!fetchingSettings">
+      } @else {
         <form clrForm [formGroup]="settingsForm">
           <clr-tabs>
             <clr-tab>
@@ -321,221 +315,222 @@
             <clr-tab>
               <button clrTabLink>Terminal Theme</button>
               <clr-tab-content>
-                <div
-                  *ngFor="let theme of themes"
-                  class="radio-box-container clr-col-6"
-                >
-                  <label class="theme-preview-radio-box clr-col-md-12">
-                    <input
-                      class="theme-preview-radio-button"
-                      type="radio"
-                      [value]="theme.id"
-                      name="terminal_theme"
-                      formControlName="terminal_theme"
-                    />
-                    <div class="theme-preview-container">
-                      <div
-                        class="theme-preview-terminal"
-                        [ngStyle]="{
-                          'background-color': theme.styles.background
-                        }"
-                      >
-                        <div class="theme-preview-terminal-text">
-                          <div
-                            class="theme-preview-terminal-text-bar"
-                            [ngStyle]="{
-                              'background-color': theme.styles.foreground
-                            }"
-                          ></div>
-                        </div>
-                        <br />
+                @for (theme of themes; track theme) {
+                  <div class="radio-box-container clr-col-6">
+                    <label class="theme-preview-radio-box clr-col-md-12">
+                      <input
+                        class="theme-preview-radio-button"
+                        type="radio"
+                        [value]="theme.id"
+                        name="terminal_theme"
+                        formControlName="terminal_theme"
+                      />
+                      <div class="theme-preview-container">
                         <div
-                          class="theme-preview-terminal-text"
-                          style="width: 10%"
-                        >
-                          <div
-                            class="theme-preview-terminal-text-bar"
-                            [ngStyle]="{
-                              'background-color': theme.styles.foreground
-                            }"
-                          ></div>
-                        </div>
-                        <div class="theme-preview-terminal-space"></div>
-                        <div
-                          class="theme-preview-terminal-text"
-                          style="width: 10%"
-                        >
-                          <div
-                            class="theme-preview-terminal-text-bar"
-                            [ngStyle]="{
-                              'background-color': theme.styles.foreground
-                            }"
-                          ></div>
-                        </div>
-                        <div
-                          class="theme-preview-terminal-text"
-                          style="
-                            background-color: rgba(255, 255, 255, 0.3);
-                            width: 50%;
-                          "
-                        >
-                          <div
-                            class="theme-preview-terminal-text-bar"
-                            [ngStyle]="{
-                              'background-color': theme.styles.foreground
-                            }"
-                          ></div>
-                        </div>
-                        <div
-                          class="theme-preview-terminal-text"
-                          style="
-                            background-color: rgba(255, 255, 255, 0.3);
-                            width: 27%;
-                          "
-                        ></div>
-                        <br />
-                        <div
-                          class="theme-preview-terminal-text"
-                          style="
-                            background-color: rgba(255, 255, 255, 0.3);
-                            width: 4%;
-                          "
-                        >
-                          <div
-                            class="theme-preview-terminal-text-bar"
-                            [ngStyle]="{
-                              'background-color': theme.styles.foreground
-                            }"
-                          ></div>
-                        </div>
-                        <div
-                          class="theme-preview-terminal-text"
-                          style="
-                            background-color: rgba(255, 255, 255, 0.3);
-                            width: 5%;
-                          "
-                        ></div>
-                        <div
-                          class="theme-preview-terminal-text"
-                          style="
-                            background-color: rgba(255, 255, 255, 0.3);
-                            width: 6%;
-                          "
-                        >
-                          <div
-                            class="theme-preview-terminal-text-bar"
-                            [ngStyle]="{
-                              'background-color': theme.styles.foreground
-                            }"
-                          ></div>
-                        </div>
-                        <div
-                          class="theme-preview-terminal-text"
-                          style="width: 10%"
-                        >
-                          <div
-                            class="theme-preview-terminal-text-bar"
-                            [ngStyle]="{
-                              'background-color': theme.styles.foreground
-                            }"
-                          ></div>
-                        </div>
-                        <br />
-                        <div
-                          class="theme-preview-terminal-text"
-                          style="width: 10%"
-                        >
-                          <div
-                            class="theme-preview-terminal-text-bar"
-                            [ngStyle]="{
-                              'background-color': theme.styles.blue
-                            }"
-                          ></div>
-                        </div>
-                        <div class="theme-preview-terminal-space"></div>
-                        <div
-                          class="theme-preview-terminal-text"
-                          style="width: 10%"
-                        >
-                          <div
-                            class="theme-preview-terminal-text-bar"
-                            [ngStyle]="{
-                              'background-color': theme.styles.green
-                            }"
-                          ></div>
-                        </div>
-                        <div class="theme-preview-terminal-space"></div>
-                        <div
-                          class="theme-preview-terminal-text"
-                          style="width: 10%"
-                        >
-                          <div
-                            class="theme-preview-terminal-text-bar"
-                            [ngStyle]="{ 'background-color': theme.styles.red }"
-                          ></div>
-                        </div>
-                        <div class="theme-preview-terminal-space"></div>
-                        <div
-                          class="theme-preview-terminal-text"
-                          style="width: 10%"
-                        >
-                          <div
-                            class="theme-preview-terminal-text-bar"
-                            [ngStyle]="{
-                              'background-color': theme.styles.cyan
-                            }"
-                          ></div>
-                        </div>
-                        <div class="theme-preview-terminal-space"></div>
-                        <div
-                          class="theme-preview-terminal-text"
-                          style="width: 10%"
-                        >
-                          <div
-                            class="theme-preview-terminal-text-bar"
-                            [ngStyle]="{
-                              'background-color': theme.styles.yellow
-                            }"
-                          ></div>
-                        </div>
-                        <div class="theme-preview-terminal-space"></div>
-                        <div
-                          class="theme-preview-terminal-text"
-                          style="width: 10%"
-                        >
-                          <div
-                            class="theme-preview-terminal-text-bar"
-                            [ngStyle]="{
-                              'background-color': theme.styles.magenta
-                            }"
-                          ></div>
-                        </div>
-
-                        <br />
-                        <div
-                          class="theme-preview-terminal-text"
-                          style="width: 4%"
-                        >
-                          <div
-                            class="theme-preview-terminal-text-bar"
-                            [ngStyle]="{
-                              'background-color': theme.styles.foreground
-                            }"
-                          ></div>
-                        </div>
-                        <div
-                          class="theme-preview-terminal-cursor"
+                          class="theme-preview-terminal"
                           [ngStyle]="{
-                            'background-color': theme.styles.cursor
+                            'background-color': theme.styles.background,
                           }"
-                        ></div>
+                        >
+                          <div class="theme-preview-terminal-text">
+                            <div
+                              class="theme-preview-terminal-text-bar"
+                              [ngStyle]="{
+                                'background-color': theme.styles.foreground,
+                              }"
+                            ></div>
+                          </div>
+                          <br />
+                          <div
+                            class="theme-preview-terminal-text"
+                            style="width: 10%"
+                          >
+                            <div
+                              class="theme-preview-terminal-text-bar"
+                              [ngStyle]="{
+                                'background-color': theme.styles.foreground,
+                              }"
+                            ></div>
+                          </div>
+                          <div class="theme-preview-terminal-space"></div>
+                          <div
+                            class="theme-preview-terminal-text"
+                            style="width: 10%"
+                          >
+                            <div
+                              class="theme-preview-terminal-text-bar"
+                              [ngStyle]="{
+                                'background-color': theme.styles.foreground,
+                              }"
+                            ></div>
+                          </div>
+                          <div
+                            class="theme-preview-terminal-text"
+                            style="
+                              background-color: rgba(255, 255, 255, 0.3);
+                              width: 50%;
+                            "
+                          >
+                            <div
+                              class="theme-preview-terminal-text-bar"
+                              [ngStyle]="{
+                                'background-color': theme.styles.foreground,
+                              }"
+                            ></div>
+                          </div>
+                          <div
+                            class="theme-preview-terminal-text"
+                            style="
+                              background-color: rgba(255, 255, 255, 0.3);
+                              width: 27%;
+                            "
+                          ></div>
+                          <br />
+                          <div
+                            class="theme-preview-terminal-text"
+                            style="
+                              background-color: rgba(255, 255, 255, 0.3);
+                              width: 4%;
+                            "
+                          >
+                            <div
+                              class="theme-preview-terminal-text-bar"
+                              [ngStyle]="{
+                                'background-color': theme.styles.foreground,
+                              }"
+                            ></div>
+                          </div>
+                          <div
+                            class="theme-preview-terminal-text"
+                            style="
+                              background-color: rgba(255, 255, 255, 0.3);
+                              width: 5%;
+                            "
+                          ></div>
+                          <div
+                            class="theme-preview-terminal-text"
+                            style="
+                              background-color: rgba(255, 255, 255, 0.3);
+                              width: 6%;
+                            "
+                          >
+                            <div
+                              class="theme-preview-terminal-text-bar"
+                              [ngStyle]="{
+                                'background-color': theme.styles.foreground,
+                              }"
+                            ></div>
+                          </div>
+                          <div
+                            class="theme-preview-terminal-text"
+                            style="width: 10%"
+                          >
+                            <div
+                              class="theme-preview-terminal-text-bar"
+                              [ngStyle]="{
+                                'background-color': theme.styles.foreground,
+                              }"
+                            ></div>
+                          </div>
+                          <br />
+                          <div
+                            class="theme-preview-terminal-text"
+                            style="width: 10%"
+                          >
+                            <div
+                              class="theme-preview-terminal-text-bar"
+                              [ngStyle]="{
+                                'background-color': theme.styles.blue,
+                              }"
+                            ></div>
+                          </div>
+                          <div class="theme-preview-terminal-space"></div>
+                          <div
+                            class="theme-preview-terminal-text"
+                            style="width: 10%"
+                          >
+                            <div
+                              class="theme-preview-terminal-text-bar"
+                              [ngStyle]="{
+                                'background-color': theme.styles.green,
+                              }"
+                            ></div>
+                          </div>
+                          <div class="theme-preview-terminal-space"></div>
+                          <div
+                            class="theme-preview-terminal-text"
+                            style="width: 10%"
+                          >
+                            <div
+                              class="theme-preview-terminal-text-bar"
+                              [ngStyle]="{
+                                'background-color': theme.styles.red,
+                              }"
+                            ></div>
+                          </div>
+                          <div class="theme-preview-terminal-space"></div>
+                          <div
+                            class="theme-preview-terminal-text"
+                            style="width: 10%"
+                          >
+                            <div
+                              class="theme-preview-terminal-text-bar"
+                              [ngStyle]="{
+                                'background-color': theme.styles.cyan,
+                              }"
+                            ></div>
+                          </div>
+                          <div class="theme-preview-terminal-space"></div>
+                          <div
+                            class="theme-preview-terminal-text"
+                            style="width: 10%"
+                          >
+                            <div
+                              class="theme-preview-terminal-text-bar"
+                              [ngStyle]="{
+                                'background-color': theme.styles.yellow,
+                              }"
+                            ></div>
+                          </div>
+                          <div class="theme-preview-terminal-space"></div>
+                          <div
+                            class="theme-preview-terminal-text"
+                            style="width: 10%"
+                          >
+                            <div
+                              class="theme-preview-terminal-text-bar"
+                              [ngStyle]="{
+                                'background-color': theme.styles.magenta,
+                              }"
+                            ></div>
+                          </div>
+
+                          <br />
+                          <div
+                            class="theme-preview-terminal-text"
+                            style="width: 4%"
+                          >
+                            <div
+                              class="theme-preview-terminal-text-bar"
+                              [ngStyle]="{
+                                'background-color': theme.styles.foreground,
+                              }"
+                            ></div>
+                          </div>
+                          <div
+                            class="theme-preview-terminal-cursor"
+                            [ngStyle]="{
+                              'background-color': theme.styles.cursor,
+                            }"
+                          ></div>
+                        </div>
+                        <div class="theme-preview-name">
+                          {{ theme.name }}
+                        </div>
                       </div>
-                      <div class="theme-preview-name">
-                        {{ theme.name }}
-                      </div>
-                    </div>
-                  </label>
-                </div>
+                    </label>
+                  </div>
+                }
               </clr-tab-content>
             </clr-tab>
             <clr-tab>
@@ -579,7 +574,7 @@
             </clr-tab>
           </clr-tabs>
         </form>
-      </ng-container>
+      }
     </div>
     <div class="modal-footer">
       <button class="btn" (click)="settingsModalOpened = false">Close</button>
@@ -654,15 +649,12 @@
             >Password confirmation required.</clr-control-error
           >
         </clr-input-container>
-        <div
-          class="clr-subtext"
-          *ngIf="
-            passwordChangeForm.errors?.passwordMismatch &&
-            (passwordChangeForm.touched || passwordChangeForm.dirty)
-          "
-        >
-          Passwords do not match
-        </div>
+        @if (
+          passwordChangeForm.errors?.passwordMismatch &&
+          (passwordChangeForm.touched || passwordChangeForm.dirty)
+        ) {
+          <div class="clr-subtext">Passwords do not match</div>
+        }
       </form>
     </div>
     <div class="modal-footer">

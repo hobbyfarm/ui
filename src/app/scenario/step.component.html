@@ -10,32 +10,30 @@
       class="split-area-1"
       [ngClass]="{ 'content-only': isContentOnly }"
     >
-      <ng-container *ngIf="!isBrawlSelected">
+      @if (!isBrawlSelected) {
         <div class="card" id="sidebar">
           <div class="card-header">
             <h3 id="scenario-name" class="grid-container">
               <div></div>
               <div>{{ scenario.name | atob }}</div>
-              <app-task-modal
-                *ngIf="
-                  !!(verificationService.currentVerifications | async)?.size
-                "
-                [vms]="vms"
-              ></app-task-modal>
+              @if (!!(verificationService.currentVerifications | async)?.size) {
+                <app-task-modal [vms]="vms"></app-task-modal>
+              }
             </h3>
 
-            <button
-              class="btn btn-next"
-              [class.btn-success-outline]="!isLastStepActive"
-              [class.btn-success]="isLastStepActive"
-              (click)="goFinish()"
-              *ngIf="!isContentOnly"
-            >
-              <cds-icon shape="check"></cds-icon>
-              Finish
-            </button>
+            @if (!isContentOnly) {
+              <button
+                class="btn btn-next"
+                [class.btn-success-outline]="!isLastStepActive"
+                [class.btn-success]="isLastStepActive"
+                (click)="goFinish()"
+              >
+                <cds-icon shape="check"></cds-icon>
+                Finish
+              </button>
+            }
 
-            <ng-container *ngIf="isPauseable()">
+            @if (isPauseable()) {
               <button class="btn btn-pause" (click)="pause()">
                 <cds-icon shape="pause" solid></cds-icon> Pause
               </button>
@@ -45,7 +43,7 @@
                   case of network disconnection, timeout, etc.
                 </clr-signpost-content>
               </clr-signpost>
-            </ng-container>
+            }
 
             <button
               class="btn"
@@ -85,25 +83,19 @@
               <span id="step-counter">
                 {{ this.stepnumber + 1 }}/{{ this.scenario.stepcount }}
               </span>
-              <button
-                class="btn btn-next"
-                *ngIf="!isLastStepActive"
-                (click)="goNext()"
-              >
-                Next <cds-icon shape="arrow" direction="right"></cds-icon>
-              </button>
-              <button
-                class="btn btn-success btn-next"
-                (click)="goFinish()"
-                *ngIf="isLastStepActive"
-              >
-                <cds-icon shape="check"></cds-icon> Finish
-              </button>
+              @if (!isLastStepActive) {
+                <button class="btn btn-next" (click)="goNext()">
+                  Next <cds-icon shape="arrow" direction="right"></cds-icon>
+                </button>
+              } @else {
+                <button class="btn btn-success btn-next" (click)="goFinish()">
+                  <cds-icon shape="check"></cds-icon> Finish
+                </button>
+              }
             </div>
           </div>
         </div>
-      </ng-container>
-      <ng-container *ngIf="isBrawlSelected">
+      } @else {
         <div class="brawl-instructions">
           <img src="/assets/bashbrawl/bashbrowl_text.png" />
           <div class="text centered">
@@ -111,145 +103,152 @@
             You have 60 seconds to enter commands from
           </div>
           <div class="text centered">
-            <span
-              *ngFor="let lang of getBrawlLanguages(); let i = index"
-              class="brawl-language"
-              >{{ lang | uppercase }}
-              <span *ngIf="i !== getBrawlLanguages().length - 1">
-                &middot;
+            @for (lang of getBrawlLanguages(); track lang; let i = $index) {
+              <span class="brawl-language"
+                >{{ lang | uppercase }}
+                @if (i !== getBrawlLanguages().length - 1) {
+                  <span> &middot; </span>
+                }
               </span>
-            </span>
+            }
           </div>
           <div class="text centered cta">
             Type <i class="brawl-language brawl-color">brawl</i> to enter the
             arena.
           </div>
         </div>
-      </ng-container>
+      }
     </as-split-area>
     <as-split-area [size]="60" class="split-area-2" [visible]="!isContentOnly">
       <div id="terminal-column">
         <clr-tabs class="tab-container">
-          <clr-tab *ngFor="let v of vms | keyvalue" #tab>
-            <button clrTabLink [id]="v.key">
-              <cds-icon size="24" shape="host"></cds-icon> {{ v.key }}
-            </button>
-            <clr-tab-content #tabcontent>
-              <table class="table compact">
-                <tr>
-                  <td><b>Public IP:</b> {{ v.value.public_ip }}</td>
-                  <td><b>Private IP:</b> {{ v.value.private_ip }}</td>
-                  <td><b>Hostname:</b> {{ v.value.hostname }}</td>
-                  <td><b>Shell Status:</b> {{ getShellStatus(v.key) }}</td>
-                  <td style="padding: 0">
-                    <button
-                      class="btn btn-icon btn-primary btn-sm"
-                      title="Reload Terminal"
-                      (click)="reloadTerminal(v.key)"
-                    >
-                      <cds-icon shape="refresh"></cds-icon>
-                    </button>
-                  </td>
-                </tr>
-              </table>
-              <app-terminal
-                *ngIf="!isGuacamoleTerminal(v.value.protocol)"
-                [vmname]="v.key"
-                [vmid]="v.value.id"
-                [endpoint]="v.value.ws_endpoint"
-                #term
-              >
-              </app-terminal>
-              <app-guac-terminal
-                *ngIf="isGuacamoleTerminal(v.value.protocol)"
-                [vmname]="v.key"
-                [vmid]="v.value.id"
-                [endpoint]="v.value.ws_endpoint"
-                #guacterm
-              >
-              </app-guac-terminal>
-            </clr-tab-content>
-          </clr-tab>
-          <ng-container *ngFor="let v of vms | keyvalue">
-            <ng-container
-              *ngFor="let webinterface of v.value.webinterfaces; let i = index"
-            >
-              <clr-tab
-                *ngIf="
-                  (webinterface.hasOwnTab && i < maxInterfaceTabs) ||
-                  webinterface.active
-                "
-                #tab
-              >
-                <button
-                  clrTabLink
-                  [id]="v.key + webinterface.name"
-                  [clrTabLinkInOverflow]="false"
-                  (click)="setTabActive(webinterface, v.key)"
-                >
-                  {{ v.key }} - {{ webinterface.name }}
-                </button>
-                <clr-tab-content>
-                  <table class="table compact">
-                    <tr>
-                      <td><b>Webinterface:</b> {{ webinterface.name }}</td>
-                      <td><b>Node:</b> {{ v.key }}</td>
-                      <td><b>Port:</b> {{ webinterface.port }}</td>
-                      <td><b>Path:</b> {{ webinterface.path }}</td>
-                      <td style="padding: 0">
-                        <button
-                          class="btn btn-icon btn-primary btn-sm"
-                          title="Reload Tab"
-                          (click)="reloadWebinterface(v.value.id, webinterface)"
-                        >
-                          <cds-icon shape="refresh"></cds-icon>
-                        </button>
-                        <button
-                          class="btn btn-icon btn-primary btn-sm"
-                          title="Open in a new Tab"
-                          (click)="
-                            openWebinterfaceInNewTab(v.value, webinterface)
-                          "
-                        >
-                          <cds-icon shape="pop-out"></cds-icon>
-                        </button>
-                      </td>
-                    </tr>
-                  </table>
-                  <app-ide-window
-                    *ngIf="!isGuacamoleTerminal(v.value.protocol)"
+          @for (v of vms | keyvalue; track v) {
+            <clr-tab #tab>
+              <button clrTabLink [id]="v.key">
+                <cds-icon size="24" shape="host"></cds-icon> {{ v.key }}
+              </button>
+              <clr-tab-content #tabcontent>
+                <table class="table compact">
+                  <tr>
+                    <td><b>Public IP:</b> {{ v.value.public_ip }}</td>
+                    <td><b>Private IP:</b> {{ v.value.private_ip }}</td>
+                    <td><b>Hostname:</b> {{ v.value.hostname }}</td>
+                    <td><b>Shell Status:</b> {{ getShellStatus(v.key) }}</td>
+                    <td style="padding: 0">
+                      <button
+                        class="btn btn-icon btn-primary btn-sm"
+                        title="Reload Terminal"
+                        (click)="reloadTerminal(v.key)"
+                      >
+                        <cds-icon shape="refresh"></cds-icon>
+                      </button>
+                    </td>
+                  </tr>
+                </table>
+                @if (!isGuacamoleTerminal(v.value.protocol)) {
+                  <app-terminal
+                    [vmname]="v.key"
                     [vmid]="v.value.id"
                     [endpoint]="v.value.ws_endpoint"
-                    [port]="webinterface.port"
-                    [path]="webinterface.path"
-                    [disallowIFrame]="webinterface.disallowIFrame"
-                    (openWebinterfaceFn)="
-                      openWebinterfaceInNewTab(v.value, webinterface)
-                    "
-                    [reloadEvent]="reloadTabObservable"
+                    #term
                   >
-                  </app-ide-window>
-                </clr-tab-content>
-              </clr-tab>
+                  </app-terminal>
+                } @else {
+                  <app-guac-terminal
+                    [vmname]="v.key"
+                    [vmid]="v.value.id"
+                    [endpoint]="v.value.ws_endpoint"
+                    #guacterm
+                  >
+                  </app-guac-terminal>
+                }
+              </clr-tab-content>
+            </clr-tab>
+          }
+          @for (v of vms | keyvalue; track v) {
+            @for (
+              webinterface of v.value.webinterfaces;
+              track webinterface;
+              let i = $index
+            ) {
+              @if (
+                (webinterface.hasOwnTab && i < maxInterfaceTabs) ||
+                webinterface.active
+              ) {
+                <clr-tab #tab>
+                  <button
+                    clrTabLink
+                    [id]="v.key + webinterface.name"
+                    [clrTabLinkInOverflow]="false"
+                    (click)="setTabActive(webinterface, v.key)"
+                  >
+                    {{ v.key }} - {{ webinterface.name }}
+                  </button>
+                  <clr-tab-content>
+                    <table class="table compact">
+                      <tr>
+                        <td><b>Webinterface:</b> {{ webinterface.name }}</td>
+                        <td><b>Node:</b> {{ v.key }}</td>
+                        <td><b>Port:</b> {{ webinterface.port }}</td>
+                        <td><b>Path:</b> {{ webinterface.path }}</td>
+                        <td style="padding: 0">
+                          <button
+                            class="btn btn-icon btn-primary btn-sm"
+                            title="Reload Tab"
+                            (click)="
+                              reloadWebinterface(v.value.id, webinterface)
+                            "
+                          >
+                            <cds-icon shape="refresh"></cds-icon>
+                          </button>
+                          <button
+                            class="btn btn-icon btn-primary btn-sm"
+                            title="Open in a new Tab"
+                            (click)="
+                              openWebinterfaceInNewTab(v.value, webinterface)
+                            "
+                          >
+                            <cds-icon shape="pop-out"></cds-icon>
+                          </button>
+                        </td>
+                      </tr>
+                    </table>
+                    @if (!isGuacamoleTerminal(v.value.protocol)) {
+                      <app-ide-window
+                        [vmid]="v.value.id"
+                        [endpoint]="v.value.ws_endpoint"
+                        [port]="webinterface.port"
+                        [path]="webinterface.path"
+                        [disallowIFrame]="webinterface.disallowIFrame"
+                        (openWebinterfaceFn)="
+                          openWebinterfaceInNewTab(v.value, webinterface)
+                        "
+                        [reloadEvent]="reloadTabObservable"
+                      >
+                      </app-ide-window>
+                    }
+                  </clr-tab-content>
+                </clr-tab>
+              }
 
-              <clr-tab
-                *ngIf="
-                  (!webinterface.hasOwnTab ||
-                    (webinterface.hasOwnTab && i >= maxInterfaceTabs)) &&
-                  !webinterface.active
-                "
-              >
-                <button
-                  clrTabLink
-                  [clrTabLinkInOverflow]="true"
-                  (click)="setTabActive(webinterface, v.key)"
-                >
-                  {{ v.key }} - {{ webinterface.name }}
-                </button>
-              </clr-tab>
-            </ng-container>
-          </ng-container>
-          <ng-container *ngIf="bashbrawl_active && !isContentOnly">
+              @if (
+                (!webinterface.hasOwnTab ||
+                  (webinterface.hasOwnTab && i >= maxInterfaceTabs)) &&
+                !webinterface.active
+              ) {
+                <clr-tab>
+                  <button
+                    clrTabLink
+                    [clrTabLinkInOverflow]="true"
+                    (click)="setTabActive(webinterface, v.key)"
+                  >
+                    {{ v.key }} - {{ webinterface.name }}
+                  </button>
+                </clr-tab>
+              }
+            }
+          }
+          @if (bashbrawl_active && !isContentOnly) {
             <clr-tab #tab>
               <button clrTabLink id="bashbrawl" [clrTabLinkInOverflow]="true">
                 <cds-icon size="24" shape="terminal"></cds-icon> Arcade
@@ -265,7 +264,7 @@
                 <app-bashbrawl-terminal #term> </app-bashbrawl-terminal>
               </clr-tab-content>
             </clr-tab>
-          </ng-container>
+          }
         </clr-tabs>
       </div>
     </as-split-area>
@@ -291,25 +290,25 @@
 <clr-modal [(clrModalOpen)]="finishOpen">
   <h3 class="modal-title">Are you sure you want to finish?</h3>
   <div class="modal-body">
-    <p *ngIf="shouldKeepVmOnFinish && !isContentOnly; else no_course">
-      Your virtual machines will be kept until they expire or the course is
-      marked as "complete". Selecting "FORCE" will immediately deprovision and
-      delete your resources.
-    </p>
-    <ng-template #no_course>
+    @if (shouldKeepVmOnFinish && !isContentOnly) {
+      <p>
+        Your virtual machines will be kept until they expire or the course is
+        marked as "complete". Selecting "FORCE" will immediately deprovision and
+        delete your resources.
+      </p>
+    } @else {
       Selecting "FINISH" will immediately deprovision and delete your resources.
-    </ng-template>
+    }
   </div>
   <div class="modal-footer">
     <button class="btn btn-outline" (click)="finishOpen = false">Cancel</button>
-    <div
-      *ngIf="shouldKeepVmOnFinish && !isContentOnly"
-      style="display: inline-block"
-    >
-      <button class="btn btn-danger-outline" (click)="actuallyFinish(true)">
-        Force
-      </button>
-    </div>
+    @if (shouldKeepVmOnFinish && !isContentOnly) {
+      <div style="display: inline-block">
+        <button class="btn btn-danger-outline" (click)="actuallyFinish(true)">
+          Force
+        </button>
+      </div>
+    }
     <button class="btn btn-next btn-success-outline" (click)="actuallyFinish()">
       Finish
     </button>

@@ -10,57 +10,54 @@
     <h5>
       {{ scenario.description | atob }}
     </h5>
-    <div class="clr-row" *ngIf="vmclaims.length === 0 && !error">
-      <div class="clr-col">
-        <br />
-        <span class="spinner spinner-inline">
-          Requesting virtual machine resources...
-        </span>
-        <span> Requesting virtual machine resources... </span>
+    @if (vmclaims.length === 0 && !error) {
+      <div class="clr-row">
+        <div class="clr-col">
+          <br />
+          <span class="spinner spinner-inline">
+            Requesting virtual machine resources...
+          </span>
+          <span> Requesting virtual machine resources... </span>
+        </div>
       </div>
-    </div>
-    <clr-alert
-      [clrAlertType]="'info'"
-      [clrAlertClosable]="false"
-      *ngIf="isDynamicallyBinding"
-    >
-      <clr-alert-item>
-        <span class="alert-text">
-          Virtual machines are being provisioned on-demand, this may take a few
-          moments...
-        </span>
-      </clr-alert-item>
-    </clr-alert>
-    <clr-alert
-      [clrAlertType]="'danger'"
-      [clrAlertClosable]="false"
-      *ngIf="error"
-    >
-      <clr-alert-item>
-        <span class="alert-text">
-          There was an error creating the session. Try again later or contact
-          administrator.
-        </span>
-      </clr-alert-item>
-    </clr-alert>
-    <table class="table" *ngIf="!error">
-      <thead>
-        <tr>
-          <th class="left">name</th>
-          <th class="left">id</th>
-          <th class="left">template</th>
-          <th>status</th>
-          <th>public ip</th>
-          <th>private ip</th>
-          <th>hostname</th>
-        </tr>
-      </thead>
-      <tbody
-        *ngFor="let vmc of vmclaims"
-        [vmclaim]="vmc"
-        (ready)="onReady(vmc)"
-      ></tbody>
-    </table>
+    }
+    @if (isDynamicallyBinding) {
+      <clr-alert [clrAlertType]="'info'" [clrAlertClosable]="false">
+        <clr-alert-item>
+          <span class="alert-text">
+            Virtual machines are being provisioned on-demand, this may take a
+            few moments...
+          </span>
+        </clr-alert-item>
+      </clr-alert>
+    }
+    @if (error) {
+      <clr-alert [clrAlertType]="'danger'" [clrAlertClosable]="false">
+        <clr-alert-item>
+          <span class="alert-text">
+            There was an error creating the session. Try again later or contact
+            administrator.
+          </span>
+        </clr-alert-item>
+      </clr-alert>
+    } @else {
+      <table class="table">
+        <thead>
+          <tr>
+            <th class="left">name</th>
+            <th class="left">id</th>
+            <th class="left">template</th>
+            <th>status</th>
+            <th>public ip</th>
+            <th>private ip</th>
+            <th>hostname</th>
+          </tr>
+        </thead>
+        @for (vmc of vmclaims; track vmc) {
+          <tbody [vmclaim]="vmc" (ready)="onReady(vmc)"></tbody>
+        }
+      </table>
+    }
   </div>
   <div class="modal-footer">
     <button class="btn btn-warning-outline" (click)="close()" type="button">

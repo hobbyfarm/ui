@@ -1,13 +1,18 @@
-<tr *ngFor="let vm of vmclaim.vm | keyvalue">
-  <td class="left">{{ vm.key }}</td>
-  <td class="left">{{ vm.value.vm_id }}</td>
-  <td class="left">{{ vm.value.template }}</td>
-  <td>
-    <cds-icon *ngIf="vmclaim?.ready" shape="check" status="success"></cds-icon>
-    <clr-spinner *ngIf="!vmclaim?.ready" [clrInline]="true"></clr-spinner>
-    {{ getVm(vm.value.vm_id)?.status }}
-  </td>
-  <td>{{ getVm(vm.value.vm_id)?.public_ip }}</td>
-  <td>{{ getVm(vm.value.vm_id)?.private_ip }}</td>
-  <td>{{ getVm(vm.value.vm_id)?.hostname }}</td>
-</tr>
+@for (vm of vmclaim.vm | keyvalue; track vm) {
+  <tr>
+    <td class="left">{{ vm.key }}</td>
+    <td class="left">{{ vm.value.vm_id }}</td>
+    <td class="left">{{ vm.value.template }}</td>
+    <td>
+      @if (vmclaim?.ready) {
+        <cds-icon shape="check" status="success"></cds-icon>
+      } @else {
+        <clr-spinner [clrInline]="true"></clr-spinner>
+      }
+      {{ getVm(vm.value.vm_id)?.status }}
+    </td>
+    <td>{{ getVm(vm.value.vm_id)?.public_ip }}</td>
+    <td>{{ getVm(vm.value.vm_id)?.private_ip }}</td>
+    <td>{{ getVm(vm.value.vm_id)?.hostname }}</td>
+  </tr>
+}
