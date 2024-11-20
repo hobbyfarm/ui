@@ -20,7 +20,7 @@
   pre {
     padding: 5px 10px;
     overflow-x: auto;
-    background-color: #f8f8f8;
+    background-color: var(--clr-card-bg-color, #f8f8f8);
     margin-bottom: 0px;
     .filename,
     .language {
