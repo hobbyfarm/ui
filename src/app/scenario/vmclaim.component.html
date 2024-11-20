@@ -4,7 +4,7 @@
     <td class="left">{{ vm.value.vm_id }}</td>
     <td class="left">{{ vm.value.template }}</td>
     <td>
-      @if (vmclaim?.ready) {
+      @if (vmclaim.ready) {
         <cds-icon shape="check" status="success"></cds-icon>
       } @else {
         <clr-spinner [clrInline]="true"></clr-spinner>
