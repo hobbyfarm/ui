@@ -101,6 +101,12 @@ table {
   padding-right: 0.6rem;
 }
 
+.content-only {
+  margin: 0 auto;
+  min-width: 600px;
+  flex: 0 0 50% !important;
+}
+
 .split-area-2 {
   overflow-y: hidden !important;
   padding-left: 0.6rem;
