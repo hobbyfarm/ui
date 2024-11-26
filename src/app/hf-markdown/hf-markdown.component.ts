@@ -256,7 +256,7 @@ ${token}`;
 
   private replaceVmInfoTokens(content: string) {
     return content.replace(
-      /\$\{vminfo:([^:]*):([^}]*)\}/g,
+      /\$\{vmInfo:([^:]*):([^}]*)\}/g,
       (match, vmName, propName) => {
         const vm = this.context.vmInfo?.[vmName.toLowerCase()];
         return String(vm?.[propName as keyof VM] ?? match);

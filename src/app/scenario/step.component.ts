@@ -262,11 +262,6 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
           });
           this.verificationService.verifications = verificationTasks;
           this.sendProgressUpdate();
-          const vmInfo: HfMarkdownRenderContext['vmInfo'] = {};
-          for (const [k, v] of this.vms) {
-            vmInfo[k.toLowerCase()] = v;
-          }
-          this.mdContext = { vmInfo: vmInfo, session: this.session.id };
         }),
         // Using mergeMap here to handle async "getWebinterfaces(...)" operations concurrently
         // This allows multiple observables to be active and processed in parallel
@@ -282,6 +277,12 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
               }
             }
           });
+
+          const vmInfo: HfMarkdownRenderContext['vmInfo'] = {};
+          for (const [k, v] of this.vms) {
+            vmInfo[k.toLowerCase()] = v;
+          }
+          this.mdContext = { vmInfo: vmInfo, session: this.session.id };
 
           const vmObservables = Array.from<stepVM>(this.vms.values()).map(
             (vm) =>
