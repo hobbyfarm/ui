@@ -128,48 +128,68 @@
       </ng-container>
     </as-split-area>
     <as-split-area [size]="60" class="split-area-2" [visible]="!isContentOnly">
+      <ng-container *ngIf="sharedVMs.length > 0">
+        <clr-tooltip *ngFor="let vm of sharedVMs" style="float: right">
+          <span class="badge badge-blue" clrTooltipTrigger>
+            {{ vm.name }}
+          </span>
+          <clr-tooltip-content [clrPosition]="'top-left'" [clrSize]="'md'">
+            Name: {{ vm.name }}<br />
+            Public IP: {{ vm.public_ip }}<br />
+            Private IP: {{ vm.private_ip }}<br />
+          </clr-tooltip-content>
+        </clr-tooltip>
+      </ng-container>
       <div id="terminal-column">
         <clr-tabs class="tab-container">
-          <clr-tab *ngFor="let v of vms | keyvalue" #tab>
-            <button clrTabLink [id]="v.key">
-              <cds-icon size="24" shape="host"></cds-icon> {{ v.key }}
-            </button>
-            <clr-tab-content #tabcontent>
-              <table class="table compact">
-                <tr>
-                  <td><b>Public IP:</b> {{ v.value.public_ip }}</td>
-                  <td><b>Private IP:</b> {{ v.value.private_ip }}</td>
-                  <td><b>Hostname:</b> {{ v.value.hostname }}</td>
-                  <td><b>Shell Status:</b> {{ getShellStatus(v.key) }}</td>
-                  <td style="padding: 0">
-                    <button
-                      class="btn btn-icon btn-primary btn-sm"
-                      title="Reload Terminal"
-                      (click)="reloadTerminal(v.key)"
-                    >
-                      <cds-icon shape="refresh"></cds-icon>
-                    </button>
-                  </td>
-                </tr>
-              </table>
-              <app-terminal
-                *ngIf="!isGuacamoleTerminal(v.value.protocol)"
-                [vmname]="v.key"
-                [vmid]="v.value.id"
-                [endpoint]="v.value.ws_endpoint"
-                #term
-              >
-              </app-terminal>
-              <app-guac-terminal
-                *ngIf="isGuacamoleTerminal(v.value.protocol)"
-                [vmname]="v.key"
-                [vmid]="v.value.id"
-                [endpoint]="v.value.ws_endpoint"
-                #guacterm
-              >
-              </app-guac-terminal>
-            </clr-tab-content>
-          </clr-tab>
+          <ng-container *ngFor="let v of vms | keyvalue">
+            <clr-tab *ngIf="v.value.vm_type !== 'SHARED'" #tab>
+              <button clrTabLink [id]="v.key">
+                <cds-icon size="24" shape="host"></cds-icon> {{ v.key }}
+              </button>
+              <clr-tab-content #tabcontent>
+                <table class="table compact">
+                  <tr>
+                    <td><b>Public IP:</b> {{ v.value.public_ip }}</td>
+                    <td><b>Private IP:</b> {{ v.value.private_ip }}</td>
+                    <td><b>Hostname:</b> {{ v.value.hostname }}</td>
+                    <td><b>Shell Status:</b> {{ getShellStatus(v.key) }}</td>
+                    <td style="padding: 0">
+                      <button
+                        class="btn btn-icon btn-primary btn-sm"
+                        title="Reload Terminal"
+                        (click)="reloadTerminal(v.key)"
+                      >
+                        <cds-icon shape="refresh"></cds-icon>
+                      </button>
+                    </td>
+                  </tr>
+                </table>
+                <app-terminal
+                  *ngIf="
+                    !isGuacamoleTerminal(v.value.protocol) &&
+                    v.value.vm_type !== 'SHARED'
+                  "
+                  [vmname]="v.key"
+                  [vmid]="v.value.id"
+                  [endpoint]="v.value.ws_endpoint"
+                  #term
+                >
+                </app-terminal>
+                <app-guac-terminal
+                  *ngIf="
+                    isGuacamoleTerminal(v.value.protocol) &&
+                    v.value.vm_type !== 'SHARED'
+                  "
+                  [vmname]="v.key"
+                  [vmid]="v.value.id"
+                  [endpoint]="v.value.ws_endpoint"
+                  #guacterm
+                >
+                </app-guac-terminal>
+              </clr-tab-content>
+            </clr-tab>
+          </ng-container>
           <ng-container *ngFor="let v of vms | keyvalue">
             <ng-container
               *ngFor="let webinterface of v.value.webinterfaces; let i = index"
