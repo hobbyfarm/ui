@@ -48,9 +48,6 @@
           <a (click)="openSettings()" clrDropdownItem
             ><cds-icon shape="cog"></cds-icon> Settings</a
           >
-          <a (click)="changePassword()" clrDropdownItem
-            ><cds-icon shape="key"></cds-icon> Change Password</a
-          >
           <a (click)="about()" clrDropdownItem
             ><cds-icon shape="help-info"></cds-icon> About</a
           >
@@ -265,7 +262,7 @@
               <clr-tab-content *clrIfActive="true">
                 <div class="clr-row space-top-big">
                   <div class="clr-col">
-                    <button class="btn btn-sm">Change Password</button>
+                    <button class="btn btn-sm" (click)="changePassword()">Change Password</button>
                   </div>
                 </div>
                 <div class="clr-row space-top-small">
