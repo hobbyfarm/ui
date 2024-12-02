@@ -261,8 +261,23 @@
         <form clrForm [formGroup]="settingsForm">
           <clr-tabs>
             <clr-tab>
-              <button clrTabLink>Terminal</button>
+              <button clrTabLink>Account</button>
               <clr-tab-content *clrIfActive="true">
+                <div class="clr-row space-top-big">
+                  <div class="clr-col">
+                    <button class="btn btn-sm">Change Password</button>
+                  </div>
+                </div>
+                <div class="clr-row space-top-small">
+                  <div class="clr-col">
+                    <button class="btn btn-danger btn-sm">Delete Account</button>
+                  </div>
+                </div>
+              </clr-tab-content>
+            </clr-tab>
+            <clr-tab>
+              <button clrTabLink>Terminal</button>
+              <clr-tab-content>
                 <clr-input-container>
                   <label class="clr-col-md-4">Font-Size</label>
                   <input
