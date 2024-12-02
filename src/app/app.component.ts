@@ -27,6 +27,7 @@ export class AppComponent implements OnInit, OnDestroy {
   public logoutModalOpened = false;
   public aboutModalOpened = false;
   public changePasswordModalOpened = false;
+  public deleteAccountModalOpened = false; 
 
   public changePwDangerClosed = true;
   public changePwSuccessClosed = true;
@@ -102,8 +103,7 @@ export class AppComponent implements OnInit, OnDestroy {
 
   @ViewChild('logoutmodal', { static: true }) logoutModal: ClrModal;
   @ViewChild('aboutmodal', { static: true }) aboutModal: ClrModal;
-  @ViewChild('changepasswordmodal', { static: true })
-  changePasswordModal: ClrModal;
+  @ViewChild('changepasswordmodal', { static: true }) changePasswordModal: ClrModal;
   @ViewChild('accesscodemodal', { static: true }) accessCodeModal: ClrModal;
   @ViewChild('settingsmodal', { static: true }) settingsModal: ClrModal;
 
@@ -409,5 +409,11 @@ export class AppComponent implements OnInit, OnDestroy {
     if (this.emailSubscription) {
       this.emailSubscription.unsubscribe();
     }
+  }
+  
+  public deleteAccount(){
+    console.log("gelöscht...quasi");
+    //todo - delete account
+    this.doLogout();
   }
 }

@@ -267,7 +267,7 @@
                 </div>
                 <div class="clr-row space-top-small">
                   <div class="clr-col">
-                    <button class="btn btn-danger btn-sm">Delete Account</button>
+                    <button class="btn btn-danger btn-sm" (click)="deleteAccountModalOpened = true">Delete Account</button>
                   </div>
                 </div>
               </clr-tab-content>
@@ -684,6 +684,46 @@
       </button>
     </div>
   </clr-modal>
+
+  <clr-modal #deleteaccountmodal [(clrModalOpen)]="deleteAccountModalOpened">
+    <h3 class="modal-title">
+      Are you sure you want to delete your account?
+    </h3>
+    <div class="modal-body">
+      <div class="alert alert-danger">
+        <div class="alert-items">
+          <div class="alert-item static" role="alert">
+            <div class="alert-icon-wrapper">
+              <cds-icon
+                class="alert-icon"
+                shape="exclamation-triangle"
+              ></cds-icon>
+            </div>
+            <span class="alert-text">
+              The account will be deleted permanently!
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button
+        type="button"
+        class="btn btn-outline"
+        (click)="this.deleteAccountModalOpened = false"
+      >
+        Cancel
+      </button>
+      <button
+        type="button"
+        class="btn btn-danger-outline"
+        (click)="deleteAccount()"
+      >
+        Ok
+      </button>
+    </div>
+  </clr-modal>
+
   <clr-modal [(clrModalOpen)]="alertDeleteAccessCodeModal">
     <h3 class="modal-title">
       Are you sure you want to delete
