@@ -1,19 +1,11 @@
-import { Component, HostListener, Input, OnChanges } from "@angular/core";
-import { MarkdownService } from "ngx-markdown";
-
+import { Component, Input } from "@angular/core";
 
 @Component({
     selector: 'app-glossary-md',
     templateUrl: './glossary-md.component.html',
     styleUrls: ['./glossary-md.component.scss'],
   })
-  export class GlossaryMdComponent implements OnChanges {
+  export class GlossaryMdComponent {
     @Input() term: string;
     @Input() code: string;
-    parsedContent: Promise<string>;
-
-    constructor(private markdownService: MarkdownService) {}
-    ngOnChanges(): void {
-      this.parsedContent = Promise.resolve(this.markdownService.parse(this.code));
-    }
   }

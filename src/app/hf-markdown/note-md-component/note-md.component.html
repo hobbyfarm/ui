@@ -2,7 +2,7 @@
   <ng-container class="note-title">
     {{ message || noteType.toUpperCase() }}:
   </ng-container>
-  @if(parsedContent | async; as content) {
-    <div class="note-content" [innerHTML]="content"></div>
-  }
+  <div class="note-content">
+    <app-hf-markdown [content]="code" [context]="ctx"></app-hf-markdown>
+  </div>
 </div>

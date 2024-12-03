@@ -1,5 +1,5 @@
-import { Component, Input, OnChanges } from "@angular/core";
-import { MarkdownService } from "ngx-markdown";
+import { Component, Input } from "@angular/core";
+import { HfMarkdownRenderContext } from "../hf-markdown.component";
 
 
 @Component({
@@ -7,13 +7,8 @@ import { MarkdownService } from "ngx-markdown";
     templateUrl: './hidden-md.component.html',
     styleUrls: ['./hidden-md.component.scss'],
   })
-  export class HiddenMdComponent implements OnChanges {
+  export class HiddenMdComponent {
     @Input() summary: string;
     @Input() code: string;
-    parsedContent: Promise<string>;
-
-    constructor(private markdownService: MarkdownService) {}
-    ngOnChanges(): void {
-      this.parsedContent = Promise.resolve(this.markdownService.parse(this.code));
-    }
+    @Input() ctx: HfMarkdownRenderContext = { vmInfo: {}, session: '' };
   }

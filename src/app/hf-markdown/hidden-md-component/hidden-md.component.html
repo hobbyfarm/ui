@@ -1,9 +1,4 @@
 <details>
   <summary>{{ summary }}</summary>
-  @if(parsedContent | async; as content) {
-    <div [innerHTML]="content"></div>
-  }
-  @else {
-    <div>Loading...</div>
-  }
+  <app-hf-markdown [content]="code" [context]="ctx"></app-hf-markdown>
 </details>
