@@ -87,8 +87,7 @@
           ctx.valid
         ) {
           <div>No scenarios or courses found.</div>
-        }
-        @if (!loadedScenarios && !loadedCourses && ctx.valid) {
+        } @else if (!loadedScenarios && !loadedCourses && ctx.valid) {
           <div>Loading scenarios...</div>
         }
       </div>

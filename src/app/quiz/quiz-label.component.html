@@ -7,7 +7,6 @@
 >
 @if (hasCorrectOptionClass) {
   <cds-icon shape="success-standard" status="success" solid="true"></cds-icon>
-}
-@if (hasIncorrectOptionClass) {
+} @else if (hasIncorrectOptionClass) {
   <cds-icon shape="exclamation-circle" status="danger" solid="true"></cds-icon>
 }

@@ -55,8 +55,9 @@
             Actual Output: <code>{{ task.actual_output_value }}</code>
           </p>
         </li>
-      }
-      @if (isOfReturnType(task, ['Return_Text', 'Return_Code_And_Text'])) {
+      } @else if (
+        isOfReturnType(task, ['Return_Text', 'Return_Code_And_Text'])
+      ) {
         <li class="list-group-item">
           <p>
             Expected Output: <code>{{ task.expected_output_value }}</code>
@@ -109,22 +110,19 @@
             } @else {
               <span>The Regex does not match the output string.</span>
             }
-          }
-          @if (isOfReturnType(task, ['Return_Code'])) {
+          } @else if (isOfReturnType(task, ['Return_Code'])) {
             @if (task.success) {
               <span>Returned Code matches the expected Code</span>
             } @else {
               <span> Returned Code does not match the expected Code </span>
             }
-          }
-          @if (isOfReturnType(task, ['Return_Text'])) {
+          } @else if (isOfReturnType(task, ['Return_Text'])) {
             @if (task.success) {
               <span>Returned Text matches the expected Text</span>
             } @else {
               <span> Returned Text does not match the expected Text </span>
             }
-          }
-          @if (isOfReturnType(task, ['Return_Code_And_Text'])) {
+          } @else if (isOfReturnType(task, ['Return_Code_And_Text'])) {
             @if (task.success) {
               <span>
                 Returned Text and Code match the expected Text and Code

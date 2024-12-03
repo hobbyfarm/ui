@@ -231,8 +231,7 @@
                   shape="warning-standard"
                 ></cds-icon>
                 <span> No associated event</span>
-              }
-              @if (isValidAccessCode(a)) {
+              } @else {
                 <cds-icon
                   class="valid-access-code"
                   shape="success-standard"

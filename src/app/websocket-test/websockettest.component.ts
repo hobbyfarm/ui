@@ -77,7 +77,7 @@ export class WebsocketTestComponent implements OnInit {
       this.addMermaidString('you', this.target, 'ping');
     };
 
-    socket.onclose = (event) => {
+    socket.onclose = () => {
       this.completed = true;
     };
   }

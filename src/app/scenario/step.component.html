@@ -229,9 +229,7 @@
                     }
                   </clr-tab-content>
                 </clr-tab>
-              }
-
-              @if (
+              } @else if (
                 (!webinterface.hasOwnTab ||
                   (webinterface.hasOwnTab && i >= maxInterfaceTabs)) &&
                 !webinterface.active

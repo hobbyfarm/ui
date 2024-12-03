@@ -10,11 +10,9 @@
         <cds-icon shape="pop-out"></cds-icon>
       </button>
     </div>
-  }
-  @if (isLoading) {
+  } @else if (isLoading) {
     <div [ngClass]="'info'">Loading</div>
-  }
-  @if (isConnError) {
+  } @else if (isConnError) {
     <div [ngClass]="'info'">
       <p>An Error has occurred</p>
       <button
