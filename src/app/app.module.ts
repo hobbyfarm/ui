@@ -19,7 +19,7 @@ import { StepComponent } from './scenario/step.component';
 import { VMClaimComponent } from './scenario/vmclaim.component';
 import { AtobPipe } from './atob.pipe';
 import { MarkdownModule } from 'ngx-markdown';
-import { DynamicHooksModule } from 'ngx-dynamic-hooks';
+import { DynamicHooksComponent, provideDynamicHooks } from 'ngx-dynamic-hooks';
 import { CtrComponent } from './scenario/ctr.component';
 import { CtrService } from './scenario/ctr.service';
 import { ScenarioService } from './services/scenario.service';
@@ -209,22 +209,7 @@ export function jwtOptionsFactory() {
     MarkdownModule.forRoot({
       sanitize: SecurityContext.NONE,
     }),
-    DynamicHooksModule.forRoot({
-      globalOptions: {
-        sanitize: false,
-        convertHTMLEntities: false,
-      },
-      globalParsers: [
-        { component: CtrComponent },
-        { component: SingleTaskVerificationMarkdownComponent },
-        { component: QuizComponent },
-        { component: CopyToClipboardComponent },
-        { component: GlossaryMdComponent },
-        { component: MermaidMdComponent },
-        { component: HiddenMdComponent },
-        { component: NoteMdComponent },
-      ],
-    }),
+    DynamicHooksComponent,
     JwtModule.forRoot({
       jwtOptionsProvider: {
         provide: JWT_OPTIONS,
@@ -258,6 +243,23 @@ export function jwtOptionsFactory() {
       multi: true,
       deps: [AppConfigService],
     },
+    provideDynamicHooks({
+      parsers: [
+        { component: CtrComponent, unescapeStrings: false },
+        { component: GlossaryMdComponent, unescapeStrings: false },
+        { component: MermaidMdComponent, unescapeStrings: false },
+        { component: HiddenMdComponent, unescapeStrings: false },
+        { component: NoteMdComponent, unescapeStrings: false },
+        {
+          component: SingleTaskVerificationMarkdownComponent,
+          unescapeStrings: false,
+        },
+      ],
+      options: {
+        sanitize: false,
+        convertHTMLEntities: false,
+      },
+    }),
   ],
   bootstrap: [RootComponent],
 })
