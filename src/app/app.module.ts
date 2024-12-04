@@ -209,13 +209,13 @@ export function jwtOptionsFactory() {
     MarkdownModule.forRoot({
       sanitize: SecurityContext.NONE,
     }),
-    DynamicHooksComponent,
     JwtModule.forRoot({
       jwtOptionsProvider: {
         provide: JWT_OPTIONS,
         useFactory: jwtOptionsFactory,
       },
     }),
+    DynamicHooksComponent,
   ],
   providers: [
     AppComponent,

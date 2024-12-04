@@ -52,10 +52,7 @@ class GuacClipboard {
 
     let writer: StringWriter | BlobWriter;
 
-    const stream = client.createClipboardStream(
-      this.cache.mimetype,
-      'clipboardStreamPipe',
-    );
+    const stream = client.createClipboardStream(this.cache.mimetype);
 
     if (typeof this.cache.data === 'string') {
       writer = new StringWriter(stream);
