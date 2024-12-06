@@ -1,0 +1,8 @@
+<div class="note {{ noteType }}">
+  <ng-container class="note-title">
+    {{ message || noteType.toUpperCase() }}:
+  </ng-container>
+  <div class="note-content">
+    <app-hf-markdown [content]="code" [context]="ctx"></app-hf-markdown>
+  </div>
+</div>

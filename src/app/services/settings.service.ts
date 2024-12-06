@@ -44,7 +44,7 @@ export class SettingsService {
               terminal_fontSize: 16,
               ctr_enabled: true,
               ctxAccessCode: '',
-              theme: 'light',
+              theme: 'system',
               divider_position: 40,
               bashbrawl_enabled: false,
             } as Settings),

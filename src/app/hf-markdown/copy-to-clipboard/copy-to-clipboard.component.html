@@ -1,4 +1,7 @@
-<span class="copy-code" (click)="clicked()" title="Copy to Clipboard"
-  ><cds-icon shape="copy" inverse *ngIf="!wasClicked"></cds-icon
-  ><cds-icon shape="check" inverse *ngIf="wasClicked"></cds-icon
-></span>
+<span class="copy-code" (click)="clicked()" title="Copy to Clipboard">
+  @if (!wasClicked) {
+    <cds-icon shape="copy" inverse></cds-icon>
+  } @else {
+    <cds-icon shape="check" inverse></cds-icon>
+  }
+</span>

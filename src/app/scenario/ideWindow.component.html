@@ -1,25 +1,29 @@
 <div class="terminal-div" #ide>
-  <div *ngIf="disallowIFrame" [ngClass]="'info'">
-    This Service does not allow iFrames. It has to be opened in a new Tab:
-    <button
-      class="btn btn-icon btn-primary btn-sm"
-      title="Open in a new Tab"
-      (click)="openWebinterfaceFn.emit()"
-    >
-      <cds-icon shape="pop-out"></cds-icon>
-    </button>
-  </div>
-  <div *ngIf="isLoading" [ngClass]="'info'">Loading</div>
-  <div *ngIf="isConnError" [ngClass]="'info'">
-    <p>An Error has occurred</p>
-    <button
-      type="button"
-      class="btn btn-icon btn-primary"
-      (click)="callEndpoint()"
-    >
-      <cds-icon shape="refresh"></cds-icon>
-    </button>
-  </div>
+  @if (disallowIFrame) {
+    <div [ngClass]="'info'">
+      This Service does not allow iFrames. It has to be opened in a new Tab:
+      <button
+        class="btn btn-icon btn-primary btn-sm"
+        title="Open in a new Tab"
+        (click)="openWebinterfaceFn.emit()"
+      >
+        <cds-icon shape="pop-out"></cds-icon>
+      </button>
+    </div>
+  } @else if (isLoading) {
+    <div [ngClass]="'info'">Loading</div>
+  } @else if (isConnError) {
+    <div [ngClass]="'info'">
+      <p>An Error has occurred</p>
+      <button
+        type="button"
+        class="btn btn-icon btn-primary"
+        (click)="callEndpoint()"
+      >
+        <cds-icon shape="refresh"></cds-icon>
+      </button>
+    </div>
+  }
   <iframe
     #ideIframe
     [ngClass]="isLoading || !isOK ? 'ideHidden' : 'ide'"

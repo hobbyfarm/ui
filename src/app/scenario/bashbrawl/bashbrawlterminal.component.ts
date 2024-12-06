@@ -9,12 +9,12 @@ import {
   Output,
   Input,
 } from '@angular/core';
-import { Terminal } from 'xterm';
-import { FitAddon } from 'xterm-addon-fit';
+import { Terminal } from '@xterm/xterm';
+import { FitAddon } from '@xterm/addon-fit';
 import { HostListener } from '@angular/core';
 import { themes } from '../terminal-themes/themes';
 import { SettingsService } from '../../services/settings.service';
-import { CanvasAddon } from 'xterm-addon-canvas';
+import { CanvasAddon } from '@xterm/addon-canvas';
 import { Keycodes } from './keycodes';
 import { sleep } from '@cds/core/internal';
 import { LanguageCommandService } from './languages/language-command.service';

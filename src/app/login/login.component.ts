@@ -11,7 +11,7 @@ import { FormControl, FormGroup, Validators } from '@angular/forms';
 @Component({
   selector: 'app-login',
   templateUrl: './login.component.html',
-  styleUrls: ['./login.component.css'],
+  styleUrls: ['./login.component.scss'],
 })
 export class LoginComponent {
   public error = '';
@@ -124,10 +124,7 @@ export class LoginComponent {
         password: this.loginForm.controls['password'].value,
       })
       .subscribe({
-        next: (s: string) => {
-          // persist the token we received
-          localStorage.setItem('hobbyfarm_token', s);
-
+        next: () => {
           // redirect to the page accessed before logging in. default to /app/home
           this.router.navigateByUrl(
             this.route.snapshot.queryParams['returnUrl'] || '/app/home',

@@ -1,25 +1,27 @@
 <ng-container>
-  <span class="clr-subtext" *ngIf="!isSubmitted && helperText !== ''">{{
-    helperText
-  }}</span>
-  <clr-alert
-    [clrAlertType]="'danger'"
-    [clrAlertClosable]="false"
-    [clrAlertSizeSmall]="true"
-    *ngIf="validationEnabled && isSubmitted && !isValid && errMsg !== ''"
-  >
-    <clr-alert-item>
-      <span class="alert-text">{{ errMsg }}</span>
-    </clr-alert-item>
-  </clr-alert>
-  <clr-alert
-    [clrAlertType]="'success'"
-    [clrAlertClosable]="false"
-    [clrAlertSizeSmall]="true"
-    *ngIf="validationEnabled && isSubmitted && isValid && successMsg !== ''"
-  >
-    <clr-alert-item>
-      <span class="alert-text">{{ successMsg }}</span>
-    </clr-alert-item>
-  </clr-alert>
+  @if (!isSubmitted && helperText !== '') {
+    <span class="clr-subtext">{{ helperText }}</span>
+  } @else if (validationEnabled && isSubmitted && !isValid && errMsg !== '') {
+    <clr-alert
+      [clrAlertType]="'danger'"
+      [clrAlertClosable]="false"
+      [clrAlertSizeSmall]="true"
+    >
+      <clr-alert-item>
+        <span class="alert-text">{{ errMsg }}</span>
+      </clr-alert-item>
+    </clr-alert>
+  } @else if (
+    validationEnabled && isSubmitted && isValid && successMsg !== ''
+  ) {
+    <clr-alert
+      [clrAlertType]="'success'"
+      [clrAlertClosable]="false"
+      [clrAlertSizeSmall]="true"
+    >
+      <clr-alert-item>
+        <span class="alert-text">{{ successMsg }}</span>
+      </clr-alert-item>
+    </clr-alert>
+  }
 </ng-container>

@@ -1,19 +1,18 @@
 <form class="quiz-form" clrForm [formGroup]="quizForm">
   <clr-checkbox-container [class.clr-error]="quizForm.invalid && isSubmitted">
     <label>{{ title }}</label>
-    <clr-checkbox-wrapper
-      formArrayName="quiz"
-      *ngFor="let optionTitle of optionTitles; let i = index"
-    >
-      <input type="checkbox" clrCheckbox [formControlName]="i" />
-      <label>
-        <quiz-label
-          [optionTitle]="optionTitle"
-          [hasCorrectOptionClass]="hasCorrectOptionClass(i)"
-          [hasIncorrectOptionClass]="hasIncorrectOptionClass(i)"
-        ></quiz-label>
-      </label>
-    </clr-checkbox-wrapper>
+    @for (optionTitle of optionTitles; track optionTitle; let i = $index) {
+      <clr-checkbox-wrapper formArrayName="quiz">
+        <input type="checkbox" clrCheckbox [formControlName]="i" />
+        <label>
+          <quiz-label
+            [optionTitle]="optionTitle"
+            [hasCorrectOptionClass]="hasCorrectOptionClass(i)"
+            [hasIncorrectOptionClass]="hasIncorrectOptionClass(i)"
+          ></quiz-label>
+        </label>
+      </clr-checkbox-wrapper>
+    }
   </clr-checkbox-container>
   <quiz-body
     [helperText]="helperText"

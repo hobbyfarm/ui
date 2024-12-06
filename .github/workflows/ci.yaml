@@ -20,9 +20,9 @@ jobs:
         uses: actions/checkout@master
 
       - name: Install Node.js & NPM
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4.1.0
         with:
-          node-version: 16
+          node-version: '22.11.0'
           cache: 'npm'
 
       - name: Install dependencies
