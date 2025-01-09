@@ -18,6 +18,7 @@ import 'prismjs/components/prism-go';
 import 'prismjs/components/prism-docker';
 import 'prismjs/components/prism-python';
 import 'prismjs/components/prism-yaml';
+import 'prismjs/components/prism-hcl';
 
 // Replacement for lodash's escape
 const escape = (s: string) =>
