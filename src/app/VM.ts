@@ -14,4 +14,5 @@ export class VM {
   hostname: string;
   tfstate: string;
   ws_endpoint: string;
+  vm_type: string;
 }

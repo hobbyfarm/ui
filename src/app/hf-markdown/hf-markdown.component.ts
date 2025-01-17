@@ -247,7 +247,7 @@ ${token}`;
 
   ngOnChanges() {
     const contentWithReplacedTokens = this.replaceSessionToken(
-      this.replaceVmInfoTokens(this.content),
+      this.replaceVmInfoTokens(this.replaceSharedVmInfoTokens(this.content)),
     );
     // the parse method internally uses the Angular Dom Sanitizer and is therefore safe to use
     this.processedContent = this.markdownService.parse(
@@ -260,7 +260,21 @@ ${token}`;
       /\$\{vminfo:([^:]*):([^}]*)\}/g,
       (match, vmName, propName) => {
         const vm = this.context.vmInfo?.[vmName.toLowerCase()];
-        return String(vm?.[propName as keyof VM] ?? match);
+        return String(
+          vm?.vm_type != 'SHARED' ? vm?.[propName as keyof VM] : match,
+        );
+      },
+    );
+  }
+
+  private replaceSharedVmInfoTokens(content: string) {
+    return content.replace(
+      /\$\{shared:([^:]*):([^}]*)\}/g,
+      (match, vmName, propName) => {
+        const vm = this.context.vmInfo?.[vmName.toLowerCase()];
+        return String(
+          vm?.vm_type == 'SHARED' ? vm?.[propName as keyof VM] : match,
+        );
       },
     );
   }
