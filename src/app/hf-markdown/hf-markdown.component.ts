@@ -20,6 +20,7 @@ import 'prismjs/components/prism-docker';
 import 'prismjs/components/prism-python';
 import 'prismjs/components/prism-yaml';
 import { isNoteType, NoteType } from '../notetype';
+import 'prismjs/components/prism-hcl';
 
 export interface HfMarkdownRenderContext {
   vmInfo: { [vmName: string]: VM };
