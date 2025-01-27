@@ -21,7 +21,7 @@
         </div>
       </div>
     }
-    @else if (isDynamicallyBinding) {
+    @if (isDynamicallyBinding) {
       <clr-alert [clrAlertType]="'info'" [clrAlertClosable]="false">
         <clr-alert-item>
           <span class="alert-text">
@@ -31,7 +31,7 @@
         </clr-alert-item>
       </clr-alert>
     }
-    @else if (error) {
+    @if (error) {
       <clr-alert [clrAlertType]="'danger'" [clrAlertClosable]="false">
         <clr-alert-item>
           <span class="alert-text">
