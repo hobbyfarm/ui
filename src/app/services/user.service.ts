@@ -37,6 +37,11 @@ export class UserService {
 
         const decodedToken = this.helper.decodeToken(token);
 
+        const email = decodedToken.email;
+        if (typeof email === 'string') {
+          this.emailSubject.next(email);
+        }
+
         // Automatically logout the user after token expiration
         const timeout = decodedToken.exp * 1000 - Date.now();
         this.timeoutId = setTimeout(() => this.logout(), timeout);
@@ -63,6 +68,7 @@ export class UserService {
   private isLoggedInSubject = new BehaviorSubject<boolean>(false);
   readonly isLoggedIn$ = this.isLoggedInSubject.asObservable();
   private tokenSubject = new BehaviorSubject<string>('');
+  private emailSubject = new BehaviorSubject<string>('');
   private timeoutId: any;
 
   public getModifiedObservable() {
@@ -179,5 +185,9 @@ export class UserService {
       }),
       tap(() => this._acModified.next(true)),
     );
+  }
+
+  public getEmail() {
+    return this.emailSubject;
   }
 }
