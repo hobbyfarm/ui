@@ -1,7 +1,6 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import '@cds/core/icon/register.js';
 import { ClarityIcons } from '@cds/core/icon';
-import { JwtHelperService } from '@auth0/angular-jwt';
 import { ClrModal } from '@clr/angular';
 import { ActivatedRoute, Router } from '@angular/router';
 import { UserService } from './services/user.service';
@@ -17,13 +16,14 @@ import {
   TypedSettingsService,
 } from './services/typedSettings.service';
 import { ScheduledEvent } from 'src/data/ScheduledEvent';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-main',
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss'],
 })
-export class AppComponent implements OnInit {
+export class AppComponent implements OnInit, OnDestroy {
   public logoutModalOpened = false;
   public aboutModalOpened = false;
   public changePasswordModalOpened = false;
@@ -79,6 +79,8 @@ export class AppComponent implements OnInit {
   public themes = themes;
   public motd = '';
 
+  emailSubscription?: Subscription;
+
   constructor(
     private userService: UserService,
     private router: Router,
@@ -130,9 +132,10 @@ export class AppComponent implements OnInit {
   });
 
   public settingsForm: FormGroup = new FormGroup({
-    terminal_theme: new FormControl<typeof themes[number]['id'] | null>(null, [
-      Validators.required,
-    ]),
+    terminal_theme: new FormControl<(typeof themes)[number]['id'] | null>(
+      null,
+      [Validators.required],
+    ),
     terminal_fontSize: new FormControl<number | null>(null, [
       Validators.required,
     ]),
@@ -149,6 +152,11 @@ export class AppComponent implements OnInit {
   });
 
   ngOnInit() {
+    this.emailSubscription = this.userService
+      .getEmail()
+      .subscribe((currEmail) => {
+        this.email = currEmail;
+      });
     const addAccessCode = this.route.snapshot.params['accesscode'];
     if (addAccessCode) {
       this.userService.addAccessCode(addAccessCode).subscribe({
@@ -391,5 +399,11 @@ export class AppComponent implements OnInit {
 
   public closeMotd() {
     this.motd = '';
+  }
+
+  ngOnDestroy(): void {
+    if (this.emailSubscription) {
+      this.emailSubscription.unsubscribe();
+    }
   }
 }
