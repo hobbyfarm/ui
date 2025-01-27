@@ -357,7 +357,7 @@ export class GuacTerminalComponent implements OnChanges {
     const scale = this.display.getScale();
     const scaledMouseState = Object.assign({}, mouseEvent.state, {
       x: mouseEvent.state.x / scale,
-      y: mouseEvent.state.x / scale,
+      y: mouseEvent.state.y / scale,
     });
     this.client.sendMouseState(scaledMouseState);
   };
