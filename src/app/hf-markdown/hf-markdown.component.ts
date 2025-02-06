@@ -41,35 +41,6 @@ export interface HfMarkdownRenderContext {
   styleUrls: ['./hf-markdown.component.scss'],
 })
 export class HfMarkdownComponent implements OnChanges, OnInit {
-  @Input() content: string;
-  @Input() context: HfMarkdownRenderContext = { vmInfo: {}, session: '' };
-
-  processedContent: Promise<string>;
-
-  constructor(
-    public markdownService: MarkdownService,
-    private ctrService: CtrService,
-  ) {}
-
-  ngOnInit(): void {
-    mermaid.initialize({
-      startOnLoad: false,
-    });
-    this.markdownService.renderer.code = (code: string, language = '') => {
-      const [tag, ...args] = language.split(':');
-      if (tag in this.taggedCodeRenderers) {
-        const renderer = this.taggedCodeRenderers[tag];
-        return renderer.call(this, code, ...args);
-      } else if (language.length > 0) {
-        return this.renderHighlightedCode(code, tag, ...args);
-      } else if (/~~~([\s\S]*?)~~~/.test(code)) {
-        return this.renderNestedPlainCode(code);
-      } else {
-        return this.renderSimplePlainCode(code);
-      }
-    };
-  }
-
   private readonly taggedCodeRenderers: {
     [tag: string]: (
       this: HfMarkdownComponent,
@@ -205,6 +176,35 @@ ${token}`;
     } else {
       return '<pre>' + escape(code) + '</pre>';
     }
+  }
+
+  @Input() content: string;
+  @Input() context: HfMarkdownRenderContext = { vmInfo: {}, session: '' };
+
+  processedContent: Promise<string>;
+
+  constructor(
+    public markdownService: MarkdownService,
+    private ctrService: CtrService,
+  ) {}
+
+  ngOnInit(): void {
+    mermaid.initialize({
+      startOnLoad: false,
+    });
+    this.markdownService.renderer.code = (code: string, language = '') => {
+      const [tag, ...args] = language.split(':');
+      if (tag in this.taggedCodeRenderers) {
+        const renderer = this.taggedCodeRenderers[tag];
+        return renderer.call(this, code, ...args);
+      } else if (language.length > 0) {
+        return this.renderHighlightedCode(code, tag, ...args);
+      } else if (/~~~([\s\S]*?)~~~/.test(code)) {
+        return this.renderNestedPlainCode(code);
+      } else {
+        return this.renderSimplePlainCode(code);
+      }
+    };
   }
 
   ngOnChanges() {
