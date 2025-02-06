@@ -41,6 +41,11 @@ export interface HfMarkdownRenderContext {
   styleUrls: ['./hf-markdown.component.scss'],
 })
 export class HfMarkdownComponent implements OnChanges, OnInit {
+  @Input() content: string;
+  @Input() context: HfMarkdownRenderContext = { vmInfo: {}, session: '' };
+
+  processedContent: Promise<string>;
+
   private readonly taggedCodeRenderers: {
     [tag: string]: (
       this: HfMarkdownComponent,
@@ -177,11 +182,6 @@ ${token}`;
       return '<pre>' + escape(code) + '</pre>';
     }
   }
-
-  @Input() content: string;
-  @Input() context: HfMarkdownRenderContext = { vmInfo: {}, session: '' };
-
-  processedContent: Promise<string>;
 
   constructor(
     public markdownService: MarkdownService,
