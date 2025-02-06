@@ -1,7 +1,14 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Title } from '@angular/platform-browser';
 import { AppComponent } from './app.component';
-import { distinctUntilChanged, filter, map, Subscription, switchMap, tap } from 'rxjs';
+import {
+  distinctUntilChanged,
+  filter,
+  map,
+  Subscription,
+  switchMap,
+  tap,
+} from 'rxjs';
 import { ThemeService } from './services/theme.service';
 import { UserService } from './services/user.service';
 
@@ -12,9 +19,13 @@ import { UserService } from './services/user.service';
 export class RootComponent implements OnInit, OnDestroy {
   private themeHandler: Subscription;
   private currentTheme?: 'system' | 'dark' | 'light';
-  
-  constructor(private titleService: Title, private appComponent: AppComponent, private themeService: ThemeService, private userService: UserService) {
-  }
+
+  constructor(
+    private titleService: Title,
+    private appComponent: AppComponent,
+    private themeService: ThemeService,
+    private userService: UserService,
+  ) {}
   ngOnInit(): void {
     this.titleService.setTitle(this.appComponent.title);
     this.handleTheming();

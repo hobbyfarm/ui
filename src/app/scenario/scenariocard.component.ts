@@ -72,13 +72,9 @@ export class ScenarioCardComponent implements OnInit, OnChanges {
     this.progressService.watch().subscribe((p: Progress[]) => {
       this.progress = p
         .filter((prog) => prog.scenario == this.scenarioid && prog.finished)
-        .reduce<Progress | undefined>(
-          (maxProgress, progress) =>
-            !maxProgress || maxProgress.max_step < progress.max_step
-              ? progress
-              : maxProgress,
-          undefined,
-        );
+        .reduce<
+          Progress | undefined
+        >((maxProgress, progress) => (!maxProgress || maxProgress.max_step < progress.max_step ? progress : maxProgress), undefined);
     });
   }
 

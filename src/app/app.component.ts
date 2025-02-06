@@ -160,12 +160,14 @@ export class AppComponent implements OnInit, OnDestroy {
     const addAccessCode = this.route.snapshot.params['accesscode'];
     if (addAccessCode) {
       this.userService.addAccessCode(addAccessCode).subscribe({
-        next: () => { // _s: ServerResponse
+        next: () => {
+          // _s: ServerResponse
           this.accesscodes.push(addAccessCode);
           this.setAccessCode(addAccessCode);
           this.doHomeAccessCode(addAccessCode);
         },
-        error: () => { // _s: ServerResponse
+        error: () => {
+          // _s: ServerResponse
           // failure
           this.doHomeAccessCodeError(addAccessCode);
         },
@@ -350,10 +352,12 @@ export class AppComponent implements OnInit, OnDestroy {
 
   public doSaveSettings() {
     this.settingsService.update(this.settingsForm.value).subscribe({
-      next: () => { // _s: ServerResponse
+      next: () => {
+        // _s: ServerResponse
         this.settingsModalOpened = false;
       },
-      error: () => { // _s: ServerResponse
+      error: () => {
+        // _s: ServerResponse
         setTimeout(() => (this.settingsModalOpened = false), 2000);
       },
     });

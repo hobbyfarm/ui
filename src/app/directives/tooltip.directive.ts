@@ -31,7 +31,7 @@ export class TooltipDirective {
     private elementRef: ElementRef,
     private injector: Injector,
     private scrollStrategyOptions: ScrollStrategyOptions,
-    private overlayPositionBuilder: OverlayPositionBuilder
+    private overlayPositionBuilder: OverlayPositionBuilder,
   ) {}
 
   @HostListener('mouseenter')
@@ -77,7 +77,7 @@ export class TooltipDirective {
     const tooltipPortal = new ComponentPortal(
       TooltipComponent,
       null,
-      this.injector
+      this.injector,
     );
     const tooltipRef: ComponentRef<TooltipComponent> =
       this.overlayRef.attach(tooltipPortal);

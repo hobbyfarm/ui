@@ -11,10 +11,12 @@ import DOMPurify from 'dompurify';
   name: 'safeSvg',
 })
 export class SafeSvgPipe implements PipeTransform {
-//   constructor(private sanitizer: DomSanitizer) {}
+  //   constructor(private sanitizer: DomSanitizer) {}
   transform(value: string): string {
-    const purifiedSvg = DOMPurify.sanitize(value, { USE_PROFILES: { svg: true } });
+    const purifiedSvg = DOMPurify.sanitize(value, {
+      USE_PROFILES: { svg: true },
+    });
     return `data:image/svg+xml;base64,${btoa(purifiedSvg)}`;
-    // return this.sanitizer.bypassSecurityTrustHtml(purifiedSvg); 
+    // return this.sanitizer.bypassSecurityTrustHtml(purifiedSvg);
   }
 }

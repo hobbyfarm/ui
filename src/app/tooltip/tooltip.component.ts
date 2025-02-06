@@ -19,6 +19,8 @@ export class TooltipComponent implements AfterViewInit {
   @ViewChild('tooltip') tooltipElementRef: ElementRef<HTMLDivElement>;
 
   ngAfterViewInit() {
-    this.heightChange.emit(this.tooltipElementRef.nativeElement.getBoundingClientRect().height);
+    this.heightChange.emit(
+      this.tooltipElementRef.nativeElement.getBoundingClientRect().height,
+    );
   }
 }

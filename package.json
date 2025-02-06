@@ -17,7 +17,7 @@
     "prettier:format": "prettier --ignore-path .gitignore --write .",
     "test": "ng test",
     "lint": "ng lint",
-    "prettify": "lint-staged"
+    "prettify": "lint-staged --allow-empty"
   },
   "private": true,
   "dependencies": {

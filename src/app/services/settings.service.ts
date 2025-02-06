@@ -16,7 +16,7 @@ import {
 } from './gargantua.service';
 
 export interface Settings {
-  terminal_theme: typeof themes[number]['id'];
+  terminal_theme: (typeof themes)[number]['id'];
   terminal_fontSize: number;
   ctr_enabled: boolean;
   ctxAccessCode: string;

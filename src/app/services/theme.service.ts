@@ -1,12 +1,6 @@
 import { Injectable, Renderer2, RendererFactory2 } from '@angular/core';
 import { SettingsService, Settings } from './settings.service';
-import {
-  fromEventPattern,
-  map,
-  of,
-  switchMap,
-  tap,
-} from 'rxjs';
+import { fromEventPattern, map, of, switchMap, tap } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
@@ -53,8 +47,7 @@ export class ThemeService {
   enableSystemThemeListener(darkModeMediaQuery: MediaQueryList) {
     return fromEventPattern<MediaQueryListEvent>(
       (handler) => darkModeMediaQuery.addEventListener('change', handler),
-      (handler) =>
-        darkModeMediaQuery.removeEventListener('change', handler),
+      (handler) => darkModeMediaQuery.removeEventListener('change', handler),
     ).pipe(
       map((event) => (event.matches ? 'dark' : 'light')),
       tap((systemTheme: 'dark' | 'light') => this.setTheme(systemTheme)),
