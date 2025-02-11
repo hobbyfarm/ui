@@ -7,12 +7,53 @@ import {
   GargantuaClientFactory,
 } from './gargantua.service';
 import { ScheduledEvent } from 'src/data/ScheduledEvent';
+import { Router } from '@angular/router';
+import { JwtHelperService } from '@auth0/angular-jwt';
 
 @Injectable({
   providedIn: 'root',
 })
 export class UserService {
-  constructor(private gcf: GargantuaClientFactory) {}
+  constructor(
+    private gcf: GargantuaClientFactory,
+    private router: Router,
+    private helper: JwtHelperService,
+  ) {
+    // we always expect our token to be a string since we load it syncronously from local storage
+    this.tokenSubject.subscribe((token) => {
+      // On token changes we always need to remove existing timeouts.
+      // Case A - The user logs into our application:
+      // Usually there should not exist any timeout if we properly cleaned up everything.
+      // However, if for some reason a timeout exists, we clear it up and replace it with a new one.
+      // This way, we ensure to always reflect the current token expiration time until automatic logout.
+      // Case B - The user manually logs out from our application:
+      // Dangling timeouts need to be removed. Automatic logout is not needed if we are not logged in anymore.
+      if (this.timeoutId) {
+        clearTimeout(this.timeoutId);
+        this.timeoutId = null;
+      }
+      if (token) {
+        this.isLoggedInSubject.next(true);
+
+        const decodedToken = this.helper.decodeToken(token);
+
+        const email = decodedToken.email;
+        if (typeof email === 'string') {
+          this.emailSubject.next(email);
+        }
+
+        // Automatically logout the user after token expiration
+        const timeout = decodedToken.exp * 1000 - Date.now();
+        this.timeoutId = setTimeout(() => this.logout(), timeout);
+      }
+    });
+
+    // Initialize this service with the according authentication token if any exists
+    const token = this.helper.tokenGetter();
+    if (typeof token === 'string') {
+      this.tokenSubject.next(token);
+    }
+  }
   private garg = this.gcf.scopedClient('/auth');
 
   private _acModified = new BehaviorSubject(false);
@@ -23,6 +64,12 @@ export class UserService {
   private cachedScheduledEventsList: Map<string, ScheduledEvent> = new Map();
   private bh: BehaviorSubject<Map<string, ScheduledEvent>> =
     new BehaviorSubject(this.cachedScheduledEventsList);
+
+  private isLoggedInSubject = new BehaviorSubject<boolean>(false);
+  readonly isLoggedIn$ = this.isLoggedInSubject.asObservable();
+  private tokenSubject = new BehaviorSubject<string>('');
+  private emailSubject = new BehaviorSubject<string>('');
+  private timeoutId: any;
 
   public getModifiedObservable() {
     return this._acModified.asObservable();
@@ -48,10 +95,27 @@ export class UserService {
 
     return this.garg.post('/authenticate', body).pipe(
       map((s) => s.message), // not b64 from authenticate
+      tap((s: string) => {
+        // should have a token here
+        // persist it
+        localStorage.setItem('hobbyfarm_token', s); // not b64 from authenticate
+        this.tokenSubject.next(s);
+      }),
       catchError(({ error }) => {
         return throwError(() => error.message ?? error.error);
       }),
     );
+  }
+
+  get isLoggedIn(): boolean {
+    return this.isLoggedInSubject.value;
+  }
+
+  logout() {
+    localStorage.removeItem('hobbyfarm_admin_token');
+    this.tokenSubject.next('');
+    this.isLoggedInSubject.next(false);
+    this.router.navigateByUrl('/login');
   }
 
   public changepassword(oldPassword: string, newPassword: string) {
@@ -121,5 +185,9 @@ export class UserService {
       }),
       tap(() => this._acModified.next(true)),
     );
+  }
+
+  public getEmail() {
+    return this.emailSubject;
   }
 }

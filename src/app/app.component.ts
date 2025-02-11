@@ -1,7 +1,6 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import '@cds/core/icon/register.js';
 import { ClarityIcons } from '@cds/core/icon';
-import { JwtHelperService } from '@auth0/angular-jwt';
 import { ClrModal } from '@clr/angular';
 import { ActivatedRoute, Router } from '@angular/router';
 import { UserService } from './services/user.service';
@@ -17,13 +16,14 @@ import {
   TypedSettingsService,
 } from './services/typedSettings.service';
 import { ScheduledEvent } from 'src/data/ScheduledEvent';
+import { Subscription } from 'rxjs';
 
 @Component({
-  selector: 'app-root',
+  selector: 'app-main',
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss'],
 })
-export class AppComponent implements OnInit {
+export class AppComponent implements OnInit, OnDestroy {
   public logoutModalOpened = false;
   public aboutModalOpened = false;
   public changePasswordModalOpened = false;
@@ -79,8 +79,9 @@ export class AppComponent implements OnInit {
   public themes = themes;
   public motd = '';
 
+  emailSubscription?: Subscription;
+
   constructor(
-    private helper: JwtHelperService,
     private userService: UserService,
     private router: Router,
     private route: ActivatedRoute,
@@ -131,9 +132,10 @@ export class AppComponent implements OnInit {
   });
 
   public settingsForm: FormGroup = new FormGroup({
-    terminal_theme: new FormControl<typeof themes[number]['id'] | null>(null, [
-      Validators.required,
-    ]),
+    terminal_theme: new FormControl<(typeof themes)[number]['id'] | null>(
+      null,
+      [Validators.required],
+    ),
     terminal_fontSize: new FormControl<number | null>(null, [
       Validators.required,
     ]),
@@ -150,25 +152,22 @@ export class AppComponent implements OnInit {
   });
 
   ngOnInit() {
-    // we always expect our token to be a string since we load it syncronously from local storage
-    const token = this.helper.tokenGetter();
-    if (typeof token === 'string') {
-      this.processToken(token);
-    } else {
-      // ... however if for some reason it is not the case, this means that the token could not be loaded from local storage
-      // hence we automatically logout the user
-      this.doLogout();
-    }
-
+    this.emailSubscription = this.userService
+      .getEmail()
+      .subscribe((currEmail) => {
+        this.email = currEmail;
+      });
     const addAccessCode = this.route.snapshot.params['accesscode'];
     if (addAccessCode) {
       this.userService.addAccessCode(addAccessCode).subscribe({
-        next: (_s: ServerResponse) => {
+        next: () => {
+          // _s: ServerResponse
           this.accesscodes.push(addAccessCode);
           this.setAccessCode(addAccessCode);
           this.doHomeAccessCode(addAccessCode);
         },
-        error: (_s: ServerResponse) => {
+        error: () => {
+          // _s: ServerResponse
           // failure
           this.doHomeAccessCodeError(addAccessCode);
         },
@@ -185,21 +184,6 @@ export class AppComponent implements OnInit {
         });
     });
     this.contextService.init();
-
-    this.settingsService.fetch().subscribe((response) => {
-      if (response.theme == 'light') {
-        this.disableDarkMode();
-      } else if (response.theme == 'dark') {
-        this.enableDarkMode();
-      } else {
-        if (
-          window.matchMedia &&
-          window.matchMedia('(prefers-color-scheme: dark)').matches
-        ) {
-          this.enableDarkMode();
-        } else this.disableDarkMode();
-      }
-    });
 
     this.typedSettingsService
       .get('public', 'motd-ui')
@@ -222,15 +206,6 @@ export class AppComponent implements OnInit {
           typedInputs.get('registration-privacy-policy-linkname')?.value ??
           'Privacy Policy';
       });
-  }
-
-  private processToken(token: string) {
-    const tok = this.helper.decodeToken(token);
-    this.email = tok.email;
-
-    // Automatically logout the user after token expiration
-    const timeout = tok.exp * 1000 - Date.now();
-    setTimeout(() => this.doLogout(), timeout);
   }
 
   public logout() {
@@ -279,7 +254,7 @@ export class AppComponent implements OnInit {
           terminal_theme = 'default',
           terminal_fontSize = 16,
           ctr_enabled = true,
-          theme = 'light',
+          theme = 'system',
           divider_position = 40,
           bashbrawl_enabled = false,
         }) => {
@@ -377,26 +352,12 @@ export class AppComponent implements OnInit {
 
   public doSaveSettings() {
     this.settingsService.update(this.settingsForm.value).subscribe({
-      next: (_s: ServerResponse) => {
+      next: () => {
+        // _s: ServerResponse
         this.settingsModalOpened = false;
-        const theme: 'light' | 'dark' | 'system' =
-          this.settingsForm.controls['theme'].value;
-        if (theme == 'dark') {
-          this.enableDarkMode();
-        } else if (theme == 'light') {
-          this.disableDarkMode();
-        } else {
-          if (
-            window.matchMedia &&
-            window.matchMedia('(prefers-color-scheme: dark)').matches
-          ) {
-            this.enableDarkMode();
-          } else {
-            this.disableDarkMode();
-          }
-        }
       },
-      error: (_s: ServerResponse) => {
+      error: () => {
+        // _s: ServerResponse
         setTimeout(() => (this.settingsModalOpened = false), 2000);
       },
     });
@@ -419,8 +380,7 @@ export class AppComponent implements OnInit {
   }
 
   public doLogout() {
-    localStorage.removeItem('hobbyfarm_token');
-    this.router.navigateByUrl('/login');
+    this.userService.logout();
   }
 
   public doHomeAccessCode(accesscode: string) {
@@ -441,15 +401,13 @@ export class AppComponent implements OnInit {
     this.alertDeleteAccessCodeModal = false;
   }
 
-  public enableDarkMode() {
-    document.body.classList.add('darkmode');
-  }
-
-  public disableDarkMode() {
-    document.body.classList.remove('darkmode');
-  }
-
   public closeMotd() {
     this.motd = '';
+  }
+
+  ngOnDestroy(): void {
+    if (this.emailSubscription) {
+      this.emailSubscription.unsubscribe();
+    }
   }
 }

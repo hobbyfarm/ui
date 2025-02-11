@@ -16,7 +16,7 @@ import {
 } from './gargantua.service';
 
 export interface Settings {
-  terminal_theme: typeof themes[number]['id'];
+  terminal_theme: (typeof themes)[number]['id'];
   terminal_fontSize: number;
   ctr_enabled: boolean;
   ctxAccessCode: string;
@@ -44,7 +44,7 @@ export class SettingsService {
               terminal_fontSize: 16,
               ctr_enabled: true,
               ctxAccessCode: '',
-              theme: 'light',
+              theme: 'system',
               divider_position: 40,
               bashbrawl_enabled: false,
             } as Settings),

@@ -1,0 +1,59 @@
+$login-padding-fallback: calc(
+  48 *
+    calc((1rem / var(--cds-global-base, 20)) * var(--cds-global-scale-space, 1))
+);
+
+$login-margin-fallback: calc(
+  8 *
+    calc((1rem / var(--cds-global-base, 20)) * var(--cds-global-scale-space, 1))
+);
+
+.login-wrapper .login {
+  // Let's define a login margin based on clarity's global spacing and provide it's calculation as fallback
+  --clr-login-margin: var(--cds-global-space-5, #{$login-margin-fallback});
+  // Let's define a login padding based on clarity's global spacing and provide it's calculation as fallback
+  --clr-login-padding: var(--cds-global-space-12, #{$login-padding-fallback});
+
+  .title {
+    display: flex;
+    width: 100%;
+    justify-content: center;
+    margin: 0 0 var(--clr-login-margin) 0;
+  }
+
+  .login-form {
+    margin-top: var(--clr-login-margin);
+    width: 100%;
+    padding-inline: var(--clr-login-padding);
+  }
+}
+
+.login-wrapper {
+  background: no-repeat center/cover;
+  background-position: 21rem 0;
+}
+
+#login-logo {
+  width: 75%;
+  height: auto;
+}
+
+.login-wrapper .login {
+  justify-content: center;
+}
+
+cds-icon.clr-input-group-icon-action {
+  position: absolute;
+  color: var(--clr-icon-costum);
+  transform: translateX(-150%);
+}
+
+.clr-control-container {
+  position: relative;
+}
+
+.imprint {
+  position: absolute;
+  left: 5px;
+  bottom: 5px;
+}

@@ -1,2 +1,12 @@
 @import './theme.scss';
 @import '../node_modules/@clr/ui/src/main.scss';
+@import '../node_modules/@angular/cdk/overlay-prebuilt.css';
+
+.cdk-overlay-container {
+  z-index: 9999;
+}
+
+.cdk-overlay-container .tooltip-content p {
+  margin: 0px;
+  color: var(--clr-tooltip-color, #fff);
+}

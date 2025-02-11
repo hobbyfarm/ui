@@ -1,0 +1,6 @@
+@if (svgContent | async; as content) {
+  <img [src]="content.svg | safeSvg" alt="Mermaid graph" />
+  <!-- <div [innerHTML]="content.svg | safeSvg"></div> -->
+} @else {
+  <div>Loading mermaid graph...</div>
+}

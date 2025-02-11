@@ -34,15 +34,19 @@
         [context]="mdContext"
       ></app-hf-markdown>
 
-      <div *ngIf="completed">
-        Check successfully completed and websocket reachable.
-        <cds-icon shape="success-standard" inverse class="success"></cds-icon>
-      </div>
+      @if (completed) {
+        <div>
+          Check successfully completed and websocket reachable.
+          <cds-icon shape="success-standard" inverse class="success"></cds-icon>
+        </div>
+      }
 
-      <div *ngIf="error">
-        {{ error }}
-        <cds-icon shape="error-standard" inverse class="error"></cds-icon>
-      </div>
+      @if (error) {
+        <div>
+          {{ error }}
+          <cds-icon shape="error-standard" inverse class="error"></cds-icon>
+        </div>
+      }
     </as-split-area>
   </as-split>
 </div>

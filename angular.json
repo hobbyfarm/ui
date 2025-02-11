@@ -26,18 +26,14 @@
               "src/custom.css"
             ],
             "styles": [
-              "node_modules/xterm/css/xterm.css",
+              "node_modules/@xterm/xterm/css/xterm.css",
               "src/styles.scss",
-              "src/dark-theme.css",
-              "node_modules/prismjs/themes/prism.css"
+              "node_modules/prismjs/themes/prism.css",
+              "node_modules/@cds/core/global.min.css",
+              "node_modules/@cds/core/styles/theme.dark.min.css",
+              "node_modules/@clr/ui/clr-ui.min.css"
             ],
-            "scripts": [
-              "node_modules/@webcomponents/webcomponentsjs/custom-elements-es5-adapter.js",
-              "node_modules/@webcomponents/webcomponentsjs/webcomponents-bundle.js",
-              "node_modules/xterm/lib/xterm.js",
-              "node_modules/marked/marked.min.js"
-            ],
-            "allowedCommonJsDependencies": ["xterm"],
+            "scripts": [],
             "vendorChunk": true,
             "extractLicenses": false,
             "buildOptimizer": false,
@@ -92,21 +88,21 @@
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
           "options": {
-            "browserTarget": "hobbyfarm-ui:build"
+            "buildTarget": "hobbyfarm-ui:build"
           },
           "configurations": {
             "local": {
-              "browserTarget": "hobbyfarm-ui:build:local"
+              "buildTarget": "hobbyfarm-ui:build:local"
             },
             "production": {
-              "browserTarget": "hobbyfarm-ui:build:production"
+              "buildTarget": "hobbyfarm-ui:build:production"
             }
           }
         },
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
-            "browserTarget": "hobbyfarm-ui:build"
+            "buildTarget": "hobbyfarm-ui:build"
           }
         },
         "test": {

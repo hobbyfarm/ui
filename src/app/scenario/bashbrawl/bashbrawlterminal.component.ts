@@ -9,12 +9,12 @@ import {
   Output,
   Input,
 } from '@angular/core';
-import { Terminal } from 'xterm';
-import { FitAddon } from 'xterm-addon-fit';
+import { Terminal } from '@xterm/xterm';
+import { FitAddon } from '@xterm/addon-fit';
 import { HostListener } from '@angular/core';
 import { themes } from '../terminal-themes/themes';
 import { SettingsService } from '../../services/settings.service';
-import { CanvasAddon } from 'xterm-addon-canvas';
+import { CanvasAddon } from '@xterm/addon-canvas';
 import { Keycodes } from './keycodes';
 import { sleep } from '@cds/core/internal';
 import { LanguageCommandService } from './languages/language-command.service';
@@ -89,9 +89,6 @@ export class BashbrawlterminalComponent implements OnInit, AfterViewInit {
   private highestStreak = 0;
   private gameTime = 0;
   private score = 0;
-
-  // Leaderboards maps a list of score entries to the language they competed in.
-  private leaderboard: Leaderboard;
 
   @ViewChild('terminal', { static: true }) terminalDiv: ElementRef;
 
@@ -430,7 +427,7 @@ export class BashbrawlterminalComponent implements OnInit, AfterViewInit {
     this.commandFn = this.endGame;
   }
 
-  async endGame(command: string, params: string) {
+  async endGame(_command: string, _params: string) {
     this.input_blocked = true;
     this.resetToDefaultShell();
     this.gameEnded.emit();
@@ -538,7 +535,7 @@ export class BashbrawlterminalComponent implements OnInit, AfterViewInit {
     //await this.writeMatrix(this.convertToMatrix(newLang, 4), false);
   }
 
-  async gameCommand(cmd: string, args: string) {
+  async gameCommand(cmd: string, _args: string) {
     const r = this.languageCommandService.find(cmd, this.gameLanguage);
 
     let score: {
@@ -703,7 +700,7 @@ export class BashbrawlterminalComponent implements OnInit, AfterViewInit {
     }
   }
 
-  async selectLanguage(language: string, args: string) {
+  async selectLanguage(language: string, _args: string) {
     let languages = this.languageCommandService.getLanguageKeys();
     languages = languages.map((el) => {
       return el.toLowerCase();
@@ -776,7 +773,7 @@ export class BashbrawlterminalComponent implements OnInit, AfterViewInit {
     this.commandFn = this.menuCommandsFn;
   }
 
-  async noop(command: string, args: string) {
+  async noop(_command: string, _args: string) {
     // none
   }
 

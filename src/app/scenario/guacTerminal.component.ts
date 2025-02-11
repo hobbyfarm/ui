@@ -19,6 +19,7 @@ import {
   StringReader,
   Tunnel,
   WebSocketTunnel,
+  Event,
 } from 'guacamole-common-js';
 import clipboard from './guacLibs/GuacClipboard';
 import states from './guacLibs/states';
@@ -258,10 +259,10 @@ export class GuacTerminalComponent implements OnChanges {
     window.onunload = () => this.client.disconnect();
     this.mouse = new Mouse(displayElm);
     // Hide software cursor when mouse leaves display
-    this.mouse.onmouseout = () => {
+    this.mouse.on('onmouseout', () => {
       if (!this.display) return;
       this.display.showCursor(false);
-    };
+    });
     // allows focusing on the display div so that keyboard doesn't always go to session
     displayElm.onclick = () => {
       displayElm.focus();
@@ -274,12 +275,10 @@ export class GuacTerminalComponent implements OnChanges {
     };
     this.keyboard = new Keyboard(displayElm);
     this.installKeyboard();
-    this.mouse.onmousedown =
-      this.mouse.onmouseup =
-      this.mouse.onmousemove =
-        (mousestate) => {
-          this.handleMouseState(mousestate);
-        };
+    this.mouse.onEach(
+      ['mousedown', 'mousemove', 'mouseup'],
+      this.handleMouseState,
+    );
     setTimeout(() => {
       this.resize();
       displayElm.focus();
@@ -353,11 +352,12 @@ export class GuacTerminalComponent implements OnChanges {
     clipboard.setRemoteClipboard(this.client);
   }
 
-  handleMouseState = (mouseState: Mouse.State) => {
+  handleMouseState = (event: Event) => {
+    const mouseEvent = event as Mouse.Event;
     const scale = this.display.getScale();
-    const scaledMouseState = Object.assign({}, mouseState, {
-      x: mouseState.x / scale,
-      y: mouseState.y / scale,
+    const scaledMouseState = Object.assign({}, mouseEvent.state, {
+      x: mouseEvent.state.x / scale,
+      y: mouseEvent.state.y / scale,
     });
     this.client.sendMouseState(scaledMouseState);
   };

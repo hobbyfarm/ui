@@ -48,7 +48,10 @@ export class IdeWindowComponent implements OnInit {
 
   @ViewChild('ideIframe', { static: true }) ideIframe: ElementRef;
 
-  constructor(private jwtHelper: JwtHelperService, private http: HttpClient) {}
+  constructor(
+    private jwtHelper: JwtHelperService,
+    private http: HttpClient,
+  ) {}
 
   ngOnInit() {
     if (this.disallowIFrame) {

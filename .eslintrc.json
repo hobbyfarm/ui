@@ -67,7 +67,16 @@
           { "ignoreParameters": true }
         ],
         "no-fallthrough": "error",
-        "@typescript-eslint/no-non-null-assertion": "error"
+        "@typescript-eslint/no-non-null-assertion": "error",
+        "no-unused-vars": "off",
+        "@typescript-eslint/no-unused-vars": [
+          "error",
+          {
+            "argsIgnorePattern": "^_",
+            "varsIgnorePattern": "^_",
+            "caughtErrorsIgnorePattern": "^_"
+          }
+        ]
       }
     },
     {

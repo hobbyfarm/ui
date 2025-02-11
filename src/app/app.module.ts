@@ -19,7 +19,7 @@ import { StepComponent } from './scenario/step.component';
 import { VMClaimComponent } from './scenario/vmclaim.component';
 import { AtobPipe } from './atob.pipe';
 import { MarkdownModule } from 'ngx-markdown';
-import { DynamicHooksModule } from 'ngx-dynamic-hooks';
+import { DynamicHooksComponent, provideDynamicHooks } from 'ngx-dynamic-hooks';
 import { CtrComponent } from './scenario/ctr.component';
 import { CtrService } from './scenario/ctr.service';
 import { ScenarioService } from './services/scenario.service';
@@ -52,6 +52,14 @@ import { TaskProgressComponent } from './scenario/task-progress/task-progress.co
 import { TaskModalComponent } from './scenario/task-modal/task-modal.component';
 import { SingleTaskVerificationMarkdownComponent } from './hf-markdown/single-task-verification-markdown/single-task-verification-markdown.component';
 import { WebsocketTestComponent } from './websocket-test/websockettest.component';
+import { ScrollingModule } from '@angular/cdk/scrolling';
+import { QuizLabelComponent } from './quiz/quiz-label.component';
+import { HiddenMdComponent } from './hf-markdown/hidden-md-component/hidden-md.component';
+import { GlossaryMdComponent } from './hf-markdown/glossary-md-component/glossary-md.component';
+import { MermaidMdComponent } from './hf-markdown/mermaid-md-component/mermaid-md.component';
+import { NoteMdComponent } from './hf-markdown/note-md-component/note-md.component';
+import { TooltipDirective } from './directives/tooltip.directive';
+import { TooltipComponent } from './tooltip/tooltip.component';
 import '@cds/core/icon/register.js';
 import {
   ClarityIcons,
@@ -84,8 +92,10 @@ import {
   clockIcon,
   copyIcon,
   terminalIcon,
+  exclamationTriangleIcon,
 } from '@cds/core/icon';
-import { QuizLabelComponent } from './quiz/quiz-label.component';
+import { SafeSvgPipe } from './pipes/safe-svg.pipe';
+import { ThemeService } from './services/theme.service';
 
 ClarityIcons.addIcons(
   layersIcon,
@@ -117,6 +127,7 @@ ClarityIcons.addIcons(
   clockIcon,
   copyIcon,
   terminalIcon,
+  exclamationTriangleIcon,
 );
 
 export function tokenGetter() {
@@ -179,6 +190,13 @@ export function jwtOptionsFactory() {
     TaskModalComponent,
     SingleTaskVerificationMarkdownComponent,
     WebsocketTestComponent,
+    HiddenMdComponent,
+    GlossaryMdComponent,
+    MermaidMdComponent,
+    NoteMdComponent,
+    SafeSvgPipe,
+    TooltipDirective,
+    TooltipComponent,
   ],
   imports: [
     BrowserModule,
@@ -189,20 +207,9 @@ export function jwtOptionsFactory() {
     BrowserAnimationsModule,
     HttpClientModule,
     AngularSplitModule,
+    ScrollingModule,
     MarkdownModule.forRoot({
       sanitize: SecurityContext.NONE,
-    }),
-    DynamicHooksModule.forRoot({
-      globalOptions: {
-        sanitize: false,
-        convertHTMLEntities: false,
-      },
-      globalParsers: [
-        { component: CtrComponent },
-        { component: SingleTaskVerificationMarkdownComponent },
-        { component: QuizComponent },
-        { component: CopyToClipboardComponent },
-      ],
     }),
     JwtModule.forRoot({
       jwtOptionsProvider: {
@@ -210,6 +217,7 @@ export function jwtOptionsFactory() {
         useFactory: jwtOptionsFactory,
       },
     }),
+    DynamicHooksComponent,
   ],
   providers: [
     AppComponent,
@@ -230,12 +238,30 @@ export function jwtOptionsFactory() {
     VerificationService,
     LanguageCommandService,
     ScoreService,
+    ThemeService,
     {
       provide: APP_INITIALIZER,
       useFactory: appInitializerFn,
       multi: true,
       deps: [AppConfigService],
     },
+    provideDynamicHooks({
+      parsers: [
+        { component: CtrComponent, unescapeStrings: false },
+        { component: GlossaryMdComponent, unescapeStrings: false },
+        { component: MermaidMdComponent, unescapeStrings: false },
+        { component: HiddenMdComponent, unescapeStrings: false },
+        { component: NoteMdComponent, unescapeStrings: false },
+        {
+          component: SingleTaskVerificationMarkdownComponent,
+          unescapeStrings: false,
+        },
+      ],
+      options: {
+        sanitize: false,
+        convertHTMLEntities: false,
+      },
+    }),
   ],
   bootstrap: [RootComponent],
 })

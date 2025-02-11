@@ -1,7 +1,7 @@
 import { Score } from '../scenario/bashbrawl/bashbrawlterminal.component';
 
 import { Injectable } from '@angular/core';
-import { HttpHeaders, HttpParams } from '@angular/common/http';
+import { HttpHeaders } from '@angular/common/http';
 import {
   extractResponseContent,
   GargantuaClientFactory,
