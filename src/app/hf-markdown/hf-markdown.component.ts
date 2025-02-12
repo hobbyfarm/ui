@@ -104,6 +104,19 @@ ${token}`;
       return `<app-mermaid-md [code]="'${escape(code)}'"></app-mermaid-md>`;
     },
 
+    quiz(code: string, quizTitle: string, allowedAttempts?: string) {
+      const tempAtts = Number(allowedAttempts);
+      const allowedAtts = isNaN(tempAtts) || tempAtts < 1 ? 1 : tempAtts;
+      return `
+      <quiz
+        quizTitle="${quizTitle}"
+        questionsRaw="${code}"
+        [allowedAtts]="${allowedAtts}"
+      >
+      </quiz>
+      `;
+    },
+
     verifyTask(code: string, target: string, taskName: string) {
       return `<app-single-task-verification-markdown
         target="${target}" 
