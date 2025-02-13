@@ -256,6 +256,7 @@ export function jwtOptionsFactory() {
           component: SingleTaskVerificationMarkdownComponent,
           unescapeStrings: false,
         },
+        { component: QuizComponent, unescapeStrings: false },
       ],
       options: {
         sanitize: false,
