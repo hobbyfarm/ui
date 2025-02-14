@@ -27,12 +27,19 @@ export class AppComponent implements OnInit, OnDestroy {
   public logoutModalOpened = false;
   public aboutModalOpened = false;
   public changePasswordModalOpened = false;
+  public deleteAccountModalOpened = false;
 
   public changePwDangerClosed = true;
   public changePwSuccessClosed = true;
 
   public changePwDangerAlert = '';
   public changePwSuccessAlert = '';
+
+  public deleteAccountDangerAlert = 'The account will be deleted permanently!';
+  public deleteAccountSuccessAlert = '';
+
+  public deleteAccountDangerClosed = false;
+  public deleteAccountSuccessClosed = true;
 
   public accessCodeDangerClosed = true;
   public accessCodeSuccessClosed = true;
@@ -409,5 +416,31 @@ export class AppComponent implements OnInit, OnDestroy {
     if (this.emailSubscription) {
       this.emailSubscription.unsubscribe();
     }
+  }
+
+  public deleteAccount() {
+    this.deleteAccountSuccessClosed = true;
+    this.deleteAccountDangerClosed = false;
+    this.userService.deleteAccount().subscribe({
+      next: (response) => {
+        console.log(
+          'Account deleted:',
+          response?.message || 'Operation successful',
+        );
+        this.deleteAccountDangerClosed = true;
+        setTimeout(() => this.doLogout(), 1000);
+      },
+      error: (err) => {
+        console.error('Delete Account Error:', err);
+        setTimeout(
+          () => (
+            (this.deleteAccountModalOpened = true),
+            (this.deleteAccountDangerAlert =
+              'The account will be deleted permanently!')
+          ),
+          4000,
+        );
+      },
+    });
   }
 }

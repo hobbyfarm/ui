@@ -48,9 +48,6 @@
           <a (click)="openSettings()" clrDropdownItem
             ><cds-icon shape="cog"></cds-icon> Settings</a
           >
-          <a (click)="changePassword()" clrDropdownItem
-            ><cds-icon shape="key"></cds-icon> Change Password</a
-          >
           <a (click)="about()" clrDropdownItem
             ><cds-icon shape="help-info"></cds-icon> About</a
           >
@@ -261,8 +258,30 @@
         <form clrForm [formGroup]="settingsForm">
           <clr-tabs>
             <clr-tab>
-              <button clrTabLink>Terminal</button>
+              <button clrTabLink>Account</button>
               <clr-tab-content *clrIfActive="true">
+                <div class="clr-row space-top-big">
+                  <div class="clr-col">
+                    <button class="btn btn-sm" (click)="changePassword()">
+                      Change Password
+                    </button>
+                  </div>
+                </div>
+                <div class="clr-row space-top-small">
+                  <div class="clr-col">
+                    <button
+                      class="btn btn-danger btn-sm"
+                      (click)="deleteAccountModalOpened = true"
+                    >
+                      Delete Account
+                    </button>
+                  </div>
+                </div>
+              </clr-tab-content>
+            </clr-tab>
+            <clr-tab>
+              <button clrTabLink>Terminal</button>
+              <clr-tab-content>
                 <clr-input-container>
                   <label class="clr-col-md-4">Font-Size</label>
                   <input
@@ -672,6 +691,44 @@
       </button>
     </div>
   </clr-modal>
+
+  <clr-modal #deleteaccountmodal [(clrModalOpen)]="deleteAccountModalOpened">
+    <h3 class="modal-title">Are you sure you want to delete your account?</h3>
+    <div class="modal-body">
+      <div class="alert alert-danger">
+        <div class="alert-items">
+          <div class="alert-item static" role="alert">
+            <div class="alert-icon-wrapper">
+              <cds-icon
+                class="alert-icon"
+                shape="exclamation-triangle"
+              ></cds-icon>
+            </div>
+            <span class="alert-text">
+              {{ deleteAccountDangerAlert }}
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button
+        type="button"
+        class="btn btn-outline"
+        (click)="this.deleteAccountModalOpened = false"
+      >
+        Cancel
+      </button>
+      <button
+        type="button"
+        class="btn btn-danger-outline"
+        (click)="deleteAccount()"
+      >
+        Delete
+      </button>
+    </div>
+  </clr-modal>
+
   <clr-modal [(clrModalOpen)]="alertDeleteAccessCodeModal">
     <h3 class="modal-title">
       Are you sure you want to delete
