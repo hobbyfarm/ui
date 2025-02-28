@@ -106,11 +106,11 @@
       @if (courses.length > 0 && ctx.valid) {
         <div class="clr-row full-width">
           <h3 class="full-width">Select a Course</h3>
-          @for (c of courses; track c) {
-            <div class="clr-col-lg-3">
+          <div class="card-columns">
+            @for (c of courses; track c) {
               <app-course-card [course]="c"></app-course-card>
-            </div>
-          }
+            }
+          </div>
         </div>
       }
     </div>

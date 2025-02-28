@@ -1,10 +1,6 @@
 <a (click)="openCourseView()" [ngClass]="clickable ? 'card clickable' : 'card'">
   <div class="card-img">
-    <img
-      style="max-height: 12.5rem"
-      src="{{ getImagePath() }}"
-      alt="Course: {{ course.name | atob }}"
-    />
+    <img src="{{ getImagePath() }}" alt="Course: {{ course.name | atob }}" />
   </div>
   <div class="card-block">
     <div class="clr-row">
