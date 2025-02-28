@@ -9,9 +9,11 @@
 </form>
 
 <div class="clr-row narrowed">
-  <ng-container *ngFor="let course of catalog">
-    <div class="clr-col-lg-4" *ngIf="matchesSearch(course.name)">
-      <app-course-card [course]="course"></app-course-card>
-    </div>
-  </ng-container>
+  @for (course of catalog; track course) {
+    @if (matchesSearch(course.name)) {
+      <div class="clr-col-lg-4">
+        <app-course-card [course]="course"></app-course-card>
+      </div>
+    }
+  }
 </div>

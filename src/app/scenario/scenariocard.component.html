@@ -1,12 +1,12 @@
 <div class="card">
   @if (progress) {
-  <div class="progress">
-    <progress
-      [class]="getProgressColorClass()"
-      [value]="getProgress() || 0"
-      max="100"
-    ></progress>
-  </div>
+    <div class="progress">
+      <progress
+        [class]="getProgressColorClass()"
+        [value]="getProgress() || 0"
+        max="100"
+      ></progress>
+    </div>
   }
   <div class="card-header">
     {{ scenario.name | atob }}
@@ -16,12 +16,9 @@
       {{ scenario.description | atob }}
     </div>
   </div>
-  <ng-container *ngIf="ctx.accessCode !== ''">
+  @if (ctx.accessCode !== '') {
     <div class="card-footer">
-      <ng-template
-        [ngIf]="!progress || progress.finished"
-        [ngIfElse]="activeProgressControls"
-      >
+      @if (!progress || progress.finished) {
         <button
           class="btn btn-sm btn-link"
           (click)="navScenario()"
@@ -29,8 +26,7 @@
         >
           <cds-icon shape="play"></cds-icon> Start Scenario
         </button>
-      </ng-template>
-      <ng-template #activeProgressControls>
+      } @else {
         <button
           class="btn btn-danger-outline"
           (click)="terminate()"
@@ -45,17 +41,17 @@
         >
           <cds-icon shape="play"></cds-icon> Continue
         </button>
-      </ng-template>
-
-      <a
-        *ngIf="scenario.printable && (!progress || progress.finished)"
-        [routerLink]="['/scenario', scenario.id, 'printable']"
-        target="_blank"
-      >
-        <button class="btn btn-sm btn-link">
-          <cds-icon shape="printer"></cds-icon> Print
-        </button>
-      </a>
+      }
+      @if (scenario.printable && (!progress || progress.finished)) {
+        <a
+          [routerLink]="['/scenario', scenario.id, 'printable']"
+          target="_blank"
+        >
+          <button class="btn btn-sm btn-link">
+            <cds-icon shape="printer"></cds-icon> Print
+          </button>
+        </a>
+      }
     </div>
-  </ng-container>
+  }
 </div>

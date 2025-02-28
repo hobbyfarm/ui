@@ -1,41 +1,45 @@
 <h3 class="course-description">{{ course.name | atob }}</h3>
 <div class="container">
   <ul class="clr-timeline clr-timeline-vertical scrollable-left-side">
-    <li
-      class="clr-timeline-step"
-      *ngFor="let sId of course?.scenarios; let i = index"
-    >
-      <div class="clr-timeline-step-header">{{ i + 1 }}</div>
-
-      <cds-icon [attr.shape]="getShape(sId)"></cds-icon>
-      <div class="clr-timeline-step-body" style="width: 70%">
-        <app-scenario-card
-          *ngIf="!isActiveSession(sId)"
-          [scenarioid]="sId"
-          [activeSession]="!canBeStarted(sId)"
-          (scenarioModal)="toggleScenarioModal(sId, course.id)"
-        ></app-scenario-card>
-        <app-scenario-card
-          *ngIf="isActiveSession(sId)"
-          [scenarioid]="activeSession.scenario"
-          [progress]="activeSession"
-          (scenarioModal)="
-            toggleScenarioModal(activeSession.scenario, activeSession.course)
-          "
-        ></app-scenario-card>
-      </div>
-    </li>
+    @for (sId of course.scenarios; track sId; let i = $index) {
+      <li class="clr-timeline-step">
+        <div class="clr-timeline-step-header">{{ i + 1 }}</div>
+        <cds-icon [attr.shape]="getShape(sId)"></cds-icon>
+        <div class="clr-timeline-step-body" style="width: 70%">
+          @if (!isActiveSession(sId)) {
+            <app-scenario-card
+              [scenarioid]="sId"
+              [activeSession]="!canBeStarted(sId)"
+              (scenarioModal)="toggleScenarioModal(sId, course.id)"
+            ></app-scenario-card>
+          }
+          @if (isActiveSession(sId)) {
+            <app-scenario-card
+              [scenarioid]="activeSession.scenario"
+              [progress]="activeSession"
+              (scenarioModal)="
+                toggleScenarioModal(
+                  activeSession.scenario,
+                  activeSession.course
+                )
+              "
+            ></app-scenario-card>
+          }
+        </div>
+      </li>
+    }
   </ul>
   <div class="sticky-side-card">
     <app-course-card [course]="course" [clickable]="false"></app-course-card>
   </div>
 </div>
 
-<app-scenario
-  *ngIf="scenarioid"
-  [scenarioid]="scenarioid"
-  [courseid]="courseid"
-  [accessCode]="ctx.accessCode"
-  [showScenarioModal]="showScenarioModal"
-  (scenarioModal)="toggleScenarioModal(scenarioid, courseid)"
-></app-scenario>
+@if (scenarioid) {
+  <app-scenario
+    [scenarioid]="scenarioid"
+    [courseid]="courseid"
+    [accessCode]="ctx.accessCode"
+    [showScenarioModal]="showScenarioModal"
+    (scenarioModal)="toggleScenarioModal(scenarioid, courseid)"
+  ></app-scenario>
+}

@@ -3,33 +3,32 @@
 <p class="course-description">{{ course.description | atob }}</p>
 
 <div class="clr-row">
-  <ng-container *ngIf="course.scenarios.length > 0; else no_scenarios">
-    <div
-      class="clr-col-12 clr-col-sm-6 clr-col-md-4 clr-col-lg-3"
-      *ngFor="let sId of course?.scenarios"
-    >
-      <app-scenario-card
-        [scenarioid]="sId"
-        [activeSession]="
-          (!!activeSession && course.id !== activeSession.course) ||
-          (!course.keep_vm && !!activeSession)
-        "
-        (scenarioModal)="toggleScenarioModal(sId, course.id)"
-      ></app-scenario-card>
-    </div>
-  </ng-container>
-  <ng-template #no_scenarios>
+  @if (course.scenarios.length > 0) {
+    @for (sId of course.scenarios; track sId) {
+      <div class="clr-col-12 clr-col-sm-6 clr-col-md-4 clr-col-lg-3">
+        <app-scenario-card
+          [scenarioid]="sId"
+          [activeSession]="
+            (!!activeSession && course.id !== activeSession.course) ||
+            (!course.keep_vm && !!activeSession)
+          "
+          (scenarioModal)="toggleScenarioModal(sId, course.id)"
+        ></app-scenario-card>
+      </div>
+    }
+  } @else {
     <div class="clr-col-12">
       <p>No scenarios found.</p>
     </div>
-  </ng-template>
+  }
 </div>
 
-<app-scenario
-  *ngIf="scenarioid"
-  [scenarioid]="scenarioid"
-  [courseid]="courseid"
-  [accessCode]="ctx.accessCode"
-  [showScenarioModal]="showScenarioModal"
-  (scenarioModal)="toggleScenarioModal(scenarioid, courseid)"
-></app-scenario>
+@if (scenarioid) {
+  <app-scenario
+    [scenarioid]="scenarioid"
+    [courseid]="courseid"
+    [accessCode]="ctx.accessCode"
+    [showScenarioModal]="showScenarioModal"
+    (scenarioModal)="toggleScenarioModal(scenarioid, courseid)"
+  ></app-scenario>
+}
