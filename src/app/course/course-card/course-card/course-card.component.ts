@@ -9,25 +9,31 @@ import { Router } from '@angular/router';
 })
 export class CourseCardComponent {
   @Input() course: Course;
+  @Input() clickable = true;
 
-  // TODO: Remove placeholder examples, add proper default
-  imagePath =
-    'https://import.cdn.thinkific.com/666220/pvYTM4WZR72dZlr3a5gi_k3s-Basics-Course-Cover.png';
-  // 'https://www.sva.de/sites/default/files/2024-04/sva-logo-2024.png'
-  // '../../../../assets/default/favicon.png'
+  defaultImage = '../../../../assets/default/login_container_farm.svg';
 
   constructor(private router: Router) {}
 
   getImagePath() {
-    if (this.course.header_image_path != '') {
-      return this.course.header_image_path.replace(/^"(.*)"$/, '$1');
+    const path = this.course.header_image_path.replace(/^"(.*)"$/, '$1');
+    if (this.isURL(path) && path.match(/\.(jpeg|jpg|gif|png|svg)$/) != null) {
+      return path;
     }
-    return this.imagePath;
+    return this.defaultImage;
+  }
+
+  private isURL(url: string): boolean {
+    try {
+      return !!new URL(url);
+    } catch (_) {
+      return false;
+    }
   }
 
   openCourseView() {
+    if (!this.clickable) return;
     if (this.course.is_learnpath) {
-      //TODO: Change to proper new attribute once the Backend can provide it
       this.router.navigateByUrl('/app/learningPath/?id=' + this.course.id);
     } else {
       this.router.navigateByUrl('/app/course/?id=' + this.course.id);

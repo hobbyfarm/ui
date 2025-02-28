@@ -1,21 +1,12 @@
-<a (click)="openCourseView()" class="card clickable">
+<a (click)="openCourseView()" [ngClass]="clickable ? 'card clickable' : 'card'">
   <div class="card-img">
     <img
       style="max-height: 12.5rem"
-      src="{{ getImagePath() ?? imagePath }}"
-      alt="Image for the Course {{ course.name | atob }}"
+      src="{{ getImagePath() }}"
+      alt="Course: {{ course.name | atob }}"
     />
   </div>
-  <div
-    class="card-block"
-    style="
-      height: 16rem;
-      margin-top: 1.5rem;
-      margin-bottom: 1.5rem;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    "
-  >
+  <div class="card-block">
     <div class="clr-row">
       <div class="card-title clr-col-8">{{ course.name | atob }}</div>
       <div class="clr-col-4">{{ course.scenarios.length }} Scenarios</div>

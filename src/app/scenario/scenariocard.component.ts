@@ -12,6 +12,8 @@ import { Progress } from '../Progress';
 import { Router } from '@angular/router';
 import { ScenarioService } from '../services/scenario.service';
 import { SessionService } from '../services/session.service';
+import { Context, ContextService } from '../services/context.service';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-scenario-card',
@@ -28,6 +30,8 @@ export class ScenarioCardComponent implements OnInit, OnChanges {
 
   public terminated = false;
 
+  public ctx: Context;
+
   @Output()
   scenarioModal = new EventEmitter();
 
@@ -38,7 +42,15 @@ export class ScenarioCardComponent implements OnInit, OnChanges {
     private sessionService: SessionService,
     private progressService: ProgressService,
     private scenarioService: ScenarioService,
-  ) {}
+    private contextService: ContextService,
+  ) {
+    this.contextService
+      .watch()
+      .pipe(takeUntilDestroyed())
+      .subscribe((c: Context) => {
+        this.ctx = c;
+      });
+  }
 
   ngOnInit() {
     this.scenarioService.get(this.scenarioid).subscribe((s: Scenario) => {

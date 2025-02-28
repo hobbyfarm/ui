@@ -5,7 +5,7 @@ import { ActivatedRoute } from '@angular/router';
 import { ProgressService } from 'src/app/services/progress.service';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Progress } from 'src/app/Progress';
-import { Context, ContextService } from 'src/app/services/context.service';
+import { Context } from 'src/app/services/context.service';
 
 @Component({
   selector: 'app-learning-path',
@@ -27,7 +27,6 @@ export class LearningPathComponent implements OnInit {
     private courseService: CourseService,
     private route: ActivatedRoute,
     private progressService: ProgressService,
-    private contextService: ContextService,
   ) {
     this.progressService
       .watch()
@@ -40,13 +39,6 @@ export class LearningPathComponent implements OnInit {
             this.activeSession = progress;
           }
         });
-      });
-
-    this.contextService
-      .watch()
-      .pipe(takeUntilDestroyed())
-      .subscribe((c: Context) => {
-        this.ctx = c;
       });
   }
 
@@ -84,6 +76,7 @@ export class LearningPathComponent implements OnInit {
   }
 
   canBeStarted(scenarioName: string) {
+    if (!this.course.is_learnpath_strict) return true;
     const prevIndex = this.course.scenarios.indexOf(scenarioName) - 1;
     if (prevIndex < 0) return true;
     const previousScenario = this.course.scenarios[prevIndex];

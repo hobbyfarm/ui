@@ -1,13 +1,11 @@
-<h3 class="course-header">{{ course.name | atob }}</h3>
-<hr />
-<p class="course-description">{{ course.description | atob }}</p>
+<h3 class="course-description">{{ course.name | atob }}</h3>
 <div class="container">
   <ul class="clr-timeline clr-timeline-vertical scrollable-left-side">
     <li
       class="clr-timeline-step"
       *ngFor="let sId of course?.scenarios; let i = index"
     >
-      <div class="clr-timeline-step-header">{{ i + 1 }} - {{ sId }}</div>
+      <div class="clr-timeline-step-header">{{ i + 1 }}</div>
 
       <cds-icon [attr.shape]="getShape(sId)"></cds-icon>
       <div class="clr-timeline-step-body" style="width: 70%">
@@ -29,28 +27,7 @@
     </li>
   </ul>
   <div class="sticky-side-card">
-    <app-course-card [course]="course"></app-course-card>
-    <!-- <div class="card">
-            <div class="card-header">
-                Course: {{ course.name | atob }}
-            </div>
-            <div class="card-block">
-                <div class="card-media-block">
-                    <img src="https://www.sva.de/sites/default/files/2024-04/sva-logo-2024.png" class="card-media-image">
-                    <div class="card-media-description">
-                        <span class="card-media-text">
-                            {{ course.description | atob }}
-                        </span>
-                    </div>
-                </div>
-                <div class="card-text">
-                    Lorem ipsum dolor sit amet, consectetur adipisicing elit. Sunt excepturi labore explicabo temporibus, enim voluptate saepe corrupti illum earum eveniet ab veniam vel nisi fugit accusantium perferendis quas facilis quod. 
-                </div>
-            </div>
-         <div class="card-footer">
-                <button class="btn btn-sm btn-link">Action</button>
-            </div> -->
-    <!-- </div>  -->
+    <app-course-card [course]="course" [clickable]="false"></app-course-card>
   </div>
 </div>
 

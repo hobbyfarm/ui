@@ -1,22 +1,14 @@
-<p>
-  Under Construction. But once finished, this should contain several Courses
-  that can bee explored, but no Scenarios can be started. Also the Courses
-  should be connected by Tags and the Page should have a Search. Maybe have one
-  "Hero Card" on Top for whatever Topic we want to push and the rest as all the
-  other Courses.
-</p>
-
 <form clrForm>
   <input
     style="width: 75%"
     clrInput
-    placeholder="Search (Not doing anything atm)"
+    placeholder="Search by Name"
     name="input"
     [(ngModel)]="input"
   />
 </form>
 
-<div class="clr-row" style="width: 75%; margin-left: 10vw">
+<div class="clr-row narrowed">
   <ng-container *ngFor="let course of catalog">
     <div class="clr-col-lg-4" *ngIf="matchesSearch(course.name)">
       <app-course-card [course]="course"></app-course-card>

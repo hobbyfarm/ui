@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Course } from '../course/course';
 import { CourseService } from '../services/course.service';
+import { ContextService } from '../services/context.service';
 
 @Component({
   selector: 'app-explore',
@@ -9,48 +10,23 @@ import { CourseService } from '../services/course.service';
 })
 export class ExploreComponent implements OnInit {
   input = '';
-  // range: number[] = []
-  // course: Course
   catalog: Course[] = [];
 
-  constructor(private courseService: CourseService) {}
+  constructor(
+    private courseService: CourseService,
+    private contextService: ContextService,
+  ) {}
 
   ngOnInit() {
+    this.contextService.set('');
     this.courseService.getCatalog().subscribe((courseList: Course[]) => {
-      console.log(courseList);
       this.catalog = courseList;
     });
-    // for (let index = 0; index < 10; index++) {
-    //   this.range.push(index)
-    // }
-    // this.course = {
-    //   "id": "c-7oftbj34el",
-    //   "image_path": "https://www.sva.de/sites/default/files/2024-04/sva-logo-2024.png",
-    //   "name": "VGVzdCA=",
-    //   "description": "RGllcyBpc3QgZWluZSBCZXNjaHJlaWJ1bmcgZsO8ciBlaW5lbiBLdXJzLiBPaG5lIFVtbGF1dGUh",
-    //   "scenarios": [
-    //     "demo-tasks",
-    //     "k9s",
-    //     "k8s-limits",
-    //     "k8s-rbac",
-    //     "kubernetes-api",
-    //     "kubernetes-basic-commands",
-    //     "kubernetes-configmaps",
-    //     "kubernetes-probes"
-    //   ],
-    //   "scenarioCount": 8,
-    //   "virtualmachines": [
-
-    //   ],
-    //   "keep_vm": true,
-    //   "is_leanpath": false
-    // }
   }
 
-  matchesSearch(content: string) {
-    //TODO: Build proper Search, maybe use Admin UIs
-    // if (this.input.length < 1) return true
-    // if (atob(content).includes(this.input)) return true
-    return true;
+  matchesSearch(courseName: string) {
+    if (this.input.length < 1) return true;
+    if (atob(courseName).includes(this.input)) return true;
+    return false;
   }
 }
