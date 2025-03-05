@@ -8,4 +8,7 @@ export class Course {
   keep_vm: boolean;
   pauseable: boolean;
   virtualmachines: Map<string, string>[];
+  header_image_path: string;
+  is_learnpath: boolean;
+  is_learnpath_strict: boolean;
 }

@@ -10,4 +10,8 @@ export class CourseService extends ListableResourceClient<Course> {
   constructor(gcf: GargantuaClientFactory) {
     super(gcf.scopedClient('/course'));
   }
+
+  getCatalog() {
+    return this.list('/catalog');
+  }
 }

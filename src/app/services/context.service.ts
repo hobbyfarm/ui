@@ -63,11 +63,13 @@ export class ContextService {
         this.settingsService.settings$.subscribe(({ ctxAccessCode = '' }) => {
           // AccessCode stored in settings is not accessible by user
           if (!se.has(ctxAccessCode)) {
-            ctxAccessCode = se.keys().next().value;
+            this.currentContext.valid = false;
+            this.updateContext(this.currentContext);
+            return;
           }
           // No AccessCode stored
           else if (ctxAccessCode == '') {
-            ctxAccessCode = se.keys().next().value;
+            ctxAccessCode = se.keys().next().value ?? '';
           }
           this.currentContext.accessCode = ctxAccessCode;
           this.currentContext.scheduledEvent =

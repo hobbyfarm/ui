@@ -9,6 +9,9 @@ import { AuthGuard } from './auth.guard';
 import { StepComponent } from './scenario/step.component';
 import { PrintableComponent } from './printable/printable.component';
 import { GuacTerminalComponent } from './scenario/guacTerminal.component';
+import { CourseViewComponent } from './course/course-view/course-view.component';
+import { LearningPathComponent } from './learning-path/learning-path.component';
+import { ExploreComponent } from './explore/explore.component';
 import { WebsocketTestComponent } from './websocket-test/websockettest.component';
 
 const routes: Routes = [
@@ -26,6 +29,7 @@ const routes: Routes = [
     canActivate: [AuthGuard],
     children: [
       { path: 'home', component: HomeComponent },
+      { path: 'event/:eventId', component: HomeComponent },
       {
         path: 'scenario/:scenario',
         component: ScenarioComponent,
@@ -35,11 +39,20 @@ const routes: Routes = [
         component: ScenarioComponent,
       },
       {
+        path: 'course/:id',
+        component: CourseViewComponent,
+      },
+      {
+        path: 'learningPath/:id',
+        component: LearningPathComponent,
+      },
+      {
         path: 'session/:session/steps/:step',
         component: StepComponent,
       },
       { path: 'terminal', component: TerminalComponent },
       { path: 'guacTerminal', component: GuacTerminalComponent },
+      { path: 'explore', component: ExploreComponent },
     ],
   },
   {

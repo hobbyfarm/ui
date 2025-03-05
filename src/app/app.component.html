@@ -12,29 +12,6 @@
       </a>
     </div>
 
-    <div class="settings">
-      @if (ctx.valid) {
-        <clr-dropdown>
-          <button class="nav-text" clrDropdownToggle>
-            <cds-icon shape="layers" solid></cds-icon>
-            {{ ctx.scheduledEvent.name }}
-            <cds-icon
-              shape="angle"
-              direction="down"
-              class="dropdown-selection-angle"
-            ></cds-icon>
-          </button>
-          <clr-dropdown-menu *clrIfOpen clrPosition="bottom">
-            @for (a of scheduledEvents | keyvalue; track a) {
-              <a clrDropdownItem (click)="setAccessCode(a.key)">{{
-                a.value.name
-              }}</a>
-            }
-          </clr-dropdown-menu>
-        </clr-dropdown>
-      }
-    </div>
-
     <div class="header-actions">
       <clr-dropdown>
         <button class="nav-text" clrDropdownToggle>
@@ -71,6 +48,25 @@
   }
 
   <div class="content-container">
+    <clr-vertical-nav
+      [clrVerticalNavCollapsible]="true"
+      [(clrVerticalNavCollapsed)]="collapsed"
+      class="nav-trigger--bottom"
+    >
+      @for (a of scheduledEvents | keyvalue; track a.key) {
+        <a
+          clrVerticalNavLink
+          routerLinkActive="active"
+          routerLink="/app/event/{{ a.value.id }}"
+          (click)="setAccessCode(a.key)"
+          >{{ a.value.name }}</a
+        >
+      }
+      <div class="nav-divider"></div>
+      <a clrVerticalNavLink routerLink="/app/explore" routerLinkActive="active"
+        >Explore other courses</a
+      >
+    </clr-vertical-nav>
     <div class="content-area">
       <router-outlet></router-outlet>
     </div>
@@ -159,7 +155,6 @@
           <cds-icon shape="trash"></cds-icon> Delete Access Code
         </button>
       }
-
       @if (newAccessCode) {
         <form clrForm [formGroup]="newAccessCodeForm">
           <clr-input-container>
@@ -206,7 +201,6 @@
           </div>
         </form>
       }
-
       @if (fetchingAccessCodes) {
         <span class="spinner spinner-inline"> Loading... </span>
         <span> Loading... </span>

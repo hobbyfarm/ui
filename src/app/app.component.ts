@@ -69,6 +69,8 @@ export class AppComponent implements OnInit, OnDestroy {
 
   public email = '';
 
+  public collapsed = false;
+
   private Config = this.config.getConfig();
   public title = this.Config.title || "Rancher's Hobby Farm";
   private logo = this.Config.logo || '/assets/default/logo.svg';
