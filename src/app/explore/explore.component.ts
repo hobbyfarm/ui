@@ -26,7 +26,8 @@ export class ExploreComponent implements OnInit {
 
   matchesSearch(courseName: string) {
     if (this.input.length < 1) return true;
-    if (atob(courseName).includes(this.input)) return true;
+    if (atob(courseName).toLowerCase().includes(this.input.toLowerCase()))
+      return true;
     return false;
   }
 }
