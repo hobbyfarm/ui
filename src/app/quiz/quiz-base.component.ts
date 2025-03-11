@@ -1,7 +1,13 @@
 import { FormGroup } from '@angular/forms';
 import { ClrForm } from '@clr/angular';
 import { Validation } from './Validation';
-import { Component, Input, OnInit, ViewChild } from '@angular/core';
+import {
+  Component,
+  Input,
+  OnInit,
+  ViewChild,
+} from '@angular/core';
+import { shuffleStringArray } from '../utils';
 
 @Component({
   template: '',
@@ -19,6 +25,8 @@ export abstract class QuizBaseComponent implements OnInit {
   public errMsg: string;
   @Input()
   public successMsg: string;
+  @Input()
+  public shuffle: boolean = false;
 
   @ViewChild(ClrForm, { static: true })
   clrForm: ClrForm;
@@ -28,18 +36,27 @@ export abstract class QuizBaseComponent implements OnInit {
   public isSubmitted = false;
   public validSubmission = false;
   public validationEnabled: boolean;
+  protected rawOptions: string[] = [];
 
   ngOnInit(): void {
+    this.rawOptions = this.options.split('\n- ');
     this.validationEnabled = this.validation != 'none';
+    if (this.shuffle) {
+      shuffleStringArray(this.rawOptions);
+    }
     this.extractQuizOptions();
     this.createQuizForm();
   }
 
   // This function extracts the different possible answers to a quiz question and identifies correct answers
+  // Used while initializing or resetting a quiz form
   protected abstract extractQuizOptions(): void;
 
   // Create the quiz form group
   protected abstract createQuizForm(): void;
+
+  // Update logic for shuffling qeustions
+  protected abstract shuffleQuestions(): void;
 
   public submit() {
     this.isSubmitted = true;
@@ -56,6 +73,9 @@ export abstract class QuizBaseComponent implements OnInit {
     this.validSubmission = false;
     this.quizForm.reset();
     this.quizForm.enable();
+    if (this.shuffle) {
+      this.shuffleQuestions();
+    }
   }
 
   // returns if the option at the specified index is selected

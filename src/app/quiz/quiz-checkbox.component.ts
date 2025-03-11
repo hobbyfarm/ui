@@ -24,7 +24,7 @@ export class QuizCheckboxComponent extends QuizBaseComponent {
   }
 
   protected override extractQuizOptions() {
-    this.options.split('\n- ').forEach((option: string) => {
+    this.rawOptions.forEach((option: string) => {
       this.optionTitles.push(option.split(':(')[0]);
       const requiredValue = option.split(':(')[1].toLowerCase() === 'x)';
       this.requiredValues.push(requiredValue);
@@ -32,31 +32,22 @@ export class QuizCheckboxComponent extends QuizBaseComponent {
   }
 
   protected override createQuizForm() {
-    if (this.validationEnabled) {
-      this.quizForm = this.fb.group(
-        {
-          quiz: new FormArray<FormControl<boolean>>(
-            [],
-            this.validateCheckboxes(),
-          ),
-        },
-        { updateOn: 'change' },
-      );
-    } else {
-      this.quizForm = this.fb.group(
-        {
-          quiz: new FormArray<FormControl<boolean>>([]),
-        },
-        { updateOn: 'change' },
-      );
-    }
-    this.addCheckboxes();
+    const optionsFormArray = this.createOptionsFormArray();
+    this.quizForm = this.fb.group(
+      { quiz: optionsFormArray },
+      { updateOn: 'change' },
+    );
   }
 
-  private addCheckboxes() {
-    this.optionTitles.forEach(() =>
-      this.optionsFormArray.push(this.fb.control(false)),
+  private createOptionsFormArray(): FormArray<FormControl<boolean>> {
+    const optionsFormArray = this.fb.array<FormControl<boolean>>(
+      [],
+      this.validationEnabled ? this.validateCheckboxes() : null,
     );
+    this.optionTitles.forEach(() =>
+      optionsFormArray.push(this.fb.control(false)),
+    );
+    return optionsFormArray;
   }
 
   private get optionsFormArray(): FormArray<FormControl<boolean>> {
@@ -88,5 +79,24 @@ export class QuizCheckboxComponent extends QuizBaseComponent {
 
   protected override isCorrectOption(index: number): boolean {
     return this.requiredValues[index];
+  }
+
+  // Using the Durstenfeld shuffle algorithm
+  protected override shuffleQuestions() {
+    for (let i = this.optionTitles.length - 1; i >= 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [this.optionTitles[i], this.optionTitles[j]] = [
+        this.optionTitles[j],
+        this.optionTitles[i],
+      ];
+      [this.optionsFormArray.controls[i], this.optionsFormArray.controls[j]] = [
+        this.optionsFormArray.controls[j],
+        this.optionsFormArray.controls[i],
+      ];
+      [this.requiredValues[i], this.requiredValues[j]] = [
+        this.requiredValues[j],
+        this.requiredValues[i],
+      ];
+    }
   }
 }

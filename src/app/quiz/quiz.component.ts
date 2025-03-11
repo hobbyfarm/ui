@@ -10,6 +10,7 @@ import { QuizCheckboxComponent } from './quiz-checkbox.component';
 import { QuizRadioComponent } from './quiz-radio.component';
 import { QuestionType, isQuestionType } from './QuestionType';
 import { isValidation } from './Validation';
+import { shuffleStringArray } from '../utils';
 
 @Component({
   // eslint-disable-next-line @angular-eslint/component-selector
@@ -19,26 +20,38 @@ import { isValidation } from './Validation';
 })
 export class QuizComponent implements OnInit {
   @Input()
-  public quizTitle: string;
+  quizTitle: string;
   @Input()
-  public questionsRaw: string;
+  questionsRaw: string;
   @Input()
-  public allowedAtts = 1;
+  allowedAtts = 1;
+  @Input()
+  questionCount = 0;
+  @Input()
+  shuffle = false;
 
   @ViewChildren('quizCheckbox')
   private quizCheckbox: QueryList<QuizCheckboxComponent> = new QueryList();
   @ViewChildren('quizRadio') private quizRadio: QueryList<QuizRadioComponent> =
     new QueryList();
 
-  public questionParams: QuestionParams[] = [];
-  public questions: string[];
-  public isSubmitted = false;
+  questionParams: QuestionParams[] = [];
+  questions: string[];
+  questionPool: string[];
+  isSubmitted = false;
 
   public ngOnInit() {
     this.questions = this.questionsRaw.split('\n---\n');
-    this.questions.forEach((question: string) => {
-      this.questionParams.push(this.getQuizQuestionParams(question));
-    });
+    const totalQuestionsCount = this.questions.length;
+    // for invalid question counts, fall back displaying all questions in this quiz
+    if (this.questionCount <= 0 || this.questionCount > totalQuestionsCount) {
+      this.questionCount = totalQuestionsCount;
+    }
+    this.questionPool = this.questions;
+    if (this.shuffle) {
+      shuffleStringArray(this.questionPool);
+    }
+    this.setupQuestions();
   }
 
   public getQuestionType(question: string, questionType: string): QuestionType {
@@ -68,13 +81,22 @@ export class QuizComponent implements OnInit {
   }
 
   public reset() {
-    this.quizCheckbox.forEach((checkbox: QuizCheckboxComponent) => {
-      checkbox.reset();
-    });
-    this.quizRadio.forEach((radio: QuizRadioComponent) => {
-      radio.reset();
-    });
-    this.isSubmitted = false;
+    // safeguard(!): only allow to reset questions if an answer to the quiz was submitted
+    // otherwise, users could inspect and modify HTML to remove the disabled attribute from the reset button,
+    // thereby enabling them to spy on our question pool
+    if (this.isSubmitted) {
+      if (this.shuffle) {
+        shuffleStringArray(this.questionPool);
+        this.setupQuestions();
+      }
+      this.quizCheckbox.forEach((checkbox: QuizCheckboxComponent) => {
+        checkbox.reset();
+      });
+      this.quizRadio.forEach((radio: QuizRadioComponent) => {
+        radio.reset();
+      });
+      this.isSubmitted = false;
+    }
   }
 
   private getQuizQuestionParams(question: string): QuestionParams {
@@ -106,6 +128,8 @@ export class QuizComponent implements OnInit {
       this.getRawQuizQuestionParam(question, 'successMsg') ?? defaultSuccessMsg;
     const errorMsg =
       this.getRawQuizQuestionParam(question, 'errorMsg') ?? defaultErrorMsg;
+    const shuffle =
+      this.getRawQuizQuestionParam(question, 'shuffle') === 'true';
     return {
       questionTitle: questionTitle,
       helperText: helperText,
@@ -113,6 +137,7 @@ export class QuizComponent implements OnInit {
       validation: validation,
       successMsg: successMsg,
       errorMsg: errorMsg,
+      shuffle: shuffle,
     };
   }
 
@@ -128,7 +153,7 @@ export class QuizComponent implements OnInit {
         .split(`-$${questionParam}-: `)
         .pop()
         ?.split(
-          /(\n-\$(title|info|type|validation|successMsg|errorMsg)-:\s)|(\n-\s)/,
+          /(\n-\$(title|info|type|validation|successMsg|errorMsg|shuffle)-:\s)|(\n-\s)/,
         )[0];
     }
     return rawQuestionParamValue;
@@ -148,5 +173,13 @@ export class QuizComponent implements OnInit {
       return rawQuestionParamValue;
     }
     return defaultVal;
+  }
+
+  private setupQuestions() {
+    this.questions = this.questionPool.slice(0, this.questionCount);
+    this.questionParams = [];
+    this.questions.forEach((question: string) => {
+      this.questionParams.push(this.getQuizQuestionParams(question));
+    });
   }
 }

@@ -104,14 +104,30 @@ ${token}`;
       return `<app-mermaid-md [code]="'${escape(code)}'"></app-mermaid-md>`;
     },
 
-    quiz(code: string, quizTitle: string, allowedAttempts?: string) {
+    quiz(
+      code: string,
+      quizTitle: string,
+      allowedAttempts?: string,
+      count?: string | null,
+      shuffle?: string | null,
+    ) {
+      if (!count) {
+        count = '0';
+      }
+      if (shuffle != 'true' && shuffle != 'false') {
+        shuffle = 'false';
+      }
       const tempAtts = Number(allowedAttempts);
       const allowedAtts = isNaN(tempAtts) || tempAtts < 1 ? 1 : tempAtts;
+      const tmpCount = Number(count)
+      const questionCount = isNaN(tmpCount) ? 0 : tmpCount;
       return `
       <quiz
         quizTitle="${quizTitle}"
         questionsRaw="${code}"
         [allowedAtts]="${allowedAtts}"
+        [questionCount]="${questionCount}"
+        [shuffle]="${shuffle}"
       >
       </quiz>
       `;

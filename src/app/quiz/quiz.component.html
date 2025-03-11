@@ -9,6 +9,7 @@
         [validation]="questionParams[i].validation"
         [errMsg]="questionParams[i].errorMsg"
         [successMsg]="questionParams[i].successMsg"
+        [shuffle]="questionParams[i].shuffle"
       ></quiz-checkbox>
     } @else if (getQuestionType(question, questionParams[i].questionType) === 'radio') {
       <quiz-radio #quizRadio
@@ -18,6 +19,7 @@
         [validation]="questionParams[i].validation"
         [errMsg]="questionParams[i].errorMsg"
         [successMsg]="questionParams[i].successMsg"
+        [shuffle]="questionParams[i].shuffle"
       ></quiz-radio>
     }
   }
@@ -31,7 +33,7 @@
     Submit
     </button>
     <button
-      [disabled]="allowedAtts < 1"
+      [disabled]="allowedAtts < 1 || !isSubmitted"
       class="btn btn-outline reset-button"
       (click)="reset()"
     >

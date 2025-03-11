@@ -7,6 +7,7 @@ import {
 } from '@angular/forms';
 import { QuizRadioFormGroup } from './QuizFormGroup';
 import { QuizBaseComponent } from './quiz-base.component';
+import { shuffleStringArray } from '../utils';
 
 @Component({
   // eslint-disable-next-line @angular-eslint/component-selector
@@ -24,7 +25,8 @@ export class QuizRadioComponent extends QuizBaseComponent {
 
   protected override extractQuizOptions() {
     this.correctIndex = 0;
-    this.options.split('\n- ').forEach((option: string, index: number) => {
+    this.optionTitles = [];
+    this.rawOptions.forEach((option: string, index: number) => {
       this.optionTitles.push(option.split(':(')[0]);
       const requiredValue = option.split(':(')[1].toLowerCase() === 'x)';
       if (requiredValue) {
@@ -43,6 +45,11 @@ export class QuizRadioComponent extends QuizBaseComponent {
         updateOn: 'change',
       },
     );
+  }
+
+  protected override shuffleQuestions() {
+    shuffleStringArray(this.rawOptions);
+    this.extractQuizOptions();
   }
 
   private validateRadio(): ValidatorFn {
