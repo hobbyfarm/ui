@@ -9,6 +9,7 @@
           @if (!isActiveSession(sId)) {
             <app-scenario-card
               [scenarioid]="sId"
+              [courseId]="courseId"
               [activeSession]="!canBeStarted(sId)"
               (scenarioModal)="toggleScenarioModal(sId, course.id)"
             ></app-scenario-card>
@@ -16,6 +17,7 @@
           @if (isActiveSession(sId)) {
             <app-scenario-card
               [scenarioid]="activeSession.scenario"
+              [courseId]="courseId"
               [progress]="activeSession"
               (scenarioModal)="
                 toggleScenarioModal(
@@ -37,9 +39,9 @@
 @if (scenarioid) {
   <app-scenario
     [scenarioid]="scenarioid"
-    [courseid]="courseid"
+    [courseid]="courseId"
     [accessCode]="ctx.accessCode"
     [showScenarioModal]="showScenarioModal"
-    (scenarioModal)="toggleScenarioModal(scenarioid, courseid)"
+    (scenarioModal)="toggleScenarioModal(scenarioid, courseId)"
   ></app-scenario>
 }

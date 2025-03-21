@@ -5,7 +5,7 @@ import { ActivatedRoute } from '@angular/router';
 import { ProgressService } from 'src/app/services/progress.service';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Progress } from 'src/app/Progress';
-import { Context } from 'src/app/services/context.service';
+import { Context, ContextService } from 'src/app/services/context.service';
 
 @Component({
   selector: 'app-learning-path',
@@ -16,7 +16,7 @@ export class LearningPathComponent implements OnInit {
   course: Course;
   activeSession: any = { course: '' };
   scenarioid: string;
-  courseid: string;
+  courseId: string;
   showScenarioModal: boolean;
   ctx: Context;
   loadedCourses = false;
@@ -27,6 +27,7 @@ export class LearningPathComponent implements OnInit {
     private courseService: CourseService,
     private route: ActivatedRoute,
     private progressService: ProgressService,
+    private contextService: ContextService,
   ) {
     this.progressService
       .watch()
@@ -43,15 +44,18 @@ export class LearningPathComponent implements OnInit {
   }
 
   ngOnInit() {
-    const courseId = this.route.snapshot.queryParams['id'];
-    this.courseService.get(courseId).subscribe((course) => {
+    this.courseId = this.route.snapshot.queryParams['id'];
+    this.courseService.get(this.courseId).subscribe((course) => {
       this.course = course;
+    });
+    this.contextService.watch().subscribe((c) => {
+      this.ctx = c;
     });
   }
 
   toggleScenarioModal(scenarioId: string, courseId: string) {
     this.scenarioid = scenarioId;
-    this.courseid = courseId;
+    this.courseId = courseId;
     this.showScenarioModal = Boolean(scenarioId);
   }
 
@@ -75,6 +79,18 @@ export class LearningPathComponent implements OnInit {
     );
   }
 
+  wasStarted(scnearioName: string) {
+    return (
+      this.progresss.filter((progress) => {
+        return (
+          progress.course == this.course.id &&
+          progress.scenario == scnearioName &&
+          progress.finished
+        );
+      }).length > 0
+    );
+  }
+
   canBeStarted(scenarioName: string) {
     if (!this.course.is_learnpath_strict) return true;
     const prevIndex = this.course.scenarios.indexOf(scenarioName) - 1;
@@ -85,7 +101,7 @@ export class LearningPathComponent implements OnInit {
 
   getShape(sId: string) {
     if (this.isFinished(sId)) return 'success-standard';
-    if (this.isActiveSession(sId)) return 'dot-circle';
+    if (this.isActiveSession(sId) || this.wasStarted(sId)) return 'dot-circle';
     return 'circle';
   }
 }

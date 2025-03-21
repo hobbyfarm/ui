@@ -27,6 +27,8 @@ export class ScenarioCardComponent implements OnInit, OnChanges {
   public activeSession = false;
   @Input()
   public progress?: Progress;
+  @Input()
+  public courseId?: string;
 
   public terminated = false;
 
@@ -83,7 +85,12 @@ export class ScenarioCardComponent implements OnInit, OnChanges {
   getProgressData() {
     this.progressService.watch().subscribe((p: Progress[]) => {
       this.progress = p
-        .filter((prog) => prog.scenario == this.scenarioid && prog.finished)
+        .filter(
+          (prog) =>
+            prog.scenario == this.scenarioid &&
+            prog.finished &&
+            (this.courseId ? this.courseId == prog.course : true),
+        )
         .reduce<
           Progress | undefined
         >((maxProgress, progress) => (!maxProgress || maxProgress.max_step < progress.max_step ? progress : maxProgress), undefined);
