@@ -1,6 +1,10 @@
 <a (click)="openCourseView()" [ngClass]="clickable ? 'card clickable' : 'card'">
   <div class="card-img">
-    <img src="{{ getImagePath() }}" alt="Course: {{ course.name | atob }}" />
+    <img
+      style="object-fit: contain"
+      src="{{ getImagePath() }}"
+      alt="Course: {{ course.name | atob }}"
+    />
   </div>
   <div class="card-block">
     <div class="clr-row">
