@@ -1,37 +1,38 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Course } from '../course/course';
 import { CourseService } from 'src/app/services/course.service';
 import { ActivatedRoute } from '@angular/router';
 import { ProgressService } from 'src/app/services/progress.service';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Progress } from 'src/app/Progress';
 import { Context, ContextService } from 'src/app/services/context.service';
+import { ReplaySubject, takeUntil } from 'rxjs';
 
 @Component({
   selector: 'app-learning-path',
   templateUrl: './learning-path.component.html',
   styleUrls: ['./learning-path.component.scss'],
 })
-export class LearningPathComponent implements OnInit {
+export class LearningPathComponent implements OnInit, OnDestroy {
   course: Course;
   activeSession: any = { course: '' };
   scenarioid: string;
   courseId: string;
   showScenarioModal: boolean;
   ctx: Context;
-  loadedCourses = false;
-  loadedScenarios = false;
-  progresss: Progress[];
+  progresss: Progress[] = [];
+  private destroySubj: ReplaySubject<boolean> = new ReplaySubject(1);
 
   constructor(
     private courseService: CourseService,
     private route: ActivatedRoute,
     private progressService: ProgressService,
     private contextService: ContextService,
-  ) {
+  ) {}
+
+  ngOnInit() {
     this.progressService
       .watch()
-      .pipe(takeUntilDestroyed())
+      .pipe(takeUntil(this.destroySubj))
       .subscribe((p: Progress[]) => {
         this.activeSession = undefined;
         this.progresss = p;
@@ -41,16 +42,19 @@ export class LearningPathComponent implements OnInit {
           }
         });
       });
-  }
-
-  ngOnInit() {
     this.courseId = this.route.snapshot.queryParams['id'];
-    this.courseService.get(this.courseId).subscribe((course) => {
-      this.course = course;
-    });
-    this.contextService.watch().subscribe((c) => {
-      this.ctx = c;
-    });
+    this.courseService
+      .get(this.courseId)
+      .pipe(takeUntil(this.destroySubj))
+      .subscribe((course) => {
+        this.course = course;
+      });
+    this.contextService
+      .watch()
+      .pipe(takeUntil(this.destroySubj))
+      .subscribe((c) => {
+        this.ctx = c;
+      });
   }
 
   toggleScenarioModal(scenarioId: string, courseId: string) {
@@ -103,5 +107,10 @@ export class LearningPathComponent implements OnInit {
     if (this.isFinished(sId)) return 'success-standard';
     if (this.isActiveSession(sId) || this.wasStarted(sId)) return 'dot-circle';
     return 'circle';
+  }
+
+  ngOnDestroy() {
+    this.destroySubj.next(true);
+    this.destroySubj.complete();
   }
 }

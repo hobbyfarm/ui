@@ -200,7 +200,6 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   ngOnInit() {
-    console.log('INIT Step Comp');
     this.sidenavService.collapseSidenav();
     const { paramMap } = this.route.snapshot;
     const sessionId = paramMap.get('session');

@@ -5,7 +5,7 @@
       <li class="clr-timeline-step">
         <div class="clr-timeline-step-header">{{ i + 1 }}</div>
         <cds-icon [attr.shape]="getShape(sId)"></cds-icon>
-        <div class="clr-timeline-step-body" style="width: 70%">
+        <div class="clr-timeline-step-body scenario-card-container">
           @if (!isActiveSession(sId)) {
             <app-scenario-card
               [scenarioid]="sId"

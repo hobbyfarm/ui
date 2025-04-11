@@ -13,11 +13,9 @@ import { Scenario } from 'src/app/scenario/Scenario';
 @Component({
   selector: 'app-course-view',
   templateUrl: './course-view.component.html',
-  styleUrls: ['./course-view.component.scss'],
 })
 export class CourseViewComponent implements OnInit {
   course: Course;
-
   activeSession: any = { course: '' };
   scenarioid: string;
   courseid: string;
@@ -34,7 +32,14 @@ export class CourseViewComponent implements OnInit {
     private progressService: ProgressService,
     private contextService: ContextService,
     private scenarioService: ScenarioService,
-  ) {
+  ) {}
+
+  ngOnInit() {
+    const courseId = this.route.snapshot.queryParams['id'];
+    this.courseService.get(courseId).subscribe((course) => {
+      this.course = course;
+    });
+
     this.progressService
       .watch()
       .pipe(takeUntilDestroyed())
@@ -81,13 +86,6 @@ export class CourseViewComponent implements OnInit {
         }),
       )
       .subscribe();
-  }
-
-  ngOnInit() {
-    const courseId = this.route.snapshot.queryParams['id'];
-    this.courseService.get(courseId).subscribe((course) => {
-      this.course = course;
-    });
   }
 
   toggleScenarioModal(scenarioId: string, courseId: string) {
