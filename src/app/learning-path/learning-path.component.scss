@@ -1,0 +1,21 @@
+.container {
+  display: grid;
+  grid-template-columns: auto auto;
+}
+
+.scrollable-left-side {
+  width: 75%;
+}
+
+.sticky-side-card {
+  position: sticky;
+  top: 1rem;
+  align-self: start;
+  width: 75%;
+  justify-self: end;
+  margin-right: 5rem;
+}
+
+.scenario-card-container {
+  width: 70%;
+}

@@ -17,6 +17,7 @@ import {
 } from './services/typedSettings.service';
 import { ScheduledEvent } from 'src/data/ScheduledEvent';
 import { Subscription } from 'rxjs';
+import { SidenavService } from './services/sidenav.service';
 
 @Component({
   selector: 'app-main',
@@ -69,6 +70,8 @@ export class AppComponent implements OnInit, OnDestroy {
 
   public email = '';
 
+  public collapsed = false;
+
   private Config = this.config.getConfig();
   public title = this.Config.title || "Rancher's Hobby Farm";
   private logo = this.Config.logo || '/assets/default/logo.svg';
@@ -96,6 +99,7 @@ export class AppComponent implements OnInit, OnDestroy {
     private settingsService: SettingsService,
     private contextService: ContextService,
     private typedSettingsService: TypedSettingsService,
+    private sidenavService: SidenavService,
   ) {
     this.config.getLogo(this.logo).then((obj: string) => {
       ClarityIcons.addIcons(['logo', obj]);
@@ -105,6 +109,9 @@ export class AppComponent implements OnInit, OnDestroy {
       const fi = <HTMLLinkElement>document.querySelector('#favicon');
       fi.href = this.Config.favicon;
     }
+    this.sidenavService.getSidenavState().subscribe((collapsed) => {
+      this.collapsed = collapsed;
+    });
   }
 
   @ViewChild('logoutmodal', { static: true }) logoutModal: ClrModal;

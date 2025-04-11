@@ -12,6 +12,8 @@ import { Progress } from '../Progress';
 import { Router } from '@angular/router';
 import { ScenarioService } from '../services/scenario.service';
 import { SessionService } from '../services/session.service';
+import { Context, ContextService } from '../services/context.service';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-scenario-card',
@@ -25,8 +27,12 @@ export class ScenarioCardComponent implements OnInit, OnChanges {
   public activeSession = false;
   @Input()
   public progress?: Progress;
+  @Input()
+  public courseId?: string;
 
   public terminated = false;
+
+  public ctx: Context;
 
   @Output()
   scenarioModal = new EventEmitter();
@@ -38,7 +44,15 @@ export class ScenarioCardComponent implements OnInit, OnChanges {
     private sessionService: SessionService,
     private progressService: ProgressService,
     private scenarioService: ScenarioService,
-  ) {}
+    private contextService: ContextService,
+  ) {
+    this.contextService
+      .watch()
+      .pipe(takeUntilDestroyed())
+      .subscribe((c: Context) => {
+        this.ctx = c;
+      });
+  }
 
   ngOnInit() {
     this.scenarioService.get(this.scenarioid).subscribe((s: Scenario) => {
@@ -71,7 +85,12 @@ export class ScenarioCardComponent implements OnInit, OnChanges {
   getProgressData() {
     this.progressService.watch().subscribe((p: Progress[]) => {
       this.progress = p
-        .filter((prog) => prog.scenario == this.scenarioid && prog.finished)
+        .filter(
+          (prog) =>
+            prog.scenario == this.scenarioid &&
+            prog.finished &&
+            (this.courseId ? this.courseId == prog.course : true),
+        )
         .reduce<
           Progress | undefined
         >((maxProgress, progress) => (!maxProgress || maxProgress.max_step < progress.max_step ? progress : maxProgress), undefined);

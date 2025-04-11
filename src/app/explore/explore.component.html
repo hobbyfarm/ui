@@ -1,0 +1,19 @@
+<form clrForm>
+  <input
+    class="searchInput"
+    clrInput
+    placeholder="Search by Name"
+    name="input"
+    [(ngModel)]="input"
+  />
+</form>
+
+<div class="clr-row margin-top">
+  <div class="card-columns">
+    @for (course of catalog; track course) {
+      @if (matchesSearch(course.name)) {
+        <app-course-card [course]="course"></app-course-card>
+      }
+    }
+  </div>
+</div>

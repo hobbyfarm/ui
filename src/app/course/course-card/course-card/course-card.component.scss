@@ -1,0 +1,13 @@
+.card-img img {
+  height: 25vh;
+  max-height: 25vh;
+  object-fit: contain;
+}
+
+.card-block {
+  height: 16rem;
+  margin-top: 1.5rem;
+  margin-bottom: 1.5rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
