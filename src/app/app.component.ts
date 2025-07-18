@@ -16,7 +16,7 @@ import {
   TypedSettingsService,
 } from './services/typedSettings.service';
 import { ScheduledEvent } from 'src/data/ScheduledEvent';
-import { Subject } from 'rxjs';
+import { Subject, Subscription } from 'rxjs';
 import { SidenavService } from './services/sidenav.service';
 import { CourseService } from './services/course.service';
 import { Course } from './course/course';
@@ -92,12 +92,10 @@ export class AppComponent implements OnInit, OnDestroy {
   public themes = themes;
   public motd = '';
 
-
   protected readonly zoomValues = Object.keys(WindowsZoom);
 
   emailSubscription?: Subscription;
   private destroy$ = new Subject();
-
 
   constructor(
     private userService: UserService,
