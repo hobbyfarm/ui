@@ -62,10 +62,15 @@
           >{{ a.value.name }}</a
         >
       }
-      <div class="nav-divider"></div>
-      <a clrVerticalNavLink routerLink="/app/explore" routerLinkActive="active"
-        >Explore other courses</a
-      >
+      @if (showExplore) {
+        <div class="nav-divider"></div>
+        <a
+          clrVerticalNavLink
+          routerLink="/app/explore"
+          routerLinkActive="active"
+          >Explore other courses</a
+        >
+      }
     </clr-vertical-nav>
     <div class="content-area">
       <router-outlet></router-outlet>

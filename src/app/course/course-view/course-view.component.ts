@@ -1,12 +1,11 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Course } from '../course';
 import { CourseService } from 'src/app/services/course.service';
 import { ActivatedRoute } from '@angular/router';
 import { ProgressService } from 'src/app/services/progress.service';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Progress } from 'src/app/Progress';
 import { Context, ContextService } from 'src/app/services/context.service';
-import { catchError, merge, mergeMap, tap } from 'rxjs';
+import { catchError, merge, mergeMap, Subject, takeUntil, tap } from 'rxjs';
 import { ScenarioService } from 'src/app/services/scenario.service';
 import { Scenario } from 'src/app/scenario/Scenario';
 
@@ -14,7 +13,7 @@ import { Scenario } from 'src/app/scenario/Scenario';
   selector: 'app-course-view',
   templateUrl: './course-view.component.html',
 })
-export class CourseViewComponent implements OnInit {
+export class CourseViewComponent implements OnInit, OnDestroy {
   course: Course;
   activeSession: any = { course: '' };
   scenarioid: string;
@@ -25,6 +24,7 @@ export class CourseViewComponent implements OnInit {
   loadedCourses = false;
   scenarios: Scenario[];
   loadedScenarios = false;
+  private destroy$ = new Subject();
 
   constructor(
     private courseService: CourseService,
@@ -36,13 +36,16 @@ export class CourseViewComponent implements OnInit {
 
   ngOnInit() {
     const courseId = this.route.snapshot.queryParams['id'];
-    this.courseService.get(courseId).subscribe((course) => {
-      this.course = course;
-    });
+    this.courseService
+      .get(courseId)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((course) => {
+        this.course = course;
+      });
 
     this.progressService
       .watch()
-      .pipe(takeUntilDestroyed())
+      .pipe(takeUntil(this.destroy$))
       .subscribe((p: Progress[]) => {
         this.activeSession = undefined;
         p.forEach((progress) => {
@@ -55,7 +58,7 @@ export class CourseViewComponent implements OnInit {
     this.contextService
       .watch()
       .pipe(
-        takeUntilDestroyed(),
+        takeUntil(this.destroy$),
         tap((c: Context) => (this.ctx = c)),
         mergeMap((c: Context) => {
           const courseList = this.courseService.list(c.accessCode, true).pipe(
@@ -92,5 +95,10 @@ export class CourseViewComponent implements OnInit {
     this.scenarioid = scenarioId;
     this.courseid = courseId;
     this.showScenarioModal = Boolean(scenarioId);
+  }
+
+  ngOnDestroy() {
+    this.destroy$.next(1);
+    this.destroy$.complete();
   }
 }

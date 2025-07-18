@@ -402,7 +402,7 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
 
   public goFinish() {
     if (this.isContentOnly) {
-      this.actuallyFinish(true);
+      this.actuallyFinish();
       return;
     }
     this.finishOpen = true;
