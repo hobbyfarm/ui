@@ -7,7 +7,7 @@ import { UserService } from './services/user.service';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
 import { ServerResponse } from './ServerResponse';
 import { AppConfigService } from './app-config.service';
-import { SettingsService } from './services/settings.service';
+import { SettingsService, WindowsZoom } from './services/settings.service';
 import { themes } from './scenario/terminal-themes/themes';
 import { first, take, takeUntil } from 'rxjs/operators';
 import { Context, ContextService } from './services/context.service';
@@ -16,7 +16,7 @@ import {
   TypedSettingsService,
 } from './services/typedSettings.service';
 import { ScheduledEvent } from 'src/data/ScheduledEvent';
-import { Subject } from 'rxjs';
+import { Subject, Subscription } from 'rxjs';
 import { SidenavService } from './services/sidenav.service';
 import { CourseService } from './services/course.service';
 import { Course } from './course/course';
@@ -92,6 +92,9 @@ export class AppComponent implements OnInit, OnDestroy {
   public themes = themes;
   public motd = '';
 
+  protected readonly zoomValues = Object.keys(WindowsZoom);
+
+  emailSubscription?: Subscription;
   private destroy$ = new Subject();
 
   constructor(
@@ -170,6 +173,7 @@ export class AppComponent implements OnInit, OnDestroy {
       Validators.required,
     ]),
     bashbrawl_enabled: new FormControl<boolean>(false),
+    windowsZoom: new FormControl<keyof typeof WindowsZoom>('100'),
   });
 
   ngOnInit() {
@@ -297,6 +301,7 @@ export class AppComponent implements OnInit, OnDestroy {
           theme = 'system',
           divider_position = 40,
           bashbrawl_enabled = false,
+          windowsZoom = '100',
         }) => {
           this.settingsForm.setValue({
             terminal_theme,
@@ -305,6 +310,7 @@ export class AppComponent implements OnInit, OnDestroy {
             theme,
             divider_position,
             bashbrawl_enabled,
+            windowsZoom,
           });
           this.fetchingSettings = false;
         },
@@ -489,5 +495,9 @@ export class AppComponent implements OnInit, OnDestroy {
           );
         },
       });
+  }
+
+  isCurrentSystemZoom(windowZoom: string): boolean {
+    return (window.devicePixelRatio * 100).toString() == windowZoom;
   }
 }
