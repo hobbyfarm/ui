@@ -5,6 +5,7 @@ import { CtrService } from 'src/app/scenario/ctr.service';
   selector: 'app-copy-to-clipboard',
   templateUrl: './copy-to-clipboard.component.html',
   styleUrls: ['./copy-to-clipboard.component.scss'],
+  standalone: false,
 })
 export class CopyToClipboardComponent {
   @Input() ctrId: string;

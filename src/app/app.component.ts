@@ -22,6 +22,7 @@ import { Subscription } from 'rxjs';
   selector: 'app-main',
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss'],
+  standalone: false,
 })
 export class AppComponent implements OnInit, OnDestroy {
   public logoutModalOpened = false;

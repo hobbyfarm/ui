@@ -12,6 +12,7 @@ interface TaskWithNodeName extends Task {
   selector: 'app-task-modal',
   templateUrl: './task-modal.component.html',
   styleUrls: ['./task-modal.component.scss'],
+  standalone: false,
 })
 export class TaskModalComponent implements OnInit, OnDestroy {
   @Input()

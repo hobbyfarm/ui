@@ -9,6 +9,7 @@ import DOMPurify from 'dompurify';
 // By using DOMPurify with svg as target, this is also secure, as long as the sanitization process works correctly without vulnerabilities.
 @Pipe({
   name: 'safeSvg',
+  standalone: false,
 })
 export class SafeSvgPipe implements PipeTransform {
   //   constructor(private sanitizer: DomSanitizer) {}

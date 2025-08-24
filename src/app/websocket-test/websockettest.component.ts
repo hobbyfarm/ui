@@ -8,6 +8,7 @@ import { AppConfigService } from '../app-config.service';
   selector: 'app-websockettest',
   templateUrl: './websockettest.component.html',
   styleUrls: ['./websockettest.component.css'],
+  standalone: false,
 })
 export class WebsocketTestComponent implements OnInit {
   target: string;

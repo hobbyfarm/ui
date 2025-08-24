@@ -17,6 +17,7 @@ import { SessionService } from '../services/session.service';
   selector: 'app-scenario-card',
   templateUrl: 'scenariocard.component.html',
   styleUrls: ['./scenariocard.component.scss'],
+  standalone: false,
 })
 export class ScenarioCardComponent implements OnInit, OnChanges {
   @Input()

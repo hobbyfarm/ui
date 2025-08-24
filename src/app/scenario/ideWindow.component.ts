@@ -17,6 +17,7 @@ import { webinterfaceTabIdentifier } from './step.component';
   selector: 'app-ide-window',
   templateUrl: 'ideWindow.component.html',
   styleUrls: ['./ideWindow.component.scss'],
+  standalone: false,
 })
 export class IdeWindowComponent implements OnInit {
   private token: string;

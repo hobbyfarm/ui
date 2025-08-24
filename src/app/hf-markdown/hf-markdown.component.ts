@@ -39,6 +39,7 @@ export interface HfMarkdownRenderContext {
     }
   `,
   styleUrls: ['./hf-markdown.component.scss'],
+  standalone: false,
 })
 export class HfMarkdownComponent implements OnChanges, OnInit {
   @Input() content: string;

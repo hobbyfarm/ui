@@ -8,6 +8,7 @@ import { ScenarioService } from '../services/scenario.service';
   selector: 'app-printable',
   templateUrl: './printable.component.html',
   styleUrls: ['./printable.component.scss'],
+  standalone: false,
 })
 export class PrintableComponent implements OnInit, AfterViewChecked {
   public scenario = '';

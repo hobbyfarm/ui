@@ -4,6 +4,7 @@ import { Component, Input } from '@angular/core';
   selector: 'app-glossary-md',
   templateUrl: './glossary-md.component.html',
   styleUrls: ['./glossary-md.component.scss'],
+  standalone: false,
 })
 export class GlossaryMdComponent {
   @Input() term: string;

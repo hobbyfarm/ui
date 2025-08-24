@@ -29,6 +29,7 @@ const WS_CODE_NORMAL_CLOSURE = 1000;
   templateUrl: './terminal.component.html',
   styleUrls: ['terminal.component.scss'],
   encapsulation: ViewEncapsulation.None,
+  standalone: false,
 })
 export class TerminalComponent implements OnChanges, AfterViewInit, OnDestroy {
   @Input()

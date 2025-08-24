@@ -28,6 +28,7 @@ import { CtrService } from './ctr.service';
     </i>
   `,
   styleUrls: ['ctr.component.scss'],
+  standalone: false,
 })
 export class CtrComponent implements OnInit, AfterViewInit {
   @Input() target = '';
