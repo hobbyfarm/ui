@@ -1,18 +1,18 @@
 <form clrForm [formGroup]="quizForm">
   <clr-radio-container [class.clr-error]="quizForm.invalid && isSubmitted">
     <label>{{ title }}</label>
-    @for (optionTitle of optionTitles; track optionTitle; let i = $index) {
+    @for (opt of questionAnswers; track opt; let i = $index) {
       <clr-radio-wrapper>
         <input
           type="radio"
           clrRadio
           name="quiz"
-          [value]="i"
+          [value]="isPersistent ? (opt.id || i) : i"
           formControlName="quiz"
         />
         <label>
           <quiz-label
-            [optionTitle]="optionTitle"
+            [optionTitle]="opt.title"
             [hasCorrectOptionClass]="hasCorrectOptionClass(i)"
             [hasIncorrectOptionClass]="hasIncorrectOptionClass(i)"
           ></quiz-label>
@@ -24,6 +24,7 @@
     [helperText]="helperText"
     [isValid]="validSubmission"
     [isSubmitted]="isSubmitted"
+    [isPending]="isPending"
     [validationEnabled]="validationEnabled"
     [errMsg]="errMsg"
     [successMsg]="successMsg"

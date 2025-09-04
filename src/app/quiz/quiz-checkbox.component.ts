@@ -1,67 +1,127 @@
-import { Component } from '@angular/core';
+import { Component, OnDestroy } from '@angular/core';
 import {
   AbstractControl,
-  FormArray,
-  NonNullableFormBuilder,
+  AsyncValidatorFn,
   FormControl,
+  NonNullableFormBuilder,
   ValidatorFn,
 } from '@angular/forms';
 import { QuizCheckboxFormGroup } from './QuizFormGroup';
 import { QuizBaseComponent } from './quiz-base.component';
+import { catchError, map, of, Subscription, take } from 'rxjs';
 
 @Component({
   // eslint-disable-next-line @angular-eslint/component-selector
   selector: 'quiz-checkbox',
   templateUrl: 'quiz-checkbox.component.html',
   styleUrls: ['quiz-checkbox.component.scss'],
+  standalone: false,
 })
-export class QuizCheckboxComponent extends QuizBaseComponent {
-  public override quizForm: QuizCheckboxFormGroup;
-  public requiredValues: boolean[] = [];
+export class QuizCheckboxComponent
+  extends QuizBaseComponent
+  implements OnDestroy
+{
+  public override quizForm!: QuizCheckboxFormGroup;
+
+  /** Local correctness per option */
+  private localRequired: boolean[] = [];
+
+  /** Remote resolved correct id(s) */
+  private resolvedCorrectIds = new Set<string>();
+  private correctIdsSub?: Subscription;
+
+  private selectionSub?: Subscription;
 
   constructor(private fb: NonNullableFormBuilder) {
     super();
   }
+  ngOnDestroy(): void {
+    this.selectionSub?.unsubscribe();
+    this.correctIdsSub?.unsubscribe();
+  }
 
   protected override extractQuizOptions() {
-    this.rawOptions.forEach((option: string) => {
-      this.optionTitles.push(option.split(':(')[0]);
-      const requiredValue = option.split(':(')[1].toLowerCase() === 'x)';
-      this.requiredValues.push(requiredValue);
-    });
+    this.optionTitles = this.questionAnswers.map((a) => a.title);
+    this.localRequired = this.questionAnswers.map((a) => !!a.correct);
   }
 
   protected override createQuizForm() {
-    const optionsFormArray = this.createOptionsFormArray();
+    const arr = this.fb.array<FormControl<boolean>>(
+      this.optionTitles.map(() => this.fb.control(false)),
+    );
+    const ids = this.fb.control<string[]>([]);
     this.quizForm = this.fb.group(
-      { quiz: optionsFormArray },
-      { updateOn: 'change' },
+      { quiz: arr, ids },
+      this.isPersistent
+        ? { asyncValidators: this.remoteValidator() }
+        : { validators: this.localValidator(), updateOn: 'change' },
     );
+
+    this.correctIdsSub?.unsubscribe();
+    this.resolvedCorrectIds.clear();
+    this.correctIdsSub = this.correctAnswerIds.subscribe((ids) => {
+      this.resolvedCorrectIds = new Set<string>(ids ?? []);
+    });
+
+    this.selectionSub?.unsubscribe();
+
+    // derive IDs from booleans whenever selections change
+    const refreshIds = () => {
+      const sel: string[] = [];
+      arr.controls.forEach((c, i) => {
+        if (c.value) {
+          const id = this.questionAnswers[i]?.id;
+          if (id) sel.push(id);
+        }
+      });
+      ids.setValue(sel, { emitEvent: false });
+    };
+    refreshIds();
+    this.selectionSub = arr.valueChanges.subscribe(() => refreshIds());
   }
 
-  private createOptionsFormArray(): FormArray<FormControl<boolean>> {
-    const optionsFormArray = this.fb.array<FormControl<boolean>>(
-      [],
-      this.validationEnabled ? this.validateCheckboxes() : null,
-    );
-    this.optionTitles.forEach(() =>
-      optionsFormArray.push(this.fb.control(false)),
-    );
-    return optionsFormArray;
+  protected override shuffleQuestions() {
+    this.extractQuizOptions();
+    this.createQuizForm();
   }
 
-  private get optionsFormArray(): FormArray<FormControl<boolean>> {
-    return this.quizForm.controls.quiz;
+  private arraysEqual(a: string[], b: string[]) {
+    if (a.length !== b.length) return false;
+    const sa = new Set(a),
+      sb = new Set(b);
+    for (const val of sa) if (!sb.has(val)) return false;
+    return true;
   }
 
-  private validateCheckboxes(): ValidatorFn {
+  private remoteValidator(): AsyncValidatorFn {
+    return (ctrl: AbstractControl) => {
+      if (!this.validationEnabled) {
+        return of(null);
+      } else {
+        const quizCtrl = ctrl as QuizCheckboxFormGroup;
+        return this.correctAnswerIds.pipe(
+          take(1),
+          map((corrAnswerIds) => {
+            if (!this.arraysEqual(corrAnswerIds, quizCtrl.controls.ids.value)) {
+              return { quiz: { failed: 'incorrect answer' } };
+            } else {
+              return null;
+            }
+          }),
+          catchError(() => of({ quiz: { failed: 'unreachable' } })),
+        );
+      }
+    };
+  }
+
+  private localValidator(): ValidatorFn {
     return (control: AbstractControl) => {
-      const formArray = control as FormArray<FormControl<boolean>>;
+      const quizCtrl = control as QuizCheckboxFormGroup;
       let validatedCheckboxes = true;
-      formArray.controls.forEach(
+      quizCtrl.controls.quiz.controls.forEach(
         (control: FormControl<boolean>, index: number) => {
           validatedCheckboxes =
-            validatedCheckboxes && control.value === this.requiredValues[index];
+            validatedCheckboxes && control.value === this.localRequired[index];
         },
       );
       if (!validatedCheckboxes) {
@@ -73,30 +133,20 @@ export class QuizCheckboxComponent extends QuizBaseComponent {
     };
   }
 
-  protected override isSelectedOption(index: number): boolean {
-    return this.optionsFormArray.at(index).value;
+  protected override isSelectedOption(i: number): boolean {
+    return !!this.quizForm.controls.quiz.at(i)?.value;
   }
 
-  protected override isCorrectOption(index: number): boolean {
-    return this.requiredValues[index];
-  }
-
-  // Using the Durstenfeld shuffle algorithm
-  protected override shuffleQuestions() {
-    for (let i = this.optionTitles.length - 1; i >= 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [this.optionTitles[i], this.optionTitles[j]] = [
-        this.optionTitles[j],
-        this.optionTitles[i],
-      ];
-      [this.optionsFormArray.controls[i], this.optionsFormArray.controls[j]] = [
-        this.optionsFormArray.controls[j],
-        this.optionsFormArray.controls[i],
-      ];
-      [this.requiredValues[i], this.requiredValues[j]] = [
-        this.requiredValues[j],
-        this.requiredValues[i],
-      ];
+  protected override isCorrectOption(i: number): boolean {
+    if (this.isDetailedRemote) {
+      const id = this.questionAnswers[i].id ?? '';
+      return this.resolvedCorrectIds.has(id);
     }
+    return this.localRequired[i];
+  }
+
+  /** Used by parent to collect selected answer IDs */
+  public getSelectedAnswerIds(): string[] {
+    return this.quizForm.controls.ids.value || [];
   }
 }

@@ -74,6 +74,7 @@ export type webinterfaceTabIdentifier = {
   selector: 'app-step',
   templateUrl: 'step.component.html',
   styleUrls: ['step.component.scss'],
+  standalone: false,
 })
 export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
   public scenario: Scenario = new Scenario();
@@ -375,9 +376,9 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
     this.stepService
       .get(this.scenario.id, this.stepnumber)
       .subscribe((s: Step) => {
-        this.step = s;
-        this.stepcontent = atou(s.content);
-      });
+      this.step = s;
+      this.stepcontent = atou(s.content);
+    });
   }
 
   private sendProgressUpdate() {

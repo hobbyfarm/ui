@@ -1,7 +1,7 @@
 <ng-container>
   @if (!isSubmitted && helperText !== '') {
     <span class="clr-subtext">{{ helperText }}</span>
-  } @else if (validationEnabled && isSubmitted && !isValid && errMsg !== '') {
+  } @else if (validationEnabled && !isPending && isSubmitted && !isValid && errMsg !== '') {
     <clr-alert
       [clrAlertType]="'danger'"
       [clrAlertClosable]="false"
@@ -12,7 +12,7 @@
       </clr-alert-item>
     </clr-alert>
   } @else if (
-    validationEnabled && isSubmitted && isValid && successMsg !== ''
+    validationEnabled && !isPending && isSubmitted && isValid && successMsg !== ''
   ) {
     <clr-alert
       [clrAlertType]="'success'"

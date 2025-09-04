@@ -5,6 +5,7 @@ import { Component, Input } from '@angular/core';
   selector: 'quiz-body',
   templateUrl: 'quiz-body.component.html',
   styleUrls: ['quiz-body.component.scss'],
+  standalone: false,
 })
 export class QuizBodyComponent {
   @Input()
@@ -13,6 +14,8 @@ export class QuizBodyComponent {
   public isValid: boolean;
   @Input()
   public isSubmitted: boolean;
+  @Input()
+  public isPending: boolean;
   @Input()
   public validationEnabled: boolean;
   @Input()

@@ -5,181 +5,286 @@ import {
   QueryList,
   ViewChildren,
 } from '@angular/core';
-import { QuestionParam, QuestionParams } from './QuestionParams';
+import { Validation } from './Validation';
+import { shuffleArray, shuffleStringArray } from '../utils';
+import {
+  Quiz,
+  QuizService,
+  PreparedQuizEvaluation,
+} from '../services/quiz.service';
 import { QuizCheckboxComponent } from './quiz-checkbox.component';
 import { QuizRadioComponent } from './quiz-radio.component';
-import { QuestionType, isQuestionType } from './QuestionType';
-import { isValidation } from './Validation';
-import { shuffleStringArray } from '../utils';
+import { QuestionAnswer } from './QuestionAnswer';
+import { QuestionType } from './QuestionType';
+import {
+  catchError,
+  map,
+  Observable,
+  of,
+  shareReplay,
+  Subject,
+  switchMap,
+} from 'rxjs';
+
+type Question = {
+  id?: string;
+  title: string;
+  helperText?: string;
+  type: QuestionType;
+  validation: Validation;
+  successMsg: string;
+  errorMsg: string;
+  shuffle: boolean;
+  answers: QuestionAnswer[];
+};
 
 @Component({
   // eslint-disable-next-line @angular-eslint/component-selector
   selector: 'quiz',
   templateUrl: 'quiz.component.html',
   styleUrls: ['quiz.component.scss'],
+  standalone: false,
 })
 export class QuizComponent implements OnInit {
-  @Input()
-  quizTitle: string;
-  @Input()
-  questionsRaw: string;
-  @Input()
-  allowedAtts = 1;
-  @Input()
-  questionCount = 0;
-  @Input()
-  shuffle = false;
+  /** Local props */
+  @Input() quizTitle: string = '';
+  @Input() questionsRaw: string = '';
+  @Input() allowedAtts = 1;
+  @Input() questionCount = 0;
+  @Input() shuffle = false;
 
-  @ViewChildren('quizCheckbox')
-  private quizCheckbox: QueryList<QuizCheckboxComponent> = new QueryList();
-  @ViewChildren('quizRadio') private quizRadio: QueryList<QuizRadioComponent> =
-    new QueryList();
+  /** Persistent */
+  @Input() quizId: string = '';
+  @Input() scenarioId: string = '';
 
-  questionParams: QuestionParams[] = [];
-  questions: string[];
-  questionPool: string[];
+  questions: Question[] = [];
+  validationType: Validation = 'standard';
   isSubmitted = false;
+  isPersistent = false;
+  alreadyPassed = false;
+  started = false;
+  loadingQuestions = true;
+  loadingQuiz = true;
+  currentQuiz?: Quiz;
 
-  public ngOnInit() {
-    this.questions = this.questionsRaw.split('\n---\n');
-    const totalQuestionsCount = this.questions.length;
-    // for invalid question counts, fall back displaying all questions in this quiz
-    if (this.questionCount <= 0 || this.questionCount > totalQuestionsCount) {
-      this.questionCount = totalQuestionsCount;
-    }
-    this.questionPool = this.questions;
-    if (this.shuffle) {
-      shuffleStringArray(this.questionPool);
-    }
-    this.setupQuestions();
-  }
+  correctsByQuestionId: Record<string, string[]> = {};
 
-  public getQuestionType(question: string, questionType: string): QuestionType {
-    const correctAnswers: number = (question.match(/:\(x\)/g) || []).length;
-    return questionType.toLowerCase() === 'radio' && correctAnswers === 1
-      ? 'radio'
-      : 'checkbox';
-  }
+  correctIdsByQid = new Map<string, Observable<string[]>>();
 
-  public getOptions(question: string): string {
-    return question.split(/\n- (.*)/s)[1];
-  }
+  testObs: Observable<string[]> = of([]);
 
-  public submit() {
-    this.quizCheckbox.forEach((checkbox: QuizCheckboxComponent) => {
-      if (checkbox.quizForm.enabled) {
-        checkbox.submit();
-      }
-    });
-    this.quizRadio.forEach((radio: QuizRadioComponent) => {
-      if (radio.quizForm.enabled) {
-        radio.submit();
-      }
-    });
-    --this.allowedAtts;
-    this.isSubmitted = true;
-  }
+  // We fire this when the user submits. This variable carries our answers
+  private attempt = new Subject<Record<string, string[]>>();
 
-  public reset() {
-    // safeguard(!): only allow to reset questions if an answer to the quiz was submitted
-    // otherwise, users could inspect and modify HTML to remove the disabled attribute from the reset button,
-    // thereby enabling them to spy on our question pool
-    if (this.isSubmitted) {
-      if (this.shuffle) {
-        shuffleStringArray(this.questionPool);
-        this.setupQuestions();
-      }
-      this.quizCheckbox.forEach((checkbox: QuizCheckboxComponent) => {
-        checkbox.reset();
-      });
-      this.quizRadio.forEach((radio: QuizRadioComponent) => {
-        radio.reset();
-      });
-      this.isSubmitted = false;
-    }
-  }
+  // One verdict stream per attempt. Emits only after backend responds.
+  private verdict = this.attempt.pipe(
+    switchMap((answers) =>
+      this.qs.recordEvaluation(this.quizId, this.scenarioId, answers).pipe(
+        map((res) => {
+          this.alreadyPassed = res.attempt.pass;
+          return {
+            pass: res.attempt.pass,
+            corrects: res.attempt.corrects ?? null,
+          };
+        }),
+        // Fallback verdict if backend fails
+        catchError(() => of({ pass: false, corrects: null })),
+        // Multicast within this attempt
+        shareReplay({ bufferSize: 1, refCount: true }),
+      ),
+    ),
+  );
 
-  private getQuizQuestionParams(question: string): QuestionParams {
-    let defaultErrorMsg = '';
-    let defaultSuccessMsg = '';
-    const questionTitle = this.getRawQuizQuestionParam(question, 'title') ?? '';
-    const helperText = this.getRawQuizQuestionParam(question, 'info') ?? '';
-    const questionType = this.getQuizQuestionParam(
-      question,
-      'type',
-      'checkbox',
-      isQuestionType,
+  // Inputs for radio/checkbox children
+  remotePass: Observable<boolean> = this.verdict.pipe(map(v => v.pass));
+  correctIds$(qid: string): Observable<string[]> {
+    return this.verdict.pipe(
+      map((v) => {
+        if (!v.corrects) {
+          return [];
+        } else {
+          return v.corrects[qid] ?? [];
+        }
+      }),
     );
-    const validation = this.getQuizQuestionParam(
-      question,
-      'validation',
-      'standard',
-      isValidation,
-    );
-    // In validation mode 'none', success/error alerts are not shown. Hence, the default for success/error message is ''.
-    // In validation mode 'detailed', correctly/incorrectly selected answers are highlighted. Hence, success/error message is optional.
-    // In validation mode 'standard', a success/error alert must be displayed to the user.
-    // Hence, we fall back to the following default values:
-    if (validation == 'standard') {
-      defaultSuccessMsg = 'Correct!';
-      defaultErrorMsg = 'Incorrect!';
-    }
-    const successMsg =
-      this.getRawQuizQuestionParam(question, 'successMsg') ?? defaultSuccessMsg;
-    const errorMsg =
-      this.getRawQuizQuestionParam(question, 'errorMsg') ?? defaultErrorMsg;
-    const shuffle =
-      this.getRawQuizQuestionParam(question, 'shuffle') === 'true';
-    return {
-      questionTitle: questionTitle,
-      helperText: helperText,
-      questionType: questionType,
-      validation: validation,
-      successMsg: successMsg,
-      errorMsg: errorMsg,
-      shuffle: shuffle,
-    };
   }
 
-  private getRawQuizQuestionParam(
-    question: string,
-    questionParam: QuestionParam,
-  ) {
-    const regexPattern = `-\\$${questionParam}-:\\s`;
-    const regex = new RegExp(regexPattern);
-    let rawQuestionParamValue: string | undefined;
-    if (regex.test(question)) {
-      rawQuestionParamValue = question
-        .split(`-$${questionParam}-: `)
+  @ViewChildren(QuizCheckboxComponent)
+  private chk!: QueryList<QuizCheckboxComponent>;
+  @ViewChildren(QuizRadioComponent) private rad!: QueryList<QuizRadioComponent>;
+
+  constructor(private qs: QuizService) {}
+
+  ngOnInit(): void {
+    this.isPersistent = !!this.quizId;
+    if (this.isPersistent) this.initPersistent();
+    else this.initLocal();
+  }
+
+  /** ---------- Local ---------- */
+  private initLocal() {
+    const blocks = (this.questionsRaw || '').split('\n---\n').filter(Boolean);
+    const total = blocks.length;
+    if (this.questionCount <= 0 || this.questionCount > total)
+      this.questionCount = total;
+
+    let pool = blocks;
+    if (this.shuffle) shuffleStringArray(pool);
+    const selected = pool.slice(0, this.questionCount);
+    this.questions = selected.map((raw) => this.fromRaw(raw));
+  }
+
+  private fromRaw(raw: string): Question {
+    const getParam = (key: string) => {
+      const re = new RegExp(`-\\$${key}-:\\s`);
+      if (!re.test(raw)) return undefined;
+      return raw
+        .split(`-$${key}-: `)
         .pop()
         ?.split(
           /(\n-\$(title|info|type|validation|successMsg|errorMsg|shuffle)-:\s)|(\n-\s)/,
         )[0];
-    }
-    return rawQuestionParamValue;
+    };
+
+    const title = getParam('title') ?? '';
+    const helperText = getParam('info') ?? '';
+    const type = (getParam('type') ?? 'checkbox') as 'checkbox' | 'radio';
+    const validation = (getParam('validation') ?? 'standard') as Validation;
+    const successMsg = getParam('successMsg') ?? 'Correct!';
+    const errorMsg = getParam('errorMsg') ?? 'Incorrect!';
+    const qShuffle = (getParam('shuffle') ?? 'false') === 'true';
+
+    const optionsRaw = raw.split(/\n- (.*)/s)[1] ?? '';
+    const options = optionsRaw.split('\n- ').filter(Boolean);
+    let answers: QuestionAnswer[] = options.map((o) => ({
+      title: o.split(':(')[0],
+      correct: o.split(':(')[1]?.toLowerCase() === 'x)',
+    }));
+    if (qShuffle) answers = shuffleArray(answers);
+
+    return {
+      title,
+      helperText,
+      type,
+      validation,
+      successMsg,
+      errorMsg,
+      shuffle: qShuffle,
+      answers,
+    };
   }
 
-  private getQuizQuestionParam<T extends string>(
-    question: string,
-    questionParam: QuestionParam,
-    defaultVal: T,
-    validate: (value: string) => value is T,
-  ): T {
-    const rawQuestionParamValue = this.getRawQuizQuestionParam(
-      question,
-      questionParam,
-    );
-    if (rawQuestionParamValue && validate(rawQuestionParamValue)) {
-      return rawQuestionParamValue;
-    }
-    return defaultVal;
-  }
+  /** ---------- Persistent ---------- */
+  private initPersistent() {
+    this.qs.getUserQuiz(this.quizId).subscribe((quiz: Quiz) => {
+      this.quizTitle = quiz.title;
+      this.validationType = quiz.validation_type;
 
-  private setupQuestions() {
-    this.questions = this.questionPool.slice(0, this.questionCount);
-    this.questionParams = [];
-    this.questions.forEach((question: string) => {
-      this.questionParams.push(this.getQuizQuestionParams(question));
+      quiz.questions.forEach((question) => {
+        this.correctIdsByQid.set(
+          question.id ?? '',
+          this.correctIds$(question.id ?? ''),
+        );
+      });
+
+      this.qs.getEvaluationForUser(this.quizId, this.scenarioId).subscribe({
+        next: (ev: PreparedQuizEvaluation) => {
+          const last = ev.attempts?.[ev.attempts.length - 1];
+          this.alreadyPassed = !!last?.pass;
+          const used = ev.attempts?.length ?? 0;
+          this.allowedAtts = Math.max(0, (quiz.max_attempts ?? 1) - used);
+          this.currentQuiz = quiz;
+          this.loadingQuiz = false;
+        },
+        error: () => {
+          this.allowedAtts = quiz.max_attempts ?? 1;
+          this.currentQuiz = quiz;
+          this.loadingQuiz = false;
+        },
+      });
     });
+  }
+
+  /** ---------- Actions ---------- */
+  start(quiz?: Quiz) {
+    if (!quiz) {
+      this.loadingQuestions = false;
+      return;
+    }
+
+    this.qs
+      .startEvaluation(this.quizId, this.scenarioId)
+      .subscribe((startRes) => {
+        const byId = new Map((quiz.questions || []).map((q) => [q.id!, q]));
+        const list: Question[] = [];
+        for (const qid of startRes.questions) {
+          const q = byId.get(qid);
+          if (!q) continue;
+          const answers = q.shuffle ? shuffleArray(q.answers) : q.answers;
+          list.push({
+            id: q.id,
+            title: q.title,
+            helperText: q.description,
+            type: q.type === 'radio' ? 'radio' : 'checkbox',
+            validation: quiz.validation_type as Validation,
+            successMsg: q.success_message,
+            errorMsg: q.failure_message,
+            shuffle: q.shuffle,
+            answers,
+          });
+        }
+        this.questions = list;
+        this.correctsByQuestionId = {};
+        this.isSubmitted = false;
+        this.loadingQuestions = false;
+        this.started = true;
+      });
+  }
+
+  submit() {
+    // Lock children UI first (always)
+    this.rad?.forEach((c) => c.hardSubmit());
+    this.chk?.forEach((c) => c.hardSubmit());
+
+    if (!this.isPersistent) {
+      this.isSubmitted = true;
+      this.allowedAtts = Math.max(0, this.allowedAtts - 1);
+      return;
+    }
+
+    // Build answers from children (answer IDs only)
+    const answers: Record<string, string[]> = {};
+    let r = 0,
+      c = 0;
+    this.questions.forEach((q) => {
+      if (!q.id) return;
+      if (q.type === 'radio') {
+        const comp = this.rad.get(r++);
+        answers[q.id] = comp?.getSelectedAnswerIds() ?? [];
+      } else {
+        const comp = this.chk.get(c++);
+        answers[q.id] = comp?.getSelectedAnswerIds() ?? [];
+      }
+    });
+
+    this.attempt.next(answers);
+    this.isSubmitted = true;
+    this.allowedAtts = Math.max(0, this.allowedAtts - 1);
+  }
+
+  reset() {
+    if (!this.isPersistent) {
+      if (this.shuffle) this.questions = shuffleArray(this.questions);
+      this.rad?.forEach((c) => c.reset());
+      this.chk?.forEach((c) => c.reset());
+      this.isSubmitted = false;
+      return;
+    }
+    if (this.allowedAtts < 1) return;
+    // Restart attempt fresh (server picks question set)
+    this.rad?.forEach((c) => c.reset());
+    this.chk?.forEach((c) => c.reset());
+    this.isSubmitted = false;
+    this.qs.getUserQuiz(this.quizId).subscribe((quiz) => this.start(quiz));
   }
 }

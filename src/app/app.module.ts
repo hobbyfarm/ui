@@ -93,6 +93,7 @@ import {
   copyIcon,
   terminalIcon,
   exclamationTriangleIcon,
+  checkCircleIcon,
 } from '@cds/core/icon';
 import { SafeSvgPipe } from './pipes/safe-svg.pipe';
 import { ThemeService } from './services/theme.service';
@@ -128,6 +129,7 @@ ClarityIcons.addIcons(
   copyIcon,
   terminalIcon,
   exclamationTriangleIcon,
+  checkCircleIcon
 );
 
 export function tokenGetter() {

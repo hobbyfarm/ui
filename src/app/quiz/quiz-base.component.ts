@@ -1,22 +1,32 @@
-import { FormGroup } from '@angular/forms';
-import { ClrForm } from '@clr/angular';
-import { Validation } from './Validation';
 import {
   Component,
   Input,
   OnInit,
   ViewChild,
 } from '@angular/core';
-import { shuffleStringArray } from '../utils';
+import { FormGroup } from '@angular/forms';
+import { ClrForm } from '@clr/angular';
+import { Validation } from './Validation';
+import { QuestionAnswer } from './QuestionAnswer';
+import {
+  filter,
+  firstValueFrom,
+  Observable,
+  startWith,
+  take,
+} from 'rxjs';
 
-@Component({
-  template: '',
-})
+@Component({ template: '' })
 export abstract class QuizBaseComponent implements OnInit {
-  @Input()
-  public options: string;
-  @Input()
-  public helperText: string;
+  /** Non-empty => persistent quiz => do remote validation */
+  @Input() quizId: string = '';
+  @Input() scenarioId: string = '';
+  /** Persistent question id (required for backend payload) */
+  @Input() questionId: string = '';
+
+  /** Data */
+  @Input() questionAnswers: QuestionAnswer[] = [];
+  @Input() helperText: string = '';
   @Input()
   public title: string;
   @Input()
@@ -28,79 +38,94 @@ export abstract class QuizBaseComponent implements OnInit {
   @Input()
   public shuffle: boolean = false;
 
-  @ViewChild(ClrForm, { static: true })
-  clrForm: ClrForm;
+  /** Server verdict (detailed): correct answer IDs for this question */
+  @Input() correctAnswerIds: Observable<string[]>;
+  /** Server verdict (standard): overall pass/fail for the quiz */
+  @Input() remotePass: Observable<boolean>;
+
+  @ViewChild(ClrForm, { static: true }) clrForm!: ClrForm;
   abstract quizForm: FormGroup;
 
   public optionTitles: string[] = [];
   public isSubmitted = false;
   public validSubmission = false;
-  public validationEnabled: boolean;
-  protected rawOptions: string[] = [];
+
+  get isPending() {
+    return this.quizForm?.status === 'PENDING';
+  }
+  get isPersistent() {
+    return !!this.quizId;
+  }
+  get isDetailedRemote() {
+    return this.isPersistent && this.validation === 'detailed';
+  }
+  get isStandardRemote() {
+    return this.isPersistent && this.validation === 'standard';
+  }
+  get validationEnabled() {
+    return this.validation !== 'none';
+  }
 
   ngOnInit(): void {
-    this.rawOptions = this.options.split('\n- ');
-    this.validationEnabled = this.validation != 'none';
-    if (this.shuffle) {
-      shuffleStringArray(this.rawOptions);
-    }
     this.extractQuizOptions();
     this.createQuizForm();
   }
 
-  // This function extracts the different possible answers to a quiz question and identifies correct answers
-  // Used while initializing or resetting a quiz form
+  // Extract option titles / local-correct flags etc
   protected abstract extractQuizOptions(): void;
-
-  // Create the quiz form group
+  // Build form controls and attach validators
   protected abstract createQuizForm(): void;
-
   // Update logic for shuffling qeustions
   protected abstract shuffleQuestions(): void;
 
-  public submit() {
+  // Whether option i is selected
+  protected abstract isSelectedOption(index: number): boolean;
+  // Whether option i is correct (for detailed UI state)
+  protected abstract isCorrectOption(index: number): boolean;
+
+  /** Called by parent submit to lock UI */
+  public async hardSubmit() {
     this.isSubmitted = true;
-    if (this.quizForm.invalid) {
-      this.clrForm.markAsTouched();
+    if (this.isPersistent) {
+      const finalStatus = await firstValueFrom(
+        this.quizForm.statusChanges.pipe(
+          startWith(this.quizForm.status),
+          filter((s) => s !== 'PENDING' && s !== 'DISABLED'),
+          take(1),
+        ),
+      );
+      this.validSubmission = finalStatus === 'VALID';
     } else {
-      this.validSubmission = true;
+      this.validSubmission = this.quizForm.valid;
     }
-    this.quizForm.disable();
+    this.quizForm.disable({ emitEvent: false });
   }
 
+  /** Reset for next attempt (local or persistent) */
   public reset() {
     this.isSubmitted = false;
     this.validSubmission = false;
+    this.quizForm.enable({ emitEvent: false });
     this.quizForm.reset();
-    this.quizForm.enable();
-    if (this.shuffle) {
-      this.shuffleQuestions();
-    }
+    if (this.shuffle && !this.isPersistent) this.shuffleQuestions();
   }
 
-  // returns if the option at the specified index is selected
-  protected abstract isSelectedOption(index: number): boolean;
-
-  // returns if the option at the specified index is correct
-  protected abstract isCorrectOption(index: number): boolean;
-
-  // funtion for a label to determine if it should be styled as correctly selected option
-  public hasCorrectOptionClass(index: number): boolean {
+  /** CSS helpers for detailed mode */
+  public hasCorrectOptionClass(i: number): boolean {
     return (
-      this.validation == 'detailed' &&
+      this.validation === 'detailed' &&
       this.isSubmitted &&
-      this.isCorrectOption(index)
+      !this.quizForm.pending && // for persistent quiz -> wait until async validator finishes
+      this.isCorrectOption(i)
     );
   }
-
-  // funtion for a label to determine if it should be styled as incorrectly selected option
-  public hasIncorrectOptionClass(index: number): boolean {
+  public hasIncorrectOptionClass(i: number): boolean {
     return (
-      this.validation == 'detailed' &&
+      this.validation === 'detailed' &&
       this.isSubmitted &&
-      !this.validSubmission &&
-      this.isSelectedOption(index) &&
-      !this.isCorrectOption(index)
+      !this.quizForm.pending && // for persistent quiz -> wait until async validator finishes
+      !this.isCorrectOption(i) &&
+      this.isSelectedOption(i)
     );
   }
 }
