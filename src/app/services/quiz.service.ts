@@ -28,7 +28,7 @@ export interface QuizQuestion {
 export interface Quiz {
   id?: string;
   title: string;
-  type: string;
+  issuer: string;
   shuffle: boolean;
   pool_size: number;
   max_attempts: number;

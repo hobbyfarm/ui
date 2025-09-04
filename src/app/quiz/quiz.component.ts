@@ -25,6 +25,8 @@ import {
   Subject,
   switchMap,
 } from 'rxjs';
+import { UserService } from '../services/user.service';
+import { PdfService } from '../services/pdf.service';
 
 type Question = {
   id?: string;
@@ -56,6 +58,7 @@ export class QuizComponent implements OnInit {
   /** Persistent */
   @Input() quizId: string = '';
   @Input() scenarioId: string = '';
+  @Input() scenarioName: string = '';
 
   questions: Question[] = [];
   validationType: Validation = 'standard';
@@ -66,6 +69,7 @@ export class QuizComponent implements OnInit {
   loadingQuestions = true;
   loadingQuiz = true;
   currentQuiz?: Quiz;
+  quizIssuer = '';
 
   correctsByQuestionId: Record<string, string[]> = {};
 
@@ -96,7 +100,7 @@ export class QuizComponent implements OnInit {
   );
 
   // Inputs for radio/checkbox children
-  remotePass: Observable<boolean> = this.verdict.pipe(map(v => v.pass));
+  remotePass: Observable<boolean> = this.verdict.pipe(map((v) => v.pass));
   correctIds$(qid: string): Observable<string[]> {
     return this.verdict.pipe(
       map((v) => {
@@ -113,7 +117,11 @@ export class QuizComponent implements OnInit {
   private chk!: QueryList<QuizCheckboxComponent>;
   @ViewChildren(QuizRadioComponent) private rad!: QueryList<QuizRadioComponent>;
 
-  constructor(private qs: QuizService) {}
+  constructor(
+    private qs: QuizService,
+    private us: UserService,
+    private pdfService: PdfService,
+  ) {}
 
   ngOnInit(): void {
     this.isPersistent = !!this.quizId;
@@ -178,6 +186,7 @@ export class QuizComponent implements OnInit {
   private initPersistent() {
     this.qs.getUserQuiz(this.quizId).subscribe((quiz: Quiz) => {
       this.quizTitle = quiz.title;
+      this.quizIssuer = quiz.issuer;
       this.validationType = quiz.validation_type;
 
       quiz.questions.forEach((question) => {
@@ -286,5 +295,16 @@ export class QuizComponent implements OnInit {
     this.chk?.forEach((c) => c.reset());
     this.isSubmitted = false;
     this.qs.getUserQuiz(this.quizId).subscribe((quiz) => this.start(quiz));
+  }
+
+  download() {
+    this.pdfService.generateCertificate({
+      date: new Date(),
+      description: `Congratulations! We hereby certify that the following user has successfully completed the scenario "${this.scenarioName}" by fully attending the course sessions and fulfilling all requirements, including the successful completion of the mandatory final test:`,
+      personName: `${this.us.getEmail().value}`,
+      title: `${this.scenarioName}`,
+      fileName: `${this.scenarioName ? `certificate-${this.scenarioName}.pdf` : 'certificate.pdf'}`,
+      issuer: `${this.quizIssuer}`,
+    });
   }
 }

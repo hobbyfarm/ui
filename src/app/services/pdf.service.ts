@@ -55,7 +55,7 @@ export class PdfService {
     doc.setFont('helvetica', 'bold');
     doc.setTextColor(primary.r, primary.g, primary.b);
     doc.setFontSize(34);
-    doc.text('ZERTIFIKAT', W / 2, 110, { align: 'center' });
+    doc.text('CERTIFICATE OF ATTENDANCE', W / 2, 110, { align: 'center' });
 
     // Titel
     doc.setTextColor(0);
