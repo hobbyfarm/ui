@@ -1,0 +1,47 @@
+<h3 class="course-description">{{ course.name | atob }}</h3>
+<div class="container">
+  <ul class="clr-timeline clr-timeline-vertical scrollable-left-side">
+    @for (sId of course.scenarios; track sId; let i = $index) {
+      <li class="clr-timeline-step">
+        <div class="clr-timeline-step-header">{{ i + 1 }}</div>
+        <cds-icon [attr.shape]="getShape(sId)"></cds-icon>
+        <div class="clr-timeline-step-body scenario-card-container">
+          @if (!isActiveSession(sId)) {
+            <app-scenario-card
+              [scenarioid]="sId"
+              [courseId]="courseId"
+              [activeSession]="!canBeStarted(sId)"
+              (scenarioModal)="toggleScenarioModal(sId, course.id)"
+            ></app-scenario-card>
+          }
+          @if (isActiveSession(sId)) {
+            <app-scenario-card
+              [scenarioid]="activeSession.scenario"
+              [courseId]="courseId"
+              [progress]="activeSession"
+              (scenarioModal)="
+                toggleScenarioModal(
+                  activeSession.scenario,
+                  activeSession.course
+                )
+              "
+            ></app-scenario-card>
+          }
+        </div>
+      </li>
+    }
+  </ul>
+  <div class="sticky-side-card">
+    <app-course-card [course]="course" [clickable]="false"></app-course-card>
+  </div>
+</div>
+
+@if (scenarioid) {
+  <app-scenario
+    [scenarioid]="scenarioid"
+    [courseid]="courseId"
+    [accessCode]="ctx.accessCode"
+    [showScenarioModal]="showScenarioModal"
+    (scenarioModal)="toggleScenarioModal(scenarioid, courseId)"
+  ></app-scenario>
+}

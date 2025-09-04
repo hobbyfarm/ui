@@ -97,6 +97,10 @@ import {
 } from '@cds/core/icon';
 import { SafeSvgPipe } from './pipes/safe-svg.pipe';
 import { ThemeService } from './services/theme.service';
+import { CourseCardComponent } from './course/course-card/course-card/course-card.component';
+import { CourseViewComponent } from './course/course-view/course-view.component';
+import { LearningPathComponent } from './learning-path/learning-path.component';
+import { ExploreComponent } from './explore/explore.component';
 
 ClarityIcons.addIcons(
   layersIcon,
@@ -191,6 +195,10 @@ export function jwtOptionsFactory() {
     TaskProgressComponent,
     TaskModalComponent,
     SingleTaskVerificationMarkdownComponent,
+    CourseCardComponent,
+    CourseViewComponent,
+    LearningPathComponent,
+    ExploreComponent,
     WebsocketTestComponent,
     HiddenMdComponent,
     GlossaryMdComponent,

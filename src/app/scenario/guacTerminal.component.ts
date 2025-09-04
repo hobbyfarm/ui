@@ -5,6 +5,7 @@ import {
   Input,
   OnChanges,
   ViewEncapsulation,
+  OnInit,
 } from '@angular/core';
 import { CtrService } from './ctr.service';
 import { CodeExec } from './CodeExec';
@@ -25,6 +26,11 @@ import clipboard from './guacLibs/GuacClipboard';
 import states from './guacLibs/states';
 import { ClipboardCache } from './guacLibs/ClipboardCache';
 import { Mimetype } from 'guacamole-common-js/lib/GuacCommon';
+import {
+  Settings,
+  SettingsService,
+  WindowsZoom,
+} from '../services/settings.service';
 //import {Modal} from '@/components/Modal'
 
 @Component({
@@ -34,7 +40,7 @@ import { Mimetype } from 'guacamole-common-js/lib/GuacCommon';
   encapsulation: ViewEncapsulation.None,
   standalone: false,
 })
-export class GuacTerminalComponent implements OnChanges {
+export class GuacTerminalComponent implements OnInit, OnChanges {
   @Input()
   vmid: string;
 
@@ -46,6 +52,7 @@ export class GuacTerminalComponent implements OnChanges {
 
   public optimalWidth = 1024;
   public optimalHeight = 744;
+  private zoom = window.devicePixelRatio;
 
   public connected = false;
   public display: any;
@@ -62,10 +69,24 @@ export class GuacTerminalComponent implements OnChanges {
     public ctrService: CtrService,
     public shellService: ShellService,
     public jwtHelper: JwtHelperService,
+    private settingsService: SettingsService,
   ) {}
 
   @ViewChild('guacTerminal', { static: true }) terminalDiv: ElementRef;
   @ViewChild('viewport', { static: true }) viewport: ElementRef;
+
+  async ngOnInit() {
+    this.settingsService.settings$.subscribe((settings: Settings) => {
+      if (settings.windowsZoom) {
+        this.zoom = WindowsZoom[settings.windowsZoom];
+        setTimeout(() => {
+          this.resize();
+        }, 1000);
+      } else {
+        this.zoom = window.devicePixelRatio;
+      }
+    });
+  }
 
   queryObj() {
     // we always load our token synchronously from local storage
@@ -376,10 +397,8 @@ export class GuacTerminalComponent implements OnChanges {
       // resize is being called on the hidden window
       return;
     }
-    const pixelDensity = window.devicePixelRatio || 1; // window.devicePixelRatio is a floating number
-    const width = Math.floor(elm.clientWidth * pixelDensity);
-    const height = Math.floor(elm.clientHeight * pixelDensity);
-
+    const width = Math.floor(elm.clientWidth * this.zoom);
+    const height = Math.floor(elm.clientHeight * this.zoom);
     return { width: width, height: height };
   }
 

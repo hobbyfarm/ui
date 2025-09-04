@@ -12,29 +12,6 @@
       </a>
     </div>
 
-    <div class="settings">
-      @if (ctx.valid) {
-        <clr-dropdown>
-          <button class="nav-text" clrDropdownToggle>
-            <cds-icon shape="layers" solid></cds-icon>
-            {{ ctx.scheduledEvent.name }}
-            <cds-icon
-              shape="angle"
-              direction="down"
-              class="dropdown-selection-angle"
-            ></cds-icon>
-          </button>
-          <clr-dropdown-menu *clrIfOpen clrPosition="bottom">
-            @for (a of scheduledEvents | keyvalue; track a) {
-              <a clrDropdownItem (click)="setAccessCode(a.key)">{{
-                a.value.name
-              }}</a>
-            }
-          </clr-dropdown-menu>
-        </clr-dropdown>
-      }
-    </div>
-
     <div class="header-actions">
       <clr-dropdown>
         <button class="nav-text" clrDropdownToggle>
@@ -47,9 +24,6 @@
           >
           <a (click)="openSettings()" clrDropdownItem
             ><cds-icon shape="cog"></cds-icon> Settings</a
-          >
-          <a (click)="changePassword()" clrDropdownItem
-            ><cds-icon shape="key"></cds-icon> Change Password</a
           >
           <a (click)="about()" clrDropdownItem
             ><cds-icon shape="help-info"></cds-icon> About</a
@@ -74,6 +48,30 @@
   }
 
   <div class="content-container">
+    <clr-vertical-nav
+      [clrVerticalNavCollapsible]="true"
+      [(clrVerticalNavCollapsed)]="collapsed"
+      class="nav-trigger--bottom"
+    >
+      @for (a of scheduledEvents | keyvalue; track a.key) {
+        <a
+          clrVerticalNavLink
+          routerLinkActive="active"
+          routerLink="/app/event/{{ a.value.id }}"
+          (click)="setAccessCode(a.key)"
+          >{{ a.value.name }}</a
+        >
+      }
+      @if (showExplore) {
+        <div class="nav-divider"></div>
+        <a
+          clrVerticalNavLink
+          routerLink="/app/explore"
+          routerLinkActive="active"
+          >Explore other courses</a
+        >
+      }
+    </clr-vertical-nav>
     <div class="content-area">
       <router-outlet></router-outlet>
     </div>
@@ -162,7 +160,6 @@
           <cds-icon shape="trash"></cds-icon> Delete Access Code
         </button>
       }
-
       @if (newAccessCode) {
         <form clrForm [formGroup]="newAccessCodeForm">
           <clr-input-container>
@@ -209,7 +206,6 @@
           </div>
         </form>
       }
-
       @if (fetchingAccessCodes) {
         <span class="spinner spinner-inline"> Loading... </span>
         <span> Loading... </span>
@@ -251,7 +247,11 @@
     </div>
   </clr-modal>
 
-  <clr-modal #settingsmodal [(clrModalOpen)]="settingsModalOpened">
+  <clr-modal
+    #settingsmodal
+    [(clrModalOpen)]="settingsModalOpened"
+    clrModalSize="lg"
+  >
     <h3 class="modal-title">Settings</h3>
     <div class="modal-body">
       @if (fetchingSettings) {
@@ -261,8 +261,30 @@
         <form clrForm [formGroup]="settingsForm">
           <clr-tabs>
             <clr-tab>
-              <button clrTabLink>Terminal</button>
+              <button clrTabLink>Account</button>
               <clr-tab-content *clrIfActive="true">
+                <div class="clr-row space-top-big">
+                  <div class="clr-col">
+                    <button class="btn btn-sm" (click)="changePassword()">
+                      Change Password
+                    </button>
+                  </div>
+                </div>
+                <div class="clr-row space-top-small">
+                  <div class="clr-col">
+                    <button
+                      class="btn btn-danger btn-sm"
+                      (click)="deleteAccountModalOpened = true"
+                    >
+                      Delete Account
+                    </button>
+                  </div>
+                </div>
+              </clr-tab-content>
+            </clr-tab>
+            <clr-tab>
+              <button clrTabLink>Terminal</button>
+              <clr-tab-content>
                 <clr-input-container>
                   <label class="clr-col-md-4">Font-Size</label>
                   <input
@@ -571,6 +593,44 @@
               </clr-tab-content>
               <clr-tab-content> </clr-tab-content>
             </clr-tab>
+            <clr-tab>
+              <button clrTabLink>Windows Zoom</button>
+              <clr-tab-content>
+                <clr-select-container>
+                  <label
+                    >Zoom
+                    <clr-tooltip>
+                      <cds-icon
+                        clrTooltipTrigger
+                        shape="info-circle"
+                        size="24"
+                      ></cds-icon>
+                      <clr-tooltip-content
+                        [clrPosition]="'top-right'"
+                        [clrSize]="'sm'"
+                      >
+                        Set the Zoom level for Windows VMs.
+                      </clr-tooltip-content>
+                    </clr-tooltip>
+                  </label>
+                  <select
+                    clrSelect
+                    name="options"
+                    formControlName="windowsZoom"
+                  >
+                    @for (value of zoomValues; track value) {
+                      <option value="{{ value }}">
+                        {{ value }}%
+                        @if (isCurrentSystemZoom(value)) {
+                          (same as your Operating System)
+                        }
+                      </option>
+                    }
+                  </select>
+                </clr-select-container>
+              </clr-tab-content>
+              <clr-tab-content> </clr-tab-content>
+            </clr-tab>
           </clr-tabs>
         </form>
       }
@@ -672,6 +732,44 @@
       </button>
     </div>
   </clr-modal>
+
+  <clr-modal #deleteaccountmodal [(clrModalOpen)]="deleteAccountModalOpened">
+    <h3 class="modal-title">Are you sure you want to delete your account?</h3>
+    <div class="modal-body">
+      <div class="alert alert-danger">
+        <div class="alert-items">
+          <div class="alert-item static" role="alert">
+            <div class="alert-icon-wrapper">
+              <cds-icon
+                class="alert-icon"
+                shape="exclamation-triangle"
+              ></cds-icon>
+            </div>
+            <span class="alert-text">
+              {{ deleteAccountDangerAlert }}
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button
+        type="button"
+        class="btn btn-outline"
+        (click)="this.deleteAccountModalOpened = false"
+      >
+        Cancel
+      </button>
+      <button
+        type="button"
+        class="btn btn-danger-outline"
+        (click)="deleteAccount()"
+      >
+        Delete
+      </button>
+    </div>
+  </clr-modal>
+
   <clr-modal [(clrModalOpen)]="alertDeleteAccessCodeModal">
     <h3 class="modal-title">
       Are you sure you want to delete

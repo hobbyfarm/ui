@@ -51,6 +51,7 @@ import { SettingsService } from '../services/settings.service';
 import { Course } from '../course/course';
 import { CourseService } from '../services/course.service';
 import { LanguageCommandService } from './bashbrawl/languages/language-command.service';
+import { SidenavService } from '../services/sidenav.service';
 
 type Service = {
   name: string;
@@ -139,6 +140,7 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
     public verificationService: VerificationService,
     private settingsService: SettingsService,
     private languageCommandService: LanguageCommandService,
+    private sidenavService: SidenavService,
   ) {}
 
   setTabActive(webinterface: Service, vmName: string) {
@@ -199,6 +201,7 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   ngOnInit() {
+    this.sidenavService.collapseSidenav();
     const { paramMap } = this.route.snapshot;
     const sessionId = paramMap.get('session');
     this.stepnumber = Number(paramMap.get('step') ?? 0);
@@ -400,7 +403,7 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
 
   public goFinish() {
     if (this.isContentOnly) {
-      this.actuallyFinish(true);
+      this.actuallyFinish();
       return;
     }
     this.finishOpen = true;

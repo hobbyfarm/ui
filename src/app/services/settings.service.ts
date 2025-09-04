@@ -15,6 +15,21 @@ import {
   GargantuaClientFactory,
 } from './gargantua.service';
 
+export const WindowsZoom = {
+  '100': 4,
+  '125': 3.75,
+  '150': 3.5,
+  '175': 3.25,
+  '200': 3,
+  '225': 2.75,
+  '250': 2.5,
+  '275': 2.25,
+  '300': 2,
+  '325': 1.75,
+  '350': 1.5,
+  '375': 1.25,
+  '400': 1,
+} as const;
 export interface Settings {
   terminal_theme: (typeof themes)[number]['id'];
   terminal_fontSize: number;
@@ -23,8 +38,8 @@ export interface Settings {
   theme: 'light' | 'dark' | 'system';
   divider_position: number;
   bashbrawl_enabled: boolean;
+  windowsZoom?: keyof typeof WindowsZoom;
 }
-
 @Injectable()
 export class SettingsService {
   constructor(private gcf: GargantuaClientFactory) {}
@@ -47,6 +62,7 @@ export class SettingsService {
               theme: 'system',
               divider_position: 40,
               bashbrawl_enabled: false,
+              windowsZoom: (window.devicePixelRatio * 100).toString(),
             } as Settings),
       ),
       tap((s: Settings) => {

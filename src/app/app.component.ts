@@ -7,16 +7,19 @@ import { UserService } from './services/user.service';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
 import { ServerResponse } from './ServerResponse';
 import { AppConfigService } from './app-config.service';
-import { SettingsService } from './services/settings.service';
+import { SettingsService, WindowsZoom } from './services/settings.service';
 import { themes } from './scenario/terminal-themes/themes';
-import { first } from 'rxjs/operators';
+import { first, take, takeUntil } from 'rxjs/operators';
 import { Context, ContextService } from './services/context.service';
 import {
   TypedInput,
   TypedSettingsService,
 } from './services/typedSettings.service';
 import { ScheduledEvent } from 'src/data/ScheduledEvent';
-import { Subscription } from 'rxjs';
+import { Subject, Subscription } from 'rxjs';
+import { SidenavService } from './services/sidenav.service';
+import { CourseService } from './services/course.service';
+import { Course } from './course/course';
 
 @Component({
   selector: 'app-main',
@@ -28,12 +31,19 @@ export class AppComponent implements OnInit, OnDestroy {
   public logoutModalOpened = false;
   public aboutModalOpened = false;
   public changePasswordModalOpened = false;
+  public deleteAccountModalOpened = false;
 
   public changePwDangerClosed = true;
   public changePwSuccessClosed = true;
 
   public changePwDangerAlert = '';
   public changePwSuccessAlert = '';
+
+  public deleteAccountDangerAlert = 'The account will be deleted permanently!';
+  public deleteAccountSuccessAlert = '';
+
+  public deleteAccountDangerClosed = false;
+  public deleteAccountSuccessClosed = true;
 
   public accessCodeDangerClosed = true;
   public accessCodeSuccessClosed = true;
@@ -63,6 +73,9 @@ export class AppComponent implements OnInit, OnDestroy {
 
   public email = '';
 
+  public collapsed = false;
+  public showExplore = false;
+
   private Config = this.config.getConfig();
   public title = this.Config.title || "Rancher's Hobby Farm";
   private logo = this.Config.logo || '/assets/default/logo.svg';
@@ -80,7 +93,10 @@ export class AppComponent implements OnInit, OnDestroy {
   public themes = themes;
   public motd = '';
 
+  protected readonly zoomValues = Object.keys(WindowsZoom);
+
   emailSubscription?: Subscription;
+  private destroy$ = new Subject();
 
   constructor(
     private userService: UserService,
@@ -90,6 +106,8 @@ export class AppComponent implements OnInit, OnDestroy {
     private settingsService: SettingsService,
     private contextService: ContextService,
     private typedSettingsService: TypedSettingsService,
+    private sidenavService: SidenavService,
+    private courseService: CourseService,
   ) {
     this.config.getLogo(this.logo).then((obj: string) => {
       ClarityIcons.addIcons(['logo', obj]);
@@ -99,6 +117,12 @@ export class AppComponent implements OnInit, OnDestroy {
       const fi = <HTMLLinkElement>document.querySelector('#favicon');
       fi.href = this.Config.favicon;
     }
+    this.sidenavService
+      .getSidenavState()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((collapsed) => {
+        this.collapsed = collapsed;
+      });
   }
 
   @ViewChild('logoutmodal', { static: true }) logoutModal: ClrModal;
@@ -150,29 +174,34 @@ export class AppComponent implements OnInit, OnDestroy {
       Validators.required,
     ]),
     bashbrawl_enabled: new FormControl<boolean>(false),
+    windowsZoom: new FormControl<keyof typeof WindowsZoom>('100'),
   });
 
   ngOnInit() {
-    this.emailSubscription = this.userService
+    this.userService
       .getEmail()
+      .pipe(takeUntil(this.destroy$))
       .subscribe((currEmail) => {
         this.email = currEmail;
       });
     const addAccessCode = this.route.snapshot.params['accesscode'];
     if (addAccessCode) {
-      this.userService.addAccessCode(addAccessCode).subscribe({
-        next: () => {
-          // _s: ServerResponse
-          this.accesscodes.push(addAccessCode);
-          this.setAccessCode(addAccessCode);
-          this.doHomeAccessCode(addAccessCode);
-        },
-        error: () => {
-          // _s: ServerResponse
-          // failure
-          this.doHomeAccessCodeError(addAccessCode);
-        },
-      });
+      this.userService
+        .addAccessCode(addAccessCode)
+        .pipe(takeUntil(this.destroy$))
+        .subscribe({
+          next: () => {
+            // _s: ServerResponse
+            this.accesscodes.push(addAccessCode);
+            this.setAccessCode(addAccessCode);
+            this.doHomeAccessCode(addAccessCode);
+          },
+          error: () => {
+            // _s: ServerResponse
+            // failure
+            this.doHomeAccessCodeError(addAccessCode);
+          },
+        });
     }
     //react to changes on users accesscodess
     this.contextService.watch().subscribe((c: Context) => {
@@ -188,24 +217,33 @@ export class AppComponent implements OnInit, OnDestroy {
 
     this.typedSettingsService
       .get('public', 'motd-ui')
+      .pipe(takeUntil(this.destroy$))
       .subscribe((typedInput: TypedInput) => {
         this.motd = typedInput?.value ?? '';
       });
 
     this.typedSettingsService
       .get('user-ui', 'aboutmodal-buttons')
+      .pipe(takeUntil(this.destroy$))
       .subscribe((typedInput: TypedInput) => {
         this.buttons = typedInput?.value ?? this.buttons;
       });
 
     this.typedSettingsService
       .list('public')
+      .pipe(takeUntil(this.destroy$))
       .subscribe((typedInputs: Map<string, TypedInput>) => {
         this.privacyPolicyLink =
           typedInputs.get('registration-privacy-policy-link')?.value ?? '';
         this.privacyPolicyLinkName =
           typedInputs.get('registration-privacy-policy-linkname')?.value ??
           'Privacy Policy';
+      });
+    this.courseService
+      .getCatalog()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((courseList: Course[]) => {
+        this.showExplore = courseList.length > 0;
       });
   }
 
@@ -224,24 +262,30 @@ export class AppComponent implements OnInit, OnDestroy {
 
   public setAccessCode(ac: string) {
     if (ac != '') {
-      this.settingsService.update({ ctxAccessCode: ac }).subscribe();
+      this.settingsService
+        .update({ ctxAccessCode: ac })
+        .pipe(take(1))
+        .subscribe();
     }
   }
 
   public openAccessCodes() {
     this.newAccessCodeForm.reset();
     this.fetchingAccessCodes = true;
-    this.userService.getAccessCodes().subscribe({
-      next: (a: string[]) => {
-        this.accesscodes = a;
-        this.fetchingAccessCodes = false;
-      },
-      error: (s: ServerResponse) => {
-        this.accessCodeDangerClosed = false;
-        this.accessCodeDangerAlert = s.message;
-        this.fetchingAccessCodes = false;
-      },
-    });
+    this.userService
+      .getAccessCodes()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (a: string[]) => {
+          this.accesscodes = a;
+          this.fetchingAccessCodes = false;
+        },
+        error: (s: ServerResponse) => {
+          this.accessCodeDangerClosed = false;
+          this.accessCodeDangerAlert = s.message;
+          this.fetchingAccessCodes = false;
+        },
+      });
     this.accessCodeModal.open();
   }
 
@@ -258,6 +302,7 @@ export class AppComponent implements OnInit, OnDestroy {
           theme = 'system',
           divider_position = 40,
           bashbrawl_enabled = false,
+          windowsZoom = '100',
         }) => {
           this.settingsForm.setValue({
             terminal_theme,
@@ -266,6 +311,7 @@ export class AppComponent implements OnInit, OnDestroy {
             theme,
             divider_position,
             bashbrawl_enabled,
+            windowsZoom,
           });
           this.fetchingSettings = false;
         },
@@ -301,26 +347,29 @@ export class AppComponent implements OnInit, OnDestroy {
 
   public saveAccessCode(activate = false) {
     const { access_code: a } = this.newAccessCodeForm.value;
-    this.userService.addAccessCode(a).subscribe({
-      next: (s: ServerResponse) => {
-        // success
-        this.accessCodeSuccessAlert = s.message + ' added.';
-        this.accessCodeSuccessClosed = false;
-        this.accesscodes.push(a);
-        this.newAccessCode = false;
-        this.newAccessCodeForm.reset();
-        if (activate) {
-          this.setAccessCode(a);
-        }
-        setTimeout(() => (this.accessCodeSuccessClosed = true), 2000);
-      },
-      error: (s: ServerResponse) => {
-        // failure
-        this.accessCodeDangerAlert = s.message;
-        this.accessCodeDangerClosed = false;
-        setTimeout(() => (this.accessCodeDangerClosed = true), 2000);
-      },
-    });
+    this.userService
+      .addAccessCode(a)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (s: ServerResponse) => {
+          // success
+          this.accessCodeSuccessAlert = s.message + ' added.';
+          this.accessCodeSuccessClosed = false;
+          this.accesscodes.push(a);
+          this.newAccessCode = false;
+          this.newAccessCodeForm.reset();
+          if (activate) {
+            this.setAccessCode(a);
+          }
+          setTimeout(() => (this.accessCodeSuccessClosed = true), 2000);
+        },
+        error: (s: ServerResponse) => {
+          // failure
+          this.accessCodeDangerAlert = s.message;
+          this.accessCodeDangerClosed = false;
+          setTimeout(() => (this.accessCodeDangerClosed = true), 2000);
+        },
+      });
   }
 
   private _removeAccessCode(a: string) {
@@ -333,51 +382,60 @@ export class AppComponent implements OnInit, OnDestroy {
   public deleteAccessCode(a: string): Promise<ServerResponse> {
     // Wrap the observable in a Promise
     return new Promise((resolve, reject) => {
-      this.userService.deleteAccessCode(a).subscribe({
-        next: (s: ServerResponse) => {
-          this.accessCodeSuccessAlert = s.message + ' deleted.';
-          this.accessCodeSuccessClosed = false;
-          this._removeAccessCode(a);
-          setTimeout(() => (this.accessCodeSuccessClosed = true), 2000);
-          resolve(s); // Resolve the Promise with the success response
-        },
-        error: (s: ServerResponse) => {
-          this.accessCodeDangerAlert = s.message;
-          this.accessCodeDangerClosed = false;
-          setTimeout(() => (this.accessCodeDangerClosed = true), 2000);
-          reject(s); // Reject the Promise with the error response
-        },
-      });
+      this.userService
+        .deleteAccessCode(a)
+        .pipe(takeUntil(this.destroy$))
+        .subscribe({
+          next: (s: ServerResponse) => {
+            this.accessCodeSuccessAlert = s.message + ' deleted.';
+            this.accessCodeSuccessClosed = false;
+            this._removeAccessCode(a);
+            setTimeout(() => (this.accessCodeSuccessClosed = true), 2000);
+            resolve(s); // Resolve the Promise with the success response
+          },
+          error: (s: ServerResponse) => {
+            this.accessCodeDangerAlert = s.message;
+            this.accessCodeDangerClosed = false;
+            setTimeout(() => (this.accessCodeDangerClosed = true), 2000);
+            reject(s); // Reject the Promise with the error response
+          },
+        });
     });
   }
 
   public doSaveSettings() {
-    this.settingsService.update(this.settingsForm.value).subscribe({
-      next: () => {
-        // _s: ServerResponse
-        this.settingsModalOpened = false;
-      },
-      error: () => {
-        // _s: ServerResponse
-        setTimeout(() => (this.settingsModalOpened = false), 2000);
-      },
-    });
+    this.settingsService
+      .update(this.settingsForm.value)
+      .pipe(first())
+      .subscribe({
+        next: () => {
+          // _s: ServerResponse
+          this.settingsModalOpened = false;
+        },
+        error: () => {
+          // _s: ServerResponse
+          setTimeout(() => (this.settingsModalOpened = false), 2000);
+        },
+      });
   }
 
   public doChangePassword() {
     const { old_password, new_password1 } = this.passwordChangeForm.value;
-    this.userService.changepassword(old_password, new_password1).subscribe({
-      next: (s: ServerResponse) => {
-        this.changePwSuccessAlert = s.message + '. Logging you out...';
-        this.changePwSuccessClosed = false;
-        setTimeout(() => this.doLogout(), 2000);
-      },
-      error: (s: ServerResponse) => {
-        this.changePwDangerAlert = s.message;
-        this.changePwDangerClosed = false;
-        setTimeout(() => (this.changePwDangerClosed = true), 2000);
-      },
-    });
+    this.userService
+      .changepassword(old_password, new_password1)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (s: ServerResponse) => {
+          this.changePwSuccessAlert = s.message + '. Logging you out...';
+          this.changePwSuccessClosed = false;
+          setTimeout(() => this.doLogout(), 2000);
+        },
+        error: (s: ServerResponse) => {
+          this.changePwDangerAlert = s.message;
+          this.changePwDangerClosed = false;
+          setTimeout(() => (this.changePwDangerClosed = true), 2000);
+        },
+      });
   }
 
   public doLogout() {
@@ -407,8 +465,40 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    if (this.emailSubscription) {
-      this.emailSubscription.unsubscribe();
-    }
+    this.destroy$.next(1);
+    this.destroy$.complete();
+  }
+
+  public deleteAccount() {
+    this.deleteAccountSuccessClosed = true;
+    this.deleteAccountDangerClosed = false;
+    this.userService
+      .deleteAccount()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (response) => {
+          console.log(
+            'Account deleted:',
+            response?.message || 'Operation successful',
+          );
+          this.deleteAccountDangerClosed = true;
+          setTimeout(() => this.doLogout(), 1000);
+        },
+        error: (err) => {
+          console.error('Delete Account Error:', err);
+          setTimeout(
+            () => (
+              (this.deleteAccountModalOpened = true),
+              (this.deleteAccountDangerAlert =
+                'The account will be deleted permanently!')
+            ),
+            4000,
+          );
+        },
+      });
+  }
+
+  isCurrentSystemZoom(windowZoom: string): boolean {
+    return (window.devicePixelRatio * 100).toString() == windowZoom;
   }
 }
