@@ -23,9 +23,11 @@
         <span class="alert-text">
           You passed this quiz. Great job!
         </span>
-        <div class="alert-actions">
-          <button class="btn alert-action" (click)="download()">Download Certificate</button>
-        </div>
+        @if(quizIssuer) {
+          <div class="alert-actions">
+            <button class="btn alert-action" (click)="download()">Download Certificate</button>
+          </div>
+        }
       </clr-alert-item>
     </clr-alert>
   } @else if(isPersistent && loadingQuestions && started) {
