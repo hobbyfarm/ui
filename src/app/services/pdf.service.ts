@@ -60,22 +60,37 @@ export class PdfService {
     // Titel
     doc.setTextColor(0);
     doc.setFontSize(22);
-    doc.text(d.title, W / 2, 160, { align: 'center', maxWidth: W - 220 });
+    const titleLines = doc.splitTextToSize(d.title, W - 220);
+    doc.text(titleLines, W / 2, 160, { align: 'center' });
+
+    // Calculate Y position for description dynamically
+    const titleHeight = titleLines.length * doc.getLineHeight();
+    let descY = 160 + titleHeight + 20; // 20pt spacing after title
 
     // Description
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(12);
-    const desc = doc.splitTextToSize(d.description, W - 260);
-    doc.text(desc, W / 2, 190, { align: 'center' });
+    const descLines = doc.splitTextToSize(d.description, W - 260);
+    doc.text(descLines, W / 2, descY, { align: 'center' });
+
+    // robust description height + spacing
+    const lineHeight = doc.getLineHeight(); // pts
+    const descHeight = descLines.length * lineHeight;
+    const gapAfterDesc = 36; // increase gap (pts)
 
     // Name
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(28);
-    doc.text(d.personName, W / 2, 280, { align: 'center' });
+    const proposedNameY = descY + descHeight + gapAfterDesc;
+    const maxNameY = H - margin - 90; // keep clear of footer
+    const nameY = Math.min(Math.max(280, proposedNameY), maxNameY);
+    doc.text(d.personName, W / 2, nameY, { align: 'center' });
 
+    // underline under the name
     const nameLineW = Math.min(doc.getTextWidth(d.personName) + 40, W - 300);
     doc.setDrawColor(150);
-    doc.line((W - nameLineW) / 2, 288, (W + nameLineW) / 2, 288);
+    const underlineY = nameY + 8;
+    doc.line((W - nameLineW) / 2, underlineY, (W + nameLineW) / 2, underlineY);
 
     // Date and issuer
     doc.setFont('helvetica', 'normal');
@@ -88,6 +103,6 @@ export class PdfService {
     const issuer = d.issuer ?? '—';
     doc.text(issuer, W - margin - 50, footerY, { align: 'right' });
 
-    doc.save(d.fileName ?? 'zertifikat.pdf');
+    doc.save(d.fileName ?? 'certificate.pdf');
   }
 }
