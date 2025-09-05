@@ -78,19 +78,39 @@ export class PdfService {
     const descHeight = descLines.length * lineHeight;
     const gapAfterDesc = 36; // increase gap (pts)
 
-    // Name
+    // Name (smart shrink up to -20%, else up to 2 controlled breaks)
     doc.setFont('helvetica', 'bold');
-    doc.setFontSize(28);
-    const proposedNameY = descY + descHeight + gapAfterDesc;
-    const maxNameY = H - margin - 90; // keep clear of footer
-    const nameY = Math.min(Math.max(280, proposedNameY), maxNameY);
-    doc.text(d.personName, W / 2, nameY, { align: 'center' });
+    const baseNameFont = 28;
+    const nameMaxWidth = W - 260;
 
-    // underline under the name
-    const nameLineW = Math.min(doc.getTextWidth(d.personName) + 40, W - 300);
+    const layout = this.layoutNameSmart(
+      doc,
+      d.personName,
+      baseNameFont,
+      nameMaxWidth,
+    );
+
+    // place name below description, but keep old 280 floor and avoid footer
+    const proposedNameY = descY + descHeight + gapAfterDesc;
+    const maxNameY = H - margin - 90;
+    const nameY = Math.min(Math.max(280, proposedNameY), maxNameY);
+
+    doc.setFontSize(layout.fontSize);
+    doc.text(layout.lines, W / 2, nameY, { align: 'center' });
+
+    // underline under the last rendered line
+    const lineH = doc.getLineHeight();
+    const lastLine = layout.lines[layout.lines.length - 1];
+    const underlineY =
+      nameY + (layout.lines.length - 1) * lineH + layout.fontSize * 0.3;
+    const underlineW = Math.min(doc.getTextWidth(lastLine) + 40, W - 300);
     doc.setDrawColor(150);
-    const underlineY = nameY + 8;
-    doc.line((W - nameLineW) / 2, underlineY, (W + nameLineW) / 2, underlineY);
+    doc.line(
+      (W - underlineW) / 2,
+      underlineY,
+      (W + underlineW) / 2,
+      underlineY,
+    );
 
     // Date and issuer
     doc.setFont('helvetica', 'normal');
@@ -104,5 +124,73 @@ export class PdfService {
     doc.text(issuer, W - margin - 50, footerY, { align: 'right' });
 
     doc.save(d.fileName ?? 'certificate.pdf');
+  }
+
+  private layoutNameSmart(
+    doc: jsPDF,
+    text: string,
+    baseFontSize: number,
+    maxWidth: number,
+  ): { lines: string[]; fontSize: number } {
+    // Allow breaks at '@', '.', '-', '_', or space
+    const allowedBreak = /[@.\-_ ]/;
+
+    // 1) Try single line with slight shrink (down to 80%)
+    doc.setFontSize(baseFontSize);
+    const w = doc.getTextWidth(text);
+    if (w <= maxWidth) return { lines: [text], fontSize: baseFontSize };
+
+    const requiredScale = maxWidth / w; // < 1 if overflow
+    const minScale = 0.8;
+    if (requiredScale >= minScale) {
+      const scaled = baseFontSize * requiredScale;
+      doc.setFontSize(scaled);
+      return { lines: [text], fontSize: scaled };
+    }
+
+    // 2) Back to base size; insert up to two breaks (max three lines)
+    doc.setFontSize(baseFontSize);
+
+    const rtrim = (s: string) => s.replace(/\s+$/, '');
+    const ltrim = (s: string) => s.replace(/^\s+/, '');
+
+    // Greedy break: choose the last allowed break that keeps line within width
+    const breakOnce = (s: string): { first: string; rest: string | null } => {
+      const idx: number[] = [];
+      for (let i = 0; i < s.length; i++) {
+        if (allowedBreak.test(s[i])) idx.push(i + 1); // break AFTER the char
+      }
+      if (idx.length === 0) return { first: s, rest: null };
+
+      let chosen = -1;
+      for (const pos of idx) {
+        const part = rtrim(s.slice(0, pos));
+        if (doc.getTextWidth(part) <= maxWidth) chosen = pos;
+        else break; // monotonic; later positions will only be wider
+      }
+
+      if (chosen === -1) return { first: s, rest: null }; // no usable break before overflow
+
+      const first = rtrim(s.slice(0, chosen));
+      const restRaw = s.slice(chosen);
+      const rest = restRaw.length ? ltrim(restRaw) : null;
+      return { first, rest };
+    };
+
+    // First break
+    const b1 = breakOnce(text);
+    if (!b1.rest) return { lines: [b1.first], fontSize: baseFontSize };
+
+    // If remainder fits, done
+    if (doc.getTextWidth(b1.rest) <= maxWidth) {
+      return { lines: [b1.first, b1.rest], fontSize: baseFontSize };
+    }
+
+    // Second break (third line max)
+    const b2 = breakOnce(b1.rest);
+    if (!b2.rest)
+      return { lines: [b1.first, b2.first], fontSize: baseFontSize };
+
+    return { lines: [b1.first, b2.first, b2.rest], fontSize: baseFontSize };
   }
 }
