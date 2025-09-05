@@ -59,6 +59,7 @@ export class QuizComponent implements OnInit {
   @Input() quizId: string = '';
   @Input() scenarioId: string = '';
   @Input() scenarioName: string = '';
+  @Input() courseName: string = '';
 
   questions: Question[] = [];
   validationType: Validation = 'standard';
@@ -302,7 +303,7 @@ export class QuizComponent implements OnInit {
       date: new Date(),
       description: `Congratulations! We hereby certify that the following user has successfully completed the scenario "${this.scenarioName}" by fully attending the course sessions and fulfilling all requirements, including the successful completion of the mandatory final test:`,
       personName: `${this.us.getEmail().value}`,
-      title: `${this.scenarioName}`,
+      title: `${this.courseName ? this.courseName : this.scenarioName}`,
       fileName: `${this.scenarioName ? `certificate-${this.scenarioName}.pdf` : 'certificate.pdf'}`,
       issuer: `${this.quizIssuer}`,
     });
