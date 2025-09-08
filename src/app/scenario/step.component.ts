@@ -411,10 +411,10 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
 
   actuallyFinish(force = false) {
     if (this.shouldKeepVmOnFinish && !force) {
-      this.router.navigateByUrl('/app/home');
+      this.navigateBack();
     } else {
       this.ssService.finish(this.session.id).subscribe(() => {
-        this.router.navigateByUrl('/app/home');
+        this.navigateBack();
       });
     }
   }
@@ -433,7 +433,7 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   actuallyClose() {
-    this.router.navigateByUrl('/app/home');
+    this.navigateBack();
   }
 
   isGuacamoleTerminal(protocol: string): boolean {
@@ -600,5 +600,20 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
 
   getBrawlLanguages() {
     return this.languageCommandService.getLanguageNames();
+  }
+
+  navigateBack() {
+    // If we are in a Course, navigate back to the Course overview.
+    if (this.course.id !== undefined) {
+      // Differentiate between course and learnPath
+      if (this.course.is_learnpath) {
+        this.router.navigateByUrl('/app/learningPath/?id=' + this.course.id);
+      } else {
+        this.router.navigateByUrl('/app/course/?id=' + this.course.id);
+      }
+    } else {
+      // Default to /home if we are not in a course
+      this.router.navigateByUrl('/app/home');
+    }
   }
 }
