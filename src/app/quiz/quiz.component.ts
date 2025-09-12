@@ -48,18 +48,22 @@ type Question = {
   standalone: false,
 })
 export class QuizComponent implements OnInit {
+  @ViewChildren(QuizCheckboxComponent)
+  private chk!: QueryList<QuizCheckboxComponent>;
+  @ViewChildren(QuizRadioComponent) private rad!: QueryList<QuizRadioComponent>;
+
   /** Local props */
-  @Input() quizTitle: string = '';
-  @Input() questionsRaw: string = '';
+  @Input() quizTitle = '';
+  @Input() questionsRaw = '';
   @Input() allowedAtts = 1;
   @Input() questionCount = 0;
   @Input() shuffle = false;
 
   /** Persistent */
-  @Input() quizId: string = '';
-  @Input() scenarioId: string = '';
-  @Input() scenarioName: string = '';
-  @Input() courseName: string = '';
+  @Input() quizId = '';
+  @Input() scenarioId = '';
+  @Input() scenarioName = '';
+  @Input() courseName = '';
 
   questions: Question[] = [];
   validationType: Validation = 'standard';
@@ -114,10 +118,6 @@ export class QuizComponent implements OnInit {
     );
   }
 
-  @ViewChildren(QuizCheckboxComponent)
-  private chk!: QueryList<QuizCheckboxComponent>;
-  @ViewChildren(QuizRadioComponent) private rad!: QueryList<QuizRadioComponent>;
-
   constructor(
     private qs: QuizService,
     private us: UserService,
@@ -137,7 +137,7 @@ export class QuizComponent implements OnInit {
     if (this.questionCount <= 0 || this.questionCount > total)
       this.questionCount = total;
 
-    let pool = blocks;
+    const pool = blocks;
     if (this.shuffle) shuffleStringArray(pool);
     const selected = pool.slice(0, this.questionCount);
     this.questions = selected.map((raw) => this.fromRaw(raw));
@@ -225,7 +225,11 @@ export class QuizComponent implements OnInit {
     this.qs
       .startEvaluation(this.quizId, this.scenarioId)
       .subscribe((startRes) => {
-        const byId = new Map((quiz.questions || []).map((q) => [q.id!, q]));
+        const byId = new Map(
+          (quiz.questions ?? []).flatMap((q) =>
+            q.id ? [[q.id, q] as const] : [],
+          ),
+        );
         const list: Question[] = [];
         for (const qid of startRes.questions) {
           const q = byId.get(qid);

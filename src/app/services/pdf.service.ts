@@ -65,7 +65,7 @@ export class PdfService {
 
     // Calculate Y position for description dynamically
     const titleHeight = titleLines.length * doc.getLineHeight();
-    let descY = 160 + titleHeight + 20; // 20pt spacing after title
+    const descY = 160 + titleHeight + 20; // 20pt spacing after title
 
     // Description
     doc.setFont('helvetica', 'normal');

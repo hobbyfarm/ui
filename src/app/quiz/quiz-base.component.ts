@@ -1,32 +1,21 @@
-import {
-  Component,
-  Input,
-  OnInit,
-  ViewChild,
-} from '@angular/core';
+import { Component, Input, OnInit, ViewChild } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { ClrForm } from '@clr/angular';
 import { Validation } from './Validation';
 import { QuestionAnswer } from './QuestionAnswer';
-import {
-  filter,
-  firstValueFrom,
-  Observable,
-  startWith,
-  take,
-} from 'rxjs';
+import { filter, firstValueFrom, Observable, startWith, take } from 'rxjs';
 
 @Component({ template: '' })
 export abstract class QuizBaseComponent implements OnInit {
   /** Non-empty => persistent quiz => do remote validation */
-  @Input() quizId: string = '';
-  @Input() scenarioId: string = '';
+  @Input() quizId = '';
+  @Input() scenarioId = '';
   /** Persistent question id (required for backend payload) */
-  @Input() questionId: string = '';
+  @Input() questionId = '';
 
   /** Data */
   @Input() questionAnswers: QuestionAnswer[] = [];
-  @Input() helperText: string = '';
+  @Input() helperText = '';
   @Input()
   public title: string;
   @Input()
@@ -36,7 +25,7 @@ export abstract class QuizBaseComponent implements OnInit {
   @Input()
   public successMsg: string;
   @Input()
-  public shuffle: boolean = false;
+  public shuffle = false;
 
   /** Server verdict (detailed): correct answer IDs for this question */
   @Input() correctAnswerIds: Observable<string[]>;
