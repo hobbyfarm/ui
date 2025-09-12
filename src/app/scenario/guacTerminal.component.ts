@@ -38,6 +38,7 @@ import {
   templateUrl: './guacTerminal.component.html',
   styleUrls: ['guacTerminal.component.scss'],
   encapsulation: ViewEncapsulation.None,
+  standalone: false,
 })
 export class GuacTerminalComponent implements OnInit, OnChanges {
   @Input()

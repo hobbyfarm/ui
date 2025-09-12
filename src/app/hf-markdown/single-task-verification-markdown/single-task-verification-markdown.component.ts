@@ -20,6 +20,7 @@ import { VerificationService } from 'src/app/services/verification.service';
     ]),
   ],
   styleUrls: ['./single-task-verification-markdown.component.scss'],
+  standalone: false,
 })
 export class SingleTaskVerificationMarkdownComponent implements OnInit {
   @Input() target: string;

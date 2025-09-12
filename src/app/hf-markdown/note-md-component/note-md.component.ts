@@ -6,6 +6,7 @@ import { HfMarkdownRenderContext } from '../hf-markdown.component';
   selector: 'app-note-md',
   templateUrl: './note-md.component.html',
   styleUrls: ['./note-md.component.scss'],
+  standalone: false,
 })
 export class NoteMdComponent {
   @Input() noteType: NoteType;

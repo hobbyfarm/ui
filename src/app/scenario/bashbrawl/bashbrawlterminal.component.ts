@@ -47,6 +47,7 @@ const stripAnsi = (str: string) => str.replace(/\x1b\[[0-9;]*m/g, '');
   templateUrl: './bashbrawlterminal.component.html',
   styleUrls: ['bashbrawlterminal.component.scss'],
   encapsulation: ViewEncapsulation.None,
+  standalone: false,
 })
 export class BashbrawlterminalComponent implements OnInit, AfterViewInit {
   @Input()

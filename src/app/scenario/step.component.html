@@ -64,6 +64,16 @@
                 [context]="mdContext"
                 (click)="handleStepContentClick($event)"
               ></app-hf-markdown>
+              @if (step.quiz) {
+                <div class="mt-3">
+                  <quiz
+                    [quizId]="step.quiz"
+                    [scenarioId]="scenario.id"
+                    [scenarioName]="scenario.name | atob"
+                    [courseName]="course.name | atob"
+                  ></quiz>
+                </div>
+              }
             </div>
           </div>
 

@@ -17,6 +17,7 @@ import { ServerResponse } from 'src/app/ServerResponse';
   selector: 'app-task-progress',
   templateUrl: './task-progress.component.html',
   styleUrls: ['./task-progress.component.scss'],
+  standalone: false,
 })
 export class TaskProgressComponent implements AfterViewInit, OnDestroy {
   private _vms: Map<string, VM> = new Map();

@@ -12,6 +12,7 @@ import {
   selector: 'app-tooltip',
   templateUrl: './tooltip.component.html',
   styleUrls: ['./tooltip.component.scss'],
+  standalone: false,
 })
 export class TooltipComponent implements AfterViewInit {
   @Input() content: string;

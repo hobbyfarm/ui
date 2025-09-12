@@ -14,6 +14,7 @@ import { Course } from '../course/course';
 @Component({
   selector: 'app-scenario',
   templateUrl: './scenario.component.html',
+  standalone: false,
 })
 export class ScenarioComponent implements OnInit {
   @Input()

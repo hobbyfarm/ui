@@ -8,6 +8,7 @@ export interface QuestionParams {
   validation: Validation;
   successMsg: string;
   errorMsg: string;
+  shuffle: boolean;
 }
 
 export type QuestionParam =
@@ -16,4 +17,5 @@ export type QuestionParam =
   | 'type'
   | 'validation'
   | 'successMsg'
-  | 'errorMsg';
+  | 'errorMsg'
+  | 'shuffle';

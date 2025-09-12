@@ -6,6 +6,7 @@ import { uniqueString, unescape } from 'src/app/utils';
   selector: 'app-mermaid-md',
   templateUrl: './mermaid-md.component.html',
   styleUrls: ['./mermaid-md.component.scss'],
+  standalone: false,
 })
 export class MermaidMdComponent implements OnChanges {
   @Input() code: string;

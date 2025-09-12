@@ -15,6 +15,7 @@ import { UserService } from './services/user.service';
 @Component({
   selector: 'app-root',
   templateUrl: './root.component.html',
+  standalone: false,
 })
 export class RootComponent implements OnInit, OnDestroy {
   private themeHandler: Subscription;

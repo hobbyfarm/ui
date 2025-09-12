@@ -17,6 +17,7 @@ import { VMClaimVM } from '../VMClaimVM';
   // eslint-disable-next-line @angular-eslint/component-selector
   selector: 'tbody[vmclaim]',
   templateUrl: 'vmclaim.component.html',
+  standalone: false,
 })
 export class VMClaimComponent implements OnChanges {
   @Input()

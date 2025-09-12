@@ -15,6 +15,7 @@ import { Subscription, catchError, merge, mergeMap, tap } from 'rxjs';
   selector: 'app-home',
   templateUrl: 'home.component.html',
   styleUrls: ['home.component.scss'],
+  standalone: false,
 })
 export class HomeComponent implements OnInit, OnDestroy {
   public courses: Course[] = [];

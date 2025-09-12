@@ -1,12 +1,12 @@
 <form class="quiz-form" clrForm [formGroup]="quizForm">
   <clr-checkbox-container [class.clr-error]="quizForm.invalid && isSubmitted">
     <label>{{ title }}</label>
-    @for (optionTitle of optionTitles; track optionTitle; let i = $index) {
+    @for (opt of questionAnswers; track opt; let i = $index) {
       <clr-checkbox-wrapper formArrayName="quiz">
-        <input type="checkbox" clrCheckbox [formControlName]="i" />
+        <input clrCheckbox type="checkbox" [formControlName]="i" />
         <label>
           <quiz-label
-            [optionTitle]="optionTitle"
+            [optionTitle]="opt.title"
             [hasCorrectOptionClass]="hasCorrectOptionClass(i)"
             [hasIncorrectOptionClass]="hasIncorrectOptionClass(i)"
           ></quiz-label>
@@ -18,6 +18,7 @@
     [helperText]="helperText"
     [isValid]="validSubmission"
     [isSubmitted]="isSubmitted"
+    [isPending]="isPending"
     [validationEnabled]="validationEnabled"
     [errMsg]="errMsg"
     [successMsg]="successMsg"

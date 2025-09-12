@@ -5,6 +5,7 @@ import { Component, Input } from '@angular/core';
   selector: 'quiz-label',
   templateUrl: 'quiz-label.component.html',
   styleUrls: ['quiz-label.component.scss'],
+  standalone: false,
 })
 // This component only contains the quiz label content, not the label selector itself.
 // If it contains the label selector itself,

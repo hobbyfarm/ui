@@ -19,6 +19,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
   selector: 'app-scenario-card',
   templateUrl: 'scenariocard.component.html',
   styleUrls: ['./scenariocard.component.scss'],
+  standalone: false,
 })
 export class ScenarioCardComponent implements OnInit, OnChanges {
   @Input()
