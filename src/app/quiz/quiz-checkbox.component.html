@@ -3,11 +3,7 @@
     <label>{{ title }}</label>
     @for (opt of questionAnswers; track opt; let i = $index) {
       <clr-checkbox-wrapper formArrayName="quiz">
-        <input
-          clrCheckbox
-          type="checkbox"
-          [formControlName]="i"
-        />
+        <input clrCheckbox type="checkbox" [formControlName]="i" />
         <label>
           <quiz-label
             [optionTitle]="opt.title"

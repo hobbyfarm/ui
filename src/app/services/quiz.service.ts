@@ -45,12 +45,12 @@ export interface PreparedRecordQuizEvaluation {
 
 /** Persistent (user-facing) payloads */
 export interface PreparedStartQuizEvaluationResult {
-  id: string;                     // quizEvaluation id
-  quiz: string;                   // quiz id
-  scenario: string;               // scenario id
+  id: string; // quizEvaluation id
+  quiz: string; // quiz id
+  scenario: string; // scenario id
   creation_timestamp: string;
   attempt: number;
-  questions: string[];            // selected question ids in order
+  questions: string[]; // selected question ids in order
 }
 
 export interface PreparedAttempt {
@@ -66,15 +66,15 @@ export interface PreparedAttempt {
 }
 
 export interface PreparedQuizEvaluation {
-  id: string;                     // quizEvaluation id
-  quiz: string;                   // quiz id
+  id: string; // quizEvaluation id
+  quiz: string; // quiz id
   user?: string;
-  scenario: string;               // scenario id
+  scenario: string; // scenario id
   attempts: PreparedAttempt[];
 }
 
 export interface PreparedRecordQuizEvaluationResult {
-  id: string;                     // quizEvaluation id
+  id: string; // quizEvaluation id
   quiz: string;
   scenario: string;
   attempt: PreparedAttempt;
@@ -84,9 +84,7 @@ export interface PreparedRecordQuizEvaluationResult {
 export class QuizService {
   private garg = this.gcf.scopedClient('/quiz');
 
-  constructor(
-    private gcf: GargantuaClientFactory,
-  ) {}
+  constructor(private gcf: GargantuaClientFactory) {}
 
   // ---------- User (persistent) endpoints ----------
   /** Prepared quiz for end users (no admin-only fields). */
@@ -95,17 +93,33 @@ export class QuizService {
   }
 
   /** Start a new attempt (or append) and receive selected question ids in order. */
-  startEvaluation(quiz: string, scenario: string): Observable<PreparedStartQuizEvaluationResult> {
-    return this.garg.post('/evaluation/start', { quiz, scenario }).pipe(map(extractResponseContent));
+  startEvaluation(
+    quiz: string,
+    scenario: string,
+  ): Observable<PreparedStartQuizEvaluationResult> {
+    return this.garg
+      .post('/evaluation/start', { quiz, scenario })
+      .pipe(map(extractResponseContent));
   }
 
   /** Record an attempt — answers is { [questionId]: string[] of answerIds }. */
-  recordEvaluation(quiz: string, scenario: string, answers: Record<string, string[]>): Observable<PreparedRecordQuizEvaluationResult> {
-    return this.garg.post('/evaluation/record', { quiz, scenario, answers }).pipe(map(extractResponseContent));
+  recordEvaluation(
+    quiz: string,
+    scenario: string,
+    answers: Record<string, string[]>,
+  ): Observable<PreparedRecordQuizEvaluationResult> {
+    return this.garg
+      .post('/evaluation/record', { quiz, scenario, answers })
+      .pipe(map(extractResponseContent));
   }
 
   /** Fetch evaluation for current user (history; includes pass status). */
-  getEvaluationForUser(quiz: string, scenario: string): Observable<PreparedQuizEvaluation> {
-    return this.garg.get(`/evaluation/${quiz}/${scenario}`).pipe(map(extractResponseContent));
+  getEvaluationForUser(
+    quiz: string,
+    scenario: string,
+  ): Observable<PreparedQuizEvaluation> {
+    return this.garg
+      .get(`/evaluation/${quiz}/${scenario}`)
+      .pipe(map(extractResponseContent));
   }
 }

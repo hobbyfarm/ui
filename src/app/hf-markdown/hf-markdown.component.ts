@@ -120,7 +120,7 @@ ${token}`;
       }
       const tempAtts = Number(allowedAttempts);
       const allowedAtts = isNaN(tempAtts) || tempAtts < 1 ? 1 : tempAtts;
-      const tmpCount = Number(count)
+      const tmpCount = Number(count);
       const questionCount = isNaN(tmpCount) ? 0 : tmpCount;
       return `
       <quiz

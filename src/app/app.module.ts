@@ -133,7 +133,7 @@ ClarityIcons.addIcons(
   copyIcon,
   terminalIcon,
   exclamationTriangleIcon,
-  checkCircleIcon
+  checkCircleIcon,
 );
 
 export function tokenGetter() {

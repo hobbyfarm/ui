@@ -7,7 +7,7 @@
           type="radio"
           clrRadio
           name="quiz"
-          [value]="isPersistent ? (opt.id || i) : i"
+          [value]="isPersistent ? opt.id || i : i"
           formControlName="quiz"
         />
         <label>
