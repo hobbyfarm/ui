@@ -15,20 +15,19 @@ export class CourseCardComponent {
 
   constructor(private router: Router) {}
 
-  getImagePath() {
-    const path = this.course.header_image_path.replace(/^"(.*)"$/, '$1');
-    if (this.isURL(path) && path.match(/\.(jpeg|jpg|gif|png|svg)$/) != null) {
-      return path;
-    }
-    return this.defaultImage;
+  get imagePath(): string {
+    const rawPath = this.course.header_image_path;
+    if (!rawPath) return this.defaultImage;
+
+    const path = this.sanitizePath(rawPath);
+    const isValidImage =
+      URL.canParse(path) && /\.(jpeg|jpg|gif|png|svg)$/.test(path);
+
+    return isValidImage ? path : this.defaultImage;
   }
 
-  private isURL(url: string): boolean {
-    try {
-      return !!new URL(url);
-    } catch (_) {
-      return false;
-    }
+  private sanitizePath(path: string): string {
+    return path.replace(/^"(.*)"$/, '$1');
   }
 
   openCourseView() {
