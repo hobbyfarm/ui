@@ -1,12 +1,25 @@
 <span
+  class="label-content"
   [ngClass]="{
     'correct-option': hasCorrectOptionClass,
     'incorrect-option': hasIncorrectOptionClass,
   }"
-  >{{ optionTitle }}</span
 >
-@if (hasCorrectOptionClass) {
-  <cds-icon shape="success-standard" status="success" solid="true"></cds-icon>
-} @else if (hasIncorrectOptionClass) {
-  <cds-icon shape="exclamation-circle" status="danger" solid="true"></cds-icon>
-}
+  <span class="option-text">{{ optionTitle }}</span>
+
+  @if (hasCorrectOptionClass) {
+    <cds-icon
+      class="option-icon"
+      shape="success-standard"
+      status="success"
+      solid="true"
+    ></cds-icon>
+  } @else if (hasIncorrectOptionClass) {
+    <cds-icon
+      class="option-icon"
+      shape="exclamation-circle"
+      status="danger"
+      solid="true"
+    ></cds-icon>
+  }
+</span>
