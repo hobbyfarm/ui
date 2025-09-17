@@ -101,6 +101,7 @@ import { CourseCardComponent } from './course/course-card/course-card/course-car
 import { CourseViewComponent } from './course/course-view/course-view.component';
 import { LearningPathComponent } from './learning-path/learning-path.component';
 import { ExploreComponent } from './explore/explore.component';
+import { AlertComponent } from './alert/alert.component';
 
 ClarityIcons.addIcons(
   layersIcon,
@@ -170,6 +171,7 @@ export function jwtOptionsFactory() {
 
 @NgModule({
   declarations: [
+    AlertComponent,
     AppComponent,
     RootComponent,
     HomeComponent,
