@@ -1,11 +1,10 @@
-import { ClrAlertType } from "./clr-alert-type";
-
+import { ClrAlertType } from './clr-alert-type';
 
 export class AlertDetails {
-    type: ClrAlertType;
-    message: string;
-    closable?: boolean = true;
-    duration?: number = 0;
+  type: ClrAlertType;
+  message: string;
+  closable?: boolean = true;
+  duration?: number = 0;
 }
 
 export const DEFAULT_ALERT_SUCCESS_DURATION = 2000;
