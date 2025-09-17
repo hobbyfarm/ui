@@ -1,3 +1,17 @@
+span.label-content {
+  display: inline-flex;
+  align-items: flex-start;
+  gap: 0.4rem;
+  max-width: 100%;
+}
+
+span.option-text {
+  /* Normal wrapping between words */
+  white-space: normal;
+  overflow-wrap: normal;
+  word-break: normal;
+}
+
 span.correct-option {
   color: var(--clr-alert-success-font-color, hsl(198, 0%, 40%));
   background-color: var(--clr-alert-success-bg-color, hsl(93, 52%, 88%));
@@ -7,4 +21,8 @@ span.correct-option {
 span.incorrect-option {
   color: var(--clr-alert-danger-font-color, hsl(198, 0%, 40%));
   background-color: var(--clr-alert-danger-bg-color, hsl(9, 95%, 92%));
+}
+
+.option-icon {
+  flex: 0 0 auto; /* don't stretch */
 }
