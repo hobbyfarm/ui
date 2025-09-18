@@ -10,4 +10,22 @@
   margin-bottom: 1.5rem;
   overflow: hidden;
   text-overflow: ellipsis;
+  &.full-size {
+    height: max-content;
+  }
+}
+
+.card-text {
+  white-space: pre-wrap;
+}
+
+.card-text::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 6em;
+  pointer-events: none;
+  background: linear-gradient(to bottom, rgba(255, 255, 255, 0) 30%, #fff 60%);
 }

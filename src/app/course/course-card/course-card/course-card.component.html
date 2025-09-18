@@ -1,8 +1,11 @@
-<a (click)="openCourseView()" [ngClass]="clickable ? 'card clickable' : 'card'">
+<a
+  (click)="openCourseView()"
+  [ngClass]="!inCourseView ? 'card clickable' : 'card'"
+>
   <div class="card-img">
     <img src="{{ imagePath }}" alt="Course: {{ course.name | atob }}" />
   </div>
-  <div class="card-block">
+  <div [ngClass]="inCourseView ? 'card-block full-size' : 'card-block'">
     <div class="clr-row">
       <div class="card-title clr-col-8">{{ course.name | atob }}</div>
       <div class="clr-col-4">{{ course.scenarios.length }} Scenarios</div>

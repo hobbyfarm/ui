@@ -108,7 +108,10 @@
           <h3 class="full-width">Select a Course</h3>
           <div class="card-columns">
             @for (c of courses; track c) {
-              <app-course-card [course]="c"></app-course-card>
+              <app-course-card
+                [course]="c"
+                [inCourseView]="false"
+              ></app-course-card>
             }
           </div>
         </div>

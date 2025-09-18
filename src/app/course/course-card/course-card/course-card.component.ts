@@ -9,7 +9,7 @@ import { Router } from '@angular/router';
 })
 export class CourseCardComponent {
   @Input() course: Course;
-  @Input() clickable = true;
+  @Input() inCourseView = false;
 
   defaultImage = '../../../../assets/default/login_container_farm.svg';
 
@@ -31,7 +31,7 @@ export class CourseCardComponent {
   }
 
   openCourseView() {
-    if (!this.clickable) return;
+    if (this.inCourseView) return;
     if (this.course.is_learnpath) {
       this.router.navigateByUrl('/app/learningPath/?id=' + this.course.id);
     } else {
