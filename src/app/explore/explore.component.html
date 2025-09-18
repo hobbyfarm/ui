@@ -12,7 +12,10 @@
   <div class="card-columns">
     @for (course of catalog; track course) {
       @if (matchesSearch(course.name)) {
-        <app-course-card [course]="course"></app-course-card>
+        <app-course-card
+          [course]="course"
+          [inCourseView]="false"
+        ></app-course-card>
       }
     }
   </div>
