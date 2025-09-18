@@ -3,6 +3,7 @@ import {
   Input,
   OnInit,
   QueryList,
+  ViewChild,
   ViewChildren,
 } from '@angular/core';
 import { Validation } from './Validation';
@@ -27,6 +28,8 @@ import {
 } from 'rxjs';
 import { UserService } from '../services/user.service';
 import { PdfService } from '../services/pdf.service';
+import { AlertComponent } from '../alert/alert.component';
+import { ClrAlertType } from '../alert/clr-alert-type';
 
 type Question = {
   id?: string;
@@ -48,6 +51,7 @@ type Question = {
   standalone: false,
 })
 export class QuizComponent implements OnInit {
+  @ViewChild('failedDownloadAlert') failedDownloadAlert: AlertComponent;
   @ViewChildren(QuizCheckboxComponent)
   private chk!: QueryList<QuizCheckboxComponent>;
   @ViewChildren(QuizRadioComponent) private rad!: QueryList<QuizRadioComponent>;
@@ -64,6 +68,8 @@ export class QuizComponent implements OnInit {
   @Input() scenarioId = '';
   @Input() scenarioName = '';
   @Input() courseName = '';
+
+  private timeStamp?: string;
 
   questions: Question[] = [];
   validationType: Validation = 'standard';
@@ -91,6 +97,7 @@ export class QuizComponent implements OnInit {
       this.qs.recordEvaluation(this.quizId, this.scenarioId, answers).pipe(
         map((res) => {
           this.alreadyPassed = res.attempt.pass;
+          this.timeStamp = res.attempt.timestamp;
           return {
             pass: res.attempt.pass,
             corrects: res.attempt.corrects ?? null,
@@ -201,6 +208,7 @@ export class QuizComponent implements OnInit {
         next: (ev: PreparedQuizEvaluation) => {
           const last = ev.attempts?.[ev.attempts.length - 1];
           this.alreadyPassed = !!last?.pass;
+          this.timeStamp = last.timestamp;
           const used = ev.attempts?.length ?? 0;
           this.allowedAtts = Math.max(0, (quiz.max_attempts ?? 1) - used);
           this.currentQuiz = quiz;
@@ -303,8 +311,17 @@ export class QuizComponent implements OnInit {
   }
 
   download() {
+    if (!this.timeStamp) {
+      this.failedDownloadAlert.doAlert(
+        'Failed to issue certificate. Unable to retrieve completion timestamp!',
+        ClrAlertType.Danger,
+        true,
+        3000,
+      );
+      return;
+    }
     this.pdfService.generateCertificate({
-      date: new Date(),
+      date: new Date(this.timeStamp),
       description: `Congratulations! We hereby certify that the following user has successfully completed the scenario "${this.scenarioName}" by fully attending the course sessions and fulfilling all requirements, including the successful completion of the mandatory final test:`,
       personName: `${this.us.getEmail().value}`,
       title: `${this.courseName ? this.courseName : this.scenarioName}`,
