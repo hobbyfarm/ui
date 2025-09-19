@@ -31,7 +31,7 @@ export class LearningPathComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.progressService
-      .watch()
+      .list(true)
       .pipe(takeUntil(this.destroySubj))
       .subscribe((p: Progress[]) => {
         this.activeSession = undefined;
