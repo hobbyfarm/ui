@@ -1,6 +1,6 @@
 <form clrForm [formGroup]="quizForm">
   <clr-radio-container [class.clr-error]="quizForm.invalid && isSubmitted">
-    <label>{{ title }}</label>
+    <label class="quiz-question-title">{{ title }}</label>
     @for (opt of questionAnswers; track opt; let i = $index) {
       <clr-radio-wrapper>
         <input

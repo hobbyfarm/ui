@@ -322,7 +322,7 @@ export class QuizComponent implements OnInit {
     }
     this.pdfService.generateCertificate({
       date: new Date(this.timeStamp),
-      description: `Congratulations! We hereby certify that the following user has successfully completed the scenario "${this.scenarioName}" by fully attending the course sessions and fulfilling all requirements, including the successful completion of the mandatory final test:`,
+      description: `Congratulations! We hereby certify that the following user has successfully completed the course "${this.courseName ? this.courseName : this.scenarioName}" by fully attending all sessions and fulfilling the requirements, including the successful completion of the mandatory final test:`,
       personName: `${this.us.getEmail().value}`,
       title: `${this.courseName ? this.courseName : this.scenarioName}`,
       fileName: `${this.scenarioName ? `certificate-${this.scenarioName}.pdf` : 'certificate.pdf'}`,
