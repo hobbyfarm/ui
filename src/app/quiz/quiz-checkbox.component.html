@@ -1,6 +1,6 @@
 <form class="quiz-form" clrForm [formGroup]="quizForm">
   <clr-checkbox-container [class.clr-error]="quizForm.invalid && isSubmitted">
-    <label>{{ title }}</label>
+    <label class="quiz-question-title">{{ title }}</label>
     @for (opt of questionAnswers; track opt; let i = $index) {
       <clr-checkbox-wrapper formArrayName="quiz">
         <input clrCheckbox type="checkbox" [formControlName]="i" />

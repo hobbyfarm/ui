@@ -10,3 +10,12 @@ clr-checkbox-container {
   flex-direction: column !important;
   margin-top: 0;
 }
+
+.quiz-question-title {
+  white-space: wrap;
+  width: calc(100% - 40px) !important;
+  margin-left: 20px;
+  margin-right: 20px;
+  margin-bottom: 10px;
+  max-width: 100%;
+}
