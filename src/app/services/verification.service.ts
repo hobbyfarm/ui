@@ -6,7 +6,7 @@ import {
 } from '../scenario/taskVerification.type';
 import { VM } from '../VM';
 import { ServerResponse } from '../ServerResponse';
-import { BehaviorSubject, throwError } from 'rxjs';
+import { BehaviorSubject, EMPTY, Observable, throwError } from 'rxjs';
 import { catchError, tap } from 'rxjs/operators';
 import { HttpErrorResponse } from '@angular/common/http';
 import { VMService } from './vm.service';
@@ -83,7 +83,11 @@ export class VerificationService {
   }
 
   verify(vm: VM, vmName: string) {
-    const body = [this.verificationTaskRequests.get(vmName)];
+    const verification = this.verificationTaskRequests.get(vmName);
+    if (!verification || !verification.tasks?.length) {
+      return EMPTY as Observable<ServerResponse>;
+    }
+    const body = [verification];
 
     return this.useShellClient(vm.ws_endpoint)
       .post('/verify', body)
