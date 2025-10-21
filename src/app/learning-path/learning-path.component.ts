@@ -5,7 +5,17 @@ import { ActivatedRoute } from '@angular/router';
 import { ProgressService } from 'src/app/services/progress.service';
 import { Progress } from 'src/app/Progress';
 import { Context, ContextService } from 'src/app/services/context.service';
-import { ReplaySubject, takeUntil } from 'rxjs';
+import {
+  catchError,
+  distinctUntilChanged,
+  of,
+  ReplaySubject,
+  startWith,
+  switchMap,
+  takeUntil,
+  tap,
+  timer,
+} from 'rxjs';
 
 @Component({
   selector: 'app-learning-path',
@@ -13,14 +23,15 @@ import { ReplaySubject, takeUntil } from 'rxjs';
   styleUrls: ['./learning-path.component.scss'],
 })
 export class LearningPathComponent implements OnInit, OnDestroy {
-  course: Course;
-  activeSession: any = { course: '' };
-  scenarioid: string;
-  courseId: string;
-  showScenarioModal: boolean;
-  ctx: Context;
-  progresss: Progress[] = [];
-  private destroySubj: ReplaySubject<boolean> = new ReplaySubject(1);
+  course!: Course;
+  activeSession: Progress | null = null;
+  scenarioId?: string;
+  courseId!: string;
+  showScenarioModal = false;
+  ctx!: Context;
+  progressList: Progress[] = [];
+
+  private destroy$ = new ReplaySubject<void>(1);
 
   constructor(
     private courseService: CourseService,
@@ -29,73 +40,103 @@ export class LearningPathComponent implements OnInit, OnDestroy {
     private contextService: ContextService,
   ) {}
 
-  ngOnInit() {
+  ngOnInit(): void {
+    this.initCourse();
+    this.initContext();
+    this.loadProgressWithRetry();
+  }
+
+  private loadProgressWithRetry(): void {
     this.progressService
       .list(true)
-      .pipe(takeUntil(this.destroySubj))
-      .subscribe((p: Progress[]) => {
-        this.activeSession = undefined;
-        this.progresss = p;
-        p.forEach((progress) => {
-          if (!progress.finished) {
-            this.activeSession = progress;
-          }
-        });
-      });
+      .pipe(
+        switchMap((initialProgress) =>
+          // start with the initialProgress, retry after 5s and 10s, only call updateActiveSession if there are changes
+          timer(5000, 5000).pipe(
+            startWith(initialProgress),
+            takeUntil(timer(15000)), // only retry twice: at 5s and 10s
+            switchMap(() => this.progressService.list(true)),
+            distinctUntilChanged((prev, curr) =>
+              this.areProgressListsEqual(prev, curr),
+            ),
+            tap((progress) => this.updateActiveSession(progress)),
+            catchError((err) => {
+              console.error('Progress reload failed:', err);
+              return of(initialProgress); // fallback to last known
+            }),
+          ),
+        ),
+        takeUntil(this.destroy$),
+      )
+      .subscribe();
+  }
+
+  private initCourse(): void {
     this.courseId = this.route.snapshot.queryParams['id'];
     this.courseService
       .get(this.courseId)
-      .pipe(takeUntil(this.destroySubj))
-      .subscribe((course) => {
-        this.course = course;
-      });
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((course) => (this.course = course));
+  }
+
+  private initContext(): void {
     this.contextService
       .watch()
-      .pipe(takeUntil(this.destroySubj))
-      .subscribe((c) => {
-        this.ctx = c;
-      });
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((ctx) => (this.ctx = ctx));
   }
 
-  toggleScenarioModal(scenarioId: string, courseId: string) {
-    this.scenarioid = scenarioId;
+  private updateActiveSession(progressList: Progress[]): void {
+    this.progressList = progressList;
+    this.activeSession = progressList.find((p) => !p.finished) ?? null;
+  }
+
+  private areProgressListsEqual(a: Progress[], b: Progress[]): boolean {
+    if (a.length !== b.length) return false;
+    // We assume same order of items
+    return a.every((item, i) => this.areProgressItemsEqual(item, b[i]));
+  }
+
+  private areProgressItemsEqual(a: Progress, b: Progress): boolean {
+    // Compare only meaningful fields that affect progress status
+    return (
+      a.course === b.course &&
+      a.scenario === b.scenario &&
+      a.finished === b.finished &&
+      a.max_step === b.max_step &&
+      a.total_step === b.total_step
+    );
+  }
+
+  toggleScenarioModal(scenarioId: string, courseId: string): void {
+    this.scenarioId = scenarioId;
     this.courseId = courseId;
-    this.showScenarioModal = Boolean(scenarioId);
+    this.showScenarioModal = !!scenarioId;
   }
 
-  isActiveSession(scenarioName: string) {
+  isActiveSession(scenarioName: string): boolean {
     return (
-      this.activeSession?.scenario == scenarioName &&
-      this.course.id == this.activeSession.course
+      this.activeSession?.scenario === scenarioName &&
+      this.course.id === this.activeSession?.course
     );
   }
 
-  isFinished(scnearioName: string): boolean {
-    return (
-      this.progresss.filter((progress) => {
-        return (
-          progress.course == this.course.id &&
-          progress.scenario == scnearioName &&
-          progress.finished &&
-          progress.max_step == progress.total_step
-        );
-      }).length > 0
+  isFinished(scenarioName: string): boolean {
+    return this.progressList.some((p) =>
+      this.matchesProgress(p, scenarioName, {
+        requireFinished: !this.course.keep_vm,
+        requireComplete: true,
+      }),
     );
   }
 
-  wasStarted(scnearioName: string) {
-    return (
-      this.progresss.filter((progress) => {
-        return (
-          progress.course == this.course.id &&
-          progress.scenario == scnearioName &&
-          progress.finished
-        );
-      }).length > 0
+  wasStarted(scenarioName: string): boolean {
+    return this.progressList.some((p) =>
+      this.matchesProgress(p, scenarioName, { requireFinished: true }),
     );
   }
 
-  canBeStarted(scenarioName: string) {
+  canBeStarted(scenarioName: string): boolean {
     if (!this.course.is_learnpath_strict) return true;
     const prevIndex = this.course.scenarios.indexOf(scenarioName) - 1;
     if (prevIndex < 0) return true;
@@ -103,14 +144,30 @@ export class LearningPathComponent implements OnInit, OnDestroy {
     return this.isFinished(previousScenario);
   }
 
-  getShape(sId: string) {
-    if (this.isFinished(sId)) return 'success-standard';
-    if (this.isActiveSession(sId) || this.wasStarted(sId)) return 'dot-circle';
+  getShape(scenarioId: string): string {
+    if (this.isFinished(scenarioId)) return 'success-standard';
+    if (this.isActiveSession(scenarioId) || this.wasStarted(scenarioId))
+      return 'dot-circle';
     return 'circle';
   }
 
-  ngOnDestroy() {
-    this.destroySubj.next(true);
-    this.destroySubj.complete();
+  private matchesProgress(
+    progress: Progress,
+    scenarioName: string,
+    options: { requireFinished?: boolean; requireComplete?: boolean } = {},
+  ): boolean {
+    const { requireFinished = false, requireComplete = false } = options;
+    const isSameCourse = progress.course === this.course.id;
+    const isSameScenario = progress.scenario === scenarioName;
+    const isFinished = !requireFinished || progress.finished;
+    const isComplete =
+      !requireComplete || progress.max_step === progress.total_step;
+
+    return isSameCourse && isSameScenario && isFinished && isComplete;
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 }
