@@ -14,16 +14,13 @@
               (scenarioModal)="toggleScenarioModal(sId, course.id)"
             ></app-scenario-card>
           }
-          @if (isActiveSession(sId)) {
+          @if (isActiveSession(sId) && activeSession; as session) {
             <app-scenario-card
-              [scenarioid]="activeSession.scenario"
+              [scenarioid]="session.scenario"
               [courseId]="courseId"
-              [progress]="activeSession"
+              [progress]="session"
               (scenarioModal)="
-                toggleScenarioModal(
-                  activeSession.scenario,
-                  activeSession.course
-                )
+                toggleScenarioModal(session.scenario, session.course)
               "
             ></app-scenario-card>
           }
@@ -36,12 +33,12 @@
   </div>
 </div>
 
-@if (scenarioid) {
+@if (scenarioId) {
   <app-scenario
-    [scenarioid]="scenarioid"
+    [scenarioid]="scenarioId"
     [courseid]="courseId"
     [accessCode]="ctx.accessCode"
     [showScenarioModal]="showScenarioModal"
-    (scenarioModal)="toggleScenarioModal(scenarioid, courseId)"
+    (scenarioModal)="toggleScenarioModal(scenarioId, courseId)"
   ></app-scenario>
 }
