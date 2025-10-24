@@ -410,7 +410,7 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   actuallyFinish(force = false) {
-    if (this.shouldKeepVmOnFinish && !force && !this.isContentOnly) {
+    if (this.shouldKeepVmOnFinish && !force) {
       this.navigateBack();
     } else {
       this.ssService.finish(this.session.id).subscribe(() => {
@@ -426,7 +426,7 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
   goClose() {
     if (this.isContentOnly) {
       this.closeOpen = false;
-      this.actuallyFinish(true);
+      this.actuallyFinish();
       return;
     }
     this.closeOpen = true;
