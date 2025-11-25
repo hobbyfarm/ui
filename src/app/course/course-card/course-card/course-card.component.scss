@@ -27,5 +27,9 @@
   bottom: 0;
   height: 6em;
   pointer-events: none;
-  background: linear-gradient(to bottom, rgba(255, 255, 255, 0) 30%, #fff 60%);
+  background: linear-gradient(
+    to bottom,
+    rgba(255, 255, 255, 0) 30%,
+    var(--clr-accordion-content-background-color) 60%
+  );
 }
