@@ -67,6 +67,7 @@
               @if (step.quiz) {
                 <div class="mt-3">
                   <quiz
+                    #quizComponent
                     [quizId]="step.quiz"
                     [scenarioId]="scenario.id"
                     [scenarioName]="scenario.name | atob"
@@ -366,5 +367,29 @@
 >
   <div class="modal-body">
     <img src="{{ srcImgXlarge }}" alt="ImageMadeLarger" class="modal-image" />
+  </div>
+</clr-modal>
+
+<clr-modal
+  [(clrModalOpen)]="unsubmittedQuizModalOpen"
+  [clrModalClosable]="false"
+>
+  <h3 class="modal-title">Quiz not submitted</h3>
+  <div class="modal-body">
+    <p>
+      Do you really want to finish without submitting your quiz? Your quiz
+      progress will not be saved.
+    </p>
+  </div>
+  <div class="modal-footer">
+    <button class="btn btn-outline" (click)="cancelUnsubmittedQuizFinish()">
+      Cancel
+    </button>
+    <button
+      class="btn btn-success-outline"
+      (click)="confirmUnsubmittedQuizFinish()"
+    >
+      Finish anyway
+    </button>
   </div>
 </clr-modal>
