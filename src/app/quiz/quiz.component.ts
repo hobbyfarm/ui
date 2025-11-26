@@ -5,18 +5,18 @@ import {
   QueryList,
   ViewChild,
   ViewChildren,
-} from "@angular/core";
-import { Validation } from "./Validation";
-import { shuffleArray, shuffleStringArray } from "../utils";
+} from '@angular/core';
+import { Validation } from './Validation';
+import { shuffleArray, shuffleStringArray } from '../utils';
 import {
   Quiz,
   QuizService,
   PreparedQuizEvaluation,
-} from "../services/quiz.service";
-import { QuizCheckboxComponent } from "./quiz-checkbox.component";
-import { QuizRadioComponent } from "./quiz-radio.component";
-import { QuestionAnswer } from "./QuestionAnswer";
-import { QuestionType } from "./QuestionType";
+} from '../services/quiz.service';
+import { QuizCheckboxComponent } from './quiz-checkbox.component';
+import { QuizRadioComponent } from './quiz-radio.component';
+import { QuestionAnswer } from './QuestionAnswer';
+import { QuestionType } from './QuestionType';
 import {
   catchError,
   map,
@@ -25,11 +25,11 @@ import {
   shareReplay,
   Subject,
   switchMap,
-} from "rxjs";
-import { UserService } from "../services/user.service";
-import { PdfService } from "../services/pdf.service";
-import { AlertComponent } from "../alert/alert.component";
-import { ClrAlertType } from "../alert/clr-alert-type";
+} from 'rxjs';
+import { UserService } from '../services/user.service';
+import { PdfService } from '../services/pdf.service';
+import { AlertComponent } from '../alert/alert.component';
+import { ClrAlertType } from '../alert/clr-alert-type';
 
 type Question = {
   id?: string;
@@ -45,43 +45,45 @@ type Question = {
 
 @Component({
   // eslint-disable-next-line @angular-eslint/component-selector
-  selector: "quiz",
-  templateUrl: "quiz.component.html",
-  styleUrls: ["quiz.component.scss"],
+  selector: 'quiz',
+  templateUrl: 'quiz.component.html',
+  styleUrls: ['quiz.component.scss'],
   standalone: false,
 })
 export class QuizComponent implements OnInit {
-  @ViewChild("failedDownloadAlert") failedDownloadAlert: AlertComponent;
+  @ViewChild('failedDownloadAlert') failedDownloadAlert: AlertComponent;
   @ViewChildren(QuizCheckboxComponent)
   private chk!: QueryList<QuizCheckboxComponent>;
   @ViewChildren(QuizRadioComponent) private rad!: QueryList<QuizRadioComponent>;
 
   /** Local props */
-  @Input() quizTitle = "";
-  @Input() questionsRaw = "";
+  @Input() quizTitle = '';
+  @Input() questionsRaw = '';
   @Input() allowedAtts = 1;
   @Input() questionCount = 0;
   @Input() shuffle = false;
 
   /** Persistent */
-  @Input() quizId = "";
-  @Input() scenarioId = "";
-  @Input() scenarioName = "";
-  @Input() courseName = "";
+  @Input() quizId = '';
+  @Input() scenarioId = '';
+  @Input() scenarioName = '';
+  @Input() courseName = '';
 
   private timeStamp?: string;
 
   questions: Question[] = [];
-  validationType: Validation = "standard";
+  validationType: Validation = 'standard';
   isSubmitted = false;
   isPersistent = false;
-  alreadyPassed = false;
+  alreadyPassed: boolean | null = null;
   started = false;
   loadingQuestions = true;
   loadingQuiz = true;
   currentQuiz?: Quiz;
-  quizIssuer = "";
+  quizIssuer = '';
   currentIndex = 0;
+  lastPass: boolean | null = null;
+  showIncompleteModal = false;
 
   correctsByQuestionId: Record<string, string[]> = {};
 
@@ -98,6 +100,7 @@ export class QuizComponent implements OnInit {
       this.qs.recordEvaluation(this.quizId, this.scenarioId, answers).pipe(
         map((res) => {
           this.alreadyPassed = res.attempt.pass;
+
           this.timeStamp = res.attempt.timestamp;
           return {
             pass: res.attempt.pass,
@@ -140,7 +143,7 @@ export class QuizComponent implements OnInit {
 
   /** ---------- Local ---------- */
   private initLocal() {
-    const blocks = (this.questionsRaw || "").split("\n---\n").filter(Boolean);
+    const blocks = (this.questionsRaw || '').split('\n---\n').filter(Boolean);
     const total = blocks.length;
     if (this.questionCount <= 0 || this.questionCount > total)
       this.questionCount = total;
@@ -165,19 +168,19 @@ export class QuizComponent implements OnInit {
         )[0];
     };
 
-    const title = getParam("title") ?? "";
-    const helperText = getParam("info") ?? "";
-    const type = (getParam("type") ?? "checkbox") as "checkbox" | "radio";
-    const validation = (getParam("validation") ?? "standard") as Validation;
-    const successMsg = getParam("successMsg") ?? "Correct!";
-    const errorMsg = getParam("errorMsg") ?? "Incorrect!";
-    const qShuffle = (getParam("shuffle") ?? "false") === "true";
+    const title = getParam('title') ?? '';
+    const helperText = getParam('info') ?? '';
+    const type = (getParam('type') ?? 'checkbox') as 'checkbox' | 'radio';
+    const validation = (getParam('validation') ?? 'standard') as Validation;
+    const successMsg = getParam('successMsg') ?? 'Correct!';
+    const errorMsg = getParam('errorMsg') ?? 'Incorrect!';
+    const qShuffle = (getParam('shuffle') ?? 'false') === 'true';
 
-    const optionsRaw = raw.split(/\n- (.*)/s)[1] ?? "";
-    const options = optionsRaw.split("\n- ").filter(Boolean);
+    const optionsRaw = raw.split(/\n- (.*)/s)[1] ?? '';
+    const options = optionsRaw.split('\n- ').filter(Boolean);
     let answers: QuestionAnswer[] = options.map((o) => ({
-      title: o.split(":(")[0],
-      correct: o.split(":(")[1]?.toLowerCase() === "x)",
+      title: o.split(':(')[0],
+      correct: o.split(':(')[1]?.toLowerCase() === 'x)',
     }));
     if (qShuffle) answers = shuffleArray(answers);
 
@@ -202,15 +205,15 @@ export class QuizComponent implements OnInit {
 
       quiz.questions.forEach((question) => {
         this.correctIdsByQid.set(
-          question.id ?? "",
-          this.correctIds$(question.id ?? ""),
+          question.id ?? '',
+          this.correctIds$(question.id ?? ''),
         );
       });
 
       this.qs.getEvaluationForUser(this.quizId, this.scenarioId).subscribe({
         next: (ev: PreparedQuizEvaluation) => {
           const last = ev.attempts?.[ev.attempts.length - 1];
-          this.alreadyPassed = !!last?.pass;
+          this.alreadyPassed = last ? last.pass : null;
           this.timeStamp = last.timestamp;
           const used = ev.attempts?.length ?? 0;
           this.allowedAtts = Math.max(0, (quiz.max_attempts ?? 1) - used);
@@ -252,7 +255,7 @@ export class QuizComponent implements OnInit {
             id: q.id,
             title: q.title,
             helperText: q.description,
-            type: q.type === "radio" ? "radio" : "checkbox",
+            type: q.type === 'radio' ? 'radio' : 'checkbox',
             validation: quiz.validation_type as Validation,
             successMsg: q.success_message,
             errorMsg: q.failure_message,
@@ -280,20 +283,36 @@ export class QuizComponent implements OnInit {
       return;
     }
 
+    this.alreadyPassed = null;
+
     // Build answers from children (answer IDs only)
     const answers: Record<string, string[]> = {};
     let r = 0,
-      c = 0;
+      c = 0,
+      hasIncomplete = false;
     this.questions.forEach((q) => {
       if (!q.id) return;
-      if (q.type === "radio") {
+      if (q.type === 'radio') {
         const comp = this.rad.get(r++);
-        answers[q.id] = comp?.getSelectedAnswerIds() ?? [];
+        const sel = comp?.getSelectedAnswerIds() ?? [];
+        answers[q.id] = sel;
+        if (sel.length === 0) {
+          hasIncomplete = true;
+        }
       } else {
         const comp = this.chk.get(c++);
-        answers[q.id] = comp?.getSelectedAnswerIds() ?? [];
+        const sel = comp?.getSelectedAnswerIds() ?? [];
+        answers[q.id] = sel;
+        if (sel.length === 0) {
+          hasIncomplete = true;
+        }
       }
     });
+
+    if (hasIncomplete) {
+      this.showIncompleteModal = true;
+      return;
+    }
 
     this.attempt.next(answers);
     this.isSubmitted = true;
@@ -315,13 +334,14 @@ export class QuizComponent implements OnInit {
     this.chk?.forEach((c) => c.reset());
     this.isSubmitted = false;
     this.currentIndex = 0;
+    this.alreadyPassed = null;
     this.qs.getUserQuiz(this.quizId).subscribe((quiz) => this.start(quiz));
   }
 
   download() {
     if (!this.timeStamp) {
       this.failedDownloadAlert.doAlert(
-        "Failed to issue certificate. Unable to retrieve completion timestamp!",
+        'Failed to issue certificate. Unable to retrieve completion timestamp!',
         ClrAlertType.Danger,
         true,
         3000,
@@ -333,7 +353,7 @@ export class QuizComponent implements OnInit {
       description: `Congratulations! We hereby certify that the following user has successfully completed the course "${this.courseName ? this.courseName : this.scenarioName}" by fully attending all sessions and fulfilling the requirements, including the successful completion of the mandatory final test:`,
       personName: `${this.us.getEmail().value}`,
       title: `${this.courseName ? this.courseName : this.scenarioName}`,
-      fileName: `${this.scenarioName ? `certificate-${this.scenarioName}.pdf` : "certificate.pdf"}`,
+      fileName: `${this.scenarioName ? `certificate-${this.scenarioName}.pdf` : 'certificate.pdf'}`,
       issuer: `${this.quizIssuer}`,
     });
   }

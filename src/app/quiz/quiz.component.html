@@ -11,85 +11,60 @@
             <span class="alert-text"> Failed to load quiz! </span>
           </clr-alert-item>
         </clr-alert>
-      } @else if (isPersistent && alreadyPassed) {
-        <app-alert #failedDownloadAlert></app-alert>
-        <clr-alert
-          [clrAlertType]="'success'"
-          [clrAlertClosable]="false"
-          [clrAlertIcon]="'check-circle'"
-        >
-          <clr-alert-item class="centered">
-            <span class="alert-text"> You passed this quiz. Great job! </span>
-            @if (quizIssuer) {
-              <div class="alert-actions">
-                <button class="btn btn-primary" (click)="download()">
-                  Download Certificate
-                </button>
-              </div>
-            }
-          </clr-alert-item>
-        </clr-alert>
-      } @else if (isPersistent && loadingQuestions && started) {
+      }
+
+      @if (isPersistent && loadingQuestions && started) {
         <span class="spinner spinner-inline"> Loading... </span>
         <span> Loading Questions... </span>
-      } @else if (
-        !isPersistent || (isPersistent && !alreadyPassed && started)
+      }
+      @if (
+        (!isPersistent || (isPersistent && started)) && questions.length > 0
       ) {
-        <!-- show only if there are questions -->
-        @if (questions.length > 0) {
-          <div class="quiz-progress">
-            <div class="progress">
-              <progress [value]="progress" max="100"></progress>
-            </div>
+        <div class="quiz-progress">
+          <div class="progress">
+            <progress [value]="progress" max="100"></progress>
           </div>
+        </div>
 
-          @for (q of questions; track q.id || q.title; let i = $index) {
-            <div [hidden]="i !== currentIndex">
-              @if (q.type === 'checkbox') {
-                <quiz-checkbox
-                  [quizId]="quizId"
-                  [scenarioId]="scenarioId"
-                  [questionId]="q.id || ''"
-                  [title]="q.title"
-                  [helperText]="q.helperText || ''"
-                  [validation]="q.validation"
-                  [successMsg]="q.successMsg"
-                  [errMsg]="q.errorMsg"
-                  [shuffle]="q.shuffle"
-                  [questionAnswers]="q.answers"
-                  [correctAnswerIds]="
-                    correctIdsByQid.get(q.id ?? '') ?? testObs
-                  "
-                  [remotePass]="remotePass"
-                ></quiz-checkbox>
-              } @else {
-                <quiz-radio
-                  [quizId]="quizId"
-                  [scenarioId]="scenarioId"
-                  [questionId]="q.id || ''"
-                  [title]="q.title"
-                  [helperText]="q.helperText || ''"
-                  [validation]="q.validation"
-                  [successMsg]="q.successMsg"
-                  [errMsg]="q.errorMsg"
-                  [shuffle]="q.shuffle"
-                  [questionAnswers]="q.answers"
-                  [correctAnswerIds]="
-                    correctIdsByQid.get(q.id ?? '') ?? testObs
-                  "
-                  [remotePass]="remotePass"
-                ></quiz-radio>
-              }
-            </div>
-          }
+        @for (q of questions; track q.id || q.title; let i = $index) {
+          <div [hidden]="i !== currentIndex">
+            @if (q.type === 'checkbox') {
+              <quiz-checkbox
+                [quizId]="quizId"
+                [scenarioId]="scenarioId"
+                [questionId]="q.id || ''"
+                [title]="q.title"
+                [helperText]="q.helperText || ''"
+                [validation]="q.validation"
+                [successMsg]="q.successMsg"
+                [errMsg]="q.errorMsg"
+                [shuffle]="q.shuffle"
+                [questionAnswers]="q.answers"
+                [correctAnswerIds]="correctIdsByQid.get(q.id ?? '') ?? testObs"
+                [remotePass]="remotePass"
+              ></quiz-checkbox>
+            } @else {
+              <quiz-radio
+                [quizId]="quizId"
+                [scenarioId]="scenarioId"
+                [questionId]="q.id || ''"
+                [title]="q.title"
+                [helperText]="q.helperText || ''"
+                [validation]="q.validation"
+                [successMsg]="q.successMsg"
+                [errMsg]="q.errorMsg"
+                [shuffle]="q.shuffle"
+                [questionAnswers]="q.answers"
+                [correctAnswerIds]="correctIdsByQid.get(q.id ?? '') ?? testObs"
+                [remotePass]="remotePass"
+              ></quiz-radio>
+            }
+          </div>
         }
       }
     </div>
 
-    @if (
-      (!isPersistent || (isPersistent && !alreadyPassed && started)) &&
-      questions.length > 0
-    ) {
+    @if ((!isPersistent || (isPersistent && started)) && questions.length > 0) {
       <div class="card-footer quiz-footer">
         <button
           class="btn btn-outline"
@@ -118,13 +93,31 @@
       </div>
     }
   </div>
-
+  @if (isPersistent && alreadyPassed) {
+    <app-alert #failedDownloadAlert></app-alert>
+    <clr-alert
+      [clrAlertType]="'success'"
+      [clrAlertClosable]="false"
+      [clrAlertIcon]="'check-circle'"
+    >
+      <clr-alert-item class="centered">
+        <span class="alert-text"> You passed this quiz. Great job! </span>
+        @if (quizIssuer) {
+          <div class="alert-actions">
+            <button class="btn btn-primary" (click)="download()">
+              Download Certificate
+            </button>
+          </div>
+        }
+      </clr-alert-item>
+    </clr-alert>
+  }
   @if (!isPersistent || (isPersistent && !alreadyPassed && started)) {
-    @if (isSubmitted && !alreadyPassed) {
+    @if (isSubmitted && alreadyPassed === false) {
       <clr-alert [clrAlertType]="'warning'" [clrAlertClosable]="false">
         <clr-alert-item>
           <span class="alert-text">
-            There are wrong answers. Please try again.
+            You did not reach the required score. Please try again.
           </span>
         </clr-alert-item>
       </clr-alert>
@@ -183,3 +176,15 @@
     }
   }
 </div>
+
+<clr-modal [(clrModalOpen)]="showIncompleteModal" [clrModalClosable]="true">
+  <h3 class="modal-title">Incomplete quiz</h3>
+  <div class="modal-body">
+    <p>Please answer all questions before submitting your quiz.</p>
+  </div>
+  <div class="modal-footer">
+    <button class="btn btn-primary" (click)="showIncompleteModal = false">
+      OK
+    </button>
+  </div>
+</clr-modal>
