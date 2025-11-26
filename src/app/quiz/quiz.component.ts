@@ -5,18 +5,18 @@ import {
   QueryList,
   ViewChild,
   ViewChildren,
-} from '@angular/core';
-import { Validation } from './Validation';
-import { shuffleArray, shuffleStringArray } from '../utils';
+} from "@angular/core";
+import { Validation } from "./Validation";
+import { shuffleArray, shuffleStringArray } from "../utils";
 import {
   Quiz,
   QuizService,
   PreparedQuizEvaluation,
-} from '../services/quiz.service';
-import { QuizCheckboxComponent } from './quiz-checkbox.component';
-import { QuizRadioComponent } from './quiz-radio.component';
-import { QuestionAnswer } from './QuestionAnswer';
-import { QuestionType } from './QuestionType';
+} from "../services/quiz.service";
+import { QuizCheckboxComponent } from "./quiz-checkbox.component";
+import { QuizRadioComponent } from "./quiz-radio.component";
+import { QuestionAnswer } from "./QuestionAnswer";
+import { QuestionType } from "./QuestionType";
 import {
   catchError,
   map,
@@ -25,11 +25,11 @@ import {
   shareReplay,
   Subject,
   switchMap,
-} from 'rxjs';
-import { UserService } from '../services/user.service';
-import { PdfService } from '../services/pdf.service';
-import { AlertComponent } from '../alert/alert.component';
-import { ClrAlertType } from '../alert/clr-alert-type';
+} from "rxjs";
+import { UserService } from "../services/user.service";
+import { PdfService } from "../services/pdf.service";
+import { AlertComponent } from "../alert/alert.component";
+import { ClrAlertType } from "../alert/clr-alert-type";
 
 type Question = {
   id?: string;
@@ -45,34 +45,34 @@ type Question = {
 
 @Component({
   // eslint-disable-next-line @angular-eslint/component-selector
-  selector: 'quiz',
-  templateUrl: 'quiz.component.html',
-  styleUrls: ['quiz.component.scss'],
+  selector: "quiz",
+  templateUrl: "quiz.component.html",
+  styleUrls: ["quiz.component.scss"],
   standalone: false,
 })
 export class QuizComponent implements OnInit {
-  @ViewChild('failedDownloadAlert') failedDownloadAlert: AlertComponent;
+  @ViewChild("failedDownloadAlert") failedDownloadAlert: AlertComponent;
   @ViewChildren(QuizCheckboxComponent)
   private chk!: QueryList<QuizCheckboxComponent>;
   @ViewChildren(QuizRadioComponent) private rad!: QueryList<QuizRadioComponent>;
 
   /** Local props */
-  @Input() quizTitle = '';
-  @Input() questionsRaw = '';
+  @Input() quizTitle = "";
+  @Input() questionsRaw = "";
   @Input() allowedAtts = 1;
   @Input() questionCount = 0;
   @Input() shuffle = false;
 
   /** Persistent */
-  @Input() quizId = '';
-  @Input() scenarioId = '';
-  @Input() scenarioName = '';
-  @Input() courseName = '';
+  @Input() quizId = "";
+  @Input() scenarioId = "";
+  @Input() scenarioName = "";
+  @Input() courseName = "";
 
   private timeStamp?: string;
 
   questions: Question[] = [];
-  validationType: Validation = 'standard';
+  validationType: Validation = "standard";
   isSubmitted = false;
   isPersistent = false;
   alreadyPassed = false;
@@ -80,7 +80,8 @@ export class QuizComponent implements OnInit {
   loadingQuestions = true;
   loadingQuiz = true;
   currentQuiz?: Quiz;
-  quizIssuer = '';
+  quizIssuer = "";
+  currentIndex = 0;
 
   correctsByQuestionId: Record<string, string[]> = {};
 
@@ -139,7 +140,7 @@ export class QuizComponent implements OnInit {
 
   /** ---------- Local ---------- */
   private initLocal() {
-    const blocks = (this.questionsRaw || '').split('\n---\n').filter(Boolean);
+    const blocks = (this.questionsRaw || "").split("\n---\n").filter(Boolean);
     const total = blocks.length;
     if (this.questionCount <= 0 || this.questionCount > total)
       this.questionCount = total;
@@ -148,6 +149,8 @@ export class QuizComponent implements OnInit {
     if (this.shuffle) shuffleStringArray(pool);
     const selected = pool.slice(0, this.questionCount);
     this.questions = selected.map((raw) => this.fromRaw(raw));
+
+    this.currentIndex = 0;
   }
 
   private fromRaw(raw: string): Question {
@@ -162,19 +165,19 @@ export class QuizComponent implements OnInit {
         )[0];
     };
 
-    const title = getParam('title') ?? '';
-    const helperText = getParam('info') ?? '';
-    const type = (getParam('type') ?? 'checkbox') as 'checkbox' | 'radio';
-    const validation = (getParam('validation') ?? 'standard') as Validation;
-    const successMsg = getParam('successMsg') ?? 'Correct!';
-    const errorMsg = getParam('errorMsg') ?? 'Incorrect!';
-    const qShuffle = (getParam('shuffle') ?? 'false') === 'true';
+    const title = getParam("title") ?? "";
+    const helperText = getParam("info") ?? "";
+    const type = (getParam("type") ?? "checkbox") as "checkbox" | "radio";
+    const validation = (getParam("validation") ?? "standard") as Validation;
+    const successMsg = getParam("successMsg") ?? "Correct!";
+    const errorMsg = getParam("errorMsg") ?? "Incorrect!";
+    const qShuffle = (getParam("shuffle") ?? "false") === "true";
 
-    const optionsRaw = raw.split(/\n- (.*)/s)[1] ?? '';
-    const options = optionsRaw.split('\n- ').filter(Boolean);
+    const optionsRaw = raw.split(/\n- (.*)/s)[1] ?? "";
+    const options = optionsRaw.split("\n- ").filter(Boolean);
     let answers: QuestionAnswer[] = options.map((o) => ({
-      title: o.split(':(')[0],
-      correct: o.split(':(')[1]?.toLowerCase() === 'x)',
+      title: o.split(":(")[0],
+      correct: o.split(":(")[1]?.toLowerCase() === "x)",
     }));
     if (qShuffle) answers = shuffleArray(answers);
 
@@ -199,8 +202,8 @@ export class QuizComponent implements OnInit {
 
       quiz.questions.forEach((question) => {
         this.correctIdsByQid.set(
-          question.id ?? '',
-          this.correctIds$(question.id ?? ''),
+          question.id ?? "",
+          this.correctIds$(question.id ?? ""),
         );
       });
 
@@ -213,11 +216,13 @@ export class QuizComponent implements OnInit {
           this.allowedAtts = Math.max(0, (quiz.max_attempts ?? 1) - used);
           this.currentQuiz = quiz;
           this.loadingQuiz = false;
+          this.currentIndex = 0;
         },
         error: () => {
           this.allowedAtts = quiz.max_attempts ?? 1;
           this.currentQuiz = quiz;
           this.loadingQuiz = false;
+          this.currentIndex = 0;
         },
       });
     });
@@ -247,7 +252,7 @@ export class QuizComponent implements OnInit {
             id: q.id,
             title: q.title,
             helperText: q.description,
-            type: q.type === 'radio' ? 'radio' : 'checkbox',
+            type: q.type === "radio" ? "radio" : "checkbox",
             validation: quiz.validation_type as Validation,
             successMsg: q.success_message,
             errorMsg: q.failure_message,
@@ -260,6 +265,7 @@ export class QuizComponent implements OnInit {
         this.isSubmitted = false;
         this.loadingQuestions = false;
         this.started = true;
+        this.currentIndex = 0;
       });
   }
 
@@ -280,7 +286,7 @@ export class QuizComponent implements OnInit {
       c = 0;
     this.questions.forEach((q) => {
       if (!q.id) return;
-      if (q.type === 'radio') {
+      if (q.type === "radio") {
         const comp = this.rad.get(r++);
         answers[q.id] = comp?.getSelectedAnswerIds() ?? [];
       } else {
@@ -300,6 +306,7 @@ export class QuizComponent implements OnInit {
       this.rad?.forEach((c) => c.reset());
       this.chk?.forEach((c) => c.reset());
       this.isSubmitted = false;
+      this.currentIndex = 0;
       return;
     }
     if (this.allowedAtts < 1) return;
@@ -307,13 +314,14 @@ export class QuizComponent implements OnInit {
     this.rad?.forEach((c) => c.reset());
     this.chk?.forEach((c) => c.reset());
     this.isSubmitted = false;
+    this.currentIndex = 0;
     this.qs.getUserQuiz(this.quizId).subscribe((quiz) => this.start(quiz));
   }
 
   download() {
     if (!this.timeStamp) {
       this.failedDownloadAlert.doAlert(
-        'Failed to issue certificate. Unable to retrieve completion timestamp!',
+        "Failed to issue certificate. Unable to retrieve completion timestamp!",
         ClrAlertType.Danger,
         true,
         3000,
@@ -325,8 +333,31 @@ export class QuizComponent implements OnInit {
       description: `Congratulations! We hereby certify that the following user has successfully completed the course "${this.courseName ? this.courseName : this.scenarioName}" by fully attending all sessions and fulfilling the requirements, including the successful completion of the mandatory final test:`,
       personName: `${this.us.getEmail().value}`,
       title: `${this.courseName ? this.courseName : this.scenarioName}`,
-      fileName: `${this.scenarioName ? `certificate-${this.scenarioName}.pdf` : 'certificate.pdf'}`,
+      fileName: `${this.scenarioName ? `certificate-${this.scenarioName}.pdf` : "certificate.pdf"}`,
       issuer: `${this.quizIssuer}`,
     });
+  }
+
+  get totalQuestions(): number {
+    return this.questions.length;
+  }
+
+  get progress(): number {
+    if (!this.totalQuestions) {
+      return 0;
+    }
+    return ((this.currentIndex + 1) / this.totalQuestions) * 100;
+  }
+
+  nextQuestion(): void {
+    if (this.currentIndex < this.questions.length - 1) {
+      this.currentIndex++;
+    }
+  }
+
+  prevQuestion(): void {
+    if (this.currentIndex > 0) {
+      this.currentIndex--;
+    }
   }
 }

@@ -1,83 +1,136 @@
-<pre class="quiz-container">
-  @if (quizTitle) { <h5 class="quiz-title">{{ quizTitle }}</h5> }
-
-  @if(isPersistent && !loadingQuiz && !currentQuiz) {
-    <clr-alert
-      [clrAlertType]="'danger'"
-      [clrAlertClosable]="false"
-    >
-      <clr-alert-item>
-        <span class="alert-text">
-          Failed to load quiz!
-        </span>
-      </clr-alert-item>
-    </clr-alert>
-  }
-  @else if (isPersistent && alreadyPassed) {
-    <app-alert #failedDownloadAlert></app-alert>
-    <clr-alert
-      [clrAlertType]="'success'"
-      [clrAlertClosable]="false"
-      [clrAlertIcon]="'check-circle'"
-    >
-      <clr-alert-item class="centered">
-        <span class="alert-text">
-          You passed this quiz. Great job!
-        </span>
-        @if(quizIssuer) {
-          <div class="alert-actions">
-            <button class="btn alert-action" (click)="download()">Download Certificate</button>
-          </div>
-        }
-      </clr-alert-item>
-    </clr-alert>
-  } @else if(isPersistent && loadingQuestions && started) {
-    <span class="spinner spinner-inline"> Loading... </span>
-    <span> Loading Questions... </span>
-  } @else if (!isPersistent || isPersistent && !alreadyPassed && started) { 
-    @for (q of questions; track q.id || q.title; let i = $index) {
-      @if (q.type === 'checkbox') {
-        <quiz-checkbox
-          [quizId]="quizId"
-          [scenarioId]="scenarioId"
-          [questionId]="q.id || ''"
-          [title]="q.title"
-          [helperText]="q.helperText || ''"
-          [validation]="q.validation"
-          [successMsg]="q.successMsg"
-          [errMsg]="q.errorMsg"
-          [shuffle]="q.shuffle"
-          [questionAnswers]="q.answers"
-          [correctAnswerIds]="correctIdsByQid.get(q.id ?? '') ?? testObs"
-          [remotePass]="remotePass"
-        ></quiz-checkbox>
-      } @else {
-        <quiz-radio
-          [quizId]="quizId"
-          [scenarioId]="scenarioId"
-          [questionId]="q.id || ''"
-          [title]="q.title"
-          [helperText]="q.helperText || ''"
-          [validation]="q.validation"
-          [successMsg]="q.successMsg"
-          [errMsg]="q.errorMsg"
-          [shuffle]="q.shuffle"
-          [questionAnswers]="q.answers"
-          [correctAnswerIds]="correctIdsByQid.get(q.id ?? '') ?? testObs"
-          [remotePass]="remotePass"
-        ></quiz-radio>
+<div class="quiz-container">
+  <div class="card quiz-card">
+    <div class="card-block">
+      @if (quizTitle) {
+        <h5 class="quiz-title">{{ quizTitle }}</h5>
       }
+
+      @if (isPersistent && !loadingQuiz && !currentQuiz) {
+        <clr-alert [clrAlertType]="'danger'" [clrAlertClosable]="false">
+          <clr-alert-item>
+            <span class="alert-text"> Failed to load quiz! </span>
+          </clr-alert-item>
+        </clr-alert>
+      } @else if (isPersistent && alreadyPassed) {
+        <app-alert #failedDownloadAlert></app-alert>
+        <clr-alert
+          [clrAlertType]="'success'"
+          [clrAlertClosable]="false"
+          [clrAlertIcon]="'check-circle'"
+        >
+          <clr-alert-item class="centered">
+            <span class="alert-text"> You passed this quiz. Great job! </span>
+            @if (quizIssuer) {
+              <div class="alert-actions">
+                <button class="btn btn-primary" (click)="download()">
+                  Download Certificate
+                </button>
+              </div>
+            }
+          </clr-alert-item>
+        </clr-alert>
+      } @else if (isPersistent && loadingQuestions && started) {
+        <span class="spinner spinner-inline"> Loading... </span>
+        <span> Loading Questions... </span>
+      } @else if (
+        !isPersistent || (isPersistent && !alreadyPassed && started)
+      ) {
+        <!-- show only if there are questions -->
+        @if (questions.length > 0) {
+          <div class="quiz-progress">
+            <div class="progress">
+              <progress [value]="progress" max="100"></progress>
+            </div>
+          </div>
+
+          @for (q of questions; track q.id || q.title; let i = $index) {
+            <div [hidden]="i !== currentIndex">
+              @if (q.type === 'checkbox') {
+                <quiz-checkbox
+                  [quizId]="quizId"
+                  [scenarioId]="scenarioId"
+                  [questionId]="q.id || ''"
+                  [title]="q.title"
+                  [helperText]="q.helperText || ''"
+                  [validation]="q.validation"
+                  [successMsg]="q.successMsg"
+                  [errMsg]="q.errorMsg"
+                  [shuffle]="q.shuffle"
+                  [questionAnswers]="q.answers"
+                  [correctAnswerIds]="
+                    correctIdsByQid.get(q.id ?? '') ?? testObs
+                  "
+                  [remotePass]="remotePass"
+                ></quiz-checkbox>
+              } @else {
+                <quiz-radio
+                  [quizId]="quizId"
+                  [scenarioId]="scenarioId"
+                  [questionId]="q.id || ''"
+                  [title]="q.title"
+                  [helperText]="q.helperText || ''"
+                  [validation]="q.validation"
+                  [successMsg]="q.successMsg"
+                  [errMsg]="q.errorMsg"
+                  [shuffle]="q.shuffle"
+                  [questionAnswers]="q.answers"
+                  [correctAnswerIds]="
+                    correctIdsByQid.get(q.id ?? '') ?? testObs
+                  "
+                  [remotePass]="remotePass"
+                ></quiz-radio>
+              }
+            </div>
+          }
+        }
+      }
+    </div>
+
+    @if (
+      (!isPersistent || (isPersistent && !alreadyPassed && started)) &&
+      questions.length > 0
+    ) {
+      <div class="card-footer quiz-footer">
+        <button
+          class="btn btn-outline"
+          type="button"
+          (click)="prevQuestion()"
+          [disabled]="currentIndex === 0"
+        >
+          Previous
+        </button>
+
+        <span class="quiz-footer-label">
+          Question {{ currentIndex + 1 }} / {{ totalQuestions }}
+        </span>
+
+        <button
+          class="btn"
+          [ngClass]="
+            currentIndex === totalQuestions - 1 ? 'btn-outline' : 'btn-primary'
+          "
+          type="button"
+          (click)="nextQuestion()"
+          [disabled]="currentIndex === totalQuestions - 1"
+        >
+          Next
+        </button>
+      </div>
+    }
+  </div>
+
+  @if (!isPersistent || (isPersistent && !alreadyPassed && started)) {
+    @if (isSubmitted && !alreadyPassed) {
+      <clr-alert [clrAlertType]="'warning'" [clrAlertClosable]="false">
+        <clr-alert-item>
+          <span class="alert-text">
+            There are wrong answers. Please try again.
+          </span>
+        </clr-alert-item>
+      </clr-alert>
     }
 
     <div class="button-container">
-      <button
-        [disabled]="allowedAtts < 1 || isSubmitted || alreadyPassed"
-        class="btn btn-success-outline submit-button"
-        type="submit"
-        (click)="submit()"
-      >
-        Submit
-      </button>
       <button
         [disabled]="allowedAtts < 1 || !isSubmitted || alreadyPassed"
         class="btn btn-outline reset-button"
@@ -85,23 +138,48 @@
       >
         Retry
       </button>
+      <button
+        [disabled]="allowedAtts < 1 || isSubmitted || alreadyPassed"
+        class="btn"
+        [ngClass]="
+          currentIndex === totalQuestions - 1
+            ? 'btn-success'
+            : 'btn-success-outline'
+        "
+        type="submit"
+        (click)="submit()"
+      >
+        Submit Quiz
+      </button>
     </div>
-    @if(allowedAtts <= 100) {
-      <span class="clr-subtext">Allowed attempts left: {{ allowedAtts }}</span> 
+
+    @if (allowedAtts <= 100) {
+      <span class="clr-subtext attempts">
+        Allowed attempts left: {{ allowedAtts }}
+      </span>
     }
   }
-  @if(isPersistent && loadingQuestions && !started && !alreadyPassed && !loadingQuiz) {
+
+  @if (
+    isPersistent &&
+    loadingQuestions &&
+    !started &&
+    !alreadyPassed &&
+    !loadingQuiz
+  ) {
     <div class="button-container">
       <button
         [disabled]="started || alreadyPassed || allowedAtts < 1"
         class="btn btn-success-outline submit-button"
         (click)="start(currentQuiz)"
       >
-        Start
+        Start Quiz
       </button>
     </div>
-    @if(allowedAtts <= 100) {
-      <span class="clr-subtext">Allowed attempts left: {{ allowedAtts }}</span> 
+    @if (allowedAtts <= 100) {
+      <span class="clr-subtext attempts">
+        Allowed attempts left: {{ allowedAtts }}
+      </span>
     }
   }
-</pre>
+</div>

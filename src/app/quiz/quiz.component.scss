@@ -1,10 +1,15 @@
 .quiz-container {
   display: flex;
   flex-direction: column;
+  border: none;
+  padding: 20px;
+  margin-top: 20px;
+  border-radius: var(--cds-alias-object-border-radius-100);
 }
 
 .quiz-title {
-  margin-bottom: 1.2rem;
+  margin-bottom: 1rem;
+  margin-top: 0;
   font-weight: bold;
 }
 
@@ -12,6 +17,9 @@
   display: flex;
   width: 100%;
   flex-direction: row;
+  padding: 20px;
+  justify-content: flex-end;
+  gap: 5px;
 }
 
 .submit-button {
@@ -23,4 +31,40 @@
 
 .centered {
   align-items: center;
+}
+
+.attempts {
+  align-self: flex-end;
+}
+
+.nav-container {
+  display: flex;
+  align-items: center;
+  margin: 1rem 0;
+
+  .nav-label {
+    margin: 0 1rem;
+  }
+}
+
+.quiz-progress {
+  margin-bottom: 1rem;
+}
+
+.quiz-card {
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
+  border: 1px;
+  border-radius: var(--cds-alias-object-border-radius-100);
+}
+
+.quiz-footer {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+
+  &-label {
+    font-size: var(--cds-alias-typography-caption-font-size);
+    opacity: 0.8;
+  }
 }
