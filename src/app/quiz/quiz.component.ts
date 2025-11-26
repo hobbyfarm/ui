@@ -75,12 +75,15 @@ export class QuizComponent implements OnInit {
   validationType: Validation = 'standard';
   isSubmitted = false;
   isPersistent = false;
-  alreadyPassed = false;
+  alreadyPassed: boolean | null = null;
   started = false;
   loadingQuestions = true;
   loadingQuiz = true;
   currentQuiz?: Quiz;
   quizIssuer = '';
+  currentIndex = 0;
+  lastPass: boolean | null = null;
+  showIncompleteModal = false;
 
   correctsByQuestionId: Record<string, string[]> = {};
 
@@ -97,6 +100,7 @@ export class QuizComponent implements OnInit {
       this.qs.recordEvaluation(this.quizId, this.scenarioId, answers).pipe(
         map((res) => {
           this.alreadyPassed = res.attempt.pass;
+
           this.timeStamp = res.attempt.timestamp;
           return {
             pass: res.attempt.pass,
@@ -148,6 +152,8 @@ export class QuizComponent implements OnInit {
     if (this.shuffle) shuffleStringArray(pool);
     const selected = pool.slice(0, this.questionCount);
     this.questions = selected.map((raw) => this.fromRaw(raw));
+
+    this.currentIndex = 0;
   }
 
   private fromRaw(raw: string): Question {
@@ -207,17 +213,19 @@ export class QuizComponent implements OnInit {
       this.qs.getEvaluationForUser(this.quizId, this.scenarioId).subscribe({
         next: (ev: PreparedQuizEvaluation) => {
           const last = ev.attempts?.[ev.attempts.length - 1];
-          this.alreadyPassed = !!last?.pass;
+          this.alreadyPassed = last ? last.pass : null;
           this.timeStamp = last.timestamp;
           const used = ev.attempts?.length ?? 0;
           this.allowedAtts = Math.max(0, (quiz.max_attempts ?? 1) - used);
           this.currentQuiz = quiz;
           this.loadingQuiz = false;
+          this.currentIndex = 0;
         },
         error: () => {
           this.allowedAtts = quiz.max_attempts ?? 1;
           this.currentQuiz = quiz;
           this.loadingQuiz = false;
+          this.currentIndex = 0;
         },
       });
     });
@@ -260,6 +268,7 @@ export class QuizComponent implements OnInit {
         this.isSubmitted = false;
         this.loadingQuestions = false;
         this.started = true;
+        this.currentIndex = 0;
       });
   }
 
@@ -274,20 +283,36 @@ export class QuizComponent implements OnInit {
       return;
     }
 
+    this.alreadyPassed = null;
+
     // Build answers from children (answer IDs only)
     const answers: Record<string, string[]> = {};
     let r = 0,
-      c = 0;
+      c = 0,
+      hasIncomplete = false;
     this.questions.forEach((q) => {
       if (!q.id) return;
       if (q.type === 'radio') {
         const comp = this.rad.get(r++);
-        answers[q.id] = comp?.getSelectedAnswerIds() ?? [];
+        const sel = comp?.getSelectedAnswerIds() ?? [];
+        answers[q.id] = sel;
+        if (sel.length === 0) {
+          hasIncomplete = true;
+        }
       } else {
         const comp = this.chk.get(c++);
-        answers[q.id] = comp?.getSelectedAnswerIds() ?? [];
+        const sel = comp?.getSelectedAnswerIds() ?? [];
+        answers[q.id] = sel;
+        if (sel.length === 0) {
+          hasIncomplete = true;
+        }
       }
     });
+
+    if (hasIncomplete) {
+      this.showIncompleteModal = true;
+      return;
+    }
 
     this.attempt.next(answers);
     this.isSubmitted = true;
@@ -300,6 +325,7 @@ export class QuizComponent implements OnInit {
       this.rad?.forEach((c) => c.reset());
       this.chk?.forEach((c) => c.reset());
       this.isSubmitted = false;
+      this.currentIndex = 0;
       return;
     }
     if (this.allowedAtts < 1) return;
@@ -307,6 +333,8 @@ export class QuizComponent implements OnInit {
     this.rad?.forEach((c) => c.reset());
     this.chk?.forEach((c) => c.reset());
     this.isSubmitted = false;
+    this.currentIndex = 0;
+    this.alreadyPassed = null;
     this.qs.getUserQuiz(this.quizId).subscribe((quiz) => this.start(quiz));
   }
 
@@ -328,5 +356,28 @@ export class QuizComponent implements OnInit {
       fileName: `${this.scenarioName ? `certificate-${this.scenarioName}.pdf` : 'certificate.pdf'}`,
       issuer: `${this.quizIssuer}`,
     });
+  }
+
+  get totalQuestions(): number {
+    return this.questions.length;
+  }
+
+  get progress(): number {
+    if (!this.totalQuestions) {
+      return 0;
+    }
+    return ((this.currentIndex + 1) / this.totalQuestions) * 100;
+  }
+
+  nextQuestion(): void {
+    if (this.currentIndex < this.questions.length - 1) {
+      this.currentIndex++;
+    }
+  }
+
+  prevQuestion(): void {
+    if (this.currentIndex > 0) {
+      this.currentIndex--;
+    }
   }
 }
