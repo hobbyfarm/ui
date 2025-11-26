@@ -14,4 +14,5 @@ export class VMClaim {
   static_bind_attempts: number;
   dynamic_bind_request_id: string;
   tainted: boolean;
+  error: boolean;
 }

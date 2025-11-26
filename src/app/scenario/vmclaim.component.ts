@@ -26,6 +26,9 @@ export class VMClaimComponent implements OnChanges {
   @Output()
   ready: EventEmitter<string> = new EventEmitter(false);
 
+  @Output()
+  provisioningError: EventEmitter<boolean> = new EventEmitter(false);
+
   private vms: Map<string, VM> = new Map();
 
   constructor(
@@ -48,10 +51,11 @@ export class VMClaimComponent implements OnChanges {
         // On every tick of the timer, call vmClaimService.get()
         switchMap(() => this.vmClaimService.get(this.vmclaim.id)),
         // Continue the Observable chain if vmclaim is not ready
-        takeWhile((s: VMClaim) => !s.ready, true),
+        takeWhile((s: VMClaim) => !s.ready && !s.error, true),
         // Convert object to Map and emit the VMs if vmclaim is ready
         concatMap((s: VMClaim) => {
           this.vmclaim = s;
+          if (s.error) this.provisioningError.emit(true);
           if (!s.ready) return [];
           this.ready.emit(s.id);
           return s.vm.values();
