@@ -1,6 +1,6 @@
 import { Component, OnInit, Input, EventEmitter, Output } from '@angular/core';
 import { Scenario } from './Scenario';
-import { catchError, concatMap, delay } from 'rxjs/operators';
+import { catchError, concatMap, delay, take } from 'rxjs/operators';
 import { Session } from '../Session';
 import { from, of } from 'rxjs';
 import { ScenarioService } from '../services/scenario.service';
@@ -46,13 +46,18 @@ export class ScenarioComponent implements OnInit {
     vmc.ready = true;
   }
 
+  onError() {
+    this.error = true;
+    this.ssService.finish(this.session.id).pipe(take(1)).subscribe();
+  }
+
   get isReady() {
     return this.vmclaims.length > 0 && this.vmclaims.every((v) => v.ready);
   }
 
   get isDynamicallyBinding() {
     const dynVmcs = this.vmclaims.filter((v) => v.bind_mode === 'dynamic');
-    return dynVmcs.length > 0 && dynVmcs.every((v) => !v.ready);
+    return dynVmcs.length > 0 && dynVmcs.every((v) => !v.ready) && !this.error;
   }
 
   close() {

@@ -54,7 +54,11 @@
           </tr>
         </thead>
         @for (vmc of vmclaims; track vmc) {
-          <tbody [vmclaim]="vmc" (ready)="onReady(vmc)"></tbody>
+          <tbody
+            [vmclaim]="vmc"
+            (ready)="onReady(vmc)"
+            (provisioningError)="onError()"
+          ></tbody>
         }
       </table>
     }
