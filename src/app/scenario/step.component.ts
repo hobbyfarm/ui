@@ -52,6 +52,7 @@ import { Course } from '../course/course';
 import { CourseService } from '../services/course.service';
 import { LanguageCommandService } from './bashbrawl/languages/language-command.service';
 import { SidenavService } from '../services/sidenav.service';
+import { QuizComponent } from '../quiz/quiz.component';
 
 type Service = {
   name: string;
@@ -99,6 +100,7 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
 
   maxInterfaceTabs = 2;
   private activeWebinterface: Service;
+  public unsubmittedQuizModalOpen = false;
 
   public pauseOpen = false;
 
@@ -123,6 +125,7 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('pausemodal', { static: true }) private pauseModal: ClrModal;
   @ViewChild('contentdiv', { static: false }) private contentDiv: ElementRef;
   @ViewChild('divider', { static: true }) divider: SplitComponent;
+  @ViewChild('quizComponent', { static: false }) quizComponent?: QuizComponent;
 
   constructor(
     private route: ActivatedRoute,
@@ -402,6 +405,16 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   public goFinish() {
+    console.log(this.quizComponent);
+    if (
+      this.quizComponent &&
+      this.quizComponent.isPersistent &&
+      !this.quizComponent.isSubmitted
+    ) {
+      this.unsubmittedQuizModalOpen = true;
+      return;
+    }
+
     if (this.isContentOnly) {
       this.actuallyFinish();
       return;
@@ -615,5 +628,19 @@ export class StepComponent implements OnInit, AfterViewInit, OnDestroy {
       // Default to /home if we are not in a course
       this.router.navigateByUrl('/app/home');
     }
+  }
+  public cancelUnsubmittedQuizFinish() {
+    this.unsubmittedQuizModalOpen = false;
+  }
+
+  public confirmUnsubmittedQuizFinish() {
+    this.unsubmittedQuizModalOpen = false;
+
+    if (this.isContentOnly) {
+      this.actuallyFinish();
+      return;
+    }
+
+    this.finishOpen = true;
   }
 }
